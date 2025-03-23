@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 })
 export class ProgressBarComponent {
   @Input({ required: true }) scanSubscription!: Subscription;
+  @Input({ required: true }) scanMode!: 'violations' | 'dot';
 
   private scanService: ScanService = inject(ScanService);
 

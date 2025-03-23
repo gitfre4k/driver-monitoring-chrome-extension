@@ -2,7 +2,11 @@ import { Component, inject, Input } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
-import { IViolations } from '../../interfaces';
+import {
+  IScanDOTInspections,
+  IScanViolations,
+  IViolations,
+} from '../../interfaces';
 import { MatDivider } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -21,7 +25,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrl: './report.component.scss',
 })
 export class ReportComponent {
-  @Input() violations: { company: string; violations: IViolations }[] = [];
+  @Input() violations: IScanViolations[] | null = null;
+  @Input() inspections: IScanDOTInspections[] | null = null;
 
   private _snackBar = inject(MatSnackBar);
 

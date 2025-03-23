@@ -11,7 +11,9 @@ import {
 } from 'rxjs';
 import {
   ICompany,
+  IDOTInspections,
   IProgressBar,
+  IScanDOTInspections,
   IScanErrors,
   IScanViolations,
   IViolations,
@@ -32,8 +34,11 @@ export class ScanService {
   scanning = signal(false);
 
   violations: IScanViolations[] = [];
+  inspections: IScanDOTInspections[] = [];
+
   currentCompany: ICompany = { id: '', name: '' };
   errors: IScanErrors[] = [];
+
   progressBar: IProgressBar = {
     mode: 'determinate',
     value: 0,
@@ -50,6 +55,7 @@ export class ScanService {
   initializeScanState() {
     this.scanning.set(false);
     this.violations = [];
+    this.inspections = [];
     this.currentCompany = { id: '', name: '' };
     this.errors = [];
     this.progressBar = {
@@ -73,6 +79,17 @@ export class ScanService {
     }
   }
 
+  handleDOTInspections(inspections: IDOTInspections) {
+    this.progressBar.value += this.progressBar.constant;
+    if (inspections.totalCount > 0) {
+      this.progressBar.totalCount += inspections.totalCount;
+      this.inspections.push({
+        company: this.currentCompany.name,
+        inspections,
+      });
+    }
+  }
+
   handleError(error: any) {
     this._snackBar
       .open(`An error occurred: ${error.message}`, 'Close')
@@ -81,10 +98,17 @@ export class ScanService {
       .subscribe();
   }
 
-  handleComplete() {
+  handleViolationsComplete() {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
     instance.violations = this.violations;
+    dialogRef.afterClosed().subscribe(() => this.initializeScanState());
+  }
+
+  handleDOTComplete() {
+    const dialogRef = this.dialog.open(ReportComponent);
+    let instance = dialogRef.componentInstance;
+    instance.inspections = this.inspections;
     dialogRef.afterClosed().subscribe(() => this.initializeScanState());
   }
 
@@ -116,5 +140,32 @@ export class ScanService {
           );
         })
       );
+  }
+
+  getAllDotInspections() {
+    return this.apiService.getAccessibleTenants().pipe(
+      tap((tenants) => {
+        this.scanning.set(true);
+        this.progressBar.constant = 100 / tenants.length;
+        this.progressBar.value = this.progressBar.constant;
+        this.progressBar.mode = 'determinate';
+      }),
+      mergeMap((tenants) => from(tenants)),
+      concatMap((tenant) => {
+        this.currentCompany = tenant;
+        this.progressBar.currentCompany = this.currentCompany.name;
+
+        return this.apiService.getDOTInspectionList(tenant).pipe(
+          tap({
+            error: (error) => {
+              this.progressBar.value =
+                this.progressBar.value + this.progressBar.constant;
+              this.errors.push({ error, company: this.currentCompany });
+            },
+          }),
+          catchError(() => of())
+        );
+      })
+    );
   }
 }

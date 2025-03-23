@@ -1,15 +1,38 @@
 @if (!scanning()) {
 
 <div class="tab-group tab-group-1">
-    <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
-        <mat-button-toggle value="violations" [checked]="true">Violations</mat-button-toggle>
-        <mat-button-toggle value="dot" disabled>FMCSA Inpsections</mat-button-toggle>
-        <!-- <mat-button-toggle value="pc" disabled>Personal Conveyance</mat-button-toggle> -->
-    </mat-button-toggle-group>
-    <button mat-raised-button (click)="getAllViolations()">Scan</button>
+    <div class="form">
+        <mat-button-toggle-group class="toggle" [formControl]="scanMode">
+            <mat-button-toggle class="toggle-button" value="violations"
+                [checked]="scanMode.value === 'violations'">Violations</mat-button-toggle>
+            <mat-button-toggle class="toggle-button" value="dot" [checked]="scanMode.value === 'dot'">FMCSA
+                Inpsections</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <mat-form-field>
+            <mat-label>Enter a date range</mat-label>
+            <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+                <input matStartDate formControlName="start" placeholder="Start date">
+                <input matEndDate formControlName="end" placeholder="End date">
+            </mat-date-range-input>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+
+            @if (range.controls.start.hasError('matStartDateInvalid')) {
+            <mat-error>Invalid start date</mat-error>
+            }
+            @if (range.controls.end.hasError('matEndDateInvalid')) {
+            <mat-error>Invalid end date</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- <p>Selected range: {{range.value | json}}</p> -->
+    </div>
+
+    <button mat-raised-button (click)="startScan()">Scan</button>
 </div>
 
 
 } @else {
-<app-progress-bar [scanSubscription]="allViolationsSubscribtion"></app-progress-bar>
+<app-progress-bar [scanSubscription]="scanSubscribtion" [scanMode]="scanMode.value"></app-progress-bar>
 }

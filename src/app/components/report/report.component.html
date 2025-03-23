@@ -1,5 +1,5 @@
 <div class="dialog">
-
+    @if (violations) {
     <div class="violation-report">
         <mat-icon>article</mat-icon>
         <h3 mat-dialog-title>Violations</h3>
@@ -40,5 +40,62 @@
     <mat-dialog-actions align="end">
         <button mat-button mat-dialog-close>Close</button>
     </mat-dialog-actions>
+    }
+    }
+
+
+
+
+    @if (inspections) {
+    <div class="violation-report">
+        <mat-icon>article</mat-icon>
+        <h3 mat-dialog-title>FMCSA Inspections</h3>
+    </div>
+
+    @if (!inspections.length) {
+    <mat-dialog-content>No FMCSA inspections detected.</mat-dialog-content>
+    <mat-dialog-actions>
+        <button mat-button mat-dialog-close>OK</button>
+    </mat-dialog-actions>
+    }
+
+    @else {
+    <mat-dialog-content class="mat-typography">
+        @for (inspection of inspections; track inspection.company) {
+        <h3># {{ inspection.company }}</h3>
+
+        @for (item of inspection.inspections.items; track item.id) {
+        <div class="driver">
+            <a mat-icon-button (click)="copyDriverName(item.driverFullName)" matTooltip="Copy to clipboard">
+                <mat-icon>content_copy</mat-icon>
+            </a>
+            <p>{{ item.driverFullName }}</p>
+        </div>
+        <ul>
+            <li>
+                <p>Vehicle ID: {{ item.vehicleName }}</p>
+            </li>
+            <li>
+                <p>Timestamp: {{ item.time }}</p>
+            </li>
+            <li>
+                <p>Report Type: {{ item.reportType }}</p>
+            </li>
+            <li>
+                <p>Editable: {{ item.editable }}</p>
+            </li>
+            <li>
+                <p>Official: {{ !item.isUnofficial }}</p>
+            </li>
+        </ul>
+        }
+        <mat-divider></mat-divider>
+        }
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>
+    }
     }
 </div>

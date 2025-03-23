@@ -1,6 +1,6 @@
 <mat-card id="mat-card-wrapper-2">
     <mat-card-content>
-        <h2>Violation detection in progress...</h2>
+        <h2>{{scanMode === 'violations' ? 'Violation' : 'FMCSA inspection'}} detection in progress...</h2>
         <p>{{progressBar.currentCompany}}</p>
         <section>
             <mat-progress-bar [mode]="progressBar.mode" [value]="progressBar.value"

@@ -9,8 +9,22 @@
   align-items: center;
   height: 85%;
   gap: 32px;
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
 }
 
 .mat-tab-group {
   margin-bottom: 48px;
+}
+
+.toggle {
+  margin-top: 8px;
+  &-button {
+    padding: 4px 16px;
+  }
 }
