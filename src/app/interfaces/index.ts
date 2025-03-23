@@ -11,7 +11,7 @@ export interface IViolations {
       violations: [
         {
           violationId: string;
-          type: 'ThirtyMinutesBreakViolation';
+          type: string;
           startTime: string;
           endTime: string;
           logDate: string;
@@ -34,4 +34,14 @@ export interface IProgressBar {
   constant: number;
   currentCompany: string;
   totalCount: number;
+}
+
+export interface IScanViolations {
+  company: string;
+  violations: IViolations;
+}
+
+export interface IScanErrors {
+  error: { name: string; message: string };
+  company: ICompany;
 }

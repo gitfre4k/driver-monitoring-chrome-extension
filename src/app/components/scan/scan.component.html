@@ -1,4 +1,4 @@
-@if (!scanning) {
+@if (!scanning()) {
 
 <div class="tab-group tab-group-1">
     <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
@@ -11,5 +11,5 @@
 
 
 } @else {
-<app-progress-bar></app-progress-bar>
+<app-progress-bar [scanSubscription]="allViolationsSubscribtion"></app-progress-bar>
 }

@@ -5,8 +5,7 @@
     <mat-card appearance="outlined" id="mat-card-wrapper">
 
         <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" dynamicHeight="true" id="tab-group">
-
-            <mat-tab label="Scan">
+            <mat-tab label="Scan" [disabled]="scanning()">
                 <ng-template mat-tab-label>
                     <mat-icon>error_outline</mat-icon>
                     <span>Scan</span>
@@ -16,7 +15,7 @@
 
             </mat-tab>
 
-            <mat-tab label="Test">
+            <mat-tab label="Test" [disabled]="scanning()">
                 <ng-template mat-tab-label>
                     <mat-icon>bug_report</mat-icon>
                     <span>Test</span>
@@ -28,19 +27,21 @@
                 </div>
             </mat-tab>
 
-            <mat-tab label="About">
+            <mat-tab label="About" [disabled]="scanning()">
                 <ng-template mat-tab-label>
                     <mat-icon>info</mat-icon>
                     <span>About</span>
                 </ng-template>
                 <div class="tab-group tab-group-3">
                     <p>Driver Monitoring Chrome Extension</p>
-                    <p>version: 0.0.1a</p>
+                    <p>version: 0.0.2</p>
                 </div>
             </mat-tab>
+
         </mat-tab-group>
 
     </mat-card>
+
 
 
 

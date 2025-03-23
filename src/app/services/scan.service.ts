@@ -1,7 +1,21 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { catchError, concatMap, from, mergeMap, of, tap } from 'rxjs';
-import { ICompany, IProgressBar, IViolations } from '../interfaces';
+import {
+  catchError,
+  concatMap,
+  from,
+  mergeMap,
+  of,
+  Subscription,
+  tap,
+} from 'rxjs';
+import {
+  ICompany,
+  IProgressBar,
+  IScanErrors,
+  IScanViolations,
+  IViolations,
+} from '../interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ReportComponent } from '../components/report/report.component';
@@ -15,12 +29,11 @@ export class ScanService {
 
   readonly dialog = inject(MatDialog);
 
-  currentCompany: ICompany = { id: '', name: '' };
-  scanning = false;
-  violations: { company: string; violations: IViolations }[] = [];
-  errors: { error: { name: string; message: string }; company: ICompany }[] =
-    [];
+  scanning = signal(false);
 
+  violations: IScanViolations[] = [];
+  currentCompany: ICompany = { id: '', name: '' };
+  errors: IScanErrors[] = [];
   progressBar: IProgressBar = {
     mode: 'determinate',
     value: 0,
@@ -29,6 +42,25 @@ export class ScanService {
     currentCompany: '',
     totalCount: 0,
   };
+
+  constructor() {}
+
+  ngOnInit() {}
+
+  initializeScanState() {
+    this.scanning.set(false);
+    this.violations = [];
+    this.currentCompany = { id: '', name: '' };
+    this.errors = [];
+    this.progressBar = {
+      mode: 'determinate',
+      value: 0,
+      bufferValue: 0,
+      constant: 0,
+      currentCompany: '',
+      totalCount: 0,
+    };
+  }
 
   handleViolations(violations: IViolations) {
     this.progressBar.value = this.progressBar.value + this.progressBar.constant;
@@ -46,42 +78,23 @@ export class ScanService {
     this._snackBar
       .open(`An error occurred: ${error.message}`, 'Close')
       .afterDismissed()
-      .pipe(
-        tap(() => {
-          this.progressBar.value = 0;
-          this.scanning = false;
-        })
-      )
+      .pipe(tap(() => this.initializeScanState()))
       .subscribe();
   }
 
   handleComplete() {
-    this.progressBar.value = 100;
-    console.log('Completed processing violations.');
-    console.log(this.violations);
-    this.scanning = false;
-    this.openDialog();
-    this.progressBar.value = 0;
-  }
-
-  openDialog() {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
     instance.violations = this.violations;
-    dialogRef.afterClosed().subscribe(() => this.stopGetAllViolations());
+    dialogRef.afterClosed().subscribe(() => this.initializeScanState());
   }
-
-  stopGetAllViolations = () => {
-    this.scanning = false;
-    this.progressBar.totalCount = 0;
-  };
 
   getAllViolations() {
     return this.apiService
       .getAccessibleTenants()
       .pipe(
         tap((tenants) => {
-          this.scanning = true;
+          this.scanning.set(true);
           this.progressBar.constant = 100 / tenants.length;
           this.progressBar.value = this.progressBar.constant;
           this.progressBar.mode = 'determinate';

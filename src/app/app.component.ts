@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScanComponent } from './components/scan/scan.component';
 import { catchError, concatMap, from, mergeMap, of, tap } from 'rxjs';
+import { ScanService } from './services/scan.service';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +36,9 @@ export class AppComponent {
 
   private apiService: ApiService = inject(ApiService);
   private urlParamsService: UrlParamsService = inject(UrlParamsService);
+  private scanService: ScanService = inject(ScanService);
+
+  scanning = this.scanService.scanning;
 
   constructor() {}
 
