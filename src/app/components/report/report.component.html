@@ -18,7 +18,13 @@
         <h3># {{ violation.company }}</h3>
 
         @for (item of violation.violations.items; track item.id) {
-        <p>{{ item.driverName }}</p>
+        <div class="driver">
+            <a mat-icon-button (click)="copyDriverName(item.driverName)" matTooltip="Copy to clipboard">
+                <mat-icon>content_copy</mat-icon>
+            </a>
+            <p>{{ item.driverName }}</p>
+        </div>
+
         <ul>
             @for (v of item.violations; track v.violationId){
             <li>
@@ -29,10 +35,10 @@
         }
         <mat-divider></mat-divider>
         }
-
-        <mat-dialog-actions align="end">
-            <button mat-button mat-dialog-close>Close</button>
-        </mat-dialog-actions>
     </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>
     }
 </div>

@@ -1,19 +1,19 @@
 import { Component, inject } from '@angular/core';
 import { ApiService } from './services/api.service';
 import { CommonModule } from '@angular/common';
+import { catchError, concatMap, from, mergeMap, of, tap } from 'rxjs';
 
-import { UrlParamsService } from './chrome/url-params.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
-
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { ScanComponent } from './components/scan/scan.component';
-import { catchError, concatMap, from, mergeMap, of, tap } from 'rxjs';
 import { ScanService } from './services/scan.service';
+import { UrlParamsService } from './chrome/url-params.service';
 
 @Component({
   selector: 'app-root',

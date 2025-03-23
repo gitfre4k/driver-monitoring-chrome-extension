@@ -63,10 +63,9 @@ export class ScanService {
   }
 
   handleViolations(violations: IViolations) {
-    this.progressBar.value = this.progressBar.value + this.progressBar.constant;
+    this.progressBar.value += this.progressBar.constant;
     if (violations.totalCount > 0) {
-      this.progressBar.totalCount =
-        this.progressBar.totalCount + violations.totalCount;
+      this.progressBar.totalCount += violations.totalCount;
       this.violations.push({
         company: this.currentCompany.name,
         violations,

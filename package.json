@@ -1,6 +1,6 @@
 {
   "name": "driver-monitoring-chrome-extension",
-  "version": "0.0.1a",
+  "version": "0.0.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
