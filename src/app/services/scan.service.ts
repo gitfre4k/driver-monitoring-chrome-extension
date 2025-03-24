@@ -61,21 +61,23 @@ export class ScanService {
     };
   }
 
-  handleScanData(data: IViolations | IDOTInspections) {
+  handleScanData(
+    data: IViolations | IDOTInspections,
+    scanMode: 'violations' | 'dot'
+  ) {
     this.progressBar.value += this.progressBar.constant;
     if (data.totalCount > 0) {
       this.progressBar.totalCount += data.totalCount;
-      if ((data as IViolations).items[0].violationsCount) {
-        this.violations.push({
-          company: this.currentCompany.name,
-          violations: data as IViolations,
-        });
-      } else {
-        this.inspections.push({
-          company: this.currentCompany.name,
-          inspections: data as IDOTInspections,
-        });
-      }
+
+      scanMode === 'violations'
+        ? this.violations.push({
+            company: this.currentCompany.name,
+            violations: data as IViolations,
+          })
+        : this.inspections.push({
+            company: this.currentCompany.name,
+            inspections: data as IDOTInspections,
+          });
     }
   }
 
@@ -87,17 +89,12 @@ export class ScanService {
       .subscribe();
   }
 
-  handleViolationsComplete() {
+  handleScanComplete(scanMode: 'violations' | 'dot') {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
-    instance.violations = this.violations;
-    dialogRef.afterClosed().subscribe(() => this.initializeScanState());
-  }
-
-  handleDOTComplete() {
-    const dialogRef = this.dialog.open(ReportComponent);
-    let instance = dialogRef.componentInstance;
-    instance.inspections = this.inspections;
+    scanMode === 'violations'
+      ? (instance.violations = this.violations)
+      : (instance.inspections = this.inspections);
     dialogRef.afterClosed().subscribe(() => this.initializeScanState());
   }
 

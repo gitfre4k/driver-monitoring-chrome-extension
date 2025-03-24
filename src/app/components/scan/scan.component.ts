@@ -69,20 +69,15 @@ export class ScanComponent {
       dateTo: new Date(new Date(to.getTime()).setHours(24)),
     };
 
-    let isViolationsMode = this.scanMode.value === 'violations' ? true : false;
-
     this.scanSubscribtion = (
-      isViolationsMode
+      this.scanMode.value === 'violations'
         ? this.scanService.getAllViolations(range)
         : (this.scanService.getAllDOTInspections(range) as Observable<any>)
     ).subscribe({
       next: (data: IViolations | IDOTInspections) =>
-        this.scanService.handleScanData(data),
+        this.scanService.handleScanData(data, this.scanMode.value),
       error: (err) => this.scanService.handleError(err),
-      complete: () =>
-        isViolationsMode
-          ? this.scanService.handleViolationsComplete()
-          : this.scanService.handleDOTComplete(),
+      complete: () => this.scanService.handleScanComplete(this.scanMode.value),
     });
   };
 }

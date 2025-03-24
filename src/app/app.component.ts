@@ -14,6 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScanComponent } from './components/scan/scan.component';
 import { ScanService } from './services/scan.service';
 import { UrlParamsService } from './chrome/url-params.service';
+import { TabChangeMonitoringService } from './services/tab-change-monitor.service';
 
 @Component({
   selector: 'app-root',
@@ -37,8 +38,11 @@ export class AppComponent {
   private apiService: ApiService = inject(ApiService);
   private urlParamsService: UrlParamsService = inject(UrlParamsService);
   private scanService: ScanService = inject(ScanService);
+  private tabChangeMonitorService = inject(TabChangeMonitoringService);
 
   scanning = this.scanService.scanning;
+  url = this.tabChangeMonitorService.url;
+  providerTenant = localStorage.getItem('MASTER_TOOLS_PROVIDER_TENANT');
 
   constructor() {}
 
