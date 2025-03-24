@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
 
-import { IViolations, ICompany, IRange } from '../interfaces';
+import { IViolations, ICompany, IRange, IDOTInspections } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -41,9 +41,12 @@ export class ApiService {
 
   // https://app.monitoringdriver.com/api/FmcsaInspections/GetList
 
-  getDOTInspectionList(tenant: ICompany, range: IRange): Observable<any> {
+  getDOTInspectionList(
+    tenant: ICompany,
+    range: IRange
+  ): Observable<IDOTInspections> {
     return from(
-      this.http.post(
+      this.http.post<IDOTInspections>(
         'https://app.monitoringdriver.com/api/FmcsaInspections/GetList',
         {
           filterRule: this.filterRule(range),

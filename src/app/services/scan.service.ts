@@ -61,25 +61,21 @@ export class ScanService {
     };
   }
 
-  handleViolations(violations: IViolations) {
+  handleScanData(data: IViolations | IDOTInspections) {
     this.progressBar.value += this.progressBar.constant;
-    if (violations.totalCount > 0) {
-      this.progressBar.totalCount += violations.totalCount;
-      this.violations.push({
-        company: this.currentCompany.name,
-        violations,
-      });
-    }
-  }
-
-  handleDOTInspections(inspections: IDOTInspections) {
-    this.progressBar.value += this.progressBar.constant;
-    if (inspections.totalCount > 0) {
-      this.progressBar.totalCount += inspections.totalCount;
-      this.inspections.push({
-        company: this.currentCompany.name,
-        inspections,
-      });
+    if (data.totalCount > 0) {
+      this.progressBar.totalCount += data.totalCount;
+      if ((data as IViolations).items[0].violationsCount) {
+        this.violations.push({
+          company: this.currentCompany.name,
+          violations: data as IViolations,
+        });
+      } else {
+        this.inspections.push({
+          company: this.currentCompany.name,
+          inspections: data as IDOTInspections,
+        });
+      }
     }
   }
 
@@ -135,7 +131,7 @@ export class ScanService {
       );
   }
 
-  getAllDotInspections(range: IRange) {
+  getAllDOTInspections(range: IRange) {
     return this.apiService.getAccessibleTenants().pipe(
       tap((tenants) => {
         this.scanning.set(true);

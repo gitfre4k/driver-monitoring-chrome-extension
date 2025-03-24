@@ -7,7 +7,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { ScanService } from '../../services/scan.service';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
@@ -17,6 +17,7 @@ import {
   ReactiveFormsModule,
   FormsModule,
 } from '@angular/forms';
+import { IDOTInspections, IViolations } from '../../interfaces';
 
 @Component({
   selector: 'app-scan',
@@ -37,16 +38,13 @@ import {
 export class ScanComponent {
   private scanService: ScanService = inject(ScanService);
   private destroyRef = inject(DestroyRef);
+  private date = new Date().setHours(0, 0, 0, 0);
 
   readonly range = new FormGroup({
     dateFrom: new FormControl<Date>(
-      new Date(
-        new Date(new Date().setHours(0, 0, 0, 0) - 7 * 24 * 60 * 60 * 1000)
-      )
+      new Date(this.date - 7 * 24 * 60 * 60 * 1000)
     ),
-    dateTo: new FormControl<Date>(new Date(new Date().setHours(0, 0, 0, 0)), {
-      nonNullable: true,
-    }),
+    dateTo: new FormControl<Date>(new Date(this.date)),
   });
   readonly scanMode = new FormControl<'violations' | 'dot'>('violations', {
     nonNullable: true,
@@ -61,58 +59,30 @@ export class ScanComponent {
     this.destroyRef.onDestroy(() => this.scanSubscribtion.unsubscribe());
   }
 
-  getAllViolations = () => {
-    const from = this.range.value.dateFrom;
-    const to = this.range.value.dateTo;
-
-    if (!from || !to) return;
-
-    const dateFrom = new Date(new Date(from.getTime()).setHours(24) - 1);
-    const dateTo = new Date(new Date(to.getTime()).setHours(24) - 1);
-    console.log(dateFrom.toJSON(), dateTo.toJSON());
-
-    this.scanSubscribtion = this.scanService
-      .getAllViolations({ dateFrom, dateTo })
-      .subscribe({
-        next: (violations) => {
-          this.scanService.handleViolations(violations);
-        },
-        error: (error) => {
-          this.scanService.handleError(error);
-        },
-        complete: () => {
-          this.scanService.handleViolationsComplete();
-        },
-      });
-  };
-
-  getAllDOTInspections = () => {
-    const from = this.range.value.dateFrom;
-    const to = this.range.value.dateTo;
-
-    if (!from || !to) return;
-
-    const dateFrom = new Date(new Date(from.getTime()).setHours(24));
-    const dateTo = new Date(new Date(to.getTime()).setHours(24));
-
-    this.scanSubscribtion = this.scanService
-      .getAllDotInspections({ dateFrom, dateTo })
-      .subscribe({
-        next: (inspection) => {
-          this.scanService.handleDOTInspections(inspection);
-        },
-        error: (error) => {
-          this.scanService.handleError(error);
-        },
-        complete: () => {
-          this.scanService.handleDOTComplete();
-        },
-      });
-  };
-
   startScan = () => {
-    if (this.scanMode.value === 'violations') this.getAllViolations();
-    if (this.scanMode.value === 'dot') this.getAllDOTInspections();
-    return;
+    const from = this.range.value.dateFrom;
+    const to = this.range.value.dateTo;
+    if (!from || !to) return;
+
+    const range = {
+      dateFrom: new Date(new Date(from.getTime()).setHours(24)),
+      dateTo: new Date(new Date(to.getTime()).setHours(24)),
+    };
+
+    let isViolationsMode = this.scanMode.value === 'violations' ? true : false;
+
+    this.scanSubscribtion = (
+      isViolationsMode
+        ? this.scanService.getAllViolations(range)
+        : (this.scanService.getAllDOTInspections(range) as Observable<any>)
+    ).subscribe({
+      next: (data: IViolations | IDOTInspections) =>
+        this.scanService.handleScanData(data),
+      error: (err) => this.scanService.handleError(err),
+      complete: () =>
+        isViolationsMode
+          ? this.scanService.handleViolationsComplete()
+          : this.scanService.handleDOTComplete(),
+    });
   };
 }
