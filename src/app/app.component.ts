@@ -49,24 +49,6 @@ export class AppComponent {
     window.close();
   }
 
-  getDOTs() {
-    this.apiService
-      .getAccessibleTenants()
-      .pipe(
-        mergeMap((tenants) => from(tenants)),
-        concatMap((t) =>
-          this.apiService.getDOTInspectionList(t).pipe(
-            tap(() => console.log(t.name)),
-            tap({
-              error: (error) => console.log(error),
-            }),
-            catchError(() => of())
-          )
-        )
-      )
-      .subscribe((q) => console.log(q));
-  }
-
   getEvents = () => {
     let driverId: number;
     let logDate: string;

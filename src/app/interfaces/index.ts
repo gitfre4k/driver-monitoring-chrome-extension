@@ -69,6 +69,11 @@ export interface IDOTInspections {
   ];
 }
 
+export interface IRange {
+  dateFrom: Date;
+  dateTo: Date;
+}
+
 // {
 //   "totalCount": 2,
 //   "items": [

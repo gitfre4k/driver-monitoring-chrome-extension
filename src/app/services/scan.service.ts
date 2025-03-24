@@ -1,18 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import {
-  catchError,
-  concatMap,
-  from,
-  mergeMap,
-  of,
-  Subscription,
-  tap,
-} from 'rxjs';
+import { catchError, concatMap, from, mergeMap, of, tap } from 'rxjs';
 import {
   ICompany,
   IDOTInspections,
   IProgressBar,
+  IRange,
   IScanDOTInspections,
   IScanErrors,
   IScanViolations,
@@ -112,7 +105,7 @@ export class ScanService {
     dialogRef.afterClosed().subscribe(() => this.initializeScanState());
   }
 
-  getAllViolations() {
+  getAllViolations(range: IRange) {
     return this.apiService
       .getAccessibleTenants()
       .pipe(
@@ -128,7 +121,7 @@ export class ScanService {
         concatMap((tenant) => {
           this.currentCompany = tenant;
           this.progressBar.currentCompany = this.currentCompany.name;
-          return this.apiService.getViolations(tenant).pipe(
+          return this.apiService.getViolations(tenant, range).pipe(
             tap({
               error: (error) => {
                 this.progressBar.value =
@@ -142,7 +135,7 @@ export class ScanService {
       );
   }
 
-  getAllDotInspections() {
+  getAllDotInspections(range: IRange) {
     return this.apiService.getAccessibleTenants().pipe(
       tap((tenants) => {
         this.scanning.set(true);
@@ -155,7 +148,7 @@ export class ScanService {
         this.currentCompany = tenant;
         this.progressBar.currentCompany = this.currentCompany.name;
 
-        return this.apiService.getDOTInspectionList(tenant).pipe(
+        return this.apiService.getDOTInspectionList(tenant, range).pipe(
           tap({
             error: (error) => {
               this.progressBar.value =

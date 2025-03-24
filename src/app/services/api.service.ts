@@ -1,32 +1,31 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { EMPTY, from, mergeMap, Observable } from 'rxjs';
-import { FormattedDateService } from '../web-app/formatted-date.service';
+import { from, Observable } from 'rxjs';
 
-import { IViolations, ICompany } from '../interfaces';
+import { IViolations, ICompany, IRange } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
   private http: HttpClient = inject(HttpClient);
-  private formattedDateService: FormattedDateService =
-    inject(FormattedDateService);
 
-  private filterRule = {
-    condition: 'AND',
-    filterRules: [
-      {
-        field: 'dateFrom',
-        operator: 'equals',
-        value: this.formattedDateService.getFormatedDates().sevenDaysAgo,
-      },
-      {
-        field: 'dateTo',
-        operator: 'equals',
-        value: this.formattedDateService.getFormatedDates().currentDate,
-      },
-    ],
+  private filterRule = (range: IRange) => {
+    return {
+      condition: 'AND',
+      filterRules: [
+        {
+          field: 'dateFrom',
+          operator: 'equals',
+          value: range.dateFrom,
+        },
+        {
+          field: 'dateTo',
+          operator: 'equals',
+          value: range.dateTo,
+        },
+      ],
+    };
   };
 
   constructor() {}
@@ -42,12 +41,12 @@ export class ApiService {
 
   // https://app.monitoringdriver.com/api/FmcsaInspections/GetList
 
-  getDOTInspectionList(tenant: ICompany): Observable<any> {
+  getDOTInspectionList(tenant: ICompany, range: IRange): Observable<any> {
     return from(
       this.http.post(
         'https://app.monitoringdriver.com/api/FmcsaInspections/GetList',
         {
-          filterRule: this.filterRule,
+          filterRule: this.filterRule(range),
           searchRule: {
             columns: ['driverId', 'driverFullName', 'vehicleName'],
             text: '',
@@ -66,12 +65,12 @@ export class ApiService {
     );
   }
 
-  getViolations(tenant: ICompany): Observable<IViolations> {
+  getViolations(tenant: ICompany, range: IRange): Observable<IViolations> {
     return from(
       this.http.post<IViolations>(
         'https://app.monitoringdriver.com/api/Violations/GetViolations',
         {
-          filterRule: this.filterRule,
+          filterRule: this.filterRule(range),
           searchRule: { columns: ['driverName'], text: '' },
           sorting: 'driverName asc',
           skipCount: 0,

@@ -1,9 +1,4 @@
-import {
-  Component,
-  DestroyRef,
-  inject,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -44,10 +39,14 @@ export class ScanComponent {
   private destroyRef = inject(DestroyRef);
 
   readonly range = new FormGroup({
-    start: new FormControl<Date>(
-      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    dateFrom: new FormControl<Date>(
+      new Date(
+        new Date(new Date().setHours(0, 0, 0, 0) - 7 * 24 * 60 * 60 * 1000)
+      )
     ),
-    end: new FormControl<Date>(new Date()),
+    dateTo: new FormControl<Date>(new Date(new Date().setHours(0, 0, 0, 0)), {
+      nonNullable: true,
+    }),
   });
   readonly scanMode = new FormControl<'violations' | 'dot'>('violations', {
     nonNullable: true,
@@ -63,31 +62,52 @@ export class ScanComponent {
   }
 
   getAllViolations = () => {
-    this.scanSubscribtion = this.scanService.getAllViolations().subscribe({
-      next: (violations) => {
-        this.scanService.handleViolations(violations);
-      },
-      error: (error) => {
-        this.scanService.handleError(error);
-      },
-      complete: () => {
-        this.scanService.handleViolationsComplete();
-      },
-    });
+    const from = this.range.value.dateFrom;
+    const to = this.range.value.dateTo;
+
+    if (!from || !to) return;
+
+    const dateFrom = new Date(new Date(from.getTime()).setHours(24) - 1);
+    const dateTo = new Date(new Date(to.getTime()).setHours(24) - 1);
+    console.log(dateFrom.toJSON(), dateTo.toJSON());
+
+    this.scanSubscribtion = this.scanService
+      .getAllViolations({ dateFrom, dateTo })
+      .subscribe({
+        next: (violations) => {
+          this.scanService.handleViolations(violations);
+        },
+        error: (error) => {
+          this.scanService.handleError(error);
+        },
+        complete: () => {
+          this.scanService.handleViolationsComplete();
+        },
+      });
   };
 
   getAllDOTInspections = () => {
-    this.scanSubscribtion = this.scanService.getAllDotInspections().subscribe({
-      next: (inspection) => {
-        this.scanService.handleDOTInspections(inspection);
-      },
-      error: (error) => {
-        this.scanService.handleError(error);
-      },
-      complete: () => {
-        this.scanService.handleDOTComplete();
-      },
-    });
+    const from = this.range.value.dateFrom;
+    const to = this.range.value.dateTo;
+
+    if (!from || !to) return;
+
+    const dateFrom = new Date(new Date(from.getTime()).setHours(24));
+    const dateTo = new Date(new Date(to.getTime()).setHours(24));
+
+    this.scanSubscribtion = this.scanService
+      .getAllDotInspections({ dateFrom, dateTo })
+      .subscribe({
+        next: (inspection) => {
+          this.scanService.handleDOTInspections(inspection);
+        },
+        error: (error) => {
+          this.scanService.handleError(error);
+        },
+        complete: () => {
+          this.scanService.handleDOTComplete();
+        },
+      });
   };
 
   startScan = () => {
