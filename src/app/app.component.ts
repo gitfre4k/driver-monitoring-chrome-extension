@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ApiService } from './services/api.service';
 import { CommonModule } from '@angular/common';
-import { catchError, concatMap, from, mergeMap, of, tap } from 'rxjs';
 
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScanComponent } from './components/scan/scan.component';
 import { ScanService } from './services/scan.service';
 import { UrlParamsService } from './chrome/url-params.service';
-import { TabChangeMonitoringService } from './services/tab-change-monitor.service';
+import { MonitorComponent } from './components/monitor/monitor.component';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +29,7 @@ import { TabChangeMonitoringService } from './services/tab-change-monitor.servic
     MatIconModule,
     MatTooltipModule,
     ScanComponent,
+    MonitorComponent,
   ],
 })
 export class AppComponent {
@@ -38,11 +38,8 @@ export class AppComponent {
   private apiService: ApiService = inject(ApiService);
   private urlParamsService: UrlParamsService = inject(UrlParamsService);
   private scanService: ScanService = inject(ScanService);
-  private tabChangeMonitorService = inject(TabChangeMonitoringService);
 
   scanning = this.scanService.scanning;
-  url = this.tabChangeMonitorService.url;
-  providerTenant = localStorage.getItem('MASTER_TOOLS_PROVIDER_TENANT');
 
   constructor() {}
 

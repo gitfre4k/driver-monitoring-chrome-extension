@@ -14,14 +14,16 @@
 
             </mat-tab>
 
-            <mat-tab label="Test" [disabled]="scanning()">
+            <mat-tab label="Monitor" [disabled]="scanning()">
                 <ng-template mat-tab-label>
-                    <mat-icon>bug_report</mat-icon>
-                    <span>Test</span>
+                    <mat-icon><span class="material-symbols-outlined">delivery_truck_speed</span></mat-icon>
+
+                    <span>Monitor</span>
                 </ng-template>
                 <div class="tab-group tab-group-2">
-                    <p>{{providerTenant}}</p>
-                    <p>{{url()}}</p>
+
+                    <app-monitor></app-monitor>
+
                 </div>
             </mat-tab>
 
