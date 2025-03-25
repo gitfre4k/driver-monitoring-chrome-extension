@@ -1,11 +1,11 @@
 <div class="content">
     <form class="example-form">
         <mat-form-field class="example-full-width">
-            <mat-label>Assignee</mat-label>
+            <mat-label>Company</mat-label>
             <input type="text" matInput [formControl]="myControl" [matAutocomplete]="auto">
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-                @for (option of filteredOptions | async; track option) {
-                <mat-option [value]="option">{{option.name}}</mat-option>
+                @for (company of filteredOptions | async; track company) {
+                <mat-option [value]="company">{{company.name}}</mat-option>
                 }
             </mat-autocomplete>
         </mat-form-field>
@@ -13,7 +13,11 @@
 
 
     <p>url: {{url()}}</p>
+    <p>tenant: {{tenant()}}</p>
+
     <p> {{logs()}}</p>
     <p> {{id()}}</p>
     <p> {{timestamp()}}</p>
+    <p>VALUE: {{myControl.value}}</p>
+    <button (click)="test()">test</button>
 </div>

@@ -1,11 +1,21 @@
 setTimeout(() => {
   console.log("yo");
 
-  const currentCompany = document.querySelector(
-    "#layout > div.w-full.h-screen.flex.overflow-hidden.text-primary-0.bg-buildings.bg-cover > div > header > div.flex.gap-4.items-center.justify-between.border-l.pl-4.h-full > div > button > span > span"
-  ).textContent;
+  // const currentCompany = () =>
+  //   document.querySelector(
+  //     "#layout > div.w-full.h-screen.flex.overflow-hidden.text-primary-0.bg-buildings.bg-cover > div > header > div.flex.gap-4.items-center.justify-between.border-l.pl-4.h-full > div > button > span > span"
+  //   ).textContent;
 
-  console.log(currentCompany);
+  // chrome.runtime.onMessage.addListener(function (
+  //   request,
+  //   sender,
+  //   sendResponse
+  // ) {
+  //   if (request.action === "getCurrentCompany") {
+  //     const result = currentCompany();
+  //     sendResponse({ result: result });
+  //   }
+  // });
 
   const statusEvents = document.querySelectorAll('[id^="row-"]');
   statusEvents.forEach((statusEvent) => {

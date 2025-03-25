@@ -1,14 +1,21 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { TabChangeMonitoringService } from '../../services/tab-change-monitor.service';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  ViewChild,
+} from '@angular/core';
+import { MonitorService } from '../../ser../../services/monitor.service';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AsyncPipe } from '@angular/common';
-import { map, Observable, startWith } from 'rxjs';
+import { concatMap, map, Observable, startWith, take } from 'rxjs';
 
 import { ICompany } from '../../interfaces';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-monitor',
@@ -24,41 +31,40 @@ import { ICompany } from '../../interfaces';
   styleUrl: './monitor.component.scss',
 })
 export class MonitorComponent {
-  private tabChangeMonitorService = inject(TabChangeMonitoringService);
-  url = this.tabChangeMonitorService.url;
+  private monitorService = inject(MonitorService);
+  private apiService = inject(ApiService);
+
+  url = this.monitorService.url;
+  tenant = this.monitorService.tenant;
+
   parts = computed(() => this.url()?.split('/'));
   logs = computed(() => this.parts()?.[3]);
   id = computed(() => this.parts()?.[4]);
   timestamp = computed(() => this.parts()?.[5]);
 
   myControl = new FormControl<string | ICompany>('');
-  options: ICompany[] = [
-    { id: '1', name: 'QWE' },
-    { id: '2', name: 'aaa' },
-    { id: '3', name: 'eee' },
-  ];
+  companies: ICompany[] = [];
   filteredOptions!: Observable<ICompany[]>;
 
   ngOnInit() {
-    this.filteredOptions = this.myControl.valueChanges.pipe(
-      startWith(''),
-      map((value) => {
-        const name = typeof value === 'string' ? value : value?.name;
-        return name ? this._filter(name as string) : this.options.slice();
+    this.filteredOptions = this.apiService.getAccessibleTenants().pipe(
+      take(1),
+      concatMap((companies) => {
+        this.companies = companies;
+        return this.myControl.valueChanges.pipe(
+          startWith(''),
+          map((value) => {
+            const name = typeof value === 'string' ? value : value?.name;
+            return name ? this._filter(name as string) : this.companies.slice();
+          })
+        );
       })
     );
   }
 
-  getRoutes = () => {
-    const parts = this.url()?.split('/');
-    if (!parts) return;
-
-    const logs = parts[3];
-    const id = parts[4];
-    const timestamp = parts[5];
-
-    return { logs, id, timestamp };
-  };
+  test() {
+    console.log(this.url(), this.parts());
+  }
 
   displayFn(company: ICompany): string {
     return company && company.name ? company.name : '';
@@ -67,8 +73,8 @@ export class MonitorComponent {
   private _filter(name: string): ICompany[] {
     const filterValue = name.toLowerCase();
 
-    return this.options.filter((option) =>
-      option.name.toLowerCase().includes(filterValue)
+    return this.companies.filter((company) =>
+      company.name.toLowerCase().includes(filterValue)
     );
   }
 }
