@@ -5,10 +5,13 @@
   align-items: center;
   margin-top: 32px;
   height: 90%;
+  width: 80%;
 
   .event-list {
     height: 100%;
+    width: 100%;
     overflow-y: scroll;
+
   }
 }
 
@@ -36,4 +39,8 @@
 
 .ChangeToOffDutyStatus {
   background-color: rgb(3, 7, 18);
+}
+
+.IntermediateLogConventionalLocationPrecision .IntermediateLogReducedLocationPrecision .EnginePowerUpConventionalLocationPrecision .EnginePowerUpReducedLocationPrecision .EngineShutDownConventionalLocationPrecision .EngineShutDownReducedLocationPrecision {
+  background-color: rgb(107 114 128);
 }

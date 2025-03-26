@@ -36,6 +36,24 @@ export class MonitorComponent {
       case 'ChangeToOnDutyNotDrivingStatus':
         statusName = 'On Duty';
         break;
+      case 'IntermediateLogConventionalLocationPrecision':
+        statusName = 'Intermediate';
+        break;
+      case 'IntermediateLogReducedLocationPrecision':
+        statusName = 'Intermediate';
+        break;
+      case 'EnginePowerUpConventionalLocationPrecision':
+        statusName = 'Engine';
+        break;
+      case 'EnginePowerUpReducedLocationPrecision':
+        statusName = 'Engine';
+        break;
+      case 'EngineShutDownConventionalLocationPrecision':
+        statusName = 'Engine';
+        break;
+      case 'EngineShutDownReducedLocationPrecision':
+        statusName = 'Engine';
+        break;
     }
     return statusName;
   }
