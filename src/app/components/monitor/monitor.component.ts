@@ -1,15 +1,12 @@
-import {
-  Component,
-  computed,
-  inject,
-} from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MonitorService } from '../../ser../../services/monitor.service';
 import { ApiService } from '../../services/api.service';
-import { ITenant } from '../../interfaces';
+import { IDriverDailyLogEvents } from '../../interfaces/driver-daily-log-events.interface';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-monitor',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
 })
@@ -19,32 +16,52 @@ export class MonitorComponent {
 
   url = this.monitorService.url;
   tenant = this.monitorService.tenant;
+  driverDailyLogEvents = signal({} as IDriverDailyLogEvents);
 
-  parts = computed(() => this.url()?.split('/'));
-  logs = computed(() => this.parts()?.[3]);
-  id = computed(() => this.parts()?.[4]);
-  timestamp = computed(() => this.parts()?.[5]);
+  // monitorState = computed(() => {
+  //   const url = this.url();
+  //   const tenant = this.tenant();
+  //   const driverDailyLogEvents = this.driverDailyLogEvents();
+  //   if (url && tenant && Object.keys(driverDailyLogEvents).length !== 0) {
+  //     const state = {
+  //       company: {
+  //         name: tenant.name,
+  //         id: tenant.id
+  //       },
+  //       driverDailyLogEvents: {
+  //         events: driverDailyLogEvents.events,
+  //       }
+  //     }
+  //   }
+  // });
 
-  test() {
-    const logs = this.logs();
-    const id = this.id()
-    const timestamp = this.timestamp()
-    const tenant: ITenant = JSON.parse(this.tenant() as string)
+  updateDriverDailyLogEventsEffect = effect(() => {
+    const url = this.url();
+    const tenant = this.tenant();
+    if (!url || !tenant) return;
 
-    if (logs === 'logs' && timestamp && tenant && id) {
-      this.apiService.getDriverDailyLogEvents(+id, timestamp, tenant.prologs.id).subscribe(
-        { next: (q) => console.log(q.events) }
-      )
+    const parts = url.split('/');
+    const logs = parts[3];
+    const id = parts[4];
+    const timestamp = parts[5];
+    if (logs !== 'logs' || id === undefined || timestamp === undefined) return;
 
-    }
-  }
+    console.log('// updateDriverDailyLogEventsEffect -> subscribe');
+    const subscription = this.apiService
+      .getDriverDailyLogEvents(+id, timestamp, tenant.id)
+      .subscribe({
+        next: (ddle) => this.driverDailyLogEvents.set(ddle),
+      });
 
-  // {"prologs":{"id":"3a17cf3f-6679-c76d-0e6c-b1b66e372336","name":"Autolift, INC"}}
-
-  // console.log(JSON.parse(this.tenant() as string))
-
-
-
-
-
+    return () => {
+      if (subscription) {
+        console.log('// updateDriverDailyLogEventsEffect -> unsubscribe');
+        subscription.unsubscribe();
+      }
+    };
+  });
 }
+
+// {"prologs":{"id":"3a17cf3f-6679-c76d-0e6c-b1b66e372336","name":"Autolift, INC"}}
+
+// console.log(JSON.parse(this.tenant() as string))

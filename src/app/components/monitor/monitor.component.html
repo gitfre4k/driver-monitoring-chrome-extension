@@ -1,12 +1,24 @@
 <div class="content">
 
 
+    <h3>{{driverDailyLogEvents().companyName}}</h3>
+    <h4>{{driverDailyLogEvents().driverFullName}}</h4>
 
-    <p>url: {{url()}}</p>
-    <p>tenant: {{tenant()}}</p>
 
-    <p> {{logs()}}</p>
-    <p> {{id()}}</p>
-    <p> {{timestamp()}}</p>
-    <button (click)="test()">test</button>
+
+    <ul>
+        @for (event of driverDailyLogEvents().events; track event.id) {
+        <li>
+            <span>{{event.eventSequenceNumber}}</span>
+            <span>{{event.odometer}}</span>
+            <span>{{event.startTime}}</span>
+            <p>{{event.dutyStatus}}</p>
+        </li>
+        }
+    </ul>
+
+
+
+
+
 </div>

@@ -76,12 +76,12 @@ export interface IRange {
 
 export interface ITenant {
   prologs: {
-    id: string,
-    name: string
-  }
+    id: string;
+    name: string;
+  };
 }
 
-export interface Event {
+export interface IEvent {
   id: number;
   dutyStatus: string;
   startTime: string;
@@ -139,5 +139,3 @@ export interface Event {
 //       }
 //   ]
 // }
-
-

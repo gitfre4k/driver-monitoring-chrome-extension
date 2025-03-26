@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
 
 import { IViolations, ICompany, IRange, IDOTInspections } from '../interfaces';
+import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -89,14 +90,10 @@ export class ApiService {
     );
   }
 
-  getDriverDailyLogEvents(
-    driverId: number,
-    logDate: string,
-    tenantId: string
-  ): Observable<any> {
+  getDriverDailyLogEvents(driverId: number, logDate: string, tenantId: string) {
     const body = { driverId, logDate };
     console.log(123123, driverId, logDate, tenantId);
-    return this.http.post(
+    return this.http.post<IDriverDailyLogEvents>(
       'https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog',
       body,
       {
