@@ -1,5 +1,39 @@
 .content {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
+  margin-top: 32px;
+  height: 90%;
+
+  .event-list {
+    height: 100%;
+    overflow-y: scroll;
+  }
+}
+
+.event {
+  padding: 4px;
+  border-radius: 12px;
+  border: 0.5px solid rgb(229, 231, 235);
+  width: 85px;
+  text-align: center;
+}
+
+.ChangeToOnDutyNotDrivingStatus {
+  background-color: rgb(59, 130, 246);
+}
+
+.ChangeToDrivingStatus {
+  background-color: rgb(34, 197, 94);
+  color: black;
+}
+
+.ChangeToSleeperBerthStatus {
+  background-color: rgb(234, 179, 8);
+  color: black;
+}
+
+.ChangeToOffDutyStatus {
+  background-color: rgb(3, 7, 18);
 }

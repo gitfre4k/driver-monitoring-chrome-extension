@@ -56,6 +56,13 @@ span {
   }
 }
 
+.tab-group.tab-group-2 {
+  justify-content: space-between;
+  align-items: center;
+  height: 85%;
+  gap: 32px;
+}
+
 .open-in-new-window {
   position: absolute;
   right: 20px;

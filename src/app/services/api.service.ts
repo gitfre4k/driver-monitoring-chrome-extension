@@ -90,9 +90,8 @@ export class ApiService {
     );
   }
 
-  getDriverDailyLogEvents(driverId: number, logDate: string, tenantId: string) {
+  getDriverDailyLogEvents(driverId: number, logDate: Date, tenantId: string) {
     const body = { driverId, logDate };
-    console.log(123123, driverId, logDate, tenantId);
     return this.http.post<IDriverDailyLogEvents>(
       'https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog',
       body,

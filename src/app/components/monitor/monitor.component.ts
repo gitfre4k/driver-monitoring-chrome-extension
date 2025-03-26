@@ -1,7 +1,10 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MonitorService } from '../../ser../../services/monitor.service';
 import { ApiService } from '../../services/api.service';
-import { IDriverDailyLogEvents } from '../../interfaces/driver-daily-log-events.interface';
+import {
+  IDriverDailyLogEvents,
+  IEvent,
+} from '../../interfaces/driver-daily-log-events.interface';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -18,22 +21,36 @@ export class MonitorComponent {
   tenant = this.monitorService.tenant;
   driverDailyLogEvents = signal({} as IDriverDailyLogEvents);
 
-  // monitorState = computed(() => {
-  //   const url = this.url();
-  //   const tenant = this.tenant();
-  //   const driverDailyLogEvents = this.driverDailyLogEvents();
-  //   if (url && tenant && Object.keys(driverDailyLogEvents).length !== 0) {
-  //     const state = {
-  //       company: {
-  //         name: tenant.name,
-  //         id: tenant.id
-  //       },
-  //       driverDailyLogEvents: {
-  //         events: driverDailyLogEvents.events,
-  //       }
-  //     }
-  //   }
-  // });
+  getStatusName(dutyStatus: string) {
+    let statusName = '';
+    switch (dutyStatus) {
+      case 'ChangeToOffDutyStatus':
+        statusName = 'Off Duty';
+        break;
+      case 'ChangeToSleeperBerthStatus':
+        statusName = 'Sleeper Berth';
+        break;
+      case 'ChangeToDrivingStatus':
+        statusName = 'Driving';
+        break;
+      case 'ChangeToOnDutyNotDrivingStatus':
+        statusName = 'On Duty';
+        break;
+    }
+    return statusName;
+  }
+
+  filter(event: IEvent) {
+    if (
+      [
+        'ChangeInDriversDutyStatus',
+        'IntermediateLog',
+        'CmvEnginePowerUpOrShutDownActivity',
+      ].includes(event.eventType)
+    )
+      return true;
+    return false;
+  }
 
   updateDriverDailyLogEventsEffect = effect(() => {
     const url = this.url();
@@ -47,8 +64,9 @@ export class MonitorComponent {
     if (logs !== 'logs' || id === undefined || timestamp === undefined) return;
 
     console.log('// updateDriverDailyLogEventsEffect -> subscribe');
+    const timestampWithOffSet = new Date(new Date(timestamp).setHours(24));
     const subscription = this.apiService
-      .getDriverDailyLogEvents(+id, timestamp, tenant.id)
+      .getDriverDailyLogEvents(+id, timestampWithOffSet, tenant.id)
       .subscribe({
         next: (ddle) => this.driverDailyLogEvents.set(ddle),
       });

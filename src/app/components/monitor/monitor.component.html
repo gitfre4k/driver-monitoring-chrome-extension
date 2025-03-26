@@ -1,24 +1,24 @@
 <div class="content">
 
+    @if (driverDailyLogEvents(); as ddle) {
+    <p>## {{ddle.companyName}}</p>
+    <p>{{ddle.driverFullName}}</p>
+    <p>{{ddle.date}}</p>
 
-    <h3>{{driverDailyLogEvents().companyName}}</h3>
-    <h4>{{driverDailyLogEvents().driverFullName}}</h4>
-
-
-
-    <ul>
-        @for (event of driverDailyLogEvents().events; track event.id) {
-        <li>
-            <span>{{event.eventSequenceNumber}}</span>
-            <span>{{event.odometer}}</span>
-            <span>{{event.startTime}}</span>
-            <p>{{event.dutyStatus}}</p>
-        </li>
-        }
-    </ul>
-
-
-
-
-
+    <div class="event-list">
+        <ul>
+            @for (event of ddle.events; track event.id) {
+            @if(filter(event)) {
+            <li>
+                <div>
+                    <p [ngClass]="'event ' + event.dutyStatus">{{getStatusName(event.dutyStatus)}}</p>
+                    <span>eventCode {{event.eventCode}} </span>
+                    <span>odometer {{event.odometer}} </span>
+                </div>
+            </li>
+            }
+            }
+        </ul>
+    </div>
+    }
 </div>
