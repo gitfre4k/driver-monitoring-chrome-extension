@@ -74,6 +74,42 @@ export interface IRange {
   dateTo: Date;
 }
 
+export interface ITenant {
+  prologs: {
+    id: string,
+    name: string
+  }
+}
+
+export interface Event {
+  id: number;
+  dutyStatus: string;
+  startTime: string;
+  realStartTime?: string;
+  endTime: string;
+  durationInSeconds: number;
+  realDurationInSeconds?: number;
+  locationDisplayName?: string;
+  notes?: string;
+  engineMinutes?: number;
+  odometer?: number;
+  origin?: string;
+  isBasic: boolean;
+  vehicleName?: string;
+  vehicleVin?: string;
+  vehicleId: number;
+  eventType: string;
+  eventCode: number;
+  attachedTrailers?: string;
+  shippingDocuments?: string;
+  realEndTime?: string;
+  eventSequenceNumber?: string;
+  elapsedEngineHours?: number;
+  accumulatedVehicleMiles?: number;
+  isEventMissingPowerUp: boolean;
+  averageSpeed?: number;
+}
+
 // {
 //   "totalCount": 2,
 //   "items": [
@@ -103,3 +139,5 @@ export interface IRange {
 //       }
 //   ]
 // }
+
+

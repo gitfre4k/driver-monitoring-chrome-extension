@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { ApiService } from './services/api.service';
 import { CommonModule } from '@angular/common';
 
 import { MatDividerModule } from '@angular/material/divider';
@@ -12,7 +11,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ScanComponent } from './components/scan/scan.component';
 import { ScanService } from './services/scan.service';
-import { UrlParamsService } from './chrome/url-params.service';
 import { MonitorComponent } from './components/monitor/monitor.component';
 
 @Component({
@@ -35,56 +33,20 @@ import { MonitorComponent } from './components/monitor/monitor.component';
 export class AppComponent {
   title = 'driver-monitoring-chrome-extension';
 
-  private apiService: ApiService = inject(ApiService);
-  private urlParamsService: UrlParamsService = inject(UrlParamsService);
   private scanService: ScanService = inject(ScanService);
 
   scanning = this.scanService.scanning;
 
-  constructor() {}
+  constructor() { }
 
   popUp() {
     const windowFeatures =
-      'resizable=no,target="dmcev001win",left=100,top=100,width=536,height=640';
+      'resizable=no,target="dmcev001win",right=0,top=0,width=536,height=640';
     window.open('index.html', '', windowFeatures);
     window.close();
   }
 
-  getEvents = () => {
-    let driverId: number;
-    let logDate: string;
-    let tenantId: string;
-    this.urlParamsService.getDataFromChrome((result) => {
-      if (result) {
-        driverId = result.driverID;
 
-        logDate = result.logDate;
-
-        tenantId = result.tenantId;
-
-        this.apiService
-          .getDriverDailyLogEvents(driverId, logDate, tenantId)
-          .subscribe({
-            next: (data) => {
-              console.log('Daily logs: ', data);
-              console.log('Company Name:', data.companyName);
-              console.log('Driver Name', data.driverFullName);
-              console.log('Events: ', data.events);
-
-              for (let i in data.events) {
-                console.log('Duty status: ', data.events[i].dutyStatus);
-                console.log('Odometer: ', data.events[i].odometer);
-              }
-            },
-            error: (error) => {
-              console.error(error);
-            },
-          });
-      } else {
-        console.error('No result found');
-      }
-    });
-  };
 }
 
 // mock
