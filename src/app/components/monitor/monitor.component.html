@@ -10,10 +10,11 @@
             @for (event of ddle.events; track event.id) {
             @if(filter(event)) {
             <li>
-                <div>
-                    <p [ngClass]="'event ' + event.dutyStatus">{{getStatusName(event.dutyStatus)}}</p>
-                    <span>eventCode {{event.eventCode}} </span>
-                    <span>odometer {{event.odometer}} </span>
+                <div class="event">
+                    <span class="startTime">{{event.startTime | date: 'hh:mm a'}}</span>
+                    <span>{{event.odometer}} </span>
+                    <p [ngClass]="'status ' + event.dutyStatus">{{getStatusName(event.dutyStatus)}}</p>
+                    <span>{{event.notes}}</span>
                 </div>
             </li>
             }

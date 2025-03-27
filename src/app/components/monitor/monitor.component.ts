@@ -82,9 +82,11 @@ export class MonitorComponent {
     if (logs !== 'logs' || id === undefined || timestamp === undefined) return;
 
     console.log('// updateDriverDailyLogEventsEffect -> subscribe');
-    const timestampWithOffSet = new Date(new Date(timestamp).setHours(24));
+    console.log(timestamp)
+    // const timestampWithOffSet = new Date(new Date(new Date(timestamp).setHours(24, 0, 0, 0)));
+
     const subscription = this.apiService
-      .getDriverDailyLogEvents(+id, timestampWithOffSet, tenant.id)
+      .getDriverDailyLogEvents(+id, new Date(timestamp), tenant.id)
       .subscribe({
         next: (ddle) => this.driverDailyLogEvents.set(ddle),
       });

@@ -1,27 +1,40 @@
 .content {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
-  margin-top: 32px;
-  height: 90%;
-  width: 80%;
+  margin-top: 8px;
+  height: 100%;
 
   .event-list {
     height: 100%;
     width: 100%;
     overflow-y: scroll;
+    font-weight: 400;
 
+    ul {
+      li {
+        .event {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+
+
+          .status {
+            margin: 4px;
+            padding: 4px;
+            border-radius: 12px;
+            width: 85px;
+            text-align: center;
+          }
+        }
+      }
+
+    }
   }
 }
 
-.event {
-  padding: 4px;
-  border-radius: 12px;
-  border: 0.5px solid rgb(229, 231, 235);
-  width: 85px;
-  text-align: center;
-}
+
 
 .ChangeToOnDutyNotDrivingStatus {
   background-color: rgb(59, 130, 246);
@@ -41,6 +54,11 @@
   background-color: rgb(3, 7, 18);
 }
 
-.IntermediateLogConventionalLocationPrecision .IntermediateLogReducedLocationPrecision .EnginePowerUpConventionalLocationPrecision .EnginePowerUpReducedLocationPrecision .EngineShutDownConventionalLocationPrecision .EngineShutDownReducedLocationPrecision {
+.IntermediateLogConventionalLocationPrecision,
+.IntermediateLogReducedLocationPrecision,
+.EnginePowerUpConventionalLocationPrecision,
+.EnginePowerUpReducedLocationPrecision,
+.EngineShutDownConventionalLocationPrecision,
+.EngineShutDownReducedLocationPrecision {
   background-color: rgb(107 114 128);
 }
