@@ -1,11 +1,7 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { MonitorService } from '../../ser../../services/monitor.service';
-import { ApiService } from '../../services/api.service';
-import {
-  IDriverDailyLogEvents,
-  IEvent,
-} from '../../interfaces/driver-daily-log-events.interface';
+import { Component, effect, inject } from '@angular/core';
+
 import { CommonModule } from '@angular/common';
+import { MonitorService } from '../../services/monitor.service';
 
 @Component({
   selector: 'app-monitor',
@@ -15,91 +11,31 @@ import { CommonModule } from '@angular/common';
 })
 export class MonitorComponent {
   private monitorService = inject(MonitorService);
-  private apiService = inject(ApiService);
 
-  url = this.monitorService.url;
-  tenant = this.monitorService.tenant;
-  driverDailyLogEvents = signal({} as IDriverDailyLogEvents);
+  driverDailyLogEvents = this.monitorService.driverDailyLogEvents;
+  events = this.monitorService.events;
 
-  getStatusName(dutyStatus: string) {
-    let statusName = '';
+  getStatusName(dutyStatus: string): string {
     switch (dutyStatus) {
       case 'ChangeToOffDutyStatus':
-        statusName = 'Off Duty';
-        break;
+        return 'Off Duty';
       case 'ChangeToSleeperBerthStatus':
-        statusName = 'Sleeper Berth';
-        break;
+        return 'Sleeper Berth';
       case 'ChangeToDrivingStatus':
-        statusName = 'Driving';
-        break;
+        return 'Driving';
       case 'ChangeToOnDutyNotDrivingStatus':
-        statusName = 'On Duty';
-        break;
+        return 'On Duty';
       case 'IntermediateLogConventionalLocationPrecision':
-        statusName = 'Intermediate';
-        break;
       case 'IntermediateLogReducedLocationPrecision':
-        statusName = 'Intermediate';
-        break;
+        return 'Intermediate';
       case 'EnginePowerUpConventionalLocationPrecision':
-        statusName = 'Engine';
-        break;
       case 'EnginePowerUpReducedLocationPrecision':
-        statusName = 'Engine';
-        break;
+        return 'Engine On';
       case 'EngineShutDownConventionalLocationPrecision':
-        statusName = 'Engine';
-        break;
       case 'EngineShutDownReducedLocationPrecision':
-        statusName = 'Engine';
-        break;
+        return 'Engine Off';
+      default:
+        return '?';
     }
-    return statusName;
   }
-
-  filter(event: IEvent) {
-    if (
-      [
-        'ChangeInDriversDutyStatus',
-        'IntermediateLog',
-        'CmvEnginePowerUpOrShutDownActivity',
-      ].includes(event.eventType)
-    )
-      return true;
-    return false;
-  }
-
-  updateDriverDailyLogEventsEffect = effect(() => {
-    const url = this.url();
-    const tenant = this.tenant();
-    if (!url || !tenant) return;
-
-    const parts = url.split('/');
-    const logs = parts[3];
-    const id = parts[4];
-    const timestamp = parts[5];
-    if (logs !== 'logs' || id === undefined || timestamp === undefined) return;
-
-    console.log('// updateDriverDailyLogEventsEffect -> subscribe');
-    console.log(timestamp)
-    // const timestampWithOffSet = new Date(new Date(new Date(timestamp).setHours(24, 0, 0, 0)));
-
-    const subscription = this.apiService
-      .getDriverDailyLogEvents(+id, new Date(timestamp), tenant.id)
-      .subscribe({
-        next: (ddle) => this.driverDailyLogEvents.set(ddle),
-      });
-
-    return () => {
-      if (subscription) {
-        console.log('// updateDriverDailyLogEventsEffect -> unsubscribe');
-        subscription.unsubscribe();
-      }
-    };
-  });
 }
-
-// {"prologs":{"id":"3a17cf3f-6679-c76d-0e6c-b1b66e372336","name":"Autolift, INC"}}
-
-// console.log(JSON.parse(this.tenant() as string))

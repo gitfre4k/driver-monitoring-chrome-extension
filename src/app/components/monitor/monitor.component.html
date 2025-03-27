@@ -7,8 +7,7 @@
 
     <div class="event-list">
         <ul>
-            @for (event of ddle.events; track event.id) {
-            @if(filter(event)) {
+            @for (event of events(); track event.id) {
             <li>
                 <div class="event">
                     <span class="startTime">{{event.startTime | date: 'hh:mm a'}}</span>
@@ -17,7 +16,7 @@
                     <span>{{event.notes}}</span>
                 </div>
             </li>
-            }
+
             }
         </ul>
     </div>
