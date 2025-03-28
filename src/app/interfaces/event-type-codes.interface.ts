@@ -37,6 +37,7 @@ interface EventMap {
   VehicleStartOfDay: EventDetails;
   Dvir: EventDetails;
 }
+
 const eventTypes = {
   ChangeToOffDutyStatus: {
     eventType: 'ChangeInDriversDutyStatus',
