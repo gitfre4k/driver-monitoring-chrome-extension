@@ -5,7 +5,7 @@
     <p>{{ddle.driverFullName}}</p>
     <p>{{ddle.date}}</p>
 
-    <button (click)="detectTeleport()">QWE</button>
+    <button>QWE</button>
 
     <div class="event-list">
         <ul>
@@ -13,8 +13,8 @@
             <li>
                 <div class="event">
                     <span class="startTime">{{event.startTime | date: 'hh:mm a'}}</span>
-                    <span>{{event.odometer}} </span>
-                    <p [ngClass]="'status ' + event.dutyStatus">{{getStatusName(event.dutyStatus)}}</p>
+                    <span [ngClass]="event.isTeleport ? 'error' : ''">{{event.odometer}} </span>
+                    <p [ngClass]="'status ' + event.dutyStatus">{{event.statusName}}</p>
                     <span>{{event.notes}}</span>
                 </div>
             </li>
