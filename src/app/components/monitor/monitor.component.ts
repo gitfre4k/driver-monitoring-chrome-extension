@@ -15,5 +15,5 @@ export class MonitorComponent {
   driverDailyLogEvents = this.monitorService.driverDailyLogEvents;
   events = this.monitorService.events;
 
-
+  offset = new Date().getTimezoneOffset();
 }

@@ -25,6 +25,7 @@ export interface IEvent {
   isEventMissingPowerUp: boolean;
   statusName: string;
   isTeleport: boolean;
+  parentId: number;
 }
 
 export interface IVehicle {

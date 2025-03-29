@@ -1,11 +1,12 @@
 <div class="content">
 
     @if (driverDailyLogEvents(); as ddle) {
-    <p>## {{ddle.companyName}}</p>
-    <p>{{ddle.driverFullName}}</p>
-    <p>{{ddle.date}}</p>
-
-    <button>QWE</button>
+    <div class="driver-info">
+        <h2>## {{ddle.companyName}}</h2>
+        <p>{{ddle.driverFullName}}</p>
+        <p>{{ddle.date | date }}</p>
+        <!-- date:'yyyy-MM-dd':'UTC+1440' -->
+    </div>
 
     <div class="event-list">
         <ul>

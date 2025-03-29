@@ -23,10 +23,12 @@ export class MonitorService {
   events = computed(() => {
     if (!this.driverDailyLogEvents().events) return [];
 
-    const filteredEvents = this.driverDailyLogEvents().events.filter((event) => this.filter(event))
-    const eventsWithTPInfo = this.detectAndBindTeleport(filteredEvents)
+    const filteredEvents = this.driverDailyLogEvents().events.filter((event) =>
+      this.filter(event)
+    );
+    const eventsWithTPInfo = this.detectAndBindTeleport(filteredEvents);
     return this.bindEventNames(eventsWithTPInfo);
-  })
+  });
 
   private subscription: Subscription | null = null;
 
@@ -59,13 +61,22 @@ export class MonitorService {
     );
   }
 
+  // bindParentID = (importedEvents: IEvent[]) => {
+  //   let events = [...importedEvents];
+  //   for (let i = 0; i < events.length; i++) {
+  //     if (events[i].parentId) {
+
+  //     }
+  //   }
+  // }
+
   bindEventNames = (importedEvents: IEvent[]) => {
-    let events = [...importedEvents]
+    let events = [...importedEvents];
     for (let i = 0; i < events.length; i++) {
-      events[i].statusName = this.getStatusName(events[i].dutyStatus)
+      events[i].statusName = this.getStatusName(events[i].dutyStatus);
     }
     return events;
-  }
+  };
 
   isTeleport(ev1: IEvent, ev2: IEvent) {
     const mileageDifference = Math.abs(ev1.odometer - ev2.odometer);
@@ -79,12 +90,13 @@ export class MonitorService {
   detectAndBindTeleport = (importedEvents: IEvent[]) => {
     let events = [...importedEvents];
     for (let i = 0; i < events.length - 1; i++) {
-      this.isTeleport(events[i], events[i + 1]) && console.log(
-        `Teleport detected: ${i + 1}: \n`,
-        this.getStatusName(events[i].dutyStatus),
-        ' vs ',
-        this.getStatusName(events[i + 1].dutyStatus)
-      );
+      this.isTeleport(events[i], events[i + 1]) &&
+        console.log(
+          `Teleport detected: ${i + 1}: \n`,
+          this.getStatusName(events[i].dutyStatus),
+          ' vs ',
+          this.getStatusName(events[i + 1].dutyStatus)
+        );
       events[i + 1].isTeleport = this.isTeleport(events[i], events[i + 1]);
     }
     return events;
@@ -139,12 +151,12 @@ export class MonitorService {
     console.log('// updateDriverDailyLogEvents -> subscribe');
     console.log(timestamp);
 
-    // const timestampWithOffSet = new Date(
-    //   new Date(new Date(timestamp).setHours(24, 0, 0, 0))
-    // );
+    const timestampWithOffSet = new Date(
+      new Date(new Date(timestamp).setHours(24, 0, 0, 0))
+    );
 
     this.subscription = this.apiService
-      .getDriverDailyLogEvents(+id, new Date(timestamp), tenantId)
+      .getDriverDailyLogEvents(+id, timestampWithOffSet, tenantId)
       .subscribe({
         next: (ddle) => this.driverDailyLogEvents.set(ddle),
       });

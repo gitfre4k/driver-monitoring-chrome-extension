@@ -20,10 +20,11 @@
 
           .error {
             border: 1px solid red;
+            padding: 1px;
           }
 
           .status {
-            font-size: 10px;
+            font-size: 11px;
             margin: 1px;
             padding: 3px;
             border-radius: 12px;
@@ -32,12 +33,9 @@
           }
         }
       }
-
     }
   }
 }
-
-
 
 .ChangeToOnDutyNotDrivingStatus {
   background-color: rgb(59, 130, 246);
