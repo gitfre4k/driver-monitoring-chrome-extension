@@ -4,8 +4,7 @@
     <div class="driver-info">
         <h2>## {{ddle.companyName}}</h2>
         <p>{{ddle.driverFullName}}</p>
-        <p>{{ddle.date | date }}</p>
-        <!-- date:'yyyy-MM-dd':'UTC+1440' -->
+        <p>{{ddle.date | date: 'MMM d, y' }}</p>
     </div>
 
     <div class="event-list">
@@ -13,9 +12,12 @@
             @for (event of events(); track event.id) {
             <li>
                 <div class="event">
-                    <span class="startTime">{{event.startTime | date: 'hh:mm a'}}</span>
-                    <span [ngClass]="event.isTeleport ? 'error' : ''">{{event.odometer}} </span>
+                    <span class="startTime">{{event.startTime | date: 'hh:mm a' }}</span>
+                    <span
+                        [ngClass]="'odometer ' + (event.isTeleport ? 'error' : '') + (event.truckChange ? 'approved' : '')">{{event.odometer}}</span>
                     <p [ngClass]="'status ' + event.dutyStatus">{{event.statusName}}</p>
+                    <span>{{event.durationInSeconds ? (event.durationInSeconds * 1000 | date:'HH:mm':'UTC') :
+                        ''}}</span>
                     <span>{{event.notes}}</span>
                 </div>
             </li>

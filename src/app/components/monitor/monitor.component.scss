@@ -18,8 +18,17 @@
           align-items: center;
           gap: 12px;
 
+          .odometer {
+            padding: 3px;
+          }
+
           .error {
-            border: 1px solid red;
+            border: 2px solid red;
+            padding: 1px;
+          }
+
+          .approved {
+            border: 2px solid green;
             padding: 1px;
           }
 

@@ -25,7 +25,8 @@ export interface IEvent {
   isEventMissingPowerUp: boolean;
   statusName: string;
   isTeleport: boolean;
-  parentId: number;
+  occurredDuringDriving: boolean;
+  truckChange: boolean;
 }
 
 export interface IVehicle {

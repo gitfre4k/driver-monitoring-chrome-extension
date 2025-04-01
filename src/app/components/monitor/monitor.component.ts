@@ -1,6 +1,6 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
+import { CommonModule, DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 import { MonitorService } from '../../services/monitor.service';
 
 @Component({
@@ -8,6 +8,9 @@ import { MonitorService } from '../../services/monitor.service';
   imports: [CommonModule],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
+  providers: [
+    { provide: DATE_PIPE_DEFAULT_OPTIONS, useValue: { timezone: 'UTC+1' } },
+  ],
 })
 export class MonitorComponent {
   private monitorService = inject(MonitorService);
