@@ -56,7 +56,10 @@ export class MonitorService {
     const id = parts[4];
     const timestamp = parts[5];
 
-    if (logs !== 'logs' || id === undefined || timestamp === undefined) return;
+    if (logs !== 'logs' || id === undefined || timestamp === undefined) {
+      this.driverDailyLogEvents.set({} as IDriverDailyLogEvents);
+      return;
+    }
 
     console.log('// updateDriverDailyLogEvents -> subscribe');
     console.log(timestamp);
@@ -70,5 +73,7 @@ export class MonitorService {
       .subscribe({
         next: (ddle) => this.driverDailyLogEvents.set(ddle),
       });
+
+    return;
   }
 }

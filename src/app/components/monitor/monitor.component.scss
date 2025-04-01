@@ -2,8 +2,23 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 10px;
   height: 100%;
+
+  .info {
+    text-align: center;
+    &__company {
+      font-size: 20px;
+      margin: 3px;
+    }
+    &__driver-name {
+      font-size: 16px;
+      margin: 12px 0px;
+    }
+    &__date {
+      margin: 1px;
+    }
+  }
 
   .event-list {
     height: 100%;
@@ -11,15 +26,21 @@
     overflow-y: scroll;
     font-weight: 400;
 
-    ul {
+    ol {
       li {
         .event {
-          display: flex;
+          display: grid;
+          grid-template-columns: 60px 58px 100px 45px 100px;
           align-items: center;
-          gap: 12px;
+
+          .start-time {
+            margin: 0px 3px;
+            text-align: center;
+          }
 
           .odometer {
             padding: 3px;
+            text-align: right;
           }
 
           .error {
@@ -34,11 +55,15 @@
 
           .status {
             font-size: 11px;
-            margin: 1px;
+            margin: 1px 5px;
             padding: 3px;
             border-radius: 12px;
             width: 85px;
             text-align: center;
+          }
+
+          .duration {
+            margin: 0px 5px;
           }
         }
       }
