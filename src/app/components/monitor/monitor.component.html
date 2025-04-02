@@ -17,7 +17,7 @@
             @for (event of events(); track event.id) {
             <li>
                 <div class="event">
-                    <span class="start-time">{{event.startTime | date: 'hh:mm a':'UTC-5' }}</span>
+                    <span class="view-id">{{event.viewId}}.</span>
                     <span
                         [ngClass]="'odometer ' + (event.isTeleport ? 'error' : '') + (event.truckChange ? 'approved' : '')">{{event.odometer.toLocaleString()}}</span>
                     <p [ngClass]="'status ' + event.dutyStatus">{{event.statusName}}</p>

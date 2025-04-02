@@ -28,6 +28,7 @@ export interface IEvent {
   isTeleport: boolean;
   occurredDuringDriving: boolean;
   truckChange: boolean;
+  viewId: number;
 }
 
 export interface IVehicle {

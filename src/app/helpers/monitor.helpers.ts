@@ -1,5 +1,13 @@
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 
+export const bindEventViewId = (importedEvents: IEvent[]) => {
+  let events = [...importedEvents];
+  for (let i = 0; i < events.length; i++) {
+    events[i].viewId = i + 1;
+  }
+  return events;
+};
+
 export const filterEvents = (event: IEvent): boolean => {
   return [
     'ChangeInDriversDutyStatus',

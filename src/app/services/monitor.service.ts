@@ -4,6 +4,7 @@ import {
   filterEvents,
   bindEventStatusNames,
   detectAndBindTeleport,
+  bindEventViewId,
 } from '../helpers/monitor.helpers';
 
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
@@ -26,6 +27,7 @@ export class MonitorService {
     let events = this.driverDailyLogEvents().events;
     if (!events) return [];
 
+    events = bindEventViewId(events);
     events = events.filter((event) => filterEvents(event));
     events = bindEventStatusNames(events);
     events = detectAndBindTeleport(events);
