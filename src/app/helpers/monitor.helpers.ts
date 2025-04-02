@@ -73,9 +73,8 @@ const isTeleport = (ev1: IEvent, ev2: IEvent) => {
     return false;
   }
   if (mileageDifference > 2) {
-    if (!isDriving(ev1) && !ev1.occurredDuringDriving) {
-      return true;
-    }
+    if (ev1.odometer > ev2.odometer) return true;
+    if (!isDriving(ev1) && !ev1.occurredDuringDriving) return true;
   }
 
   return false;

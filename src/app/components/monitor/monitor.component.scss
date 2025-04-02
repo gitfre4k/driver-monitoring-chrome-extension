@@ -7,6 +7,7 @@
 
   .info {
     text-align: center;
+    margin-bottom: 8px;
     &__not-live {
       margin-top: 30px;
       width: 200px;
@@ -28,6 +29,7 @@
     height: 100%;
     overflow-y: scroll;
     font-weight: 400;
+    margin-bottom: 16px;
     ul {
       list-style: none;
       padding: 0px;
