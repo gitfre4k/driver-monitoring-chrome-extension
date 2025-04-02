@@ -1,24 +1,26 @@
 #mat-card-wrapper-2 {
-  height: 45%;
+  height: 250px;
   margin: 16px 8px;
   text-align: center;
+
+  h2 {
+    @media (max-width: 420px) {
+      font-size: 12px;
+    }
+  }
 
   button {
     margin-top: 48px;
   }
-  p {
-    margin-top: 18px;
-    &.total-count {
-      text-align: right;
-    }
+  .total-count {
+    padding: 18px 24px 0px 0px;
+    text-align: right;
   }
-  .errors {
-    margin-top: 32px;
-    p {
-      margin: 0 16px;
-      &.errors-message {
-        margin-bottom: 16px;
-      }
-    }
+}
+.errors {
+  margin-top: 16px;
+  p {
+    padding-left: 12px;
+    margin: 0;
   }
 }

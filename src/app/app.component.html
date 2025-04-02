@@ -1,13 +1,13 @@
 <div id="wrapper">
-    <a mat-icon-button class="open-in-new-window" (click)="popUp()" matTooltip="Open in new window"
-        [ngStyle]="{'display': scanning() ? 'none' : 'block'}"><mat-icon>open_in_new</mat-icon></a>
+    <a mat-icon-button (click)="popUp()" matTooltip="Open in new window"
+        [ngClass]="scanning() ? 'none' : 'open-in-new-window'"><mat-icon>open_in_new</mat-icon></a>
     <mat-card appearance="outlined" id="mat-card-wrapper">
 
-        <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" dynamicHeight="true" id="tab-group">
+        <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" id="tab-group">
             <mat-tab label="Scan" [disabled]="scanning()">
                 <ng-template mat-tab-label>
-                    <mat-icon>radar</mat-icon>
-                    <span>Scan</span>
+                    <mat-icon id="radar-icon">radar</mat-icon>
+                    <span class="hide">Scan</span>
                 </ng-template>
 
                 <app-scan></app-scan>
@@ -17,7 +17,7 @@
             <mat-tab label="Monitor" [disabled]="scanning()">
                 <ng-template mat-tab-label>
                     <mat-icon><span class="material-symbols-outlined">delivery_truck_speed</span></mat-icon>
-                    <span>Monitor</span>
+                    <span class="hide">Monitor</span>
                 </ng-template>
 
                 <app-monitor></app-monitor>
@@ -27,7 +27,7 @@
             <mat-tab label="About" [disabled]="scanning()">
                 <ng-template mat-tab-label>
                     <mat-icon>info</mat-icon>
-                    <span>About</span>
+                    <span class="hide">About</span>
                 </ng-template>
                 <div class="tab-group tab-group-3">
                     <p>Driver Monitoring Chrome Extension</p>

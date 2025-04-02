@@ -8,12 +8,12 @@
             </mat-progress-bar>
         </section>
         <button mat-button (click)="stopScan()">Stop</button>
-        <p class="total-count">Total count: {{progressBar.totalCount}}</p>
     </mat-card-content>
-    <div class="errors" style="text-align: left;">
-        @for (err of this.errors; track err.company.id) {
-        <p class="errors-company">[{{err.error.name}}] {{err.company.name}}</p>
-
-        }
-    </div>
+    <p class="total-count">Total count: {{progressBar.totalCount}}</p>
 </mat-card>
+
+<div class="errors" style="text-align: left;">
+    @for (err of this.errors; track err.company.id) {
+    <p class="errors-company">[{{err.error.name}}] {{err.company.name}}</p>
+    }
+</div>

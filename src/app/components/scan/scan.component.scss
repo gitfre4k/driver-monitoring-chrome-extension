@@ -22,9 +22,19 @@
   margin-bottom: 48px;
 }
 
+mat-form-field {
+  @media (max-width: 380px) {
+    width: 225px;
+  }
+}
+
 .toggle {
   margin-top: 16px;
   &-button {
     padding: 4px 16px;
+    @media (max-width: 380px) {
+      padding: 2px 5px;
+      font-size: 12px;
+    }
   }
 }
