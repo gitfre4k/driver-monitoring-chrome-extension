@@ -40,11 +40,8 @@ export class AppComponent {
   constructor() {}
 
   popUp() {
-    var viewportwidth = document.documentElement.clientWidth;
-    const windowFeatures = `width=436,height=640,left=100000,top=0`;
+    const windowFeatures = `width=460,height=640,left=100000,top=0`;
     window.open('index.html', '', windowFeatures);
     window.close();
   }
 }
-
-// mock

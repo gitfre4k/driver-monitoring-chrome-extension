@@ -2,11 +2,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 10px;
+  margin: 10px 0px;
   height: 100%;
 
   .info {
     text-align: center;
+    &__not-live {
+      margin-top: 30px;
+      width: 200px;
+    }
     &__company {
       font-size: 20px;
       margin: 3px;
@@ -22,15 +26,16 @@
 
   .event-list {
     height: 100%;
-    width: 100%;
     overflow-y: scroll;
     font-weight: 400;
-
-    ol {
+    ul {
+      list-style: none;
+      padding: 0px;
+      margin: 0px;
       li {
         .event {
           display: grid;
-          grid-template-columns: 60px 58px 100px 45px 100px;
+          grid-template-columns: 60px 58px 100px 45px 90px;
           align-items: center;
 
           .start-time {
@@ -64,6 +69,10 @@
 
           .duration {
             margin: 0px 5px;
+          }
+
+          .note {
+            white-space: pre-wrap;
           }
         }
       }

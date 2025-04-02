@@ -40,8 +40,6 @@ export class ApiService {
     );
   }
 
-  // https://app.monitoringdriver.com/api/FmcsaInspections/GetList
-
   getDOTInspectionList(
     tenant: ICompany,
     range: IRange

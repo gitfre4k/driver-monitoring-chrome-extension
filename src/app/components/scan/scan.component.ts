@@ -18,6 +18,7 @@ import {
   FormsModule,
 } from '@angular/forms';
 import { IDOTInspections, IViolations } from '../../interfaces';
+import { FormattedDateService } from '../../web-app/formatted-date.service';
 
 @Component({
   selector: 'app-scan',
@@ -37,14 +38,17 @@ import { IDOTInspections, IViolations } from '../../interfaces';
 })
 export class ScanComponent {
   private scanService: ScanService = inject(ScanService);
+  private formattedDateService = inject(FormattedDateService);
   private destroyRef = inject(DestroyRef);
-  private date = new Date().setHours(0, 0, 0, 0);
+
+  private currentDate =
+    this.formattedDateService.getFormatedDates().currentDate;
+  private sevenDaysAgo =
+    this.formattedDateService.getFormatedDates().sevenDaysAgo;
 
   readonly range = new FormGroup({
-    dateFrom: new FormControl<Date>(
-      new Date(this.date - 7 * 24 * 60 * 60 * 1000)
-    ),
-    dateTo: new FormControl<Date>(new Date(this.date)),
+    dateFrom: new FormControl<Date>(new Date(this.sevenDaysAgo)),
+    dateTo: new FormControl<Date>(new Date(this.currentDate)),
   });
   readonly scanMode = new FormControl<'violations' | 'dot'>('violations', {
     nonNullable: true,
@@ -65,9 +69,11 @@ export class ScanComponent {
     if (!from || !to) return;
 
     const range = {
-      dateFrom: new Date(new Date(from.getTime()).setHours(24)),
-      dateTo: new Date(new Date(to.getTime()).setHours(24)),
+      dateFrom: new Date(new Date(from.getTime()).toUTCString()),
+      dateTo: new Date(new Date(to.getTime()).toUTCString()),
     };
+
+    console.log(range);
 
     this.scanSubscribtion = (
       this.scanMode.value === 'violations'

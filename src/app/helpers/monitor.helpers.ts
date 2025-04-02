@@ -9,13 +9,17 @@ export const filterEvents = (event: IEvent): boolean => {
 };
 
 export const bindEventStatusNames = (importedEvents: IEvent[]) => {
-  let occurredDuringDriving = false;
   let events = [...importedEvents];
+
+  let occurredDuringDriving = false;
+
   for (let i = 0; i < events.length; i++) {
     events[i].statusName = getStatusName(events[i].dutyStatus);
 
     events[i].occurredDuringDriving = occurredDuringDriving;
-    if (isDriving(events[i])) occurredDuringDriving = true;
+    if (isDriving(events[i])) {
+      occurredDuringDriving = true;
+    }
     if (
       [
         'ChangeToOffDutyStatus',

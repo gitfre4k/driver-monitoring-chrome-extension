@@ -3,8 +3,7 @@
     @if (driverDailyLogEvents(); as ddle) {
     @if (!ddle.companyName) {
     <div class="info">
-        <p>Monitor is not live.</p>
-        <p>Please navigate to driver's daily logs.</p>
+        <p class="info__not-live">Live monitoring is only available after the driver's daily logs are accessed.</p>
     </div>
     } @else {
     <div class="info">
@@ -14,7 +13,7 @@
     </div>
 
     <div class="event-list">
-        <ol>
+        <ul>
             @for (event of events(); track event.id) {
             <li>
                 <div class="event">
@@ -25,11 +24,11 @@
                     <span class="duration">{{event.durationInSeconds ? (event.durationInSeconds * 1000 |
                         date:'HH:mm':'UTC') :
                         ''}}</span>
-                    <span>{{event.notes}}</span>
+                    <span class="note">{{event.notes}}</span>
                 </div>
             </li>
             }
-        </ol>
+        </ul>
     </div>
     }
     }
