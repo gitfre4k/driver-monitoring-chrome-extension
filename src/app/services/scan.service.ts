@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { catchError, concatMap, from, mergeMap, of, tap } from 'rxjs';
+import { catchError, concatMap, EMPTY, from, mergeMap, of, tap } from 'rxjs';
 import {
   ICompany,
   IDOTInspections,
@@ -41,9 +41,9 @@ export class ScanService {
     totalCount: 0,
   };
 
-  constructor() {}
+  constructor() { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   initializeScanState() {
     this.scanning.set(false);
@@ -71,13 +71,13 @@ export class ScanService {
 
       scanMode === 'violations'
         ? this.violations.push({
-            company: this.currentCompany.name,
-            violations: data as IViolations,
-          })
+          company: this.currentCompany.name,
+          violations: data as IViolations,
+        })
         : this.inspections.push({
-            company: this.currentCompany.name,
-            inspections: data as IDOTInspections,
-          });
+          company: this.currentCompany.name,
+          inspections: data as IDOTInspections,
+        });
     }
   }
 

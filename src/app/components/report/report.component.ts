@@ -5,7 +5,6 @@ import { MatDialogModule } from '@angular/material/dialog';
 import {
   IScanDOTInspections,
   IScanViolations,
-  IViolations,
 } from '../../interfaces';
 import { MatDivider } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,7 +29,7 @@ export class ReportComponent {
 
   private _snackBar = inject(MatSnackBar);
 
-  constructor() {}
+  constructor() { }
 
   copyDriverName(name: string) {
     navigator.clipboard.writeText(name);

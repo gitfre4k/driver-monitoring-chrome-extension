@@ -4,7 +4,7 @@
     <mat-card appearance="outlined" id="mat-card-wrapper">
 
         <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" id="tab-group">
-            <mat-tab label="Scan" [disabled]="scanning()">
+            <mat-tab label="Scan">
                 <ng-template mat-tab-label>
                     <mat-icon id="radar-icon">radar</mat-icon>
                     <span class="hide">Scan</span>
@@ -14,7 +14,7 @@
 
             </mat-tab>
 
-            <mat-tab label="Monitor" [disabled]="scanning()">
+            <mat-tab label="Monitor">
                 <ng-template mat-tab-label>
                     <mat-icon><span class="material-symbols-outlined">delivery_truck_speed</span></mat-icon>
                     <span class="hide">Monitor</span>
@@ -24,14 +24,22 @@
 
             </mat-tab>
 
-            <mat-tab label="About" [disabled]="scanning()">
+            <mat-tab label="Test">
+                <ng-template mat-tab-label>
+                    <mat-icon>bug_report</mat-icon>
+                    <span class="hide">Test</span>
+                </ng-template>
+                <app-test></app-test>
+            </mat-tab>
+
+            <mat-tab label="About">
                 <ng-template mat-tab-label>
                     <mat-icon>info</mat-icon>
                     <span class="hide">About</span>
                 </ng-template>
                 <div class="tab-group tab-group-3">
                     <p>Driver Monitoring Chrome Extension</p>
-                    <p>version: 0.0.2</p>
+                    <p>version: 0.0.3</p>
                 </div>
             </mat-tab>
 

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { from, Observable } from 'rxjs';
+import { EMPTY, from, Observable } from 'rxjs';
 
 import { IViolations, ICompany, IRange, IDOTInspections } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
@@ -29,7 +29,7 @@ export class ApiService {
     };
   };
 
-  constructor() {}
+  constructor() { }
 
   getAccessibleTenants() {
     return from(
@@ -100,5 +100,53 @@ export class ApiService {
         },
       }
     );
+  }
+
+  getLogs() {
+    const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
+    const body = {
+      "filterRule": {
+        "condition": "AND",
+        "filterRules": [
+          {
+            "field": "lastSync",
+            "operator": "gte",
+            "value": "2025-05-12T04:59:59.999Z"
+          },
+          {
+            "field": "lastSync",
+            "operator": "lte",
+            "value": "2025-05-19T04:59:59.999Z"
+          },
+          {
+            "field": "driverStatus",
+            "operator": "equals",
+            "value": "Active"
+          }
+        ]
+      },
+      "searchRule": {
+        "columns": [
+          "driverId",
+          "fullName"
+        ],
+        "text": ""
+      },
+      "sorting": "fullName asc",
+      "skipCount": 0,
+      "maxResultCount": 25
+    }
+
+    return this.http.post<any[]>(
+      url,
+      body,
+      {
+        withCredentials: true,
+        headers: {
+          'X-Tenant-Id': `3a0f81b9-d2b0-0d9f-5441-ff525cfc594f`,
+        },
+      }
+    );
+
   }
 }

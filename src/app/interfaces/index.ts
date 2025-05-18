@@ -110,32 +110,15 @@ export interface IEvent {
   averageSpeed?: number;
 }
 
-// {
-//   "totalCount": 2,
-//   "items": [
-//       {
-//           "driverIntId": 1,
-//           "driverId": "0010",
-//           "driverFullName": "Muhumed  Mohamud Said",
-//           "vehicleName": "010",
-//           "time": "2025-03-17T14:39:43.279768Z",
-//           "reportType": "Web",
-//           "editable": false,
-//           "driverDriverId": "0010",
-//           "isUnofficial": false,
-//           "id": "3a18b6b8-b0af-da51-b6a2-b52ad6bfb9df"
-//       },
-//       {
-//           "driverIntId": 1,
-//           "driverId": "0010",
-//           "driverFullName": "Muhumed  Mohamud Said",
-//           "vehicleName": "010",
-//           "time": "2025-03-17T14:48:57.539839Z",
-//           "reportType": "Web",
-//           "editable": false,
-//           "driverDriverId": "0010",
-//           "isUnofficial": false,
-//           "id": "3a18b6c1-25c3-d031-d2fc-01cd606a4adc"
-//       }
-//   ]
-// }
+interface ILog {
+  companyId: number
+  driverId: string
+  driverStatus: string
+  fullName: string
+  hasViolations: boolean
+  homeTerminalTimeZone: string
+  id: number;
+  lastSync: string; //  Date.toISOString()
+  mobileAppType: string;
+  mobileAppVersion: string
+}

@@ -67,7 +67,7 @@ export class MonitorService {
     console.log(timestamp);
 
     const timestampWithOffSet = new Date(
-      new Date(new Date(timestamp).setHours(24, 0, 0, 0))
+      new Date(new Date(timestamp).setHours(19, 0, 0, 0))
     );
 
     this.apiService

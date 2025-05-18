@@ -1,4 +1,4 @@
-@media (max-width: 390px) {
+@media (max-width: 500px) {
   .hide {
     display: none;
   }
@@ -19,9 +19,11 @@
   box-sizing: border-box;
   display: flex;
 }
+
 #tab-group {
   height: 100%;
 }
+
 #tab-group mat-tab-body {
   flex-grow: 1;
 }
@@ -53,6 +55,7 @@ span {
   justify-content: end;
   height: calc(100% - 32px);
   padding: 12px 20px;
+
   p {
     margin: 0;
   }
@@ -70,9 +73,9 @@ span {
   right: 20px;
   top: 20px;
   z-index: 100;
-  @media (max-width: 340px) {
-    display: none;
-  }
+  // @media (max-width: 340px) {
+  //   display: none;
+  // }
 }
 
 .none {
