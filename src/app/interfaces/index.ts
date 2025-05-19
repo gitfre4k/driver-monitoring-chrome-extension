@@ -110,7 +110,7 @@ export interface IEvent {
   averageSpeed?: number;
 }
 
-interface ILog {
+export interface IDriver {
   companyId: number
   driverId: string
   driverStatus: string
@@ -121,4 +121,23 @@ interface ILog {
   lastSync: string; //  Date.toISOString()
   mobileAppType: string;
   mobileAppVersion: string
+}
+
+export interface ILog {
+  totalCount: number;
+  items: IDriver[]
+
+
+}
+
+export interface ITenant extends ICompany {
+  appUrl: string;
+  customerContactEmail: string;
+  customerContactName: string;
+  customerContactPhone: string;
+  domainName: string;
+  editable: boolean;
+  hasOwnElds: boolean
+  parentTenantId: string;
+  webApiUrl: string;
 }

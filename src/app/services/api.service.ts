@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { EMPTY, from, Observable } from 'rxjs';
 
-import { IViolations, ICompany, IRange, IDOTInspections } from '../interfaces';
+import { IViolations, ICompany, IRange, IDOTInspections, ITenant, ILog } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 
 @Injectable({
@@ -33,7 +33,7 @@ export class ApiService {
 
   getAccessibleTenants() {
     return from(
-      this.http.get<ICompany[]>(
+      this.http.get<ITenant[]>(
         'https://app.monitoringdriver.com/api/Tenant/GetAccessibleTenants',
         { withCredentials: true }
       )
@@ -102,7 +102,7 @@ export class ApiService {
     );
   }
 
-  getLogs() {
+  getLogs(tenant: ITenant) {
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
     const body = {
       "filterRule": {
@@ -134,16 +134,16 @@ export class ApiService {
       },
       "sorting": "fullName asc",
       "skipCount": 0,
-      "maxResultCount": 25
+      "maxResultCount": 1000,
     }
 
-    return this.http.post<any[]>(
+    return this.http.post<ILog>(
       url,
       body,
       {
         withCredentials: true,
         headers: {
-          'X-Tenant-Id': `3a0f81b9-d2b0-0d9f-5441-ff525cfc594f`,
+          'X-Tenant-Id': tenant.id,
         },
       }
     );

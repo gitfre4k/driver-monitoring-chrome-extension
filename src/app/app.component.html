@@ -4,6 +4,14 @@
     <mat-card appearance="outlined" id="mat-card-wrapper">
 
         <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" id="tab-group">
+            <mat-tab label="Test">
+                <ng-template mat-tab-label>
+                    <mat-icon>bug_report</mat-icon>
+                    <span class="hide">Test</span>
+                </ng-template>
+                <app-test></app-test>
+            </mat-tab>
+
             <mat-tab label="Scan">
                 <ng-template mat-tab-label>
                     <mat-icon id="radar-icon">radar</mat-icon>
@@ -24,13 +32,7 @@
 
             </mat-tab>
 
-            <mat-tab label="Test">
-                <ng-template mat-tab-label>
-                    <mat-icon>bug_report</mat-icon>
-                    <span class="hide">Test</span>
-                </ng-template>
-                <app-test></app-test>
-            </mat-tab>
+
 
             <mat-tab label="About">
                 <ng-template mat-tab-label>
