@@ -1,8 +1,24 @@
 <div class="test">
     <button (click)="getLogs()">Get Companies</button>
+
+    @if (currentCompany) {
+    <p>Current Company</p>
+    <p>{{currentCompany.name}}</p>
+    }
+
+    @if(detectedOnDuties.length > 0) {
+    QWEQWEQWE
     <ul>
-        @for (company of companies | async; track company.id) {
-        <li>{{company.name}}</li>
+        @for(result of detectedOnDuties; track result.id) {
+        <li>
+            <h4>{{result.company}}</h4>
+            <p>{{result.driverName}}</p>
+        </li>
         }
     </ul>
+
+    }
+
+
+
 </div>

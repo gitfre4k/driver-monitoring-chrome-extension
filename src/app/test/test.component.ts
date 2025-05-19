@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { CommonModule } from '@angular/common';
-import { concatMap, from, map, mergeMap, tap } from 'rxjs';
+import { concatMap, from, map, mergeMap, take, tap } from 'rxjs';
 import { ITenant } from '../interfaces';
 
 @Component({
@@ -13,25 +13,27 @@ import { ITenant } from '../interfaces';
 export class TestComponent {
   private apiService: ApiService = inject(ApiService);
 
-  companies = this.apiService.getAccessibleTenants();
+  currentCompany!: ITenant;
+  detectedOnDuties: { driverName: string; company: string; id: string }[] = [];
 
   getLogs() {
-    let currentCompany: ITenant;
-
     // get All Drivers
     const getAllDrivers = this.apiService
       .getAccessibleTenants()
-      .pipe(mergeMap((tenant) => from(tenant)))
+      .pipe(
+        mergeMap((tenant) => from(tenant)),
+        take(10)
+      )
       .pipe(
         concatMap((tenant) => {
-          currentCompany = tenant;
-          console.log(currentCompany.name);
+          this.currentCompany = tenant;
+          console.log(this.currentCompany.name);
           return this.apiService.getLogs(tenant).pipe(
             mergeMap((log) => from(log.items)),
             tap((drivers) =>
               console.log(
                 'Company: ',
-                currentCompany.name,
+                this.currentCompany.name,
                 'Active Drivers: ',
                 drivers
               )
@@ -41,10 +43,27 @@ export class TestComponent {
                 .getDriverDailyLogEvents(
                   driver.id,
                   new Date('2025-05-19T05:00:00.000Z'),
-                  currentCompany.id
+                  this.currentCompany.id
                 )
 
-                .pipe(tap((x) => console.log(x)))
+                .pipe(
+                  tap((driverDailyLogs) => {
+                    let events = driverDailyLogs.events;
+                    for (let i = 0; i < events.length; i++) {
+                      if (
+                        events[i].dutyStatus ===
+                          'ChangeToOnDutyNotDrivingStatus' &&
+                        events[i].realDurationInSeconds > 3000
+                      ) {
+                        this.detectedOnDuties.push({
+                          driverName: driverDailyLogs.driverFullName,
+                          company: driverDailyLogs.companyName,
+                          id: events[i].eventSequenceNumber,
+                        });
+                      }
+                    }
+                  })
+                )
             )
           );
         })
