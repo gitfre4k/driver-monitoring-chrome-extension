@@ -14,6 +14,7 @@ import {
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ReportComponent } from '../components/report/report.component';
+import { TScanMode } from '../types';
 
 @Injectable({
   providedIn: 'root',
@@ -41,9 +42,9 @@ export class ScanService {
     totalCount: 0,
   };
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   initializeScanState() {
     this.scanning.set(false);
@@ -61,23 +62,20 @@ export class ScanService {
     };
   }
 
-  handleScanData(
-    data: IViolations | IDOTInspections,
-    scanMode: 'violations' | 'dot'
-  ) {
+  handleScanData(data: IViolations | IDOTInspections, scanMode: TScanMode) {
     this.progressBar.value += this.progressBar.constant;
     if (data.totalCount > 0) {
       this.progressBar.totalCount += data.totalCount;
 
       scanMode === 'violations'
         ? this.violations.push({
-          company: this.currentCompany.name,
-          violations: data as IViolations,
-        })
+            company: this.currentCompany.name,
+            violations: data as IViolations,
+          })
         : this.inspections.push({
-          company: this.currentCompany.name,
-          inspections: data as IDOTInspections,
-        });
+            company: this.currentCompany.name,
+            inspections: data as IDOTInspections,
+          });
     }
   }
 
@@ -89,7 +87,7 @@ export class ScanService {
       .subscribe();
   }
 
-  handleScanComplete(scanMode: 'violations' | 'dot') {
+  handleScanComplete(scanMode: TScanMode) {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
     scanMode === 'violations'

@@ -1,23 +1,15 @@
-import { Component, inject } from '@angular/core';
-import { ApiService } from '../services/api.service';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { concatMap, from, mergeMap, take, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { ApiService } from './api.service';
+import { concatMap, from, mergeMap, tap } from 'rxjs';
 import { ITenant } from '../interfaces';
 
-import { MatSliderModule } from '@angular/material/slider';
-import { MatButtonModule } from '@angular/material/button';
-
-@Component({
-  selector: 'app-test',
-  imports: [CommonModule, MatSliderModule, FormsModule, MatButtonModule],
-  templateUrl: './test.component.html',
-  styleUrl: './test.component.scss',
+@Injectable({
+  providedIn: 'root',
 })
-export class TestComponent {
+export class AdvancedScanService {
   private apiService: ApiService = inject(ApiService);
 
-  sliderValue = 5400;
+  sliderValue = 5400; // 1h30min
   progress = 0;
   constant = 0;
 
@@ -29,9 +21,11 @@ export class TestComponent {
     duration: { logged: number; real: number };
   }[] = [];
 
+  constructor() {}
+
   getLogs() {
     // get All Drivers
-    const getAllDrivers = this.apiService
+    return this.apiService
       .getAccessibleTenants()
       .pipe(
         tap((tenants) => {
@@ -94,7 +88,6 @@ export class TestComponent {
             )
           );
         })
-      )
-      .subscribe();
+      );
   }
 }

@@ -1,5 +1,5 @@
 <div class="test">
-  <h3>Set prolonged On Duty duration</h3>
+  <p>set prolonged On Duty duration</p>
   <label class="example-value-label"
     >{{ +slider.value * 1000 | date : "H:mm" : "UTC" }}+</label
   >
@@ -9,7 +9,7 @@
 
   <button mat-raised-button (click)="getLogs()">Scan</button>
 
-  @if (currentCompany) { ~~~~~~~~~~~~~~~~~~~~~~~
+  @if (currentCompany) {
   <p>progress: {{ progress }} %</p>
   <p>Current Company: {{ currentCompany.name }}</p>
   } @if(detectedOnDuties.length > 0) {
@@ -17,9 +17,9 @@
     @for(result of detectedOnDuties; track result.id) {
     <li>
       <h3>{{ result.company }}</h3>
-      <p>Driver: {{ result.driverName }}</p>
+      <p>{{ result.driverName }}</p>
       <p>
-        Prolonged On Duty duration:
+        prolonged On Duty duration:
         {{
           (result.duration.real >= result.duration.logged
             ? result.duration.real

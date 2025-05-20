@@ -1,35 +1,43 @@
 <div class="content">
+  @if (driverDailyLogEvents(); as ddle) { @if (!ddle.companyName) {
+  <div class="info">
+    <p class="info__not-live">
+      Live monitoring is only available after the driver's daily logs are
+      accessed.
+    </p>
+  </div>
+  } @else {
+  <div class="info">
+    <h2 class="info__company">## {{ ddle.companyName }}</h2>
+    <p class="info__driver-name">{{ ddle.driverFullName }}</p>
+    <p class="info__date">{{ ddle.date | date : "MMM d, y" : "UTC-5" }}</p>
+  </div>
 
-    @if (driverDailyLogEvents(); as ddle) {
-    @if (!ddle.companyName) {
-    <div class="info">
-        <p class="info__not-live">Live monitoring is only available after the driver's daily logs are accessed.</p>
-    </div>
-    } @else {
-    <div class="info">
-        <h2 class="info__company">## {{ddle.companyName}}</h2>
-        <p class="info__driver-name">{{ddle.driverFullName}}</p>
-        <p class="info__date">{{ddle.date | date: 'MMM d, y':'UTC-5' }}</p>
-    </div>
-
-    <div class="event-list">
-        <ul>
-            @for (event of events(); track event.id) {
-            <li>
-                <div class="event">
-                    <span class="view-id">{{event.viewId}}.</span>
-                    <span
-                        [ngClass]="'odometer ' + (event.isTeleport ? 'error' : '') + (event.truckChange ? 'approved' : '')">{{event.odometer.toLocaleString()}}</span>
-                    <p [ngClass]="'status ' + event.dutyStatus">{{event.statusName}}</p>
-                    <span class="duration">{{event.durationInSeconds ? (event.durationInSeconds * 1000 |
-                        date:'HH:mm':'UTC') :
-                        ''}}</span>
-                    <span class="note">{{event.notes}}</span>
-                </div>
-            </li>
-            }
-        </ul>
-    </div>
-    }
-    }
+  <div class="event-list">
+    <ul>
+      @for (event of events(); track event.id) {
+      <li>
+        <div class="event">
+          <span class="view-id">{{ event.viewId }}.</span>
+          <span
+            [ngClass]="
+              'odometer ' +
+              (event.isTeleport ? 'error' : '') +
+              (event.truckChange ? 'approved' : '')
+            "
+            >{{ event.odometer.toLocaleString() }}</span
+          >
+          <p [ngClass]="'status ' + event.dutyStatus">{{ event.statusName }}</p>
+          <span class="duration">{{
+            event.durationInSeconds
+              ? (event.durationInSeconds * 1000 | date : "HH:mm" : "UTC")
+              : ""
+          }}</span>
+          <span class="note">{{ event.notes }}</span>
+        </div>
+      </li>
+      }
+    </ul>
+  </div>
+  } }
 </div>

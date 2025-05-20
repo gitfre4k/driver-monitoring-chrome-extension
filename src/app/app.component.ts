@@ -12,7 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScanComponent } from './components/scan/scan.component';
 import { ScanService } from './services/scan.service';
 import { MonitorComponent } from './components/monitor/monitor.component';
-import { TestComponent } from './test/test.component';
+import { AdvancedScanComponent } from './components/advanced-scan/advanced-scan.component';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +29,7 @@ import { TestComponent } from './test/test.component';
     MatTooltipModule,
     ScanComponent,
     MonitorComponent,
-    TestComponent
+    AdvancedScanComponent,
   ],
 })
 export class AppComponent {
@@ -39,7 +39,7 @@ export class AppComponent {
 
   scanning = this.scanService.scanning;
 
-  constructor() { }
+  constructor() {}
 
   popUp() {
     const windowFeatures = `width=460,height=640,left=100000,top=0`;

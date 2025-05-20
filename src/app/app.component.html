@@ -1,50 +1,57 @@
 <div id="wrapper">
-    <a mat-icon-button (click)="popUp()" matTooltip="Open in new window"
-        [ngClass]="scanning() ? 'none' : 'open-in-new-window'"><mat-icon>open_in_new</mat-icon></a>
-    <mat-card appearance="outlined" id="mat-card-wrapper">
+  <a
+    mat-icon-button
+    (click)="popUp()"
+    matTooltip="Open in new window"
+    [ngClass]="scanning() ? 'none' : 'open-in-new-window'"
+    ><mat-icon>open_in_new</mat-icon></a
+  >
+  <mat-card appearance="outlined" id="mat-card-wrapper">
+    <mat-tab-group
+      mat-stretch-tabs="false"
+      mat-align-tabs="start"
+      id="tab-group"
+    >
+      <mat-tab label="Test">
+        <ng-template mat-tab-label>
+          <mat-icon>bug_report</mat-icon>
+          <span class="hide">Test</span>
+        </ng-template>
+        <app-advanced-scan></app-advanced-scan>
+      </mat-tab>
 
-        <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" id="tab-group">
-            <mat-tab label="Test">
-                <ng-template mat-tab-label>
-                    <mat-icon>bug_report</mat-icon>
-                    <span class="hide">Test</span>
-                </ng-template>
-                <app-test></app-test>
-            </mat-tab>
+      <mat-tab label="Scan">
+        <ng-template mat-tab-label>
+          <mat-icon id="radar-icon">radar</mat-icon>
+          <span class="hide">Scan</span>
+        </ng-template>
 
-            <mat-tab label="Scan">
-                <ng-template mat-tab-label>
-                    <mat-icon id="radar-icon">radar</mat-icon>
-                    <span class="hide">Scan</span>
-                </ng-template>
+        <app-scan></app-scan>
+      </mat-tab>
 
-                <app-scan></app-scan>
+      <mat-tab label="Monitor">
+        <ng-template mat-tab-label>
+          <mat-icon
+            ><span class="material-symbols-outlined"
+              >delivery_truck_speed</span
+            ></mat-icon
+          >
+          <span class="hide">Monitor</span>
+        </ng-template>
 
-            </mat-tab>
+        <app-monitor></app-monitor>
+      </mat-tab>
 
-            <mat-tab label="Monitor">
-                <ng-template mat-tab-label>
-                    <mat-icon><span class="material-symbols-outlined">delivery_truck_speed</span></mat-icon>
-                    <span class="hide">Monitor</span>
-                </ng-template>
-
-                <app-monitor></app-monitor>
-
-            </mat-tab>
-
-
-
-            <mat-tab label="About">
-                <ng-template mat-tab-label>
-                    <mat-icon>info</mat-icon>
-                    <span class="hide">About</span>
-                </ng-template>
-                <div class="tab-group tab-group-3">
-                    <p>Driver Monitoring Chrome Extension</p>
-                    <p>version: 0.0.3</p>
-                </div>
-            </mat-tab>
-
-        </mat-tab-group>
-    </mat-card>
+      <mat-tab label="About">
+        <ng-template mat-tab-label>
+          <mat-icon>info</mat-icon>
+          <span class="hide">About</span>
+        </ng-template>
+        <div class="tab-group tab-group-3">
+          <p>Driver Monitoring Chrome Extension</p>
+          <p>version: 0.0.3</p>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
 </div>

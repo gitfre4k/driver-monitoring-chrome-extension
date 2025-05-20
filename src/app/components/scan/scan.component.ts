@@ -1,11 +1,16 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AdvancedScanComponent } from '../advanced-scan/advanced-scan.component';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 import { Observable, Subscription } from 'rxjs';
 
@@ -19,6 +24,7 @@ import {
 } from '@angular/forms';
 import { IDOTInspections, IViolations } from '../../interfaces';
 import { FormattedDateService } from '../../web-app/formatted-date.service';
+import { TScanMode } from '../../types';
 
 @Component({
   selector: 'app-scan',
@@ -31,6 +37,10 @@ import { FormattedDateService } from '../../web-app/formatted-date.service';
     MatFormFieldModule,
     ReactiveFormsModule,
     FormsModule,
+    MatSelectModule,
+    MatIconModule,
+    MatInputModule,
+    AdvancedScanComponent,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
@@ -46,13 +56,19 @@ export class ScanComponent {
   private sevenDaysAgo =
     this.formattedDateService.getFormatedDates().sevenDaysAgo;
 
+  readonly scanMode = new FormControl<TScanMode>('violations', {
+    nonNullable: true,
+  });
   readonly range = new FormGroup({
     dateFrom: new FormControl<Date>(new Date(this.sevenDaysAgo)),
     dateTo: new FormControl<Date>(new Date(this.currentDate)),
   });
-  readonly scanMode = new FormControl<'violations' | 'dot'>('violations', {
-    nonNullable: true,
-  });
+
+  scanModes: { value: TScanMode; label: string; id: number }[] = [
+    { value: 'violations', label: 'Violations', id: 1 },
+    { value: 'dot', label: 'DOT Inspections', id: 2 },
+    { value: 'advanced', label: 'Advanced', id: 3 },
+  ];
 
   scanSubscribtion = new Subscription();
   scanning = this.scanService.scanning;
@@ -69,7 +85,11 @@ export class ScanComponent {
     if (!from || !to) return;
 
     const range = {
-      dateFrom: new Date(new Date(from.getTime()).toUTCString()),
+      dateFrom: new Date(
+        new Date(
+          (this.scanMode.value === 'violations' ? from : to).getTime()
+        ).toUTCString()
+      ),
       dateTo: new Date(new Date(to.getTime()).toUTCString()),
     };
 

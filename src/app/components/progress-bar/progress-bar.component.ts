@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { ScanService } from '../../services/scan.service';
 import { Subscription } from 'rxjs';
+import { TScanMode } from '../../types';
 
 @Component({
   selector: 'app-progress-bar',
@@ -15,7 +16,7 @@ import { Subscription } from 'rxjs';
 })
 export class ProgressBarComponent {
   @Input({ required: true }) scanSubscription!: Subscription;
-  @Input({ required: true }) scanMode!: 'violations' | 'dot';
+  @Input({ required: true }) scanMode!: TScanMode;
 
   private scanService: ScanService = inject(ScanService);
 
