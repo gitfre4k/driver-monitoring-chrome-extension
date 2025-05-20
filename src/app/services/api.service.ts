@@ -1,8 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { EMPTY, from, Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 
-import { IViolations, ICompany, IRange, IDOTInspections, ITenant, ILog } from '../interfaces';
+import {
+  IViolations,
+  ICompany,
+  IRange,
+  IDOTInspections,
+  ITenant,
+  ILog,
+} from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 
 @Injectable({
@@ -29,7 +36,7 @@ export class ApiService {
     };
   };
 
-  constructor() { }
+  constructor() {}
 
   getAccessibleTenants() {
     return from(
@@ -105,48 +112,40 @@ export class ApiService {
   getLogs(tenant: ITenant) {
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
     const body = {
-      "filterRule": {
-        "condition": "AND",
-        "filterRules": [
+      filterRule: {
+        condition: 'AND',
+        filterRules: [
           {
-            "field": "lastSync",
-            "operator": "gte",
-            "value": "2025-05-12T04:59:59.999Z"
+            field: 'lastSync',
+            operator: 'gte',
+            value: '2025-05-12T04:59:59.999Z',
           },
           {
-            "field": "lastSync",
-            "operator": "lte",
-            "value": "2025-05-19T04:59:59.999Z"
+            field: 'lastSync',
+            operator: 'lte',
+            value: '2025-05-19T04:59:59.999Z',
           },
           {
-            "field": "driverStatus",
-            "operator": "equals",
-            "value": "Active"
-          }
-        ]
-      },
-      "searchRule": {
-        "columns": [
-          "driverId",
-          "fullName"
+            field: 'driverStatus',
+            operator: 'equals',
+            value: 'Active',
+          },
         ],
-        "text": ""
       },
-      "sorting": "fullName asc",
-      "skipCount": 0,
-      "maxResultCount": 1000,
-    }
+      searchRule: {
+        columns: ['driverId', 'fullName'],
+        text: '',
+      },
+      sorting: 'fullName asc',
+      skipCount: 0,
+      maxResultCount: 1000,
+    };
 
-    return this.http.post<ILog>(
-      url,
-      body,
-      {
-        withCredentials: true,
-        headers: {
-          'X-Tenant-Id': tenant.id,
-        },
-      }
-    );
-
+    return this.http.post<ILog>(url, body, {
+      withCredentials: true,
+      headers: {
+        'X-Tenant-Id': tenant.id,
+      },
+    });
   }
 }

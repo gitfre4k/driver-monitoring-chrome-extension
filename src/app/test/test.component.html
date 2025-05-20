@@ -1,24 +1,34 @@
 <div class="test">
-    <button (click)="getLogs()">Get Companies</button>
+  <h3>Set prolonged On Duty duration</h3>
+  <label class="example-value-label"
+    >{{ +slider.value * 1000 | date : "H:mm" : "UTC" }}+</label
+  >
+  <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
+    <input matSliderThumb [(ngModel)]="sliderValue" #slider />
+  </mat-slider>
 
-    @if (currentCompany) {
-    <p>Current Company</p>
-    <p>{{currentCompany.name}}</p>
+  <button mat-raised-button (click)="getLogs()">Scan</button>
+
+  @if (currentCompany) { ~~~~~~~~~~~~~~~~~~~~~~~
+  <p>progress: {{ progress }} %</p>
+  <p>Current Company: {{ currentCompany.name }}</p>
+  } @if(detectedOnDuties.length > 0) {
+  <ul>
+    @for(result of detectedOnDuties; track result.id) {
+    <li>
+      <h3>{{ result.company }}</h3>
+      <p>Driver: {{ result.driverName }}</p>
+      <p>
+        Prolonged On Duty duration:
+        {{
+          (result.duration.real >= result.duration.logged
+            ? result.duration.real
+            : result.duration.logged) * 1000 | date : "H:mm" : "UTC"
+        }}
+      </p>
+    </li>
     }
+  </ul>
 
-    @if(detectedOnDuties.length > 0) {
-    QWEQWEQWE
-    <ul>
-        @for(result of detectedOnDuties; track result.id) {
-        <li>
-            <h4>{{result.company}}</h4>
-            <p>{{result.driverName}}</p>
-        </li>
-        }
-    </ul>
-
-    }
-
-
-
+  }
 </div>
