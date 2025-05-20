@@ -21,8 +21,8 @@ export class TestComponent {
     const getAllDrivers = this.apiService
       .getAccessibleTenants()
       .pipe(
-        mergeMap((tenant) => from(tenant)),
-        take(10)
+        mergeMap((tenant) => from(tenant))
+        // take(10)
       )
       .pipe(
         concatMap((tenant) => {
@@ -48,12 +48,17 @@ export class TestComponent {
 
                 .pipe(
                   tap((driverDailyLogs) => {
+                    console.log(
+                      driverDailyLogs.driverFullName,
+                      driverDailyLogs
+                    );
                     let events = driverDailyLogs.events;
                     for (let i = 0; i < events.length; i++) {
                       if (
                         events[i].dutyStatus ===
                           'ChangeToOnDutyNotDrivingStatus' &&
-                        events[i].realDurationInSeconds > 3000
+                        (events[i].realDurationInSeconds > 7200 ||
+                          events[i].durationInSeconds > 7200)
                       ) {
                         this.detectedOnDuties.push({
                           driverName: driverDailyLogs.driverFullName,
