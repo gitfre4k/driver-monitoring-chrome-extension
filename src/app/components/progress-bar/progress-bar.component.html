@@ -1,19 +1,27 @@
 <mat-card id="mat-card-wrapper-2">
-    <mat-card-content>
-        <h2>{{scanMode === 'violations' ? 'Violation' : 'FMCSA inspection'}} detection in progress...</h2>
-        <p>{{progressBar.currentCompany}}</p>
-        <section>
-            <mat-progress-bar [mode]="progressBar.mode" [value]="progressBar.value"
-                [bufferValue]="progressBar.bufferValue">
-            </mat-progress-bar>
-        </section>
-        <button mat-button (click)="stopScan()">Stop</button>
-    </mat-card-content>
-    <p class="total-count">Total count: {{progressBar.totalCount}}</p>
+  <mat-card-content>
+    <h2>
+      {{
+        scanMode === "violations" ? "Violation" : "FMCSA inspection"
+      }}
+      detection in progress...
+    </h2>
+    <p>{{ progressBar.currentCompany }}</p>
+    <section>
+      <mat-progress-bar
+        [mode]="progressBar.mode"
+        [value]="progressBar.value"
+        [bufferValue]="progressBar.bufferValue"
+      >
+      </mat-progress-bar>
+    </section>
+    <button mat-button (click)="stopScan()">Stop</button>
+  </mat-card-content>
+  <p class="total-count">Total count: {{ progressBar.totalCount }}</p>
 </mat-card>
 
-<div class="errors" style="text-align: left;">
-    @for (err of this.errors; track err.company.id) {
-    <p class="errors-company">[{{err.error.name}}] {{err.company.name}}</p>
-    }
+<div class="errors" style="text-align: left">
+  @for (err of this.errors; track err.company.id) {
+  <p class="errors-company">[{{ err.error.name }}] {{ err.company.name }}</p>
+  }
 </div>

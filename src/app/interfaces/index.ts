@@ -22,11 +22,6 @@ export interface IViolations {
   ];
 }
 
-export interface ICompany {
-  id: string;
-  name: string;
-}
-
 export interface IProgressBar {
   mode: ProgressBarMode;
   value: number;
@@ -48,7 +43,7 @@ export interface IScanDOTInspections {
 
 export interface IScanErrors {
   error: { name: string; message: string };
-  company: ICompany;
+  company: ITenant;
 }
 
 export interface IDOTInspections {
@@ -74,7 +69,7 @@ export interface IRange {
   dateTo: Date;
 }
 
-export interface ITenant {
+export interface ITenantLocalStorage {
   prologs: {
     id: string;
     name: string;
@@ -111,33 +106,43 @@ export interface IEvent {
 }
 
 export interface IDriver {
-  companyId: number
-  driverId: string
-  driverStatus: string
-  fullName: string
-  hasViolations: boolean
-  homeTerminalTimeZone: string
+  companyId: number;
+  driverId: string;
+  driverStatus: string;
+  fullName: string;
+  hasViolations: boolean;
+  homeTerminalTimeZone: string;
   id: number;
   lastSync: string; //  Date.toISOString()
   mobileAppType: string;
-  mobileAppVersion: string
+  mobileAppVersion: string;
 }
 
 export interface ILog {
   totalCount: number;
-  items: IDriver[]
+  items: IDriver[];
+}
 
-
+export interface ICompany {
+  id: string;
+  name: string;
 }
 
 export interface ITenant extends ICompany {
-  appUrl: string;
-  customerContactEmail: string;
-  customerContactName: string;
-  customerContactPhone: string;
-  domainName: string;
-  editable: boolean;
-  hasOwnElds: boolean
-  parentTenantId: string;
-  webApiUrl: string;
+  appUrl?: string;
+  customerContactEmail?: string;
+  customerContactName?: string;
+  customerContactPhone?: string;
+  domainName?: string;
+  editable?: boolean;
+  hasOwnElds?: boolean;
+  parentTenantId?: string;
+  webApiUrl?: string;
+}
+
+export interface IDetectedOnDuty {
+  driverName: string;
+  company: string;
+  id: string;
+  duration: { logged: number; real: number };
 }

@@ -9,6 +9,7 @@ import {
   IScanDOTInspections,
   IScanErrors,
   IScanViolations,
+  ITenant,
   IViolations,
 } from '../interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';

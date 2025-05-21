@@ -4,7 +4,6 @@ import { from, Observable } from 'rxjs';
 
 import {
   IViolations,
-  ICompany,
   IRange,
   IDOTInspections,
   ITenant,
@@ -48,7 +47,7 @@ export class ApiService {
   }
 
   getDOTInspectionList(
-    tenant: ICompany,
+    tenant: ITenant,
     range: IRange
   ): Observable<IDOTInspections> {
     return from(
@@ -74,7 +73,7 @@ export class ApiService {
     );
   }
 
-  getViolations(tenant: ICompany, range: IRange): Observable<IViolations> {
+  getViolations(tenant: ITenant, range: IRange): Observable<IViolations> {
     return from(
       this.http.post<IViolations>(
         'https://app.monitoringdriver.com/api/Violations/GetViolations',

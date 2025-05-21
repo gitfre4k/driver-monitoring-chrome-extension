@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { concatMap, from, mergeMap, tap } from 'rxjs';
-import { ITenant } from '../interfaces';
+import { IDetectedOnDuty, ITenant } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -9,17 +9,12 @@ import { ITenant } from '../interfaces';
 export class AdvancedScanService {
   private apiService: ApiService = inject(ApiService);
 
-  sliderValue = 5400; // 1h30min
-  progress = 0;
-  constant = 0;
+  sliderValue = signal(5400); // 1h30min
+  progress = signal(0);
+  constant = signal(0);
 
-  currentCompany!: ITenant;
-  detectedOnDuties: {
-    driverName: string;
-    company: string;
-    id: string;
-    duration: { logged: number; real: number };
-  }[] = [];
+  currentCompany = signal({} as ITenant);
+  detectedOnDuties = signal([] as IDetectedOnDuty[]);
 
   constructor() {}
 
@@ -29,18 +24,19 @@ export class AdvancedScanService {
       .getAccessibleTenants()
       .pipe(
         tap((tenants) => {
-          this.constant = +(100 / tenants.length).toFixed(2);
-          this.progress = this.constant;
+          this.constant.set(100 / tenants.length);
         }),
         mergeMap((tenant) => from(tenant))
         // take(10)
       )
       .pipe(
         concatMap((tenant) => {
-          this.currentCompany = tenant;
+          this.currentCompany.set(tenant);
           console.log(this.currentCompany.name);
           return this.apiService.getLogs(tenant).pipe(
-            tap(() => (this.progress += this.constant)),
+            tap(() =>
+              this.progress.update((prevValue) => prevValue + this.constant())
+            ),
             mergeMap((log) => from(log.items)),
             tap((drivers) =>
               console.log(
@@ -55,7 +51,7 @@ export class AdvancedScanService {
                 .getDriverDailyLogEvents(
                   driver.id,
                   new Date('2025-05-20T05:00:00.000Z'), // 2025-05-20T05:00:00.000Z 2025-05-19T05:00:00.000Z
-                  this.currentCompany.id
+                  this.currentCompany().id
                 )
 
                 .pipe(
@@ -69,17 +65,22 @@ export class AdvancedScanService {
                       if (
                         events[i].dutyStatus ===
                           'ChangeToOnDutyNotDrivingStatus' &&
-                        (events[i].realDurationInSeconds > this.sliderValue ||
-                          events[i].durationInSeconds > this.sliderValue)
+                        (events[i].realDurationInSeconds > this.sliderValue() ||
+                          events[i].durationInSeconds > this.sliderValue())
                       ) {
-                        this.detectedOnDuties.push({
-                          driverName: driverDailyLogs.driverFullName,
-                          company: driverDailyLogs.companyName,
-                          id: events[i].eventSequenceNumber,
-                          duration: {
-                            logged: events[i].durationInSeconds,
-                            real: events[i].realDurationInSeconds,
-                          },
+                        this.detectedOnDuties.update((value) => {
+                          return [
+                            ...value,
+                            {
+                              driverName: driverDailyLogs.driverFullName,
+                              company: driverDailyLogs.companyName,
+                              id: events[i].eventSequenceNumber,
+                              duration: {
+                                logged: events[i].durationInSeconds,
+                                real: events[i].realDurationInSeconds,
+                              },
+                            },
+                          ];
                         });
                       }
                     }
