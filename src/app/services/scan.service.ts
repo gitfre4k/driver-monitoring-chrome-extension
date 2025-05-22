@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { catchError, concatMap, EMPTY, from, mergeMap, of, tap } from 'rxjs';
+import { catchError, concatMap, from, mergeMap, of, tap } from 'rxjs';
 import {
   ICompany,
   IDOTInspections,
@@ -9,7 +9,6 @@ import {
   IScanDOTInspections,
   IScanErrors,
   IScanViolations,
-  ITenant,
   IViolations,
 } from '../interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
