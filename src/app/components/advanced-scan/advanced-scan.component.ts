@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonModule } from '@angular/material/button';
 import { AdvancedScanService } from '../../services/advanced-scan.service';
+import { ProgressBarService } from '../../services/progress-bar.service';
 
 @Component({
   selector: 'app-advanced-scan',
@@ -14,11 +15,12 @@ import { AdvancedScanService } from '../../services/advanced-scan.service';
 })
 export class AdvancedScanComponent {
   private advancedScanService = inject(AdvancedScanService);
+  private progressBarService = inject(ProgressBarService);
 
-  readonly currentCompany = this.advancedScanService.currentCompany;
   readonly sliderValue = this.advancedScanService.sliderValue;
-  readonly progress = this.advancedScanService.progress;
-  readonly detectedOnDuties = this.advancedScanService.detectedOnDuties;
+  readonly currentCompany = this.progressBarService.currentCompany;
+  readonly progress = this.progressBarService.progressValue;
+  readonly detectedOnDuties = this.progressBarService.prolengedOnDuties;
 
   getLogs() {
     this.advancedScanService.getLogs().subscribe();

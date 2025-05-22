@@ -1,23 +1,26 @@
 <mat-card id="mat-card-wrapper-2">
   <mat-card-content>
+    @if (scanMode === "advanced") {
+    <h2>Advanced scan detection in progress...</h2>
+    } @else {
     <h2>
-      {{
-        scanMode === "violations" ? "Violation" : "FMCSA inspection"
-      }}
+      {{ scanMode === "violations" ? "Violation" : "FMCSA inspection" }}
       detection in progress...
     </h2>
-    <p>{{ progressBar.currentCompany }}</p>
+    }
+
+    <p>{{ currentCompany() }}</p>
     <section>
       <mat-progress-bar
-        [mode]="progressBar.mode"
-        [value]="progressBar.value"
-        [bufferValue]="progressBar.bufferValue"
+        [mode]="'determinate'"
+        [value]="value()"
+        [bufferValue]="bufferValue"
       >
       </mat-progress-bar>
     </section>
     <button mat-button (click)="stopScan()">Stop</button>
   </mat-card-content>
-  <p class="total-count">Total count: {{ progressBar.totalCount }}</p>
+  <p class="total-count">Total count: {{ totalCount() }}</p>
 </mat-card>
 
 <div class="errors" style="text-align: left">

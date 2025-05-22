@@ -103,6 +103,8 @@ export interface IEvent {
   accumulatedVehicleMiles?: number;
   isEventMissingPowerUp: boolean;
   averageSpeed?: number;
+  coDriverDisplayName: string;
+  coDriverId: string;
 }
 
 export interface IDriver {

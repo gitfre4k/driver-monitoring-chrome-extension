@@ -1,12 +1,12 @@
-import { Component, inject, Input, input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 
-import { ScanService } from '../../services/scan.service';
 import { Subscription } from 'rxjs';
 import { TScanMode } from '../../types';
+import { ProgressBarService } from '../../services/progress-bar.service';
 
 @Component({
   selector: 'app-progress-bar',
@@ -18,14 +18,18 @@ export class ProgressBarComponent {
   @Input({ required: true }) scanSubscription!: Subscription;
   @Input({ required: true }) scanMode!: TScanMode;
 
-  private scanService: ScanService = inject(ScanService);
+  private progressBarService = inject(ProgressBarService);
 
-  scanning = this.scanService.scanning;
-  progressBar = this.scanService.progressBar;
-  errors = this.scanService.errors;
+  scanning = this.progressBarService.scanning;
+  errors = this.progressBarService.errors;
+  value = this.progressBarService.progressValue;
+  bufferValue = this.progressBarService.bufferValue;
+  constant = this.progressBarService.constant;
+  currentCompany = this.progressBarService.currentCompany;
+  totalCount = this.progressBarService.totalCount;
 
   stopScan() {
-    this.scanService.initializeScanState();
+    this.progressBarService.initializeState();
     this.scanSubscription.unsubscribe();
   }
 }

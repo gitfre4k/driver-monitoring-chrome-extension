@@ -10,9 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ScanComponent } from './components/scan/scan.component';
-import { ScanService } from './services/scan.service';
 import { MonitorComponent } from './components/monitor/monitor.component';
 import { AdvancedScanComponent } from './components/advanced-scan/advanced-scan.component';
+import { ProgressBarService } from './services/progress-bar.service';
 
 @Component({
   selector: 'app-root',
@@ -35,9 +35,9 @@ import { AdvancedScanComponent } from './components/advanced-scan/advanced-scan.
 export class AppComponent {
   title = 'driver-monitoring-chrome-extension';
 
-  private scanService: ScanService = inject(ScanService);
+  private progressBarService = inject(ProgressBarService);
 
-  scanning = this.scanService.scanning;
+  scanning = this.progressBarService.scanning;
 
   constructor() {}
 

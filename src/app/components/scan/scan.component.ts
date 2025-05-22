@@ -25,6 +25,8 @@ import {
 import { IDOTInspections, IViolations } from '../../interfaces';
 import { FormattedDateService } from '../../web-app/formatted-date.service';
 import { TScanMode } from '../../types';
+import { AdvancedScanService } from '../../services/advanced-scan.service';
+import { ProgressBarService } from '../../services/progress-bar.service';
 
 @Component({
   selector: 'app-scan',
@@ -50,6 +52,8 @@ export class ScanComponent {
   private scanService: ScanService = inject(ScanService);
   private formattedDateService = inject(FormattedDateService);
   private destroyRef = inject(DestroyRef);
+  private advancedScanService = inject(AdvancedScanService);
+  private progressBarService = inject(ProgressBarService);
 
   private currentDate =
     this.formattedDateService.getFormatedDates().currentDate;
@@ -71,7 +75,7 @@ export class ScanComponent {
   ];
 
   scanSubscribtion = new Subscription();
-  scanning = this.scanService.scanning;
+  scanning = this.progressBarService.scanning;
 
   constructor() {}
 
@@ -93,7 +97,9 @@ export class ScanComponent {
       dateTo: new Date(new Date(to.getTime()).toUTCString()),
     };
 
-    console.log(range);
+    if (this.scanMode.value === 'advanced') {
+      this.scanSubscribtion = this.advancedScanService.getLogs().subscribe();
+    }
 
     this.scanSubscribtion = (
       this.scanMode.value === 'violations'

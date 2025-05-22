@@ -11,10 +11,10 @@
 
   @if (currentCompany()) {
   <p>progress: {{ progress() }} %</p>
-  <p>Current Company: {{ currentCompany().name }}</p>
-  } @if(detectedOnDuties().length > 0) {
+  <p>Current Company: {{ currentCompany() }}</p>
+  } @if(detectedOnDuties.length > 0) {
   <ul>
-    @for(result of detectedOnDuties(); track result.id) {
+    @for(result of detectedOnDuties; track result.id) {
     <li>
       <h3>{{ result.company }}</h3>
       <p>{{ result.driverName }}</p>
