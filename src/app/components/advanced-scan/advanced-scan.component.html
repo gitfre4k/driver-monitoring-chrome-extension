@@ -17,7 +17,7 @@
       <h3>{{ result.company }}</h3>
       <p>{{ result.driverName }}</p>
       <p>
-        prolonged On Duty duration:
+        - prolonged On Duty duration:
         {{
           (result.duration.real >= result.duration.logged
             ? result.duration.real
@@ -34,7 +34,7 @@
     <li>
       <h3>{{ malf.company }}</h3>
       <p>{{ malf.driverName }}</p>
-      <p>malfunction or data diagnostic</p>
+      <p>- malfunction or data diagnostic</p>
     </li>
     }
   </ul>

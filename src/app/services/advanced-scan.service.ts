@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { concatMap, from, mergeMap, tap } from 'rxjs';
+import { concatMap, from, mergeMap, take, tap } from 'rxjs';
 import { IDriver, ITenant } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';
@@ -15,8 +15,9 @@ export class AdvancedScanService {
   sliderValue = signal(5400); // 1h30min
 
   currentCompany = signal({} as ITenant);
-  detectedOnDuties = this.progressBarService.prolengedOnDuties;
-  malfOrDataDiagDetection = this.progressBarService.malfOrDataDiagDetection;
+  advancedScanResults = this.progressBarService.advancedResaults;
+  // detectedOnDuties = this.progressBarService.prolengedOnDuties;
+  // malfOrDataDiagDetection = this.progressBarService.malfOrDataDiagDetection;
 
   constructor() {}
 
@@ -25,7 +26,12 @@ export class AdvancedScanService {
       tap((tenants) => {
         this.progressBarService.constant.set(100 / tenants.length);
       }),
-      mergeMap((tenant) => from(tenant))
+      mergeMap((tenant) =>
+        from(tenant)
+          .pipe
+          // take(5)
+          ()
+      )
     );
   };
 
@@ -51,7 +57,7 @@ export class AdvancedScanService {
       if (
         events[i].eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence'
       ) {
-        this.malfOrDataDiagDetection.push({
+        this.advancedScanResults.malfOrDataDiagDetection.push({
           company: driverDailyLogs.companyName,
           driverName: driverDailyLogs.driverFullName,
           id: events[i].eventSequenceNumber,
@@ -62,7 +68,7 @@ export class AdvancedScanService {
         (events[i].realDurationInSeconds > this.sliderValue() ||
           events[i].durationInSeconds > this.sliderValue())
       ) {
-        this.detectedOnDuties.push({
+        this.advancedScanResults.prolengedOnDuties.push({
           driverName: driverDailyLogs.driverFullName,
           company: driverDailyLogs.companyName,
           id: events[i].eventSequenceNumber,

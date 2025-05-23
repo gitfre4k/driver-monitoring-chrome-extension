@@ -148,3 +148,14 @@ export interface IDetectedOnDuty {
   id: string;
   duration: { logged: number; real: number };
 }
+
+export interface IMalfOrDataDiagDetection {
+  company: string;
+  driverName: string;
+  id: string;
+}
+
+export interface IAdvancedResaults {
+  prolengedOnDuties: IDetectedOnDuty[];
+  malfOrDataDiagDetection: IMalfOrDataDiagDetection[];
+}

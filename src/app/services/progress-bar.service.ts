@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import {
-  IDetectedOnDuty,
+  IAdvancedResaults,
   IScanDOTInspections,
   IScanErrors,
   IScanViolations,
@@ -19,12 +19,11 @@ export class ProgressBarService {
 
   violations: IScanViolations[] = [];
   inspections: IScanDOTInspections[] = [];
-  prolengedOnDuties: IDetectedOnDuty[] = [];
-  malfOrDataDiagDetection: {
-    company: string;
-    driverName: string;
-    id: string;
-  }[] = [];
+  advancedResaults: IAdvancedResaults = {
+    prolengedOnDuties: [],
+    malfOrDataDiagDetection: [],
+  };
+
   errors: IScanErrors[] = [];
 
   constructor() {}

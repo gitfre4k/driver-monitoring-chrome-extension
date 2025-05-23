@@ -1,5 +1,11 @@
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 
+export const detectAndCheckIntermediateValidity = (
+  importedEvents: IEvent[]
+) => {
+  let events = [...importedEvents];
+};
+
 export const bindEventViewId = (importedEvents: IEvent[]) => {
   let events = [...importedEvents];
   for (let i = 0; i < events.length; i++) {

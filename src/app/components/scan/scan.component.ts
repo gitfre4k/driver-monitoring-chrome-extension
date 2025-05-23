@@ -27,6 +27,8 @@ import { FormattedDateService } from '../../web-app/formatted-date.service';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../services/advanced-scan.service';
 import { ProgressBarService } from '../../services/progress-bar.service';
+import { ReportComponent } from '../report/report.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-scan',
@@ -54,6 +56,7 @@ export class ScanComponent {
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
   private progressBarService = inject(ProgressBarService);
+  readonly dialog = inject(MatDialog);
 
   private currentDate =
     this.formattedDateService.getFormatedDates().currentDate;
@@ -83,6 +86,16 @@ export class ScanComponent {
     this.destroyRef.onDestroy(() => this.scanSubscribtion.unsubscribe());
   }
 
+  handleAdvancedScanComplete() {
+    const dialogRef = this.dialog.open(ReportComponent);
+    let instance = dialogRef.componentInstance;
+    instance.advancedScanResults = this.progressBarService.advancedResaults;
+
+    dialogRef
+      .afterClosed()
+      .subscribe(() => this.progressBarService.initializeState());
+  }
+
   startScan = () => {
     const from = this.range.value.dateFrom;
     const to = this.range.value.dateTo;
@@ -102,7 +115,7 @@ export class ScanComponent {
         .getLogs(range.dateTo)
         .subscribe({
           complete: () => {
-            this.progressBarService.initializeState();
+            this.handleAdvancedScanComplete();
           },
         });
     } else {

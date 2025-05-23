@@ -31,13 +31,10 @@ export class ScanService {
   ngOnInit() {}
 
   handleScanData(data: IViolations | IDOTInspections, scanMode: TScanMode) {
-    // this.progressBar().value += this.progressBar().constant;
     this.progressBarService.progressValue.update(
       (value) => value + this.progressBarService.constant()
     );
     if (data.totalCount > 0) {
-      // this.progressBar().totalCount += data.totalCount;
-
       this.progressBarService.totalCount.update(
         (totalCount) => totalCount + data.totalCount
       );

@@ -1,101 +1,168 @@
 <div class="dialog">
-    @if (violations) {
-    <div class="violation-report">
-        <mat-icon>article</mat-icon>
-        <h3 mat-dialog-title>Violations</h3>
+  @if (advancedScanResults) {
+  <div class="violation-report">
+    <mat-icon>article</mat-icon>
+    <h3 mat-dialog-title>Advanced Scan Results</h3>
+  </div>
+
+  @if (!advancedScanResults.prolengedOnDuties.length) {
+  <mat-dialog-content>No prolonged On Duties detected.</mat-dialog-content>
+  } @else {
+  <mat-dialog-content class="mat-typography">
+    <ul>
+      @for (onDuty of advancedScanResults.prolengedOnDuties; track onDuty.id) {
+      <li>
+        <h3>{{ onDuty.company }}</h3>
+        <div class="driver">
+          <a
+            mat-icon-button
+            (click)="copyDriverName(onDuty.driverName)"
+            matTooltip="Copy to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </a>
+          <p>{{ onDuty.driverName }}</p>
+        </div>
+        <p>
+          - prolonged On Duty duration:
+          {{
+            (onDuty.duration.real >= onDuty.duration.logged
+              ? onDuty.duration.real
+              : onDuty.duration.logged) * 1000 | date : "H:mm" : "UTC"
+          }}
+        </p>
+      </li>
+      }
+    </ul>
+    <mat-divider></mat-divider>
+  </mat-dialog-content>
+  } @if (!advancedScanResults.malfOrDataDiagDetection.length) {
+  <mat-dialog-content
+    >No malfunctions or data diagnostics detected.</mat-dialog-content
+  >
+  } @else {
+  <mat-dialog-content class="mat-typography">
+    <ul>
+      @for (detection of advancedScanResults.malfOrDataDiagDetection; track
+      detection.id) {
+      <li>
+        <h3>{{ detection.company }}</h3>
+        <div class="driver">
+          <a
+            mat-icon-button
+            (click)="copyDriverName(detection.driverName)"
+            matTooltip="Copy to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </a>
+          <p>{{ detection.driverName }}</p>
+        </div>
+        <p>- malfunction or data diagnostic detected</p>
+      </li>
+      }
+    </ul>
+    <mat-divider></mat-divider>
+  </mat-dialog-content>
+  } }
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+
+  @if (violations) {
+  <div class="violation-report">
+    <mat-icon>article</mat-icon>
+    <h3 mat-dialog-title>Violations</h3>
+  </div>
+
+  @if (!violations.length) {
+  <mat-dialog-content>No violations detected.</mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button mat-dialog-close>OK</button>
+  </mat-dialog-actions>
+  } @else {
+  <mat-dialog-content class="mat-typography">
+    @for (violation of violations; track violation.company) {
+    <h3># {{ violation.company }}</h3>
+
+    @for (item of violation.violations.items; track item.id) {
+    <div class="driver">
+      <a
+        mat-icon-button
+        (click)="copyDriverName(item.driverName)"
+        matTooltip="Copy to clipboard"
+      >
+        <mat-icon>content_copy</mat-icon>
+      </a>
+      <p>{{ item.driverName }}</p>
     </div>
 
-    @if (!violations.length) {
-    <mat-dialog-content>No violations detected.</mat-dialog-content>
-    <mat-dialog-actions>
-        <button mat-button mat-dialog-close>OK</button>
-    </mat-dialog-actions>
+    <ul>
+      @for (v of item.violations; track v.violationId){
+      <li>
+        <p>{{ v.type }}</p>
+      </li>
+      }
+    </ul>
     }
-
-    @else {
-    <mat-dialog-content class="mat-typography">
-        @for (violation of violations; track violation.company) {
-        <h3># {{ violation.company }}</h3>
-
-        @for (item of violation.violations.items; track item.id) {
-        <div class="driver">
-            <a mat-icon-button (click)="copyDriverName(item.driverName)" matTooltip="Copy to clipboard">
-                <mat-icon>content_copy</mat-icon>
-            </a>
-            <p>{{ item.driverName }}</p>
-        </div>
-
-        <ul>
-            @for (v of item.violations; track v.violationId){
-            <li>
-                <p>{{ v.type }}</p>
-            </li>
-            }
-        </ul>
-        }
-        <mat-divider></mat-divider>
-        }
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close>Close</button>
-    </mat-dialog-actions>
+    <mat-divider></mat-divider>
     }
-    }
+  </mat-dialog-content>
 
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+  } } @if (inspections) {
+  <div class="violation-report">
+    <mat-icon>article</mat-icon>
+    <h3 mat-dialog-title>FMCSA Inspections</h3>
+  </div>
 
+  @if (!inspections.length) {
+  <mat-dialog-content>No FMCSA inspections detected.</mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button mat-dialog-close>OK</button>
+  </mat-dialog-actions>
+  } @else {
+  <mat-dialog-content class="mat-typography">
+    @for (inspection of inspections; track inspection.company) {
+    <h3># {{ inspection.company }}</h3>
 
-
-    @if (inspections) {
-    <div class="violation-report">
-        <mat-icon>article</mat-icon>
-        <h3 mat-dialog-title>FMCSA Inspections</h3>
+    @for (item of inspection.inspections.items; track item.id) {
+    <div class="driver">
+      <a
+        mat-icon-button
+        (click)="copyDriverName(item.driverFullName)"
+        matTooltip="Copy to clipboard"
+      >
+        <mat-icon>content_copy</mat-icon>
+      </a>
+      <p>{{ item.driverFullName }}</p>
     </div>
-
-    @if (!inspections.length) {
-    <mat-dialog-content>No FMCSA inspections detected.</mat-dialog-content>
-    <mat-dialog-actions>
-        <button mat-button mat-dialog-close>OK</button>
-    </mat-dialog-actions>
+    <ul>
+      <li>
+        <p>Vehicle ID: {{ item.vehicleName }}</p>
+      </li>
+      <li>
+        <p>Timestamp: {{ item.time }}</p>
+      </li>
+      <li>
+        <p>Report Type: {{ item.reportType }}</p>
+      </li>
+      <li>
+        <p>Editable: {{ item.editable }}</p>
+      </li>
+      <li>
+        <p>Official: {{ !item.isUnofficial }}</p>
+      </li>
+    </ul>
     }
-
-    @else {
-    <mat-dialog-content class="mat-typography">
-        @for (inspection of inspections; track inspection.company) {
-        <h3># {{ inspection.company }}</h3>
-
-        @for (item of inspection.inspections.items; track item.id) {
-        <div class="driver">
-            <a mat-icon-button (click)="copyDriverName(item.driverFullName)" matTooltip="Copy to clipboard">
-                <mat-icon>content_copy</mat-icon>
-            </a>
-            <p>{{ item.driverFullName }}</p>
-        </div>
-        <ul>
-            <li>
-                <p>Vehicle ID: {{ item.vehicleName }}</p>
-            </li>
-            <li>
-                <p>Timestamp: {{ item.time }}</p>
-            </li>
-            <li>
-                <p>Report Type: {{ item.reportType }}</p>
-            </li>
-            <li>
-                <p>Editable: {{ item.editable }}</p>
-            </li>
-            <li>
-                <p>Official: {{ !item.isUnofficial }}</p>
-            </li>
-        </ul>
-        }
-        <mat-divider></mat-divider>
-        }
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close>Close</button>
-    </mat-dialog-actions>
+    <mat-divider></mat-divider>
     }
-    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+  } }
 </div>
