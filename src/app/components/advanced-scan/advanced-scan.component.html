@@ -7,12 +7,10 @@
     <input matSliderThumb [(ngModel)]="sliderValue" #slider />
   </mat-slider>
 
-  <button mat-raised-button (click)="getLogs()">Scan</button>
+  <!-- <button mat-raised-button (click)="getLogs()">Scan</button> -->
 
-  @if (currentCompany()) {
-  <p>progress: {{ progress() }} %</p>
-  <p>Current Company: {{ currentCompany() }}</p>
-  } @if(detectedOnDuties.length > 0) {
+  @if (currentCompany()) { } @if(detectedOnDuties.length > 0) {
+  <h3>Prolonged On Dyties</h3>
   <ul>
     @for(result of detectedOnDuties; track result.id) {
     <li>
@@ -29,6 +27,16 @@
     </li>
     }
   </ul>
-
-  }
+  @if (malfOrDataDiagDetection.length > 0) {
+  <h3>Malfunction or Data Diagnostic</h3>
+  <ul>
+    @for(malf of malfOrDataDiagDetection; track malf.id) {
+    <li>
+      <h3>{{ malf.company }}</h3>
+      <p>{{ malf.driverName }}</p>
+      <p>malfunction or data diagnostic</p>
+    </li>
+    }
+  </ul>
+  } }
 </div>

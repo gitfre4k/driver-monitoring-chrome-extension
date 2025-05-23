@@ -16,6 +16,7 @@ export class AdvancedScanService {
 
   currentCompany = signal({} as ITenant);
   detectedOnDuties = this.progressBarService.prolengedOnDuties;
+  malfOrDataDiagDetection = this.progressBarService.malfOrDataDiagDetection;
 
   constructor() {}
 
@@ -28,11 +29,11 @@ export class AdvancedScanService {
     );
   };
 
-  dailyLogEvents$(driver: IDriver) {
+  dailyLogEvents$(driver: IDriver, date: Date) {
     return this.apiService
       .getDriverDailyLogEvents(
         driver.id,
-        new Date('2025-05-22T05:00:00.000Z'), // 2025-05-20T05:00:00.000Z 2025-05-19T05:00:00.000Z
+        date, // new Date('2025-05-22T05:00:00.000Z')
         this.currentCompany().id
       )
 
@@ -47,6 +48,15 @@ export class AdvancedScanService {
     console.log(driverDailyLogs.driverFullName, driverDailyLogs);
     let events = driverDailyLogs.events;
     for (let i = 0; i < events.length; i++) {
+      if (
+        events[i].eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence'
+      ) {
+        this.malfOrDataDiagDetection.push({
+          company: driverDailyLogs.companyName,
+          driverName: driverDailyLogs.driverFullName,
+          id: events[i].eventSequenceNumber,
+        });
+      }
       if (
         events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus' &&
         (events[i].realDurationInSeconds > this.sliderValue() ||
@@ -65,7 +75,7 @@ export class AdvancedScanService {
     }
   }
 
-  getLogs() {
+  getLogs(date: Date) {
     this.progressBarService.scanning.set(true);
     return this.allTetants$().pipe(
       concatMap((tenant) => {
@@ -87,7 +97,7 @@ export class AdvancedScanService {
               drivers
             )
           ),
-          concatMap((driver) => this.dailyLogEvents$(driver))
+          concatMap((driver) => this.dailyLogEvents$(driver, date))
         );
       })
     );

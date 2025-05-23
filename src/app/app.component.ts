@@ -11,7 +11,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ScanComponent } from './components/scan/scan.component';
 import { MonitorComponent } from './components/monitor/monitor.component';
-import { AdvancedScanComponent } from './components/advanced-scan/advanced-scan.component';
 import { ProgressBarService } from './services/progress-bar.service';
 
 @Component({
@@ -29,7 +28,6 @@ import { ProgressBarService } from './services/progress-bar.service';
     MatTooltipModule,
     ScanComponent,
     MonitorComponent,
-    AdvancedScanComponent,
   ],
 })
 export class AppComponent {

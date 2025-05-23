@@ -14,12 +14,17 @@ export class ProgressBarService {
   progressValue = signal(0);
   bufferValue = signal(0);
   constant = signal(0);
-  currentCompany = signal('Dex Solutions');
+  currentCompany = signal('');
   totalCount = signal(0);
 
   violations: IScanViolations[] = [];
   inspections: IScanDOTInspections[] = [];
   prolengedOnDuties: IDetectedOnDuty[] = [];
+  malfOrDataDiagDetection: {
+    company: string;
+    driverName: string;
+    id: string;
+  }[] = [];
   errors: IScanErrors[] = [];
 
   constructor() {}

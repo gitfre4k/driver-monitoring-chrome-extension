@@ -98,18 +98,25 @@ export class ScanComponent {
     };
 
     if (this.scanMode.value === 'advanced') {
-      this.scanSubscribtion = this.advancedScanService.getLogs().subscribe();
+      this.scanSubscribtion = this.advancedScanService
+        .getLogs(range.dateTo)
+        .subscribe({
+          complete: () => {
+            this.progressBarService.initializeState();
+          },
+        });
+    } else {
+      this.scanSubscribtion = (
+        this.scanMode.value === 'violations'
+          ? this.scanService.getAllViolations(range)
+          : (this.scanService.getAllDOTInspections(range) as Observable<any>)
+      ).subscribe({
+        next: (data: IViolations | IDOTInspections) =>
+          this.scanService.handleScanData(data, this.scanMode.value),
+        error: (err) => this.scanService.handleError(err),
+        complete: () =>
+          this.scanService.handleScanComplete(this.scanMode.value),
+      });
     }
-
-    this.scanSubscribtion = (
-      this.scanMode.value === 'violations'
-        ? this.scanService.getAllViolations(range)
-        : (this.scanService.getAllDOTInspections(range) as Observable<any>)
-    ).subscribe({
-      next: (data: IViolations | IDOTInspections) =>
-        this.scanService.handleScanData(data, this.scanMode.value),
-      error: (err) => this.scanService.handleError(err),
-      complete: () => this.scanService.handleScanComplete(this.scanMode.value),
-    });
   };
 }
