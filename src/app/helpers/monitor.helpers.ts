@@ -24,29 +24,33 @@ export const computeEvents = (importedEvents: IEvent[]) => {
   let intermediateCount = 0;
 
   for (let i = 0; i < events.length; i++) {
+    events[i].computeIndex = i;
     events[i].statusName = getStatusName(events[i].dutyStatus);
     events[i].occurredDuringDriving = occurredDuringDriving;
 
     if (isDriving(events[i])) {
       occurredDuringDriving = true;
       currentDriving = events[i];
+      console.log(
+        'currentDriving: ',
+        currentDriving,
+        '\nindex: ',
+        i,
+        '\nviewId: ',
+        events[i].viewId
+      );
     }
     if (isIntermediate(events[i])) {
-      console.log('pre ++');
       intermediateCount++;
-      console.log('post ++');
       if (!currentDriving) {
-        events[i].error = true;
         events[i].errorMessage = 'outside driving scope';
       } else {
         let diff =
           +new Date(events[i].realStartTime) -
           +new Date(currentDriving.realStartTime);
         let remainder = diff % (3600 * 1000);
-        events[i].error = !(
-          3600 * 1000 - remainder <= 1000 || remainder <= 1000
-        );
-        events[i].error && (events[i].errorMessage = 'incorrect timestamp');
+        !(3600 * 1000 - remainder <= 1000 || remainder <= 1000) &&
+          (events[i].errorMessage = 'incorrect timestamp');
       }
     }
     if (
@@ -54,24 +58,54 @@ export const computeEvents = (importedEvents: IEvent[]) => {
         'ChangeToOffDutyStatus',
         'ChangeToSleeperBerthStatus',
         'ChangeToOnDutyNotDrivingStatus',
-      ].includes(events[i].dutyStatus)
+      ].includes(events[i].dutyStatus) ||
+      (i === events.length - 1 && currentDriving)
     ) {
-      if (currentDriving) {
-        if (
-          currentDriving.durationInSeconds ===
-          currentDriving.realDurationInSeconds
-        ) {
-          console.log(
-            Math.round(currentDriving.durationInSeconds / 60 / 60),
-            'math'
-          );
-          console.log(intermediateCount, 'intermediateCount');
-
-          Math.floor(currentDriving.durationInSeconds / 60 / 60) !==
+      if (currentDriving !== null) {
+        // case when driving has started within same day
+        if (currentDriving.realStartTime === currentDriving.startTime) {
+          Math.floor(currentDriving.durationInSeconds / 3600) !==
             intermediateCount &&
-            (events[currentDriving.viewId - 1].errorMessage =
+            (events[currentDriving.computeIndex].errorMessage =
               'incorrect intermediate count');
         }
+
+        // case when driving has started on previous day
+        // if (
+        //   currentDriving.realDurationInSeconds >
+        //   currentDriving.durationInSeconds
+        // ) {
+        //   let totalIntermediateCount = Math.floor(
+        //     currentDriving.realDurationInSeconds / 3600
+        //   );
+        //   let previousDayIntermediateCount = Math.floor(
+        //     (currentDriving.realDurationInSeconds -
+        //       currentDriving.durationInSeconds) /
+        //       3600
+        //   );
+        //   totalIntermediateCount - previousDayIntermediateCount !==
+        //     intermediateCount &&
+        //     (events[currentDriving.computeIndex].errorMessage =
+        //       'incorrect intermediate count');
+        // }
+        // case when ongoing driving has started on previous day
+        if (currentDriving.realDurationInSeconds === 0) {
+          const startTime = new Date(currentDriving.realStartTime).getTime();
+          const now = new Date().getTime();
+
+          const durationInSeconds = (now - startTime) / 1000;
+          const totalIntermediateCount = Math.floor(durationInSeconds / 3600);
+          const previousDayIntermediateCount = Math.floor(
+            durationInSeconds - currentDriving.durationInSeconds / 3600
+          );
+
+          totalIntermediateCount - previousDayIntermediateCount !==
+            intermediateCount &&
+            (events[currentDriving.computeIndex].errorMessage =
+              'incorrect intermediate count');
+        }
+
+        // case when checking drive that copntinues to next day
       }
 
       occurredDuringDriving = false;

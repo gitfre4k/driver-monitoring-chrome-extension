@@ -39,11 +39,12 @@
       li {
         .event {
           display: grid;
-          grid-template-columns: 30px 58px 100px 45px 1fr;
+          grid-template-columns: 30px 58px 100px minmax(45px, auto) 1fr;
           align-items: center;
           width: 100%;
 
           .view-id {
+            padding: 3px;
             margin: 0px 3px;
             text-align: right;
           }
@@ -74,6 +75,7 @@
 
           .duration {
             margin: 0px 5px;
+            white-space: pre-wrap;
           }
 
           .note {

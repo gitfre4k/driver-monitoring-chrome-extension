@@ -31,6 +31,7 @@ export interface IEvent {
   viewId: number;
   error: boolean;
   errorMessage: string;
+  computeIndex: number;
 }
 
 export interface IVehicle {

@@ -18,24 +18,27 @@
       @for (event of events(); track event.id) {
       <li>
         <div class="event">
-          <span class="view-id">{{ event.viewId }}.</span>
+          <span [ngClass]="'view-id ' + (event.errorMessage ? ' error': '')">{{ event.viewId }}.</span>
           <span [ngClass]="
               'odometer ' +
               ((event.isTeleport || event.error) ? 'error' : '') +
               (event.truckChange ? 'approved' : '')
             ">{{ event.odometer.toLocaleString() }}</span>
-          <p [ngClass]="'status ' + event.dutyStatus">{{ event.statusName }}</p>
+
+          <p [ngClass]="'status ' + event.dutyStatus ">{{
+            event.statusName }}</p>
+
+
+          @if(event.errorMessage) {
+          <span class="note" style="color: red; margin: 0px 5px;">{{ event.errorMessage }}</span>
+          }@else if(event.isTeleport) {
+          <span class="note" style="color: red; margin: 0px 5px;">teleport</span>
+          }@else {
           <span class="duration">{{
             event.realDurationInSeconds
             ? (event.realDurationInSeconds * 1000 | date : "HH:mm" : "UTC")
             : ""
             }}</span>
-
-          @if(event.errorMessage) {
-          <span class="note" style="color: red;">{{ event.errorMessage }}</span>
-          }@else if(event.isTeleport) {
-          <span class="note" style="color: red;">teleport</span>
-          }@else {
           <span class="note">{{ event.notes }}</span>
           }
         </div>
