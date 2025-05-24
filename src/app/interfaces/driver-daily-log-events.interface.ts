@@ -29,6 +29,7 @@ export interface IEvent {
   occurredDuringDriving: boolean;
   truckChange: boolean;
   viewId: number;
+  error: boolean;
 }
 
 export interface IVehicle {

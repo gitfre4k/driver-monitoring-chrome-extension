@@ -2,7 +2,7 @@ import { Injectable, inject, computed, signal, effect } from '@angular/core';
 import { ApiService } from './api.service';
 import {
   filterEvents,
-  bindEventStatusNames,
+  computeEvents,
   detectAndBindTeleport,
   bindEventViewId,
 } from '../helpers/monitor.helpers';
@@ -29,7 +29,7 @@ export class MonitorService {
 
     events = bindEventViewId(events);
     events = events.filter((event) => filterEvents(event));
-    events = bindEventStatusNames(events);
+    events = computeEvents(events);
     events = detectAndBindTeleport(events);
 
     return events;

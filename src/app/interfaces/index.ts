@@ -105,6 +105,13 @@ export interface IEvent {
   averageSpeed?: number;
   coDriverDisplayName: string;
   coDriverId: string;
+
+  statusName: string;
+  isTeleport: boolean;
+  occurredDuringDriving: boolean;
+  truckChange: boolean;
+  viewId: number;
+  error: boolean;
 }
 
 export interface IDriver {

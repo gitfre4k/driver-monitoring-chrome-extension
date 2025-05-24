@@ -1,11 +1,5 @@
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 
-export const detectAndCheckIntermediateValidity = (
-  importedEvents: IEvent[]
-) => {
-  let events = [...importedEvents];
-};
-
 export const bindEventViewId = (importedEvents: IEvent[]) => {
   let events = [...importedEvents];
   for (let i = 0; i < events.length; i++) {
@@ -22,17 +16,34 @@ export const filterEvents = (event: IEvent): boolean => {
   ].includes(event.eventType);
 };
 
-export const bindEventStatusNames = (importedEvents: IEvent[]) => {
+export const computeEvents = (importedEvents: IEvent[]) => {
   let events = [...importedEvents];
 
   let occurredDuringDriving = false;
+  let currentDriving: IEvent | null = null;
+  let intermediateCount = 0;
 
   for (let i = 0; i < events.length; i++) {
     events[i].statusName = getStatusName(events[i].dutyStatus);
-
     events[i].occurredDuringDriving = occurredDuringDriving;
+
     if (isDriving(events[i])) {
       occurredDuringDriving = true;
+      currentDriving = events[i];
+    }
+    if (isIntermediate(events[i])) {
+      intermediateCount++;
+      if (!currentDriving) {
+        events[i].error = true;
+      } else {
+        let diff =
+          +new Date(events[i].realStartTime) -
+          +new Date(currentDriving.realStartTime);
+        let remainder = diff % (3600 * 1000);
+        events[i].error = !(
+          3600 * 1000 - remainder <= 1000 || remainder <= 1000
+        );
+      }
     }
     if (
       [
@@ -43,6 +54,8 @@ export const bindEventStatusNames = (importedEvents: IEvent[]) => {
     ) {
       occurredDuringDriving = false;
       events[i].occurredDuringDriving = false;
+      currentDriving = null;
+      intermediateCount = 0;
     }
   }
   return events;
@@ -97,6 +110,6 @@ const isTeleport = (ev1: IEvent, ev2: IEvent) => {
 const isDriving = (ev: IEvent) => {
   return ev.statusName === 'Driving';
 };
-const isInter = (ev: IEvent) => {
+const isIntermediate = (ev: IEvent) => {
   return ev.statusName === 'Intermediate';
 };

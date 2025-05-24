@@ -19,20 +19,17 @@
       <li>
         <div class="event">
           <span class="view-id">{{ event.viewId }}.</span>
-          <span
-            [ngClass]="
+          <span [ngClass]="
               'odometer ' +
-              (event.isTeleport ? 'error' : '') +
+              ((event.isTeleport || event.error) ? 'error' : '') +
               (event.truckChange ? 'approved' : '')
-            "
-            >{{ event.odometer.toLocaleString() }}</span
-          >
+            ">{{ event.odometer.toLocaleString() }}</span>
           <p [ngClass]="'status ' + event.dutyStatus">{{ event.statusName }}</p>
           <span class="duration">{{
             event.durationInSeconds
-              ? (event.durationInSeconds * 1000 | date : "HH:mm" : "UTC")
-              : ""
-          }}</span>
+            ? (event.durationInSeconds * 1000 | date : "HH:mm" : "UTC")
+            : ""
+            }}</span>
           <span class="note">{{ event.notes }}</span>
         </div>
       </li>
