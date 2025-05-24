@@ -30,6 +30,7 @@ export interface IEvent {
   truckChange: boolean;
   viewId: number;
   error: boolean;
+  errorMessage: string;
 }
 
 export interface IVehicle {

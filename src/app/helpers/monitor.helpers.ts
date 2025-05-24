@@ -32,9 +32,12 @@ export const computeEvents = (importedEvents: IEvent[]) => {
       currentDriving = events[i];
     }
     if (isIntermediate(events[i])) {
+      console.log('pre ++');
       intermediateCount++;
+      console.log('post ++');
       if (!currentDriving) {
         events[i].error = true;
+        events[i].errorMessage = 'outside driving scope';
       } else {
         let diff =
           +new Date(events[i].realStartTime) -
@@ -43,6 +46,7 @@ export const computeEvents = (importedEvents: IEvent[]) => {
         events[i].error = !(
           3600 * 1000 - remainder <= 1000 || remainder <= 1000
         );
+        events[i].error && (events[i].errorMessage = 'incorrect timestamp');
       }
     }
     if (
@@ -52,6 +56,24 @@ export const computeEvents = (importedEvents: IEvent[]) => {
         'ChangeToOnDutyNotDrivingStatus',
       ].includes(events[i].dutyStatus)
     ) {
+      if (currentDriving) {
+        if (
+          currentDriving.durationInSeconds ===
+          currentDriving.realDurationInSeconds
+        ) {
+          console.log(
+            Math.round(currentDriving.durationInSeconds / 60 / 60),
+            'math'
+          );
+          console.log(intermediateCount, 'intermediateCount');
+
+          Math.floor(currentDriving.durationInSeconds / 60 / 60) !==
+            intermediateCount &&
+            (events[currentDriving.viewId - 1].errorMessage =
+              'incorrect intermediate count');
+        }
+      }
+
       occurredDuringDriving = false;
       events[i].occurredDuringDriving = false;
       currentDriving = null;

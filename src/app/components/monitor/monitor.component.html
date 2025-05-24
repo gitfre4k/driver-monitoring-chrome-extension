@@ -26,11 +26,18 @@
             ">{{ event.odometer.toLocaleString() }}</span>
           <p [ngClass]="'status ' + event.dutyStatus">{{ event.statusName }}</p>
           <span class="duration">{{
-            event.durationInSeconds
-            ? (event.durationInSeconds * 1000 | date : "HH:mm" : "UTC")
+            event.realDurationInSeconds
+            ? (event.realDurationInSeconds * 1000 | date : "HH:mm" : "UTC")
             : ""
             }}</span>
+
+          @if(event.errorMessage) {
+          <span class="note" style="color: red;">{{ event.errorMessage }}</span>
+          }@else if(event.isTeleport) {
+          <span class="note" style="color: red;">teleport</span>
+          }@else {
           <span class="note">{{ event.notes }}</span>
+          }
         </div>
       </li>
       }
