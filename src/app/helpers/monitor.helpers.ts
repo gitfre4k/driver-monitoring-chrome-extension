@@ -63,40 +63,30 @@ export const computeEvents = (importedEvents: IEvent[]) => {
     ) {
       if (currentDriving !== null) {
         // case when driving has started within same day
-        if (currentDriving.realStartTime === currentDriving.startTime) {
-          Math.floor(currentDriving.durationInSeconds / 3600) !==
+        if (
+          currentDriving.realStartTime === currentDriving.startTime &&
+          currentDriving
+        ) {
+          Math.floor((currentDriving.durationInSeconds - 1) / 3600) !== // -1
             intermediateCount &&
             (events[currentDriving.computeIndex].errorMessage =
               'incorrect intermediate count');
         }
 
         // case when driving has started on previous day
-        // if (
-        //   currentDriving.realDurationInSeconds >
-        //   currentDriving.durationInSeconds
-        // ) {
-        //   let totalIntermediateCount = Math.floor(
-        //     currentDriving.realDurationInSeconds / 3600
-        //   );
-        //   let previousDayIntermediateCount = Math.floor(
-        //     (currentDriving.realDurationInSeconds -
-        //       currentDriving.durationInSeconds) /
-        //       3600
-        //   );
-        //   totalIntermediateCount - previousDayIntermediateCount !==
-        //     intermediateCount &&
-        //     (events[currentDriving.computeIndex].errorMessage =
-        //       'incorrect intermediate count');
-        // }
-        // case when ongoing driving has started on previous day
-        if (currentDriving.realDurationInSeconds === 0) {
-          const startTime = new Date(currentDriving.realStartTime).getTime();
-          const now = new Date().getTime();
 
-          const durationInSeconds = (now - startTime) / 1000;
-          const totalIntermediateCount = Math.floor(durationInSeconds / 3600);
-          const previousDayIntermediateCount = Math.floor(
-            durationInSeconds - currentDriving.durationInSeconds / 3600
+        if (
+          currentDriving.realDurationInSeconds >
+            currentDriving.durationInSeconds &&
+          currentDriving.realStartTime !== currentDriving.startTime
+        ) {
+          let totalIntermediateCount = Math.floor(
+            (currentDriving.realDurationInSeconds - 1) / 3600 // -1
+          );
+          let previousDayIntermediateCount = Math.floor(
+            (currentDriving.realDurationInSeconds -
+              currentDriving.durationInSeconds) /
+              3600
           );
 
           totalIntermediateCount - previousDayIntermediateCount !==
@@ -105,7 +95,41 @@ export const computeEvents = (importedEvents: IEvent[]) => {
               'incorrect intermediate count');
         }
 
-        // case when checking drive that copntinues to next day
+        // case when chcking ongoing driving that continues into the next day
+
+        if (
+          currentDriving.realDurationInSeconds === 0 &&
+          currentDriving.startTime !== currentDriving.realStartTime
+        ) {
+          const startTime = new Date(currentDriving.realStartTime).getTime();
+          const now = new Date().getTime();
+
+          const durationInSeconds = (now - startTime) / 1000 - 1; // -1
+
+          const totalIntermediateCount = Math.floor(durationInSeconds / 3600);
+
+          const previousDayIntermediateCount = Math.floor(
+            (durationInSeconds - currentDriving.durationInSeconds) / 3600
+          );
+
+          console.log(
+            'qwe',
+            durationInSeconds,
+            currentDriving.durationInSeconds
+          );
+
+          totalIntermediateCount - previousDayIntermediateCount !==
+            intermediateCount &&
+            (events[currentDriving.computeIndex].errorMessage =
+              'incorrect intermediate count');
+
+          console.log(
+            previousDayIntermediateCount,
+            totalIntermediateCount,
+            totalIntermediateCount - previousDayIntermediateCount,
+            intermediateCount
+          );
+        }
       }
 
       occurredDuringDriving = false;

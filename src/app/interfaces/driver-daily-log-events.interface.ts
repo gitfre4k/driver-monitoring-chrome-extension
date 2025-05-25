@@ -23,6 +23,7 @@ export interface IEvent {
   elapsedEngineHours: number;
   accumulatedVehicleMiles: number;
   isEventMissingPowerUp: boolean;
+  realEndTime: string;
 
   statusName: string;
   isTeleport: boolean;
