@@ -12,12 +12,10 @@ export class AdvancedScanService {
   private apiService: ApiService = inject(ApiService);
   private progressBarService = inject(ProgressBarService);
 
-  sliderValue = signal(5400); // 1h30min
+  sliderValue = signal(4200); // 1h10min
 
   currentCompany = signal({} as ITenant);
   advancedScanResults = this.progressBarService.advancedResaults;
-  // detectedOnDuties = this.progressBarService.prolengedOnDuties;
-  // malfOrDataDiagDetection = this.progressBarService.malfOrDataDiagDetection;
 
   constructor() {}
 
@@ -26,12 +24,7 @@ export class AdvancedScanService {
       tap((tenants) => {
         this.progressBarService.constant.set(100 / tenants.length);
       }),
-      mergeMap((tenant) =>
-        from(tenant)
-          .pipe
-          // take(5)
-          ()
-      )
+      mergeMap((tenant) => from(tenant).pipe(take(8)))
     );
   };
 
@@ -52,6 +45,7 @@ export class AdvancedScanService {
 
   handleDriverDailyLogEvents(driverDailyLogs: IDriverDailyLogEvents) {
     console.log(driverDailyLogs.driverFullName, driverDailyLogs);
+    this.progressBarService.currentDriver.set(driverDailyLogs.driverFullName);
     let events = driverDailyLogs.events;
     for (let i = 0; i < events.length; i++) {
       if (
@@ -63,20 +57,49 @@ export class AdvancedScanService {
           id: events[i].eventSequenceNumber,
         });
       }
-      if (
-        events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus' &&
-        (events[i].realDurationInSeconds > this.sliderValue() ||
-          events[i].durationInSeconds > this.sliderValue())
-      ) {
-        this.advancedScanResults.prolengedOnDuties.push({
-          driverName: driverDailyLogs.driverFullName,
-          company: driverDailyLogs.companyName,
-          id: events[i].eventSequenceNumber,
-          duration: {
-            logged: events[i].durationInSeconds,
-            real: events[i].realDurationInSeconds,
-          },
-        });
+      // if (
+      //   events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus' &&
+      //   (events[i].realDurationInSeconds > this.sliderValue() ||
+      //     events[i].durationInSeconds > this.sliderValue())
+      // ) {
+      //   this.advancedScanResults.prolengedOnDuties.push({
+      //     driverName: driverDailyLogs.driverFullName,
+      //     company: driverDailyLogs.companyName,
+      //     id: events[i].eventSequenceNumber,
+      //     duration: {
+      //       logged: events[i].durationInSeconds,
+      //       real: events[i].realDurationInSeconds,
+      //     },
+      //   });
+      // }
+
+      if (events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {
+        const duration = () => {
+          // OnDuty has started and ended within same day
+          if (events[i].realDurationInSeconds === events[i].durationInSeconds)
+            return events[i].durationInSeconds;
+
+          // OnDuty has started on previous day and ended on current day
+          if (events[i].realDurationInSeconds > events[i].durationInSeconds) {
+            return events[i].realDurationInSeconds;
+          }
+          // ongoin OnDuty has started on previous day
+          else {
+            const startTime = new Date(events[i].realStartTime).getTime();
+            const now = new Date().getTime();
+
+            return (now - startTime) / 1000;
+          }
+        };
+
+        if (duration() > this.sliderValue()) {
+          this.advancedScanResults.prolengedOnDuties.push({
+            driverName: driverDailyLogs.driverFullName,
+            company: driverDailyLogs.companyName,
+            id: events[i].eventSequenceNumber,
+            duration: duration(),
+          });
+        }
       }
     }
   }

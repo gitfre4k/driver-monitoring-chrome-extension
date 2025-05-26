@@ -1,13 +1,9 @@
 <div class="test">
   <p>set prolonged On Duty duration</p>
-  <label class="example-value-label"
-    >{{ +slider.value * 1000 | date : "H:mm" : "UTC" }}+</label
-  >
+  <label class="example-value-label">{{ +slider.value * 1000 | date : "H:mm" : "UTC" }}+</label>
   <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
     <input matSliderThumb [(ngModel)]="sliderValue" #slider />
   </mat-slider>
-
-  <!-- <button mat-raised-button (click)="getLogs()">Scan</button> -->
 
   @if (currentCompany()) { } @if(detectedOnDuties.length > 0) {
   <h3>Prolonged On Dyties</h3>
@@ -19,9 +15,7 @@
       <p>
         - prolonged On Duty duration:
         {{
-          (result.duration.real >= result.duration.logged
-            ? result.duration.real
-            : result.duration.logged) * 1000 | date : "H:mm" : "UTC"
+        (result.duration * 1000) | date : "H:mm" : "UTC"
         }}
       </p>
     </li>

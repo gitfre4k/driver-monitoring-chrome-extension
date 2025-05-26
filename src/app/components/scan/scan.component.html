@@ -15,18 +15,11 @@
     <mat-form-field>
       <mat-label>Enter a date range</mat-label>
       <mat-date-range-input [formGroup]="range" [rangePicker]="picker1">
-        <input
-          matStartDate
-          formControlName="dateFrom"
-          placeholder="Start date"
-        />
+        <input matStartDate formControlName="dateFrom" placeholder="Start date" />
         <input matEndDate formControlName="dateTo" placeholder="End date" />
         <mat-hint>MM/DD/YYYY</mat-hint>
       </mat-date-range-input>
-      <mat-datepicker-toggle
-        matIconSuffix
-        [for]="picker1"
-      ></mat-datepicker-toggle>
+      <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
       <mat-date-range-picker #picker1></mat-date-range-picker>
 
       @if (range.controls.dateFrom.hasError('matStartDateInvalid')) {
@@ -39,7 +32,6 @@
     <mat-form-field [formGroup]="range">
       <mat-label>Choose a date</mat-label>
       <input matInput [matDatepicker]="picker2" formControlName="dateTo" />
-      <mat-hint>MM/DD/YYYY</mat-hint>
       <mat-datepicker-toggle matIconSuffix [for]="picker2">
         <mat-icon matDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
       </mat-datepicker-toggle>
@@ -55,8 +47,5 @@
 </div>
 
 } @else {
-<app-progress-bar
-  [scanSubscription]="scanSubscribtion"
-  [scanMode]="scanMode.value"
-></app-progress-bar>
+<app-progress-bar [scanSubscription]="scanSubscribtion" [scanMode]="scanMode.value"></app-progress-bar>
 }

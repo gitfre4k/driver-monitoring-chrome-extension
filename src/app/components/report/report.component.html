@@ -14,11 +14,7 @@
       <li>
         <h3>{{ onDuty.company }}</h3>
         <div class="driver">
-          <a
-            mat-icon-button
-            (click)="copyDriverName(onDuty.driverName)"
-            matTooltip="Copy to clipboard"
-          >
+          <a mat-icon-button (click)="copyDriverName(onDuty.driverName)" matTooltip="Copy to clipboard">
             <mat-icon>content_copy</mat-icon>
           </a>
           <p>{{ onDuty.driverName }}</p>
@@ -26,9 +22,7 @@
         <p>
           - prolonged On Duty duration:
           {{
-            (onDuty.duration.real >= onDuty.duration.logged
-              ? onDuty.duration.real
-              : onDuty.duration.logged) * 1000 | date : "H:mm" : "UTC"
+          (onDuty.duration * 1000) | date : "H:mm" : "UTC"
           }}
         </p>
       </li>
@@ -37,9 +31,7 @@
     <mat-divider></mat-divider>
   </mat-dialog-content>
   } @if (!advancedScanResults.malfOrDataDiagDetection.length) {
-  <mat-dialog-content
-    >No malfunctions or data diagnostics detected.</mat-dialog-content
-  >
+  <mat-dialog-content>No malfunctions or data diagnostics detected.</mat-dialog-content>
   } @else {
   <mat-dialog-content class="mat-typography">
     <ul>
@@ -48,11 +40,7 @@
       <li>
         <h3>{{ detection.company }}</h3>
         <div class="driver">
-          <a
-            mat-icon-button
-            (click)="copyDriverName(detection.driverName)"
-            matTooltip="Copy to clipboard"
-          >
+          <a mat-icon-button (click)="copyDriverName(detection.driverName)" matTooltip="Copy to clipboard">
             <mat-icon>content_copy</mat-icon>
           </a>
           <p>{{ detection.driverName }}</p>
@@ -87,11 +75,7 @@
 
     @for (item of violation.violations.items; track item.id) {
     <div class="driver">
-      <a
-        mat-icon-button
-        (click)="copyDriverName(item.driverName)"
-        matTooltip="Copy to clipboard"
-      >
+      <a mat-icon-button (click)="copyDriverName(item.driverName)" matTooltip="Copy to clipboard">
         <mat-icon>content_copy</mat-icon>
       </a>
       <p>{{ item.driverName }}</p>
@@ -130,11 +114,7 @@
 
     @for (item of inspection.inspections.items; track item.id) {
     <div class="driver">
-      <a
-        mat-icon-button
-        (click)="copyDriverName(item.driverFullName)"
-        matTooltip="Copy to clipboard"
-      >
+      <a mat-icon-button (click)="copyDriverName(item.driverFullName)" matTooltip="Copy to clipboard">
         <mat-icon>content_copy</mat-icon>
       </a>
       <p>{{ item.driverFullName }}</p>

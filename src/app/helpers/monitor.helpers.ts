@@ -9,11 +9,13 @@ export const bindEventViewId = (importedEvents: IEvent[]) => {
 };
 
 export const filterEvents = (event: IEvent): boolean => {
-  return [
-    'ChangeInDriversDutyStatus',
-    'IntermediateLog',
-    'CmvEnginePowerUpOrShutDownActivity',
-  ].includes(event.eventType);
+  return (
+    [
+      'ChangeInDriversDutyStatus',
+      'IntermediateLog',
+      'CmvEnginePowerUpOrShutDownActivity',
+    ].includes(event.eventType) || event.dutyStatus === 'Dvir'
+  );
 };
 
 export const computeEvents = (importedEvents: IEvent[]) => {
@@ -74,7 +76,6 @@ export const computeEvents = (importedEvents: IEvent[]) => {
         }
 
         // case when driving has started on previous day
-
         if (
           currentDriving.realDurationInSeconds >
             currentDriving.durationInSeconds &&
@@ -95,8 +96,7 @@ export const computeEvents = (importedEvents: IEvent[]) => {
               'incorrect intermediate count');
         }
 
-        // case when chcking ongoing driving that continues into the next day
-
+        // case when chcking ongoing driving has started on previous day
         if (
           currentDriving.realDurationInSeconds === 0 &&
           currentDriving.startTime !== currentDriving.realStartTime
@@ -112,23 +112,10 @@ export const computeEvents = (importedEvents: IEvent[]) => {
             (durationInSeconds - currentDriving.durationInSeconds) / 3600
           );
 
-          console.log(
-            'qwe',
-            durationInSeconds,
-            currentDriving.durationInSeconds
-          );
-
           totalIntermediateCount - previousDayIntermediateCount !==
             intermediateCount &&
             (events[currentDriving.computeIndex].errorMessage =
               'incorrect intermediate count');
-
-          console.log(
-            previousDayIntermediateCount,
-            totalIntermediateCount,
-            totalIntermediateCount - previousDayIntermediateCount,
-            intermediateCount
-          );
         }
       }
 
@@ -168,6 +155,8 @@ const getStatusName = (dutyStatus: string): string => {
     case 'EngineShutDownConventionalLocationPrecision':
     case 'EngineShutDownReducedLocationPrecision':
       return 'Engine Off';
+    case 'Dvir':
+      return 'DVIR';
     default:
       return '?';
   }

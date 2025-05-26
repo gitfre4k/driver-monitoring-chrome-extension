@@ -155,7 +155,7 @@ export interface IDetectedOnDuty {
   driverName: string;
   company: string;
   id: string;
-  duration: { logged: number; real: number };
+  duration: number;
 }
 
 export interface IMalfOrDataDiagDetection {

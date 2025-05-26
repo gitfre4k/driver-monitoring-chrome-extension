@@ -10,12 +10,9 @@
     }
 
     <p>{{ currentCompany() }}</p>
+    @if (currentDriver()) {<p>{{currentDriver()}}</p>}
     <section>
-      <mat-progress-bar
-        [mode]="'determinate'"
-        [value]="value()"
-        [bufferValue]="bufferValue"
-      >
+      <mat-progress-bar [mode]="'determinate'" [value]="value()" [bufferValue]="bufferValue">
       </mat-progress-bar>
     </section>
     <button mat-button (click)="stopScan()">Stop</button>

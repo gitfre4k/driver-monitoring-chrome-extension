@@ -15,6 +15,7 @@ export class ProgressBarService {
   bufferValue = signal(0);
   constant = signal(0);
   currentCompany = signal('');
+  currentDriver = signal('');
   totalCount = signal(0);
 
   violations: IScanViolations[] = [];

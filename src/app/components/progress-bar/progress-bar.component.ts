@@ -26,6 +26,7 @@ export class ProgressBarComponent {
   bufferValue = this.progressBarService.bufferValue;
   constant = this.progressBarService.constant;
   currentCompany = this.progressBarService.currentCompany;
+  currentDriver = this.progressBarService.currentDriver;
   totalCount = this.progressBarService.totalCount;
 
   stopScan() {
