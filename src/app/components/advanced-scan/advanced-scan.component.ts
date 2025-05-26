@@ -6,10 +6,19 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonModule } from '@angular/material/button';
 import { AdvancedScanService } from '../../services/advanced-scan.service';
 import { ProgressBarService } from '../../services/progress-bar.service';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-advanced-scan',
-  imports: [CommonModule, MatSliderModule, FormsModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    MatSliderModule,
+    FormsModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+  ],
   templateUrl: './advanced-scan.component.html',
   styleUrl: './advanced-scan.component.scss',
 })
@@ -17,7 +26,7 @@ export class AdvancedScanComponent {
   private advancedScanService = inject(AdvancedScanService);
   private progressBarService = inject(ProgressBarService);
 
-  readonly sliderValue = this.advancedScanService.sliderValue;
+  readonly sliderValue = this.advancedScanService.prolongedOnDutiesDuration;
   readonly currentCompany = this.progressBarService.currentCompany;
   readonly progress = this.progressBarService.progressValue;
 
@@ -26,7 +35,12 @@ export class AdvancedScanComponent {
   readonly malfOrDataDiagDetection =
     this.progressBarService.advancedResaults.malfOrDataDiagDetection;
 
-  // getLogs() {
-  //   this.advancedScanService.getLogs().subscribe();
-  // }
+  prolongedOnDuties = true;
+  intermediateValidity = true;
+  malfunctionsOrDataDiagnostics = true;
+  pcYm = true;
+  teleports = true;
+  disconnectedDrivings = true;
+  doubleDutyStatuses = true;
+  prolongedEngineHours = true;
 }

@@ -151,20 +151,22 @@ export interface ITenant extends ICompany {
   webApiUrl?: string;
 }
 
-export interface IDetectedOnDuty {
-  driverName: string;
-  company: string;
-  id: string;
-  duration: number;
+export interface IDetectedOnDuties {
+  [company: string]: {
+    driverName: string;
+    id: string;
+    duration: number;
+  }[];
 }
 
 export interface IMalfOrDataDiagDetection {
-  company: string;
-  driverName: string;
-  id: string;
+  [company: string]: {
+    driverName: string;
+    id: string;
+  }[];
 }
 
 export interface IAdvancedResaults {
-  prolengedOnDuties: IDetectedOnDuty[];
-  malfOrDataDiagDetection: IMalfOrDataDiagDetection[];
+  prolengedOnDuties: IDetectedOnDuties;
+  malfOrDataDiagDetection: IMalfOrDataDiagDetection;
 }

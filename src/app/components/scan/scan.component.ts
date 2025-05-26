@@ -1,6 +1,5 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdvancedScanComponent } from '../advanced-scan/advanced-scan.component';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +7,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { AdvancedScanComponent } from '../advanced-scan/advanced-scan.component';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -56,6 +56,7 @@ export class ScanComponent {
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
   private progressBarService = inject(ProgressBarService);
+
   readonly dialog = inject(MatDialog);
 
   private currentDate =

@@ -12,14 +12,6 @@
       mat-align-tabs="start"
       id="tab-group"
     >
-      <!-- <mat-tab label="Test">
-        <ng-template mat-tab-label>
-          <mat-icon>bug_report</mat-icon>
-          <span class="hide">Test</span>
-        </ng-template>
-        <app-advanced-scan></app-advanced-scan>
-      </mat-tab> -->
-
       <mat-tab label="Scan">
         <ng-template mat-tab-label>
           <mat-icon id="radar-icon">radar</mat-icon>
@@ -47,10 +39,8 @@
           <mat-icon>info</mat-icon>
           <span class="hide">About</span>
         </ng-template>
-        <div class="tab-group tab-group-3">
-          <p>Driver Monitoring Chrome Extension</p>
-          <p>version: 0.0.3</p>
-        </div>
+
+        <app-info></app-info>
       </mat-tab>
     </mat-tab-group>
   </mat-card>

@@ -1,0 +1,15 @@
+.tab-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-group.tab-group-3 {
+  align-items: end;
+  justify-content: end;
+  height: calc(100% - 32px);
+  padding: 12px 20px;
+
+  p {
+    margin: 0;
+  }
+}

@@ -21,8 +21,8 @@ export class ProgressBarService {
   violations: IScanViolations[] = [];
   inspections: IScanDOTInspections[] = [];
   advancedResaults: IAdvancedResaults = {
-    prolengedOnDuties: [],
-    malfOrDataDiagDetection: [],
+    prolengedOnDuties: {},
+    malfOrDataDiagDetection: {},
   };
 
   errors: IScanErrors[] = [];

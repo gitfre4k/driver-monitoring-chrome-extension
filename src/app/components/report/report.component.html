@@ -1,63 +1,77 @@
 <div class="dialog">
+  <!-- prolonged OnDutuis -->
   @if (advancedScanResults) {
   <div class="violation-report">
     <mat-icon>article</mat-icon>
     <h3 mat-dialog-title>Advanced Scan Results</h3>
   </div>
 
-  @if (!advancedScanResults.prolengedOnDuties.length) {
-  <mat-dialog-content>No prolonged On Duties detected.</mat-dialog-content>
-  } @else {
   <mat-dialog-content class="mat-typography">
+    @if (!advancedScanResults.prolengedOnDuties) {
+    <p>No prolonged On Duties detected.</p>
+    } @else {
     <ul>
-      @for (onDuty of advancedScanResults.prolengedOnDuties; track onDuty.id) {
+      @for (onDuty of advancedScanResults.prolengedOnDuties | keyvalue; track
+      onDuty.key) {
       <li>
-        <h3>{{ onDuty.company }}</h3>
+        <h3>{{ onDuty.key }}</h3>
+        @for (driver of onDuty.value; track driver.id) {
         <div class="driver">
-          <a mat-icon-button (click)="copyDriverName(onDuty.driverName)" matTooltip="Copy to clipboard">
+          <a
+            mat-icon-button
+            (click)="copyDriverName(driver.driverName)"
+            matTooltip="Copy to clipboard"
+          >
             <mat-icon>content_copy</mat-icon>
           </a>
-          <p>{{ onDuty.driverName }}</p>
+          <p>{{ driver.driverName }}</p>
         </div>
         <p>
           - prolonged On Duty duration:
-          {{
-          (onDuty.duration * 1000) | date : "H:mm" : "UTC"
-          }}
+          {{ driver.duration * 1000 | date : "H:mm" : "UTC" }}
         </p>
+        }
       </li>
       }
     </ul>
     <mat-divider></mat-divider>
-  </mat-dialog-content>
-  } @if (!advancedScanResults.malfOrDataDiagDetection.length) {
-  <mat-dialog-content>No malfunctions or data diagnostics detected.</mat-dialog-content>
-  } @else {
-  <mat-dialog-content class="mat-typography">
+
+    }
+
+    <!-- malfunctions or data diagnostics -->
+    @if (!advancedScanResults.malfOrDataDiagDetection) {
+    <p>No malfunctions or data diagnostics detected.</p>
+    } @else {
+
     <ul>
-      @for (detection of advancedScanResults.malfOrDataDiagDetection; track
-      detection.id) {
+      @for (detection of advancedScanResults.malfOrDataDiagDetection | keyvalue;
+      track detection.key) {
       <li>
-        <h3>{{ detection.company }}</h3>
+        <h3>{{ detection.key }}</h3>
+        @for (driver of detection.value; track driver.id) {
         <div class="driver">
-          <a mat-icon-button (click)="copyDriverName(detection.driverName)" matTooltip="Copy to clipboard">
+          <a
+            mat-icon-button
+            (click)="copyDriverName(driver.driverName)"
+            matTooltip="Copy to clipboard"
+          >
             <mat-icon>content_copy</mat-icon>
           </a>
-          <p>{{ detection.driverName }}</p>
+          <p>{{ driver.driverName }}</p>
         </div>
         <p>- malfunction or data diagnostic detected</p>
+        }
       </li>
       }
     </ul>
     <mat-divider></mat-divider>
+    }
   </mat-dialog-content>
-  } }
 
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Close</button>
   </mat-dialog-actions>
-
-  @if (violations) {
+  } @if (violations) {
   <div class="violation-report">
     <mat-icon>article</mat-icon>
     <h3 mat-dialog-title>Violations</h3>
@@ -75,7 +89,11 @@
 
     @for (item of violation.violations.items; track item.id) {
     <div class="driver">
-      <a mat-icon-button (click)="copyDriverName(item.driverName)" matTooltip="Copy to clipboard">
+      <a
+        mat-icon-button
+        (click)="copyDriverName(item.driverName)"
+        matTooltip="Copy to clipboard"
+      >
         <mat-icon>content_copy</mat-icon>
       </a>
       <p>{{ item.driverName }}</p>
@@ -114,7 +132,11 @@
 
     @for (item of inspection.inspections.items; track item.id) {
     <div class="driver">
-      <a mat-icon-button (click)="copyDriverName(item.driverFullName)" matTooltip="Copy to clipboard">
+      <a
+        mat-icon-button
+        (click)="copyDriverName(item.driverFullName)"
+        matTooltip="Copy to clipboard"
+      >
         <mat-icon>content_copy</mat-icon>
       </a>
       <p>{{ item.driverFullName }}</p>

@@ -12,7 +12,7 @@ export class AdvancedScanService {
   private apiService: ApiService = inject(ApiService);
   private progressBarService = inject(ProgressBarService);
 
-  sliderValue = signal(4200); // 1h10min
+  prolongedOnDutiesDuration = signal(4200); // 1h10min
 
   currentCompany = signal({} as ITenant);
   advancedScanResults = this.progressBarService.advancedResaults;
@@ -24,7 +24,12 @@ export class AdvancedScanService {
       tap((tenants) => {
         this.progressBarService.constant.set(100 / tenants.length);
       }),
-      mergeMap((tenant) => from(tenant).pipe(take(8)))
+      mergeMap((tenant) =>
+        from(tenant)
+          .pipe
+          //
+          ()
+      )
     );
   };
 
@@ -51,27 +56,24 @@ export class AdvancedScanService {
       if (
         events[i].eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence'
       ) {
-        this.advancedScanResults.malfOrDataDiagDetection.push({
-          company: driverDailyLogs.companyName,
+        const malfDetails = {
           driverName: driverDailyLogs.driverFullName,
           id: events[i].eventSequenceNumber,
-        });
+        };
+        if (
+          this.advancedScanResults.malfOrDataDiagDetection[
+            driverDailyLogs.companyName
+          ]
+        ) {
+          this.advancedScanResults.malfOrDataDiagDetection[
+            driverDailyLogs.companyName
+          ].push(malfDetails);
+        } else {
+          this.advancedScanResults.malfOrDataDiagDetection[
+            driverDailyLogs.companyName
+          ] = [malfDetails];
+        }
       }
-      // if (
-      //   events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus' &&
-      //   (events[i].realDurationInSeconds > this.sliderValue() ||
-      //     events[i].durationInSeconds > this.sliderValue())
-      // ) {
-      //   this.advancedScanResults.prolengedOnDuties.push({
-      //     driverName: driverDailyLogs.driverFullName,
-      //     company: driverDailyLogs.companyName,
-      //     id: events[i].eventSequenceNumber,
-      //     duration: {
-      //       logged: events[i].durationInSeconds,
-      //       real: events[i].realDurationInSeconds,
-      //     },
-      //   });
-      // }
 
       if (events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {
         const duration = () => {
@@ -92,13 +94,25 @@ export class AdvancedScanService {
           }
         };
 
-        if (duration() > this.sliderValue()) {
-          this.advancedScanResults.prolengedOnDuties.push({
+        if (duration() > this.prolongedOnDutiesDuration()) {
+          const prolongedOnDuty = {
             driverName: driverDailyLogs.driverFullName,
-            company: driverDailyLogs.companyName,
             id: events[i].eventSequenceNumber,
             duration: duration(),
-          });
+          };
+          if (
+            this.advancedScanResults.prolengedOnDuties[
+              driverDailyLogs.companyName
+            ]
+          ) {
+            this.advancedScanResults.prolengedOnDuties[
+              driverDailyLogs.companyName
+            ].push(prolongedOnDuty);
+          } else {
+            this.advancedScanResults.prolengedOnDuties[
+              driverDailyLogs.companyName
+            ] = [prolongedOnDuty];
+          }
         }
       }
     }

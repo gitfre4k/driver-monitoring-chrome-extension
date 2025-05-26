@@ -1,36 +1,44 @@
 <div class="test">
-  <p>set prolonged On Duty duration</p>
-  <label class="example-value-label">{{ +slider.value * 1000 | date : "H:mm" : "UTC" }}+</label>
-  <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
-    <input matSliderThumb [(ngModel)]="sliderValue" #slider />
-  </mat-slider>
+  <mat-checkbox class="check" [(ngModel)]="prolongedOnDuties"
+    >prolonged On Duties</mat-checkbox
+  >
+  <div class="group">
+    <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
+      <input matSliderThumb [(ngModel)]="sliderValue" #slider />
+    </mat-slider>
+    <mat-label class="example-value-mat-label"
+      >duration: {{ +slider.value * 1000 | date : "H:mm" : "UTC" }}h+</mat-label
+    >
+  </div>
 
-  @if (currentCompany()) { } @if(detectedOnDuties.length > 0) {
-  <h3>Prolonged On Dyties</h3>
-  <ul>
-    @for(result of detectedOnDuties; track result.id) {
-    <li>
-      <h3>{{ result.company }}</h3>
-      <p>{{ result.driverName }}</p>
-      <p>
-        - prolonged On Duty duration:
-        {{
-        (result.duration * 1000) | date : "H:mm" : "UTC"
-        }}
-      </p>
-    </li>
-    }
-  </ul>
-  @if (malfOrDataDiagDetection.length > 0) {
-  <h3>Malfunction or Data Diagnostic</h3>
-  <ul>
-    @for(malf of malfOrDataDiagDetection; track malf.id) {
-    <li>
-      <h3>{{ malf.company }}</h3>
-      <p>{{ malf.driverName }}</p>
-      <p>- malfunction or data diagnostic</p>
-    </li>
-    }
-  </ul>
-  } }
+  <mat-checkbox class="check" [(ngModel)]="intermediateValidity"
+    >Intermediate validity
+  </mat-checkbox>
+
+  <mat-checkbox class="check" [(ngModel)]="malfunctionsOrDataDiagnostics"
+    >Malfunctions or Data Diagnostics</mat-checkbox
+  >
+
+  <mat-checkbox class="check" [(ngModel)]="pcYm">PC/YM</mat-checkbox>
+
+  <mat-checkbox class="check" [(ngModel)]="teleports">Teleports</mat-checkbox>
+
+  <mat-checkbox class="check" [(ngModel)]="disconnectedDrivings"
+    >potential Disconnected Drivings</mat-checkbox
+  >
+
+  <mat-checkbox class="check" [(ngModel)]="doubleDutyStatuses"
+    >double Duty Statuses</mat-checkbox
+  >
+
+  <mat-checkbox class="check" [(ngModel)]="prolongedEngineHours"
+    >prolonged Engine Hours</mat-checkbox
+  >
+
+  <div class="group">
+    <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
+      <input matSliderThumb [(ngModel)]="sliderValue" #slider />
+    </mat-slider>
+    <mat-label>threshold: 15h+</mat-label>
+  </div>
 </div>
