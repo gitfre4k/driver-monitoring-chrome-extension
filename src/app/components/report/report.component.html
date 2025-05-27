@@ -1,14 +1,15 @@
 <div class="dialog">
-  <!-- prolonged OnDutuis -->
   @if (advancedScanResults) {
   <div class="violation-report">
     <mat-icon>article</mat-icon>
     <h3 mat-dialog-title>Advanced Scan Results</h3>
   </div>
 
+  <!-- prolonged OnDutuis -->
   <mat-dialog-content class="mat-typography">
-    @if (!advancedScanResults.prolengedOnDuties) {
+    @if (isEmpty(advancedScanResults.prolengedOnDuties)) {
     <p>No prolonged On Duties detected.</p>
+    <mat-divider></mat-divider>
     } @else {
     <ul>
       @for (onDuty of advancedScanResults.prolengedOnDuties | keyvalue; track
@@ -39,8 +40,9 @@
     }
 
     <!-- malfunctions or data diagnostics -->
-    @if (!advancedScanResults.malfOrDataDiagDetection) {
+    @if (isEmpty(advancedScanResults.malfOrDataDiagDetection)) {
     <p>No malfunctions or data diagnostics detected.</p>
+    <mat-divider></mat-divider>
     } @else {
 
     <ul>
@@ -48,18 +50,47 @@
       track detection.key) {
       <li>
         <h3>{{ detection.key }}</h3>
-        @for (driver of detection.value; track driver.id) {
+        @for (driver of detection.value; track driver) {
         <div class="driver">
           <a
             mat-icon-button
-            (click)="copyDriverName(driver.driverName)"
+            (click)="copyDriverName(driver)"
             matTooltip="Copy to clipboard"
           >
             <mat-icon>content_copy</mat-icon>
           </a>
-          <p>{{ driver.driverName }}</p>
+          <p>{{ driver }}</p>
         </div>
         <p>- malfunction or data diagnostic detected</p>
+        }
+      </li>
+      }
+    </ul>
+    <mat-divider></mat-divider>
+
+    <!-- PC/YM  -->
+    } @if (isEmpty(advancedScanResults.pcYm)) {
+    <p>No PC/YM detected.</p>
+    <mat-divider></mat-divider>
+    } @else {
+
+    <ul>
+      @for (detection of advancedScanResults.pcYm | keyvalue; track
+      detection.key) {
+      <li>
+        <h3>{{ detection.key }}</h3>
+        @for (driver of detection.value; track driver) {
+        <div class="driver">
+          <a
+            mat-icon-button
+            (click)="copyDriverName(driver)"
+            matTooltip="Copy to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </a>
+          <p>{{ driver }}</p>
+        </div>
+        <p>- PC/YM detected</p>
         }
       </li>
       }

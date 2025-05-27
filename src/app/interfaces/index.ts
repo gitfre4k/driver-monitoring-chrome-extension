@@ -159,14 +159,26 @@ export interface IDetectedOnDuties {
   }[];
 }
 
-export interface IMalfOrDataDiagDetection {
-  [company: string]: {
-    driverName: string;
-    id: string;
-  }[];
-}
+// export interface IMalfOrDataDiagDetection {
+//   [company: string]: {
+//     driverName: string;
+//     id: string;
+//   }[];
+// }
+
+// export interface IPcYm {
+//   [company: string]: {
+//     driverName: string;
+//     id: string;
+//   }[];
+// }
 
 export interface IAdvancedResaults {
   prolengedOnDuties: IDetectedOnDuties;
-  malfOrDataDiagDetection: IMalfOrDataDiagDetection;
+  malfOrDataDiagDetection: {
+    [company: string]: string[];
+  };
+  pcYm: {
+    [company: string]: string[];
+  };
 }

@@ -27,7 +27,7 @@ export class AdvancedScanService {
       mergeMap((tenant) =>
         from(tenant)
           .pipe
-          //
+          // take(10)
           ()
       )
     );
@@ -53,25 +53,45 @@ export class AdvancedScanService {
     this.progressBarService.currentDriver.set(driverDailyLogs.driverFullName);
     let events = driverDailyLogs.events;
     for (let i = 0; i < events.length; i++) {
+      // Malfunction or Data Diagnostic Detection
       if (
         events[i].eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence'
       ) {
-        const malfDetails = {
-          driverName: driverDailyLogs.driverFullName,
-          id: events[i].eventSequenceNumber,
-        };
         if (
           this.advancedScanResults.malfOrDataDiagDetection[
             driverDailyLogs.companyName
-          ]
+          ] &&
+          !this.advancedScanResults.malfOrDataDiagDetection[
+            driverDailyLogs.companyName
+          ].includes(driverDailyLogs.driverFullName)
         ) {
           this.advancedScanResults.malfOrDataDiagDetection[
             driverDailyLogs.companyName
-          ].push(malfDetails);
+          ].push(driverDailyLogs.driverFullName);
         } else {
           this.advancedScanResults.malfOrDataDiagDetection[
             driverDailyLogs.companyName
-          ] = [malfDetails];
+          ] = [driverDailyLogs.driverFullName];
+        }
+      }
+      // PC/YM detection
+      if (
+        events[i].eventType ===
+        'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
+      ) {
+        if (
+          this.advancedScanResults.pcYm[driverDailyLogs.companyName] &&
+          !this.advancedScanResults.pcYm[driverDailyLogs.companyName].includes(
+            driverDailyLogs.driverFullName
+          )
+        ) {
+          this.advancedScanResults.pcYm[driverDailyLogs.companyName].push(
+            driverDailyLogs.driverFullName
+          );
+        } else {
+          this.advancedScanResults.pcYm[driverDailyLogs.companyName] = [
+            driverDailyLogs.driverFullName,
+          ];
         }
       }
 

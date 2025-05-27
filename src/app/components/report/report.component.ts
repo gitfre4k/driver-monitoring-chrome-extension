@@ -35,6 +35,10 @@ export class ReportComponent {
 
   constructor() {}
 
+  isEmpty(obj: any): boolean {
+    return Object.keys(obj).length === 0;
+  }
+
   copyDriverName(name: string) {
     navigator.clipboard.writeText(name);
     this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });

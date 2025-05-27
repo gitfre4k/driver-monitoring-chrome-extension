@@ -23,6 +23,7 @@ export class ProgressBarService {
   advancedResaults: IAdvancedResaults = {
     prolengedOnDuties: {},
     malfOrDataDiagDetection: {},
+    pcYm: {},
   };
 
   errors: IScanErrors[] = [];
