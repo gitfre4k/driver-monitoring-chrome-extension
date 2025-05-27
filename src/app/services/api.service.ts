@@ -10,12 +10,14 @@ import {
   ILog,
 } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
+import { FormattedDateService } from './formatted-date.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
   private http: HttpClient = inject(HttpClient);
+  private formattedDateService = inject(FormattedDateService);
 
   private filterRule = (range: IRange) => {
     return {
@@ -108,7 +110,10 @@ export class ApiService {
     );
   }
 
-  getLogs(tenant: ITenant) {
+  getLogs(tenant: ITenant, date: Date) {
+    const { currentDate, sevenDaysAgo } =
+      this.formattedDateService.getFormatedDates(date);
+
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
     const body = {
       filterRule: {
@@ -117,12 +122,12 @@ export class ApiService {
           {
             field: 'lastSync',
             operator: 'gte',
-            value: '2025-05-12T04:59:59.999Z',
+            value: sevenDaysAgo,
           },
           {
             field: 'lastSync',
             operator: 'lte',
-            value: '2025-05-19T04:59:59.999Z',
+            value: currentDate,
           },
           {
             field: 'driverStatus',

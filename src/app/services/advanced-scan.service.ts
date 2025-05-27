@@ -26,11 +26,9 @@ export class AdvancedScanService {
         this.progressBarService.constant.set(100 / tenants.length);
       }),
       mergeMap(
-        (tenant) =>
-          from(tenant).pipe(
-            //
-            skip(30)
-          )
+        (tenant) => from(tenant).pipe()
+        //
+        // skip(30)
         // take(15)
       )
     );
@@ -197,7 +195,7 @@ export class AdvancedScanService {
         this.currentCompany.set(tenant);
         this.progressBarService.currentCompany.set(this.currentCompany().name);
 
-        return this.apiService.getLogs(tenant).pipe(
+        return this.apiService.getLogs(tenant, date).pipe(
           tap(() =>
             this.progressBarService.progressValue.update(
               (prevValue) => prevValue + this.progressBarService.constant()

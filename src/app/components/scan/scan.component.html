@@ -45,8 +45,9 @@
       <mat-datepicker #picker2></mat-datepicker>
     </mat-form-field>
 
+    @if (scanMode.value === 'advanced') {
     <app-advanced-scan></app-advanced-scan>
-    }
+    } }
   </div>
 
   <button mat-raised-button (click)="startScan()">Scan</button>

@@ -23,7 +23,7 @@ import {
   FormsModule,
 } from '@angular/forms';
 import { IDOTInspections, IViolations } from '../../interfaces';
-import { FormattedDateService } from '../../web-app/formatted-date.service';
+import { FormattedDateService } from '../../services/formatted-date.service';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../services/advanced-scan.service';
 import { ProgressBarService } from '../../services/progress-bar.service';
@@ -112,13 +112,14 @@ export class ScanComponent {
     };
 
     if (this.scanMode.value === 'advanced') {
-      this.scanSubscribtion = this.advancedScanService
-        .getLogs(range.dateTo)
-        .subscribe({
-          complete: () => {
-            this.handleAdvancedScanComplete();
-          },
-        });
+      const date = new Date(range.dateTo);
+      date.setDate(date.getDate() + 1);
+      console.log('+1', date);
+      this.scanSubscribtion = this.advancedScanService.getLogs(date).subscribe({
+        complete: () => {
+          this.handleAdvancedScanComplete();
+        },
+      });
     } else {
       this.scanSubscribtion = (
         this.scanMode.value === 'violations'
