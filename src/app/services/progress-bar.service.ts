@@ -26,6 +26,7 @@ export class ProgressBarService {
     pcYm: {},
     missingEngineOn: {},
     highEngineHours: {},
+    negativeOrLowEngineHours: {},
   };
 
   errors: IScanErrors[] = [];

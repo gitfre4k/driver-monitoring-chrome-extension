@@ -13,7 +13,7 @@ export class AdvancedScanService {
   private progressBarService = inject(ProgressBarService);
 
   prolongedOnDutiesDuration = signal(4200); // 1h10min
-  engineHoursDuration = signal(14); // 2h46min
+  engineHoursDuration = signal(14);
 
   currentCompany = signal({} as ITenant);
   advancedScanResults = this.progressBarService.advancedResaults;
@@ -55,7 +55,7 @@ export class AdvancedScanService {
     let events = driverDailyLogs.events;
     for (let i = 0; i < events.length; i++) {
       //
-      // high Engine Hours
+      // high elapsed Engine Hours
       if (events[i].elapsedEngineHours >= this.engineHoursDuration()) {
         const highEngineHoursDriver = {
           driverName: driverDailyLogs.driverFullName,
@@ -81,6 +81,7 @@ export class AdvancedScanService {
           ] = [highEngineHoursDriver];
         }
       }
+
       //
       // missing Engine On
       if (events[i].isEventMissingPowerUp) {

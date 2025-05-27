@@ -6,36 +6,6 @@
   </div>
   <mat-dialog-content class="mat-typography">
     <!--  -->
-    <!-- missing Engine On events -->
-    @if (isEmpty(advancedScanResults.missingEngineOn)) {
-    <p>No missing Engine On events detected.</p>
-    <mat-divider></mat-divider>
-    } @else {
-
-    <ul>
-      @for (detection of advancedScanResults.missingEngineOn | keyvalue; track
-      detection.key) {
-      <li>
-        <h3>{{ detection.key }}</h3>
-        @for (driver of detection.value; track driver) {
-        <div class="driver">
-          <a
-            mat-icon-button
-            (click)="copyDriverName(driver)"
-            matTooltip="Copy to clipboard"
-          >
-            <mat-icon>content_copy</mat-icon>
-          </a>
-          <p>{{ driver }}</p>
-        </div>
-        <p>- missing Engine On detected</p>
-        }
-      </li>
-      }
-    </ul>
-    <mat-divider></mat-divider>
-    }
-
     <!-- prolonged OnDutuis -->
     @if (isEmpty(advancedScanResults.prolengedOnDuties)) {
     <p>No prolonged On Duties detected.</p>
@@ -68,7 +38,7 @@
     <mat-divider></mat-divider>
 
     }
-
+    <!--  -->
     <!-- malfunctions or data diagnostics -->
     @if (isEmpty(advancedScanResults.malfOrDataDiagDetection)) {
     <p>No malfunctions or data diagnostics detected.</p>
@@ -97,9 +67,10 @@
       }
     </ul>
     <mat-divider></mat-divider>
-
+    }
+    <!--  -->
     <!-- PC/YM  -->
-    } @if (isEmpty(advancedScanResults.pcYm)) {
+    @if (isEmpty(advancedScanResults.pcYm)) {
     <p>No PC/YM events detected.</p>
     <mat-divider></mat-divider>
     } @else {
@@ -128,9 +99,40 @@
     <mat-divider></mat-divider>
     }
 
-    <!-- high Engine Hours -->
+    <!--  -->
+    <!-- missing Engine On events -->
+    @if (isEmpty(advancedScanResults.missingEngineOn)) {
+    <p>No missing Engine On events detected.</p>
+    <mat-divider></mat-divider>
+    } @else {
+
+    <ul>
+      @for (detection of advancedScanResults.missingEngineOn | keyvalue; track
+      detection.key) {
+      <li>
+        <h3>{{ detection.key }}</h3>
+        @for (driver of detection.value; track driver) {
+        <div class="driver">
+          <a
+            mat-icon-button
+            (click)="copyDriverName(driver)"
+            matTooltip="Copy to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </a>
+          <p>{{ driver }}</p>
+        </div>
+        <p>- missing Engine On detected</p>
+        }
+      </li>
+      }
+    </ul>
+    <mat-divider></mat-divider>
+    }
+    <!--  -->
+    <!-- high elapsed Engine Hours -->
     @if (isEmpty(advancedScanResults.highEngineHours)) {
-    <p>No high Engine Hours events detected.</p>
+    <p>Neither high nor negative Engine Hours events detected.</p>
     <mat-divider></mat-divider>
     } @else {
     <ul>
@@ -150,7 +152,8 @@
           <p>{{ driver.driverName }}</p>
         </div>
         <p>
-          - high Engine Hours event detected, duration: {{ driver.duration }}
+          - high elapsed Engine Hours event detected, count:
+          {{ driver.duration }}
         </p>
         }
       </li>
