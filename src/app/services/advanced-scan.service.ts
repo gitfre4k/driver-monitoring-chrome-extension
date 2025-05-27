@@ -14,6 +14,7 @@ export class AdvancedScanService {
 
   prolongedOnDutiesDuration = signal(4200); // 1h10min
   engineHoursDuration = signal(14);
+  lowTotalEngineHoursCount = signal(100);
 
   currentCompany = signal({} as ITenant);
   advancedScanResults = this.progressBarService.advancedResaults;
@@ -98,6 +99,26 @@ export class AdvancedScanService {
           ].push(driverDailyLogs.driverFullName);
         } else {
           this.advancedScanResults.missingEngineOn[
+            driverDailyLogs.companyName
+          ] = [driverDailyLogs.driverFullName];
+        }
+      }
+      //
+      // low total Engine Hours
+      if (events[i].engineMinutes < this.lowTotalEngineHoursCount()) {
+        if (
+          this.advancedScanResults.lowTotalEngineHours[
+            driverDailyLogs.companyName
+          ] &&
+          !this.advancedScanResults.lowTotalEngineHours[
+            driverDailyLogs.companyName
+          ].includes(driverDailyLogs.driverFullName)
+        ) {
+          this.advancedScanResults.lowTotalEngineHours[
+            driverDailyLogs.companyName
+          ].push(driverDailyLogs.driverFullName);
+        } else {
+          this.advancedScanResults.lowTotalEngineHours[
             driverDailyLogs.companyName
           ] = [driverDailyLogs.driverFullName];
         }

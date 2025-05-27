@@ -24,11 +24,18 @@ export const computeEvents = (importedEvents: IEvent[]) => {
   let occurredDuringDriving = false;
   let currentDriving: IEvent | null = null;
   let intermediateCount = 0;
+  let currentDutyStatus = '';
 
   for (let i = 0; i < events.length; i++) {
     events[i].computeIndex = i;
     events[i].statusName = getStatusName(events[i].dutyStatus);
     events[i].occurredDuringDriving = occurredDuringDriving;
+
+    if (isDutyStatus(events[i])) {
+      currentDutyStatus === events[i].statusName
+        ? (events[i].errorMessage = 'double Duty status')
+        : (currentDutyStatus = events[i].statusName);
+    }
 
     if (isDriving(events[i])) {
       occurredDuringDriving = true;
@@ -181,4 +188,10 @@ const isDriving = (ev: IEvent) => {
 };
 const isIntermediate = (ev: IEvent) => {
   return ev.statusName === 'Intermediate';
+};
+
+const isDutyStatus = (ev: IEvent) => {
+  return ['On Duty', 'Sleeper Berth', 'Driving', 'Off Duty'].includes(
+    ev.statusName
+  );
 };

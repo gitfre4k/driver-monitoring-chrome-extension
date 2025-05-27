@@ -1,44 +1,42 @@
 <div class="test">
-  <mat-checkbox class="check" [(ngModel)]="prolongedOnDuties"
-    >prolonged On Duties</mat-checkbox
-  >
+  <mat-checkbox class="check" [(ngModel)]="prolongedOnDuties">prolonged On Duties</mat-checkbox>
   <div class="group">
     <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
-      <input matSliderThumb [(ngModel)]="sliderValue" #slider />
+      <input matSliderThumb [(ngModel)]="sliderValue" />
     </mat-slider>
-    <mat-label class="example-value-mat-label"
-      >duration: {{ +slider.value * 1000 | date : "H:mm" : "UTC" }}h+</mat-label
-    >
+    <mat-label class="example-value-mat-label">duration: {{ sliderValue() * 1000 | date : "H:mm" : "UTC"
+      }}h+</mat-label>
   </div>
 
-  <mat-checkbox class="check" [(ngModel)]="intermediateValidity"
-    >Intermediate validity
+  <mat-checkbox class="check" [(ngModel)]="intermediateValidity">Intermediate validity
   </mat-checkbox>
 
-  <mat-checkbox class="check" [(ngModel)]="malfunctionsOrDataDiagnostics"
-    >Malfunctions or Data Diagnostics</mat-checkbox
-  >
+  <mat-checkbox class="check" [(ngModel)]="malfunctionsOrDataDiagnostics">Malfunctions or Data
+    Diagnostics</mat-checkbox>
 
   <mat-checkbox class="check" [(ngModel)]="pcYm">PC/YM</mat-checkbox>
 
   <mat-checkbox class="check" [(ngModel)]="teleports">Teleports</mat-checkbox>
 
-  <mat-checkbox class="check" [(ngModel)]="disconnectedDrivings"
-    >potential Disconnected Drivings</mat-checkbox
-  >
+  <mat-checkbox class="check" [(ngModel)]="disconnectedDrivings">potential Disconnected Drivings</mat-checkbox>
 
-  <mat-checkbox class="check" [(ngModel)]="doubleDutyStatuses"
-    >double Duty Statuses</mat-checkbox
-  >
+  <mat-checkbox class="check" [(ngModel)]="doubleDutyStatuses">double Duty Statuses</mat-checkbox>
 
-  <mat-checkbox class="check" [(ngModel)]="highEngineHours"
-    >high or negative Engine Hours</mat-checkbox
-  >
-
+  <mat-checkbox class="check" [(ngModel)]="highEngineHours">high elapsed Engine Hours</mat-checkbox>
   <div class="group">
     <mat-slider class="slider" [max]="34" [min]="10" [step]="1">
-      <input matSliderThumb [(ngModel)]="engineSliderValue" #engineSlider />
+      <input matSliderThumb [(ngModel)]="engineSliderValue" />
     </mat-slider>
     <mat-label>threshold: {{ engineSliderValue() }}h+</mat-label>
   </div>
+
+  <mat-checkbox class="check" [(ngModel)]="highEngineHours">low total Engine Hours</mat-checkbox>
+  <div class="group">
+    <mat-slider class="slider" [max]="2000" [min]="0" [step]="25">
+      <input matSliderThumb [(ngModel)]="lowTotalEngineHoursCount" />
+    </mat-slider>
+    <mat-label>less then {{ lowTotalEngineHoursCount() }} total Engine Hours</mat-label>
+  </div>
+
+
 </div>

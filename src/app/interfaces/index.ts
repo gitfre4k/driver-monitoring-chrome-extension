@@ -169,5 +169,5 @@ export interface IAdvancedResaults {
   pcYm: IDetectedResults;
   missingEngineOn: IDetectedResults;
   highEngineHours: IDetectedResultsWithDuration;
-  negativeOrLowEngineHours: IDetectedResults;
+  lowTotalEngineHours: IDetectedResults;
 }
