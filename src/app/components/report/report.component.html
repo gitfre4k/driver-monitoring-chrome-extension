@@ -5,6 +5,36 @@
     <h3 mat-dialog-title>Advanced Scan Results</h3>
   </div>
 
+  <!-- malfunctions or data diagnostics -->
+  @if (isEmpty(advancedScanResults.missingEngineOn)) {
+  <p>No missing Engine On events detected.</p>
+  <mat-divider></mat-divider>
+  } @else {
+
+  <ul>
+    @for (detection of advancedScanResults.missingEngineOn | keyvalue; track
+    detection.key) {
+    <li>
+      <h3>{{ detection.key }}</h3>
+      @for (driver of detection.value; track driver) {
+      <div class="driver">
+        <a
+          mat-icon-button
+          (click)="copyDriverName(driver)"
+          matTooltip="Copy to clipboard"
+        >
+          <mat-icon>content_copy</mat-icon>
+        </a>
+        <p>{{ driver }}</p>
+      </div>
+      <p>- missing Engine On detected</p>
+      }
+    </li>
+    }
+  </ul>
+  <mat-divider></mat-divider>
+  }
+
   <!-- prolonged OnDutuis -->
   <mat-dialog-content class="mat-typography">
     @if (isEmpty(advancedScanResults.prolengedOnDuties)) {

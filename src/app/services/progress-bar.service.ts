@@ -24,6 +24,7 @@ export class ProgressBarService {
     prolengedOnDuties: {},
     malfOrDataDiagDetection: {},
     pcYm: {},
+    missingEngineOn: {},
   };
 
   errors: IScanErrors[] = [];

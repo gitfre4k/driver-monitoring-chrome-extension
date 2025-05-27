@@ -181,4 +181,7 @@ export interface IAdvancedResaults {
   pcYm: {
     [company: string]: string[];
   };
+  missingEngineOn: {
+    [company: string]: string[];
+  };
 }

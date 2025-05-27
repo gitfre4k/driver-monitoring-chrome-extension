@@ -53,6 +53,26 @@ export class AdvancedScanService {
     this.progressBarService.currentDriver.set(driverDailyLogs.driverFullName);
     let events = driverDailyLogs.events;
     for (let i = 0; i < events.length; i++) {
+      // missing Engine On
+      if (events[i].isEventMissingPowerUp) {
+        if (
+          this.advancedScanResults.missingEngineOn[
+            driverDailyLogs.companyName
+          ] &&
+          !this.advancedScanResults.missingEngineOn[
+            driverDailyLogs.companyName
+          ].includes(driverDailyLogs.driverFullName)
+        ) {
+          this.advancedScanResults.missingEngineOn[
+            driverDailyLogs.companyName
+          ].push(driverDailyLogs.driverFullName);
+        } else {
+          this.advancedScanResults.missingEngineOn[
+            driverDailyLogs.companyName
+          ] = [driverDailyLogs.driverFullName];
+        }
+      }
+
       // Malfunction or Data Diagnostic Detection
       if (
         events[i].eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence'
