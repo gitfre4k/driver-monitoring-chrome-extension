@@ -151,7 +151,7 @@ export interface ITenant extends ICompany {
   webApiUrl?: string;
 }
 
-export interface IDetectedOnDuties {
+export interface IDetectedResultsWithDuration {
   [company: string]: {
     driverName: string;
     id: string;
@@ -159,29 +159,14 @@ export interface IDetectedOnDuties {
   }[];
 }
 
-// export interface IMalfOrDataDiagDetection {
-//   [company: string]: {
-//     driverName: string;
-//     id: string;
-//   }[];
-// }
-
-// export interface IPcYm {
-//   [company: string]: {
-//     driverName: string;
-//     id: string;
-//   }[];
-// }
+export interface IDetectedResults {
+  [company: string]: string[];
+}
 
 export interface IAdvancedResaults {
-  prolengedOnDuties: IDetectedOnDuties;
-  malfOrDataDiagDetection: {
-    [company: string]: string[];
-  };
-  pcYm: {
-    [company: string]: string[];
-  };
-  missingEngineOn: {
-    [company: string]: string[];
-  };
+  prolengedOnDuties: IDetectedResultsWithDuration;
+  malfOrDataDiagDetection: IDetectedResults;
+  pcYm: IDetectedResults;
+  missingEngineOn: IDetectedResults;
+  highEngineHours: IDetectedResultsWithDuration;
 }

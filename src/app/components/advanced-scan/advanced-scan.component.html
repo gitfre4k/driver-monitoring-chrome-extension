@@ -31,14 +31,14 @@
     >double Duty Statuses</mat-checkbox
   >
 
-  <mat-checkbox class="check" [(ngModel)]="prolongedEngineHours"
-    >prolonged Engine Hours</mat-checkbox
+  <mat-checkbox class="check" [(ngModel)]="highEngineHours"
+    >high Engine Hours</mat-checkbox
   >
 
   <div class="group">
-    <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
-      <input matSliderThumb [(ngModel)]="sliderValue" #slider />
+    <mat-slider class="slider" [max]="34" [min]="14" [step]="1">
+      <input matSliderThumb [(ngModel)]="engineSliderValue" #slider />
     </mat-slider>
-    <mat-label>threshold: 15h+</mat-label>
+    <mat-label>threshold: {{ engineSliderValue() }}h+</mat-label>
   </div>
 </div>

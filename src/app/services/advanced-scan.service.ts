@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { concatMap, from, mergeMap, take, tap } from 'rxjs';
+import { concatMap, from, mergeMap, skip, take, tap } from 'rxjs';
 import { IDriver, ITenant } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';
@@ -13,6 +13,7 @@ export class AdvancedScanService {
   private progressBarService = inject(ProgressBarService);
 
   prolongedOnDutiesDuration = signal(4200); // 1h10min
+  engineHoursDuration = signal(14); // 2h46min
 
   currentCompany = signal({} as ITenant);
   advancedScanResults = this.progressBarService.advancedResaults;
@@ -24,11 +25,13 @@ export class AdvancedScanService {
       tap((tenants) => {
         this.progressBarService.constant.set(100 / tenants.length);
       }),
-      mergeMap((tenant) =>
-        from(tenant)
-          .pipe
-          // take(10)
-          ()
+      mergeMap(
+        (tenant) =>
+          from(tenant).pipe(
+            //
+            skip(30)
+          )
+        // take(15)
       )
     );
   };
@@ -53,6 +56,34 @@ export class AdvancedScanService {
     this.progressBarService.currentDriver.set(driverDailyLogs.driverFullName);
     let events = driverDailyLogs.events;
     for (let i = 0; i < events.length; i++) {
+      //
+      // high Engine Hours
+      if (events[i].elapsedEngineHours >= this.engineHoursDuration()) {
+        const highEngineHoursDriver = {
+          driverName: driverDailyLogs.driverFullName,
+          id: events[i].eventSequenceNumber,
+          duration: events[i].elapsedEngineHours,
+        };
+        if (
+          this.advancedScanResults.highEngineHours[
+            driverDailyLogs.companyName
+          ] &&
+          this.advancedScanResults.highEngineHours[
+            driverDailyLogs.companyName
+          ].find(
+            (driver) => driver.driverName === driverDailyLogs.driverFullName
+          ) === undefined
+        ) {
+          this.advancedScanResults.highEngineHours[
+            driverDailyLogs.companyName
+          ].push(highEngineHoursDriver);
+        } else {
+          this.advancedScanResults.highEngineHours[
+            driverDailyLogs.companyName
+          ] = [highEngineHoursDriver];
+        }
+      }
+      //
       // missing Engine On
       if (events[i].isEventMissingPowerUp) {
         if (
@@ -72,7 +103,7 @@ export class AdvancedScanService {
           ] = [driverDailyLogs.driverFullName];
         }
       }
-
+      //
       // Malfunction or Data Diagnostic Detection
       if (
         events[i].eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence'
@@ -94,6 +125,7 @@ export class AdvancedScanService {
           ] = [driverDailyLogs.driverFullName];
         }
       }
+      //
       // PC/YM detection
       if (
         events[i].eventType ===

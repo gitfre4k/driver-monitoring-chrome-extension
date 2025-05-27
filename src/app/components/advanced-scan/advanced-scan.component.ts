@@ -27,6 +27,7 @@ export class AdvancedScanComponent {
   private progressBarService = inject(ProgressBarService);
 
   readonly sliderValue = this.advancedScanService.prolongedOnDutiesDuration;
+  readonly engineSliderValue = this.advancedScanService.engineHoursDuration;
   readonly currentCompany = this.progressBarService.currentCompany;
   readonly progress = this.progressBarService.progressValue;
 
@@ -42,5 +43,5 @@ export class AdvancedScanComponent {
   teleports = true;
   disconnectedDrivings = true;
   doubleDutyStatuses = true;
-  prolongedEngineHours = true;
+  highEngineHours = true;
 }

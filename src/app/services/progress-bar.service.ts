@@ -25,6 +25,7 @@ export class ProgressBarService {
     malfOrDataDiagDetection: {},
     pcYm: {},
     missingEngineOn: {},
+    highEngineHours: {},
   };
 
   errors: IScanErrors[] = [];
