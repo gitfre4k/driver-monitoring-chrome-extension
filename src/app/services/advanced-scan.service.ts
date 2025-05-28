@@ -1,9 +1,16 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { concatMap, from, mergeMap, skip, take, tap } from 'rxjs';
-import { IDriver, ITenant } from '../interfaces';
+import { IDetectedTeleports, IDriver, ITenant } from '../interfaces';
+import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';
+import {
+  bindEventViewId,
+  computeEvents,
+  detectAndBindTeleport,
+  filterEvents,
+} from '../helpers/monitor.helpers';
 
 @Injectable({
   providedIn: 'root',
@@ -51,9 +58,52 @@ export class AdvancedScanService {
   }
 
   handleDriverDailyLogEvents(driverDailyLogs: IDriverDailyLogEvents) {
-    console.log(driverDailyLogs.driverFullName, driverDailyLogs);
     this.progressBarService.currentDriver.set(driverDailyLogs.driverFullName);
     let events = driverDailyLogs.events;
+
+    //
+    // teleport and event errors
+    let computedEvents = [...events];
+    computedEvents = bindEventViewId(computedEvents);
+    computedEvents = computedEvents.filter((event) => filterEvents(event));
+    computedEvents = computeEvents(computedEvents);
+    computedEvents = detectAndBindTeleport(computedEvents);
+
+    computedEvents.forEach((event) => {
+      if (event.isTeleport) {
+        const detectedTeleport = {
+          driverName: driverDailyLogs.driverFullName,
+          id: event.eventSequenceNumber,
+          event: event,
+        };
+        if (this.advancedScanResults.teleports[driverDailyLogs.companyName]) {
+          this.advancedScanResults.teleports[driverDailyLogs.companyName].push(
+            detectedTeleport
+          );
+        } else {
+          this.advancedScanResults.teleports[driverDailyLogs.companyName] = [
+            detectedTeleport,
+          ];
+        }
+      }
+      if (event.errorMessage) {
+        const eventError = {
+          driverName: driverDailyLogs.driverFullName,
+          id: event.eventSequenceNumber,
+          event: event,
+        };
+        if (this.advancedScanResults.teleports[driverDailyLogs.companyName]) {
+          this.advancedScanResults.teleports[driverDailyLogs.companyName].push(
+            eventError
+          );
+        } else {
+          this.advancedScanResults.teleports[driverDailyLogs.companyName] = [
+            eventError,
+          ];
+        }
+      }
+    });
+
     for (let i = 0; i < events.length; i++) {
       //
       // high elapsed Engine Hours
@@ -166,7 +216,8 @@ export class AdvancedScanService {
           ];
         }
       }
-
+      //
+      // prolonged On Duties
       if (events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {
         const duration = () => {
           // OnDuty has started and ended within same day
@@ -185,7 +236,6 @@ export class AdvancedScanService {
             return (now - startTime) / 1000;
           }
         };
-
         if (duration() > this.prolongedOnDutiesDuration()) {
           const prolongedOnDuty = {
             driverName: driverDailyLogs.driverFullName,
@@ -224,14 +274,6 @@ export class AdvancedScanService {
             )
           ),
           mergeMap((log) => from(log.items)),
-          tap((drivers) =>
-            console.log(
-              'Company: ',
-              this.currentCompany.name,
-              'Active Drivers: ',
-              drivers
-            )
-          ),
           concatMap((driver) => this.dailyLogEvents$(driver, date))
         );
       })

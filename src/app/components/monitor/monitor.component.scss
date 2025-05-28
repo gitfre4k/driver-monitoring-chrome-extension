@@ -5,6 +5,12 @@
   overflow: hidden;
   height: 100%;
 
+  .refresh {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+  }
+
   .info {
     text-align: center;
     margin-top: 10px;

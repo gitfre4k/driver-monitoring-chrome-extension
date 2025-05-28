@@ -5,6 +5,7 @@ import {
   IScanErrors,
   IScanViolations,
 } from '../interfaces';
+import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +28,8 @@ export class ProgressBarService {
     missingEngineOn: {},
     highEngineHours: {},
     lowTotalEngineHours: {},
+    teleports: {},
+    eventErrors: {},
   };
 
   errors: IScanErrors[] = [];

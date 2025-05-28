@@ -20,6 +20,7 @@ export class MonitorService {
     id: string;
     name: string;
   } | null>(null);
+  refresh = signal(0);
 
   driverDailyLogEvents = signal({} as IDriverDailyLogEvents);
 
@@ -39,6 +40,7 @@ export class MonitorService {
     const url = this.url();
     const tenant = this.tenant();
     if (!url || !tenant) return;
+    if (this.refresh()) console.log('live monitor page refreshed');
 
     this.updateDriverDailyLogEvents(url, tenant.id);
   });

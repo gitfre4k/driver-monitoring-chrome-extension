@@ -1,4 +1,5 @@
 import { ProgressBarMode } from '@angular/material/progress-bar';
+import { IEvent as ICEvent } from '../interfaces/driver-daily-log-events.interface';
 
 export interface IViolations {
   totalCount: number;
@@ -158,9 +159,24 @@ export interface IDetectedResultsWithDuration {
     duration: number;
   }[];
 }
+export interface IDetectedTeleports {
+  [company: string]: {
+    driverName: string;
+    id: string;
+    event: ICEvent;
+  }[];
+}
 
 export interface IDetectedResults {
   [company: string]: string[];
+}
+
+export interface IEventErrors {
+  [company: string]: {
+    driverName: string;
+    id: string;
+    event: ICEvent;
+  }[];
 }
 
 export interface IAdvancedResaults {
@@ -170,4 +186,7 @@ export interface IAdvancedResaults {
   missingEngineOn: IDetectedResults;
   highEngineHours: IDetectedResultsWithDuration;
   lowTotalEngineHours: IDetectedResults;
+
+  teleports: IDetectedTeleports;
+  eventErrors: IEventErrors;
 }

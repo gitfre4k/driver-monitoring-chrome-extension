@@ -112,10 +112,7 @@ export class ScanComponent {
     };
 
     if (this.scanMode.value === 'advanced') {
-      const date = new Date(range.dateTo);
-      date.setDate(date.getDate() + 1);
-      console.log('+1', date);
-      this.scanSubscribtion = this.advancedScanService.getLogs(date).subscribe({
+      this.scanSubscribtion = this.advancedScanService.getLogs(to).subscribe({
         complete: () => {
           this.handleAdvancedScanComplete();
         },
