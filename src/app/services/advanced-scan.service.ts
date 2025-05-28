@@ -1,8 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { concatMap, from, mergeMap, skip, take, tap } from 'rxjs';
-import { IDetectedTeleports, IDriver, ITenant } from '../interfaces';
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import { concatMap, from, mergeMap, tap } from 'rxjs';
+import { IDriver, ITenant } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';
 import {
@@ -36,19 +35,13 @@ export class AdvancedScanService {
       mergeMap(
         (tenant) => from(tenant).pipe()
         //
-        // skip(30)
-        // take(15)
       )
     );
   };
 
   dailyLogEvents$(driver: IDriver, date: Date) {
     return this.apiService
-      .getDriverDailyLogEvents(
-        driver.id,
-        date, // new Date('2025-05-22T05:00:00.000Z')
-        this.currentCompany().id
-      )
+      .getDriverDailyLogEvents(driver.id, date, this.currentCompany().id)
 
       .pipe(
         tap((driverDailyLogs) =>
@@ -92,12 +85,12 @@ export class AdvancedScanService {
           id: event.eventSequenceNumber,
           event: event,
         };
-        if (this.advancedScanResults.teleports[driverDailyLogs.companyName]) {
-          this.advancedScanResults.teleports[driverDailyLogs.companyName].push(
-            eventError
-          );
+        if (this.advancedScanResults.eventErrors[driverDailyLogs.companyName]) {
+          this.advancedScanResults.eventErrors[
+            driverDailyLogs.companyName
+          ].push(eventError);
         } else {
-          this.advancedScanResults.teleports[driverDailyLogs.companyName] = [
+          this.advancedScanResults.eventErrors[driverDailyLogs.companyName] = [
             eventError,
           ];
         }

@@ -14,7 +14,9 @@ export const filterEvents = (event: IEvent): boolean => {
       'ChangeInDriversDutyStatus',
       'IntermediateLog',
       'CmvEnginePowerUpOrShutDownActivity',
-    ].includes(event.eventType) || event.dutyStatus === 'Dvir'
+    ].includes(event.eventType) ||
+    event.dutyStatus === 'Dvir' ||
+    event.eventType === 'DriversLoginOrLogoutActivity'
   );
 };
 
@@ -137,8 +139,25 @@ export const computeEvents = (importedEvents: IEvent[]) => {
 
 export const detectAndBindTeleport = (importedEvents: IEvent[]) => {
   let events = [...importedEvents];
+
+  // if events[i] is 'Login' or 'Logout' => isTeleport = false
+  // if events[i].isFirstEvent => isTeleport = false
+
   for (let i = 0; i < events.length - 1; i++) {
+    // detect and report undefined odometer value
+    !events[i].odometer &&
+      !events[i].isFirstEvent &&
+      !['Login', 'Logout'].includes(events[i].statusName) &&
+      (events[i].errorMessage = 'undefined odometer value');
+
     events[i + 1].isTeleport = isTeleport(events[i], events[i + 1]);
+
+    if (
+      ['Login', 'Logout'].includes(events[i].statusName) &&
+      !events[i].odometer
+    ) {
+      events[i + 1].isTeleport = false;
+    }
   }
   return events;
 };
@@ -164,10 +183,26 @@ const getStatusName = (dutyStatus: string): string => {
       return 'Engine Off';
     case 'Dvir':
       return 'DVIR';
+    case 'DriverIndicationAuthorizedPersonalUseCmv':
+      return 'PC';
+    case 'DriverIndicationYardMoves':
+      return 'YM';
+    case 'AuthenticatedDriverLogin':
+      return 'Login';
+    case 'AuthenticatedDriverLogout':
+      return 'Logout';
     default:
       return '?';
   }
 };
+
+// #Login
+// dutyStatus AuthenticatedDriverLogin
+// eventType DriversLoginOrLogoutActivity
+
+// #Logout
+// dutyStatus AuthenticatedDriverLogout
+// eventType DriversLoginOrLogoutActivity
 
 const isTeleport = (ev1: IEvent, ev2: IEvent) => {
   const mileageDifference = Math.abs(ev1.odometer - ev2.odometer);
@@ -191,7 +226,12 @@ const isIntermediate = (ev: IEvent) => {
 };
 
 const isDutyStatus = (ev: IEvent) => {
-  return ['On Duty', 'Sleeper Berth', 'Driving', 'Off Duty'].includes(
-    ev.statusName
-  );
+  return [
+    'On Duty',
+    'Sleeper Berth',
+    'Driving',
+    'Off Duty',
+    'PC',
+    'YM',
+  ].includes(ev.statusName);
 };
