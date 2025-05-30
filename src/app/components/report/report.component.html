@@ -27,11 +27,17 @@
           </a>
           <p>{{ driver.driverName }}</p>
         </div>
+        @if (driver.event.isTeleport > 0) {
         <p>
           - teleport detected on event #{{ driver.event.viewId }}
+          {{ driver.event.statusName }} [ {{ driver.event.isTeleport }} miles ]
+        </p>
+        } @else {
+        <p>
+          - odometer decreased on event #{{ driver.event.viewId }}
           {{ driver.event.statusName }}
         </p>
-        }
+        } }
       </li>
       }
     </ul>

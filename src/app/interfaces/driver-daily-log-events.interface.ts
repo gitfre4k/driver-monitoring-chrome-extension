@@ -27,7 +27,7 @@ export interface IEvent {
   isFirstEvent: boolean;
 
   statusName: string;
-  isTeleport: boolean;
+  isTeleport: number;
   occurredDuringDriving: boolean;
   truckChange: boolean;
   viewId: number;

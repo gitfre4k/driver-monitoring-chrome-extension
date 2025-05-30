@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { concatMap, from, mergeMap, tap } from 'rxjs';
+import { concatMap, from, mergeMap, take, tap } from 'rxjs';
 import { IDriver, ITenant } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';

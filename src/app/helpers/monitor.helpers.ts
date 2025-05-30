@@ -187,14 +187,14 @@ const isTeleport = (ev1: IEvent, ev2: IEvent) => {
   const mileageDifference = Math.abs(ev1.odometer - ev2.odometer);
   if (ev1.vehicleId !== ev2.vehicleId) {
     ev2.truckChange = true;
-    return false;
+    return 0;
   }
   if (mileageDifference > 2) {
-    if (ev1.odometer > ev2.odometer) return true;
-    if (!isDriving(ev1) && !ev1.occurredDuringDriving) return true;
+    if (ev1.odometer > ev2.odometer) return -mileageDifference;
+    if (!isDriving(ev1) && !ev1.occurredDuringDriving) return mileageDifference;
   }
 
-  return false;
+  return 0;
 };
 
 const isDriving = (ev: IEvent) => {
