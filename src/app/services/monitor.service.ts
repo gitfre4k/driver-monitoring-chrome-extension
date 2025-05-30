@@ -1,32 +1,64 @@
 import { Injectable, inject, computed, signal, effect } from '@angular/core';
 import { ApiService } from './api.service';
 import {
+  bindEventViewId,
   filterEvents,
   computeEvents,
   detectAndBindTeleport,
-  bindEventViewId,
 } from '../helpers/monitor.helpers';
 
-import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
+import {
+  IDriverDailyLogEvents,
+  IEvent,
+} from '../interfaces/driver-daily-log-events.interface';
+import { UrlService } from './url.service';
+import { tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MonitorService {
   private apiService = inject(ApiService);
+  private urlService = inject(UrlService);
 
-  url = signal<string | null>(null);
-  tenant = signal<{
-    id: string;
-    name: string;
-  } | null>(null);
   refresh = signal(0);
 
-  driverDailyLogEvents = signal({} as IDriverDailyLogEvents);
+  driverDailyLogEvents = signal({
+    events: [] as IEvent[],
+  } as IDriverDailyLogEvents);
+  coDriverDailyLogEvents = signal({
+    events: [] as IEvent[],
+  } as IDriverDailyLogEvents);
 
   events = computed(() => {
-    let events = this.driverDailyLogEvents().events;
-    if (!events) return [];
+    const driverEvents = this.driverDailyLogEvents().events;
+    const coDriverEvents = this.coDriverDailyLogEvents().events;
+
+    let events = [] as IEvent[];
+
+    if (coDriverEvents.length > 0) {
+      driverEvents.forEach(
+        (e) =>
+          (e.driver = {
+            id: this.driverDailyLogEvents().driverId,
+            name: this.driverDailyLogEvents().driverFullName,
+          })
+      );
+      coDriverEvents.forEach(
+        (e) =>
+          (e.driver = {
+            id: this.coDriverDailyLogEvents().driverId,
+            name: this.coDriverDailyLogEvents().driverFullName,
+          })
+      );
+      events = [...driverEvents, ...coDriverEvents].sort(
+        (a, b) =>
+          new Date(a.realStartTime).getTime() -
+          new Date(b.realStartTime).getTime()
+      );
+    } else {
+      events = [...driverEvents];
+    }
 
     events = bindEventViewId(events);
     events = events.filter((event) => filterEvents(event));
@@ -37,27 +69,20 @@ export class MonitorService {
   });
 
   updateDriverDailyLogEventsEffect = effect(() => {
-    const url = this.url();
-    const tenant = this.tenant();
+    const url = this.urlService.url();
+    const tenant = this.urlService.tenant();
     if (!url || !tenant) return;
     if (this.refresh()) console.log('live monitor page refreshed');
 
     this.updateDriverDailyLogEvents(url, tenant.id);
   });
 
-  constructor() {
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.action === 'urlChanged') {
-        this.url.set(request.data.url);
-        this.tenant.set(JSON.parse(request.data.tenant).prologs);
-      }
-    });
-  }
+  constructor() {}
 
   updateDriverDailyLogEvents(url: string, tenantId: string): void {
     const parts = url.split('/');
     const logs = parts[3];
-    const id = parts[4];
+    const id = +parts[4];
     const timestamp = parts[5];
 
     if (logs !== 'logs' || id === undefined || timestamp === undefined) {
@@ -73,7 +98,26 @@ export class MonitorService {
     );
 
     this.apiService
-      .getDriverDailyLogEvents(+id, timestampWithOffSet, tenantId)
+      .getDriverDailyLogEvents(id, timestampWithOffSet, tenantId)
+      .pipe(
+        tap((x) => {
+          if (x.coDrivers[0] && x.coDrivers[0].id) {
+            this.apiService
+              .getDriverDailyLogEvents(
+                x.coDrivers[0].id,
+                timestampWithOffSet,
+                tenantId
+              )
+              .subscribe({
+                next: (ddle) => this.coDriverDailyLogEvents.set(ddle),
+              });
+          } else {
+            this.coDriverDailyLogEvents.set({
+              events: [] as IEvent[],
+            } as IDriverDailyLogEvents);
+          }
+        })
+      )
       .subscribe({
         next: (ddle) => this.driverDailyLogEvents.set(ddle),
       });

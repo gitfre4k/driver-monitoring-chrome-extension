@@ -25,6 +25,8 @@ export interface IEvent {
   isEventMissingPowerUp: boolean;
   realEndTime: string;
   isFirstEvent: boolean;
+  coDriverDisplayName: string;
+  coDriverId: string;
 
   statusName: string;
   isTeleport: number;
@@ -34,6 +36,12 @@ export interface IEvent {
   error: boolean;
   errorMessage: string;
   computeIndex: number;
+  driver: IDriverIdAndName;
+}
+
+export interface IDriverIdAndName {
+  id: number;
+  name: string;
 }
 
 export interface IVehicle {
@@ -86,9 +94,9 @@ export interface IDriverDailyLogEvents {
   driverId: number;
   driverAssignedId: string;
   driverFullName: string;
-  violations: any[]; // Assuming an array of some type, can be more specific if known
+  violations: any[];
   events: IEvent[];
-  coDrivers: any[]; // Assuming an array of some type, can be more specific if known
+  coDrivers: ICoDriver[];
   vehicles: IVehicle[];
   distance: string;
   odometerUnits: string;
@@ -100,16 +108,21 @@ export interface IDriverDailyLogEvents {
   cycleRule: string;
   trailers: string[];
   shippingDocs: string[];
-  pendingShippingDocs: any[]; // Assuming an array of some type, can be more specific if known
+  pendingShippingDocs: any[];
   previousLogDate: string;
   certified: boolean;
   signature: string;
-  inspectionReports: any[]; // Assuming an array of some type, can be more specific if known
-  exceptions: any[]; // Assuming an array of some type, can be more specific if known
+  inspectionReports: any[];
+  exceptions: any[];
   hosDetails: IHosDetails;
-  refuels: any[]; // Assuming an array of some type, can be more specific if known
+  refuels: any[];
   firstEventTime: string;
   engineOnEventData: IEngineOnEventData;
   isEngineOffFirstEvent: boolean;
   isEngineOffInnerEvents: boolean;
+}
+
+export interface ICoDriver {
+  id: number;
+  fullName: string;
 }

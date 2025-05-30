@@ -22,7 +22,7 @@ export const computeEvents = (importedEvents: IEvent[]) => {
   let occurredDuringDriving = false;
   let currentDriving: IEvent | null = null;
   let intermediateCount = 0;
-  let currentDutyStatus = '';
+  let currentDutyStatus = {} as IEvent;
 
   for (let i = 0; i < events.length; i++) {
     events[i].computeIndex = i;
@@ -30,9 +30,10 @@ export const computeEvents = (importedEvents: IEvent[]) => {
     events[i].occurredDuringDriving = occurredDuringDriving;
 
     if (isDutyStatus(events[i])) {
-      currentDutyStatus === events[i].statusName
+      currentDutyStatus.statusName === events[i].statusName &&
+      currentDutyStatus.driver?.id === events[i].driver?.id
         ? (events[i].errorMessage = 'double Duty status')
-        : (currentDutyStatus = events[i].statusName);
+        : (currentDutyStatus = events[i]);
     }
 
     if (isDriving(events[i])) {
