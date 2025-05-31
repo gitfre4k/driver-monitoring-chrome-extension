@@ -1,4 +1,3 @@
-import { IDriver } from '../interfaces';
 import {
   IDriverIdAndName,
   IEvent,
@@ -153,6 +152,7 @@ export const detectAndBindTeleport = (importedEvents: IEvent[]) => {
       !events[i].isFirstEvent &&
       (events[i].errorMessage = 'undefined odometer value');
 
+    // check for teleport
     events[i + 1].isTeleport = isTeleport(events[i], events[i + 1]);
   }
   return events;
@@ -185,15 +185,7 @@ const getStatusName = (dutyStatus: string): string => {
       return '?';
   }
 };
-
-// #Login
-// dutyStatus AuthenticatedDriverLogin
-// eventType DriversLoginOrLogoutActivity
-
-// #Logout
-// dutyStatus AuthenticatedDriverLogout
-// eventType DriversLoginOrLogoutActivity
-
+//
 const isTeleport = (ev1: IEvent, ev2: IEvent) => {
   const mileageDifference = Math.abs(ev1.odometer - ev2.odometer);
   if (ev1.vehicleId !== ev2.vehicleId) {
@@ -201,6 +193,12 @@ const isTeleport = (ev1: IEvent, ev2: IEvent) => {
     return 0;
   }
   if (mileageDifference > 2) {
+    // case co-driver's 1st event
+    if (ev1.viewId === 1) {
+      return 0;
+    }
+
+    // teleport detected
     if (ev1.odometer > ev2.odometer) return -mileageDifference;
     if (!isDriving(ev1) && !ev1.occurredDuringDriving) return mileageDifference;
   }

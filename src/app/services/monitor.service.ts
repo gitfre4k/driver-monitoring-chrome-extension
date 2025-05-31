@@ -33,6 +33,8 @@ export class MonitorService {
   events = computed(() => {
     const driverEvents = this.driverDailyLogEvents().events;
     const coDriverEvents = this.coDriverDailyLogEvents().events;
+    bindEventViewId(driverEvents);
+    bindEventViewId(coDriverEvents);
 
     let events = [] as IEvent[];
 
@@ -60,7 +62,6 @@ export class MonitorService {
       events = [...driverEvents];
     }
 
-    events = bindEventViewId(events);
     events = events.filter((event) => filterEvents(event));
     events = computeEvents(events);
     events = detectAndBindTeleport(events);
