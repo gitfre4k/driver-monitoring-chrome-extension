@@ -7,9 +7,7 @@
     </p>
   </div>
   } @else {
-  <a mat-icon-button matTooltip="Refresh" class="refresh" (click)="refresh()"
-    ><mat-icon>refresh</mat-icon></a
-  >
+  <a mat-icon-button matTooltip="Refresh" class="refresh" (click)="refresh()"><mat-icon>refresh</mat-icon></a>
 
   <div class="info">
     <h2 class="info__company">## {{ ddle.companyName }}</h2>
@@ -20,44 +18,54 @@
   <div class="event-list">
     <ul>
       @for (event of events(); track event.id) {
+      <!-- @if (event.shift) {
+      @if(event.driver.id !== ddle.driverId) {
+      <p>{{event.driver.name}}</p>
+      <hr>
+      } @else if (event.computeIndex !== 0) {
+      <hr>
+      }
+      } -->
+
+      @if (event.shift) {
+      <p>{{event.driver.name}}</p>
+      <hr>
+      }
+
+
       <li>
         <div class="event">
-          <span [ngClass]="'view-id ' + (event.errorMessage ? ' error' : '')"
-            >{{ event.viewId }}.</span
-          >
-          <span
-            [ngClass]="
+          <span [ngClass]="'view-id ' + (event.errorMessage ? ' error' : '')">{{ event.viewId }}.</span>
+          <span [ngClass]="
               'odometer ' +
               (event.isTeleport || event.error ? 'error' : '') +
               (event.truckChange ? 'approved' : '')
-            "
-            >{{
-              event.truckChange
-                ? "truck change"
-                : event.odometer && event.odometer.toLocaleString()
-            }}</span
-          >
+            ">{{
+            event.truckChange
+            ? "truck change"
+            : event.odometer && event.odometer.toLocaleString()
+            }}</span>
 
           <p [ngClass]="'status ' + event.dutyStatus">{{ event.statusName }}</p>
 
           @if(event.errorMessage) {
           <span class="note" style="color: red; margin: 0px 5px">{{
             event.errorMessage
-          }}</span>
+            }}</span>
           }@else if(event.isTeleport) {
           <span class="note" style="color: red; margin: 0px 5px">{{
             event.isTeleport > 0
-              ? "teleport [ " + event.isTeleport + " miles ]"
-              : "odometer decreased"
-          }}</span>
+            ? "teleport [ " + event.isTeleport + " miles ]"
+            : "odometer decreased"
+            }}</span>
           } @else {
           <span class="duration">{{
             event.realDurationInSeconds
-              ? (event.realDurationInSeconds * 1000 | date : "HH:mm" : "UTC")
-              : event.durationInSeconds
-              ? (event.durationInSeconds * 1000 | date : "HH:mm" : "UTC")
-              : ""
-          }}</span>
+            ? (event.realDurationInSeconds * 1000 | date : "HH:mm" : "UTC")
+            : event.durationInSeconds
+            ? (event.durationInSeconds * 1000 | date : "HH:mm" : "UTC")
+            : ""
+            }}</span>
           <span class="note">{{ event.notes }}</span>
           }
         </div>

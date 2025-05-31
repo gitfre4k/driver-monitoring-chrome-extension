@@ -1,4 +1,8 @@
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import { IDriver } from '../interfaces';
+import {
+  IDriverIdAndName,
+  IEvent,
+} from '../interfaces/driver-daily-log-events.interface';
 
 export const bindEventViewId = (importedEvents: IEvent[]) => {
   let events = [...importedEvents];
@@ -23,11 +27,17 @@ export const computeEvents = (importedEvents: IEvent[]) => {
   let currentDriving: IEvent | null = null;
   let intermediateCount = 0;
   let currentDutyStatus = {} as IEvent;
+  let currentDriver = {} as IDriverIdAndName;
 
   for (let i = 0; i < events.length; i++) {
     events[i].computeIndex = i;
     events[i].statusName = getStatusName(events[i].dutyStatus);
     events[i].occurredDuringDriving = occurredDuringDriving;
+
+    if (events[i].driver?.id !== currentDriver.id) {
+      currentDriver = events[i].driver;
+      events[i].shift = true;
+    }
 
     if (isDutyStatus(events[i])) {
       currentDutyStatus.statusName === events[i].statusName &&

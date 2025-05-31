@@ -37,6 +37,7 @@ export interface IEvent {
   errorMessage: string;
   computeIndex: number;
   driver: IDriverIdAndName;
+  shift: boolean;
 }
 
 export interface IDriverIdAndName {
