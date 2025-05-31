@@ -11,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ScanComponent } from './components/scan/scan.component';
 import { MonitorComponent } from './components/monitor/monitor.component';
-import { ProgressBarService } from './services/progress-bar.service';
+import { ProgressBarService } from './@services/progress-bar.service';
 import { InfoComponent } from './components/info/info.component';
 
 @Component({

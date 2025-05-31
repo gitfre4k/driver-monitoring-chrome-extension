@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 
 import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonModule } from '@angular/material/button';
-import { AdvancedScanService } from '../../services/advanced-scan.service';
-import { ProgressBarService } from '../../services/progress-bar.service';
+import { AdvancedScanService } from '../../@services/advanced-scan.service';
+import { ProgressBarService } from '../../@services/progress-bar.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 

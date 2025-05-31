@@ -194,7 +194,7 @@ const isTeleport = (ev1: IEvent, ev2: IEvent) => {
   }
   if (mileageDifference > 2) {
     // case co-driver's 1st event
-    if (ev1.viewId === 1) {
+    if (ev2.viewId === 1) {
       return 0;
     }
 

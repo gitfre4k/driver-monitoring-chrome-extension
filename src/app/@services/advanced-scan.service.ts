@@ -2,7 +2,10 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { concatMap, from, mergeMap, take, tap } from 'rxjs';
 import { IDriver, ITenant } from '../interfaces';
-import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
+import {
+  IDriverDailyLogEvents,
+  IEvent,
+} from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';
 import {
   bindEventViewId,
@@ -40,24 +43,84 @@ export class AdvancedScanService {
   };
 
   dailyLogEvents$(driver: IDriver, date: Date) {
-    return this.apiService
-      .getDriverDailyLogEvents(driver.id, date, this.currentCompany().id)
+    const tenantId = this.currentCompany().id;
+    let coDriverDailyLogs: IDriverDailyLogEvents;
 
+    return this.apiService
+      .getDriverDailyLogEvents(driver.id, date, tenantId)
       .pipe(
-        tap((driverDailyLogs) =>
-          this.handleDriverDailyLogEvents(driverDailyLogs)
-        )
+        tap((driverDailyLogs) => {
+          // check for co driver
+          if (driverDailyLogs.coDrivers[0] && driverDailyLogs.coDrivers[0].id) {
+            this.apiService
+              .getDriverDailyLogEvents(
+                driverDailyLogs.coDrivers[0].id,
+                date,
+                tenantId
+              )
+              .subscribe({
+                next: (logs) => {
+                  coDriverDailyLogs = logs;
+                },
+              });
+          }
+
+          console.log(
+            'coDriverDailyLogscoDriverDailyLogscoDriverDailyLogscoDriverDailyLogs',
+            coDriverDailyLogs
+          );
+
+          return coDriverDailyLogs
+            ? this.handleDriverDailyLogEvents(
+                driverDailyLogs,
+                coDriverDailyLogs
+              )
+            : this.handleDriverDailyLogEvents(driverDailyLogs);
+        })
       );
   }
 
-  handleDriverDailyLogEvents(driverDailyLogs: IDriverDailyLogEvents) {
+  handleDriverDailyLogEvents(
+    driverDailyLogs: IDriverDailyLogEvents,
+    coDriverDailyLogs?: IDriverDailyLogEvents
+  ) {
     this.progressBarService.currentDriver.set(driverDailyLogs.driverFullName);
-    let events = driverDailyLogs.events;
+
+    let driverEvents = driverDailyLogs.events;
+    let coDriverEvents = coDriverDailyLogs && coDriverDailyLogs.events;
+
+    bindEventViewId(driverEvents);
+    coDriverEvents && bindEventViewId(coDriverEvents);
+
+    let events = [] as IEvent[];
+
+    if (coDriverDailyLogs && coDriverEvents && coDriverEvents.length > 0) {
+      driverEvents.forEach(
+        (e) =>
+          (e.driver = {
+            id: driverDailyLogs.driverId,
+            name: driverDailyLogs.driverFullName,
+          })
+      );
+      coDriverEvents.forEach(
+        (e) =>
+          (e.driver = {
+            id: coDriverDailyLogs.driverId,
+            name: coDriverDailyLogs.driverFullName,
+          })
+      );
+      events = [...driverEvents, ...coDriverEvents].sort(
+        (a, b) =>
+          new Date(a.realStartTime).getTime() -
+          new Date(b.realStartTime).getTime()
+      );
+    } else {
+      events = [...driverEvents];
+    }
 
     //
     // teleport and event errors
     let computedEvents = [...events];
-    computedEvents = bindEventViewId(computedEvents);
     computedEvents = computedEvents.filter((event) => filterEvents(event));
     computedEvents = computeEvents(computedEvents);
     computedEvents = detectAndBindTeleport(computedEvents);
@@ -97,14 +160,14 @@ export class AdvancedScanService {
       }
     });
 
-    for (let i = 0; i < events.length; i++) {
+    for (let i = 0; i < driverEvents.length; i++) {
       //
       // high elapsed Engine Hours
-      if (events[i].elapsedEngineHours >= this.engineHoursDuration()) {
+      if (driverEvents[i].elapsedEngineHours >= this.engineHoursDuration()) {
         const highEngineHoursDriver = {
           driverName: driverDailyLogs.driverFullName,
-          id: events[i].eventSequenceNumber,
-          duration: events[i].elapsedEngineHours,
+          id: driverEvents[i].eventSequenceNumber,
+          duration: driverEvents[i].elapsedEngineHours,
         };
         if (
           this.advancedScanResults.highEngineHours[
@@ -128,7 +191,7 @@ export class AdvancedScanService {
 
       //
       // missing Engine On
-      if (events[i].isEventMissingPowerUp) {
+      if (driverEvents[i].isEventMissingPowerUp) {
         if (
           this.advancedScanResults.missingEngineOn[
             driverDailyLogs.companyName
@@ -148,7 +211,7 @@ export class AdvancedScanService {
       }
       //
       // low total Engine Hours
-      if (events[i].engineMinutes < this.lowTotalEngineHoursCount()) {
+      if (driverEvents[i].engineMinutes < this.lowTotalEngineHoursCount()) {
         if (
           this.advancedScanResults.lowTotalEngineHours[
             driverDailyLogs.companyName
@@ -169,7 +232,8 @@ export class AdvancedScanService {
       //
       // Malfunction or Data Diagnostic Detection
       if (
-        events[i].eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence'
+        driverEvents[i].eventType ===
+        'MalfunctionOrDataDiagnosticDetectionOccurrence'
       ) {
         if (
           this.advancedScanResults.malfOrDataDiagDetection[
@@ -191,7 +255,7 @@ export class AdvancedScanService {
       //
       // PC/YM detection
       if (
-        events[i].eventType ===
+        driverEvents[i].eventType ===
         'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
       ) {
         if (
@@ -211,19 +275,25 @@ export class AdvancedScanService {
       }
       //
       // prolonged On Duties
-      if (events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {
+      if (driverEvents[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {
         const duration = () => {
           // OnDuty has started and ended within same day
-          if (events[i].realDurationInSeconds === events[i].durationInSeconds)
-            return events[i].durationInSeconds;
+          if (
+            driverEvents[i].realDurationInSeconds ===
+            driverEvents[i].durationInSeconds
+          )
+            return driverEvents[i].durationInSeconds;
 
           // OnDuty has started on previous day and ended on current day
-          if (events[i].realDurationInSeconds > events[i].durationInSeconds) {
-            return events[i].realDurationInSeconds;
+          if (
+            driverEvents[i].realDurationInSeconds >
+            driverEvents[i].durationInSeconds
+          ) {
+            return driverEvents[i].realDurationInSeconds;
           }
           // ongoin OnDuty has started on previous day
           else {
-            const startTime = new Date(events[i].realStartTime).getTime();
+            const startTime = new Date(driverEvents[i].realStartTime).getTime();
             const now = new Date().getTime();
 
             return (now - startTime) / 1000;
@@ -232,7 +302,7 @@ export class AdvancedScanService {
         if (duration() > this.prolongedOnDutiesDuration()) {
           const prolongedOnDuty = {
             driverName: driverDailyLogs.driverFullName,
-            id: events[i].eventSequenceNumber,
+            id: driverEvents[i].eventSequenceNumber,
             duration: duration(),
           };
           if (

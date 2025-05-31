@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 
 import { CommonModule, DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
-import { MonitorService } from '../../services/monitor.service';
+import { MonitorService } from '../../@services/monitor.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';

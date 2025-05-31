@@ -14,7 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 
 import { Observable, Subscription } from 'rxjs';
 
-import { ScanService } from '../../services/scan.service';
+import { ScanService } from '../../@services/scan.service';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 import {
   FormControl,
@@ -23,10 +23,10 @@ import {
   FormsModule,
 } from '@angular/forms';
 import { IDOTInspections, IViolations } from '../../interfaces';
-import { FormattedDateService } from '../../services/formatted-date.service';
+import { FormattedDateService } from '../../@services/formatted-date.service';
 import { TScanMode } from '../../types';
-import { AdvancedScanService } from '../../services/advanced-scan.service';
-import { ProgressBarService } from '../../services/progress-bar.service';
+import { AdvancedScanService } from '../../@services/advanced-scan.service';
+import { ProgressBarService } from '../../@services/progress-bar.service';
 import { ReportComponent } from '../report/report.component';
 import { MatDialog } from '@angular/material/dialog';
 

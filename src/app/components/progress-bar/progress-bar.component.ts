@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { Subscription } from 'rxjs';
 import { TScanMode } from '../../types';
-import { ProgressBarService } from '../../services/progress-bar.service';
+import { ProgressBarService } from '../../@services/progress-bar.service';
 
 @Component({
   selector: 'app-progress-bar',
