@@ -31,6 +31,8 @@ export class MonitorService {
   } as IDriverDailyLogEvents);
 
   events = computed(() => {
+    console.log('CccccccccccccOMPUTEddddddddddddddddD');
+    ``;
     const driverEvents = this.driverDailyLogEvents().events;
     const coDriverEvents = this.coDriverDailyLogEvents().events;
     bindEventViewId(driverEvents);
@@ -90,9 +92,6 @@ export class MonitorService {
       this.driverDailyLogEvents.set({} as IDriverDailyLogEvents);
       return;
     }
-
-    console.log('// updateDriverDailyLogEvents -> subscribe');
-    console.log(timestamp);
 
     const timestampWithOffSet = new Date(
       new Date(new Date(timestamp).setHours(19, 0, 0, 0))

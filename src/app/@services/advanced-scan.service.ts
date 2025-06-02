@@ -26,6 +26,10 @@ export class AdvancedScanService {
   lowTotalEngineHoursCount = signal(100);
 
   currentCompany = signal({} as ITenant);
+  coDriverDailyLogEvents = signal({
+    events: [] as IEvent[],
+  } as IDriverDailyLogEvents);
+
   advancedScanResults = this.progressBarService.advancedResaults;
 
   constructor() {}
@@ -44,57 +48,60 @@ export class AdvancedScanService {
 
   dailyLogEvents$(driver: IDriver, date: Date) {
     const tenantId = this.currentCompany().id;
-    let coDriverDailyLogs: IDriverDailyLogEvents;
 
     return this.apiService
       .getDriverDailyLogEvents(driver.id, date, tenantId)
       .pipe(
-        tap((driverDailyLogs) => {
+        tap((driverDailyLogEvents) => {
           // check for co driver
-          if (driverDailyLogs.coDrivers[0] && driverDailyLogs.coDrivers[0].id) {
+          if (
+            driverDailyLogEvents.coDrivers[0] &&
+            driverDailyLogEvents.coDrivers[0].id
+          ) {
             this.apiService
               .getDriverDailyLogEvents(
-                driverDailyLogs.coDrivers[0].id,
+                driverDailyLogEvents.coDrivers[0].id,
                 date,
                 tenantId
               )
               .subscribe({
-                next: (logs) => {
-                  coDriverDailyLogs = logs;
-                },
+                next: (coDriverDailyLogEvents) =>
+                  this.coDriverDailyLogEvents.set(coDriverDailyLogEvents),
               });
+          } else {
+            this.coDriverDailyLogEvents.set({
+              events: [] as IEvent[],
+            } as IDriverDailyLogEvents);
           }
 
-          console.log(
-            'coDriverDailyLogscoDriverDailyLogscoDriverDailyLogscoDriverDailyLogs',
-            coDriverDailyLogs
+          this.coDriverDailyLogEvents().events.length > 0 &&
+            console.log(
+              '>>>>>>>>>>>>>>>>>>>>>>',
+              driverDailyLogEvents.driverFullName,
+              driverDailyLogEvents.coDrivers[0].fullName
+            );
+          this.handleDriverDailyLogEvents(
+            driverDailyLogEvents,
+            this.coDriverDailyLogEvents()
           );
-
-          return coDriverDailyLogs
-            ? this.handleDriverDailyLogEvents(
-                driverDailyLogs,
-                coDriverDailyLogs
-              )
-            : this.handleDriverDailyLogEvents(driverDailyLogs);
         })
       );
   }
 
   handleDriverDailyLogEvents(
     driverDailyLogs: IDriverDailyLogEvents,
-    coDriverDailyLogs?: IDriverDailyLogEvents
+    coDriverDailyLogs: IDriverDailyLogEvents
   ) {
     this.progressBarService.currentDriver.set(driverDailyLogs.driverFullName);
 
-    let driverEvents = driverDailyLogs.events;
-    let coDriverEvents = coDriverDailyLogs && coDriverDailyLogs.events;
-
+    const driverEvents = driverDailyLogs.events;
+    const coDriverEvents = coDriverDailyLogs.events;
     bindEventViewId(driverEvents);
-    coDriverEvents && bindEventViewId(coDriverEvents);
+    coDriverEvents.length && bindEventViewId(coDriverEvents);
 
-    let events = [] as IEvent[];
+    let allEvents = [] as IEvent[];
 
-    if (coDriverDailyLogs && coDriverEvents && coDriverEvents.length > 0) {
+    if (coDriverEvents.length > 0) {
       driverEvents.forEach(
         (e) =>
           (e.driver = {
@@ -109,23 +116,22 @@ export class AdvancedScanService {
             name: coDriverDailyLogs.driverFullName,
           })
       );
-      events = [...driverEvents, ...coDriverEvents].sort(
+      allEvents = [...driverEvents, ...coDriverEvents].sort(
         (a, b) =>
           new Date(a.realStartTime).getTime() -
           new Date(b.realStartTime).getTime()
       );
     } else {
-      events = [...driverEvents];
+      allEvents = [...driverEvents];
     }
 
     //
     // teleport and event errors
-    let computedEvents = [...events];
-    computedEvents = computedEvents.filter((event) => filterEvents(event));
-    computedEvents = computeEvents(computedEvents);
-    computedEvents = detectAndBindTeleport(computedEvents);
+    allEvents = allEvents.filter((event) => filterEvents(event));
+    allEvents = computeEvents(allEvents);
+    allEvents = detectAndBindTeleport(allEvents);
 
-    computedEvents.forEach((event) => {
+    allEvents.forEach((event) => {
       if (event.isTeleport) {
         const detectedTeleport = {
           driverName: driverDailyLogs.driverFullName,

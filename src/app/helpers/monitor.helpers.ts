@@ -48,14 +48,6 @@ export const computeEvents = (importedEvents: IEvent[]) => {
     if (isDriving(events[i])) {
       occurredDuringDriving = true;
       currentDriving = events[i];
-      console.log(
-        'currentDriving: ',
-        currentDriving,
-        '\nindex: ',
-        i,
-        '\nviewId: ',
-        events[i].viewId
-      );
     }
     if (isIntermediate(events[i])) {
       intermediateCount++;
@@ -110,8 +102,8 @@ export const computeEvents = (importedEvents: IEvent[]) => {
             (events[currentDriving.computeIndex].errorMessage =
               'incorrect intermediate count');
         }
-
-        // case when chcking ongoing driving has started on previous day
+        //
+        // case when checking ongoing driving has started on previous day
         if (
           currentDriving.realDurationInSeconds === 0 &&
           currentDriving.startTime !== currentDriving.realStartTime
@@ -197,8 +189,7 @@ const isTeleport = (ev1: IEvent, ev2: IEvent) => {
     if (ev2.viewId === 1) {
       return 0;
     }
-
-    // teleport detected
+    // [[ teleport detected ]]
     if (ev1.odometer > ev2.odometer) return -mileageDifference;
     if (!isDriving(ev1) && !ev1.occurredDuringDriving) return mileageDifference;
   }
