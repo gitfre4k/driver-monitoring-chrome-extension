@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 import {
   bindEventViewId,
@@ -10,38 +10,27 @@ import {
 } from '../helpers/monitor.helpers';
 
 import {
-  IDriverDailyLogEvents,
+  IDailyLogs,
   IDriverIdAndName,
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
-import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ComputeEventsService {
-  private apiService = inject(ApiService);
-
   coEvents = signal([] as IEvent[]);
 
   constructor() {}
 
-  getComputedEvents = ({
-    driverDailyLog,
-    coDriverDailyLog,
-  }: {
-    driverDailyLog: IDriverDailyLogEvents;
-    coDriverDailyLog: IDriverDailyLogEvents;
-  }) => {
+  getComputedEvents = ({ driverDailyLog, coDriverDailyLog }: IDailyLogs) => {
     const driverEvents = bindEventViewId(driverDailyLog.events);
-    const coDriverEvents =
-      coDriverDailyLog.events?.length > 0
-        ? bindEventViewId(coDriverDailyLog.events)
-        : null;
+    let coDriverEvents = [] as IEvent[];
 
     let events = [] as IEvent[];
 
-    if (coDriverEvents) {
+    if (coDriverDailyLog.events?.length > 0) {
+      coDriverEvents = bindEventViewId(coDriverDailyLog.events);
       driverEvents.forEach(
         (e) =>
           (e.driver = {

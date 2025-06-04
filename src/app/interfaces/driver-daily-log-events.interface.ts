@@ -127,3 +127,8 @@ export interface ICoDriver {
   id: number;
   fullName: string;
 }
+
+export interface IDailyLogs {
+  driverDailyLog: IDriverDailyLogEvents;
+  coDriverDailyLog: IDriverDailyLogEvents;
+}

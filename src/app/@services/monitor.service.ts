@@ -2,14 +2,14 @@ import { Injectable, inject, signal, effect, computed } from '@angular/core';
 import { ApiService } from './api.service';
 
 import {
+  IDailyLogs,
   IDriverDailyLogEvents,
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
 import { UrlService } from './url.service';
 import { ComputeEventsService } from './compute-events.service';
-import { map, tap, zip } from 'rxjs';
+import { concatMap, of, tap, zip } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { bindEventViewId } from '../helpers/monitor.helpers';
 
 @Injectable({
   providedIn: 'root',
@@ -31,14 +31,14 @@ export class MonitorService {
   });
 
   driverDailyLog = signal({} as IDriverDailyLogEvents);
-  coDriverDailyLog = signal({} as IDriverDailyLogEvents);
-  dailyLogs = toSignal(
+  coDriverDailyLog = signal({
+    events: [] as IEvent[],
+  } as IDriverDailyLogEvents);
+
+  dailyLogs = toSignal<IDailyLogs>(
     zip(
       [toObservable(this.driverDailyLog), toObservable(this.coDriverDailyLog)],
-      (
-        driverDailyLog: IDriverDailyLogEvents,
-        coDriverDailyLog: IDriverDailyLogEvents
-      ) => {
+      (driverDailyLog, coDriverDailyLog) => {
         return { driverDailyLog, coDriverDailyLog };
       }
     )
@@ -64,28 +64,34 @@ export class MonitorService {
     }
 
     const timestampWithOffSet = new Date(
-      new Date(new Date(timestamp).setHours(19, 0, 0, 0))
+      new Date(new Date(timestamp).setHours(24, 0, 0, 0))
     );
 
     this.apiService
       .getDriverDailyLogEvents(id, timestampWithOffSet, tenantId)
       .pipe(
-        tap((driverDailyLog) => {
+        tap((driverDailyLog) => this.driverDailyLog.set(driverDailyLog)),
+        concatMap((driverDailyLog) => {
           if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
             const coId = driverDailyLog.coDrivers[0].id;
             const date = new Date(driverDailyLog.date);
 
-            this.apiService
+            return this.apiService
               .getDriverDailyLogEvents(coId, date, tenantId)
-              .subscribe({
-                next: (dailyLog) => this.coDriverDailyLog.set(dailyLog),
-              });
-          } else this.coDriverDailyLog.set({} as IDriverDailyLogEvents);
+              .pipe(
+                tap((coDriverDailyLog) =>
+                  this.coDriverDailyLog.set(coDriverDailyLog)
+                )
+              );
+          } else
+            return of({
+              events: [] as IEvent[],
+            } as IDriverDailyLogEvents as IDriverDailyLogEvents).pipe(
+              tap((noLogs) => this.coDriverDailyLog.set(noLogs))
+            );
         })
       )
-      .subscribe({
-        next: (dailyLog) => this.driverDailyLog.set(dailyLog),
-      });
+      .subscribe();
 
     return;
   }

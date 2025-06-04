@@ -1,13 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { concatMap, from, mergeMap, take, tap } from 'rxjs';
+import { concatMap, from, mergeMap, tap } from 'rxjs';
 import { IDriver, ITenant } from '../interfaces';
-import {
-  IDriverDailyLogEvents,
-  IEvent,
-} from '../interfaces/driver-daily-log-events.interface';
+import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';
-import { bindEventViewId, filterEvents } from '../helpers/monitor.helpers';
 import { AppService } from './app.service';
 import { ComputeEventsService } from './compute-events.service';
 
@@ -37,28 +33,41 @@ export class AdvancedScanService {
       .getDriverDailyLogEvents(driver.id, date, tenantId)
       .pipe(
         tap((driverDailyLog) => {
-          // if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
-          //   const coId = driverDailyLog.coDrivers[0].id;
+          if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
+            const coId = driverDailyLog.coDrivers[0].id;
 
-          //   this.apiService
-          //     .getDriverDailyLogEvents(coId, date, tenantId)
-          //     .subscribe({
-          //       next: (dailyLog) => this.coDriverDailyLog.set(dailyLog),
-          //     });
-          // } else
-          this.handleDriverDailyLogEvents(driverDailyLog);
+            this.apiService
+              .getDriverDailyLogEvents(coId, date, tenantId)
+              .subscribe({
+                next: (coDriverDailyLog) =>
+                  this.handleDriverDailyLogEvents({
+                    driverDailyLog,
+                    coDriverDailyLog,
+                  }),
+              });
+          } else
+            this.handleDriverDailyLogEvents({
+              driverDailyLog,
+              coDriverDailyLog: {} as IDriverDailyLogEvents,
+            });
         })
       );
   }
 
-  handleDriverDailyLogEvents(driverDailyLog: IDriverDailyLogEvents) {
+  handleDriverDailyLogEvents({
+    driverDailyLog,
+    coDriverDailyLog,
+  }: {
+    driverDailyLog: IDriverDailyLogEvents;
+    coDriverDailyLog: IDriverDailyLogEvents;
+  }) {
     this.progressBarService.currentDriver.set(driverDailyLog.driverFullName);
 
     const driverEvents = driverDailyLog.events;
 
     let computedEvents = this.computeEventsService.getComputedEvents({
       driverDailyLog,
-      coDriverDailyLog: {} as IDriverDailyLogEvents,
+      coDriverDailyLog,
     });
 
     computedEvents.forEach((event) => {
