@@ -1,6 +1,8 @@
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 
 export const bindEventViewId = (importedEvents: IEvent[]) => {
+  // if (!importedEvents || importedEvents.length === 0) return [] as IEvent[];
+  console.log(importedEvents);
   let events = [...importedEvents];
   for (let i = 0; i < events.length; i++) {
     events[i].viewId = i + 1;

@@ -129,6 +129,6 @@ export interface ICoDriver {
 }
 
 export interface IDailyLogs {
-  driverDailyLog: IDriverDailyLogEvents;
-  coDriverDailyLog: IDriverDailyLogEvents;
+  driverDailyLog: IDriverDailyLogEvents | null;
+  coDriverDailyLog: IDriverDailyLogEvents | null;
 }

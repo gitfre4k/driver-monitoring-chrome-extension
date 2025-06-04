@@ -8,7 +8,7 @@ import {
 } from '../interfaces/driver-daily-log-events.interface';
 import { UrlService } from './url.service';
 import { ComputeEventsService } from './compute-events.service';
-import { concatMap, of, tap, zip } from 'rxjs';
+import { concatMap, of, switchMap, tap, zip } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
@@ -30,10 +30,8 @@ export class MonitorService {
     this.updateDriverDailyLogEvents(url, tenant.id);
   });
 
-  driverDailyLog = signal({} as IDriverDailyLogEvents);
-  coDriverDailyLog = signal({
-    events: [] as IEvent[],
-  } as IDriverDailyLogEvents);
+  driverDailyLog = signal<null | IDriverDailyLogEvents>(null);
+  coDriverDailyLog = signal<null | IDriverDailyLogEvents>(null);
 
   dailyLogs = toSignal<IDailyLogs>(
     zip(
@@ -45,9 +43,9 @@ export class MonitorService {
   );
 
   events = computed(() => {
-    const dailyLogs = this.dailyLogs();
+    let dailyLogs = this.dailyLogs();
     if (!dailyLogs) return [] as IEvent[];
-    return this.computeEventsService.getComputedEvents(dailyLogs);
+    else return this.computeEventsService.getComputedEvents(this.dailyLogs()!);
   });
 
   constructor() {}
@@ -71,7 +69,7 @@ export class MonitorService {
       .getDriverDailyLogEvents(id, timestampWithOffSet, tenantId)
       .pipe(
         tap((driverDailyLog) => this.driverDailyLog.set(driverDailyLog)),
-        concatMap((driverDailyLog) => {
+        switchMap((driverDailyLog) => {
           if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
             const coId = driverDailyLog.coDrivers[0].id;
             const date = new Date(driverDailyLog.date);

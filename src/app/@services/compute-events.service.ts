@@ -19,18 +19,19 @@ import {
   providedIn: 'root',
 })
 export class ComputeEventsService {
-  coEvents = signal([] as IEvent[]);
-
   constructor() {}
 
   getComputedEvents = ({ driverDailyLog, coDriverDailyLog }: IDailyLogs) => {
-    const driverEvents = bindEventViewId(driverDailyLog.events);
-    let coDriverEvents = [] as IEvent[];
+    if (!driverDailyLog) return [];
+
+    let driverEvents = bindEventViewId(driverDailyLog.events);
+    let coDriverEvents = coDriverDailyLog
+      ? bindEventViewId(coDriverDailyLog.events)
+      : null;
 
     let events = [] as IEvent[];
 
-    if (coDriverDailyLog.events?.length > 0) {
-      coDriverEvents = bindEventViewId(coDriverDailyLog.events);
+    if (coDriverDailyLog && coDriverEvents && coDriverEvents?.length > 0) {
       driverEvents.forEach(
         (e) =>
           (e.driver = {

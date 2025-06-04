@@ -1,21 +1,25 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
+
+import { AppService } from './app.service';
+
 import {
   IAdvancedResaults,
   IScanDOTInspections,
   IScanErrors,
   IScanViolations,
 } from '../interfaces';
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProgressBarService {
+  private appService = inject(AppService);
+
   scanning = signal(false);
   progressValue = signal(0);
   bufferValue = signal(0);
-  constant = signal(0);
-  currentCompany = signal('');
+  constant = computed(() => 100 / this.appService.tenantsSignal().length);
+  currentCompany = signal('Dex Solutions');
   currentDriver = signal('');
   totalCount = signal(0);
 
@@ -43,7 +47,6 @@ export class ProgressBarService {
     this.inspections = [];
     this.errors = [];
     this.bufferValue.set(0);
-    this.constant.set(0);
     this.currentCompany.set('Dex Solutions');
     this.totalCount.set(0);
   }

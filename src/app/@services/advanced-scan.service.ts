@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { concatMap, from, mergeMap, tap } from 'rxjs';
 import { IDriver, ITenant } from '../interfaces';
-import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
+import { IDailyLogs } from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';
 import { AppService } from './app.service';
 import { ComputeEventsService } from './compute-events.service';
@@ -48,19 +48,14 @@ export class AdvancedScanService {
           } else
             this.handleDriverDailyLogEvents({
               driverDailyLog,
-              coDriverDailyLog: {} as IDriverDailyLogEvents,
+              coDriverDailyLog: null,
             });
         })
       );
   }
 
-  handleDriverDailyLogEvents({
-    driverDailyLog,
-    coDriverDailyLog,
-  }: {
-    driverDailyLog: IDriverDailyLogEvents;
-    coDriverDailyLog: IDriverDailyLogEvents;
-  }) {
+  handleDriverDailyLogEvents({ driverDailyLog, coDriverDailyLog }: IDailyLogs) {
+    if (!driverDailyLog) return;
     this.progressBarService.currentDriver.set(driverDailyLog.driverFullName);
 
     const driverEvents = driverDailyLog.events;
@@ -269,7 +264,6 @@ export class AdvancedScanService {
   getLogs(date: Date) {
     const tenants = this.appService.tenantsSignal();
     this.progressBarService.scanning.set(true);
-    this.progressBarService.constant.set(100 / tenants.length);
 
     return from(tenants).pipe(
       concatMap((tenant) => {

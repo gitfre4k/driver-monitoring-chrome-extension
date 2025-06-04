@@ -36,6 +36,8 @@
             ],
             "js": [
                 "content-script.js"
+            ], "ts": [
+                
             ]
         }
     ]

@@ -74,9 +74,8 @@ export class ScanService {
     return this.apiService
       .getAccessibleTenants()
       .pipe(
-        tap((tenants) => {
+        tap(() => {
           this.progressBarService.scanning.set(true);
-          this.progressBarService.constant.set(100 / tenants.length);
         }),
         mergeMap((tenants) => from(tenants))
       )
@@ -101,9 +100,8 @@ export class ScanService {
 
   getAllDOTInspections(range: IRange) {
     return this.apiService.getAccessibleTenants().pipe(
-      tap((tenants) => {
+      tap(() => {
         this.progressBarService.scanning.set(true);
-        this.progressBarService.constant.set(100 / tenants.length);
       }),
       mergeMap((tenants) => from(tenants)),
       concatMap((tenant) => {
