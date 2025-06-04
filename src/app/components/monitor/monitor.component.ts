@@ -18,7 +18,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class MonitorComponent {
   private monitorService = inject(MonitorService);
 
-  driverDailyLogEvents = this.monitorService.driverDailyLogEvents;
+  driverDailyLogEvents = this.monitorService.driverDailyLog;
   events = this.monitorService.events;
 
   offset = new Date().getTimezoneOffset();

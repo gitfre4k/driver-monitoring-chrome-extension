@@ -1,18 +1,15 @@
-import { Injectable, inject, computed, signal, effect } from '@angular/core';
+import { Injectable, inject, signal, effect, computed } from '@angular/core';
 import { ApiService } from './api.service';
-import {
-  bindEventViewId,
-  filterEvents,
-  computeEvents,
-  detectAndBindTeleport,
-} from '../helpers/monitor.helpers';
 
 import {
   IDriverDailyLogEvents,
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
 import { UrlService } from './url.service';
-import { tap } from 'rxjs';
+import { ComputeEventsService } from './compute-events.service';
+import { map, tap, zip } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { bindEventViewId } from '../helpers/monitor.helpers';
 
 @Injectable({
   providedIn: 'root',
@@ -20,64 +17,37 @@ import { tap } from 'rxjs';
 export class MonitorService {
   private apiService = inject(ApiService);
   private urlService = inject(UrlService);
+  private computeEventsService = inject(ComputeEventsService);
 
   refresh = signal(0);
 
-  driverDailyLogEvents = signal({
-    events: [] as IEvent[],
-  } as IDriverDailyLogEvents);
-  coDriverDailyLogEvents = signal({
-    events: [] as IEvent[],
-  } as IDriverDailyLogEvents);
-
-  events = computed(() => {
-    console.log('CccccccccccccOMPUTEddddddddddddddddD');
-    ``;
-    const driverEvents = this.driverDailyLogEvents().events;
-    const coDriverEvents = this.coDriverDailyLogEvents().events;
-    bindEventViewId(driverEvents);
-    bindEventViewId(coDriverEvents);
-
-    let events = [] as IEvent[];
-
-    if (coDriverEvents.length > 0) {
-      driverEvents.forEach(
-        (e) =>
-          (e.driver = {
-            id: this.driverDailyLogEvents().driverId,
-            name: this.driverDailyLogEvents().driverFullName,
-          })
-      );
-      coDriverEvents.forEach(
-        (e) =>
-          (e.driver = {
-            id: this.coDriverDailyLogEvents().driverId,
-            name: this.coDriverDailyLogEvents().driverFullName,
-          })
-      );
-      events = [...driverEvents, ...coDriverEvents].sort(
-        (a, b) =>
-          new Date(a.realStartTime).getTime() -
-          new Date(b.realStartTime).getTime()
-      );
-    } else {
-      events = [...driverEvents];
-    }
-
-    events = events.filter((event) => filterEvents(event));
-    events = computeEvents(events);
-    events = detectAndBindTeleport(events);
-
-    return events;
-  });
-
-  updateDriverDailyLogEventsEffect = effect(() => {
+  updateEvents = effect(() => {
     const url = this.urlService.url();
     const tenant = this.urlService.tenant();
     if (!url || !tenant) return;
     if (this.refresh()) console.log('live monitor page refreshed');
 
     this.updateDriverDailyLogEvents(url, tenant.id);
+  });
+
+  driverDailyLog = signal({} as IDriverDailyLogEvents);
+  coDriverDailyLog = signal({} as IDriverDailyLogEvents);
+  dailyLogs = toSignal(
+    zip(
+      [toObservable(this.driverDailyLog), toObservable(this.coDriverDailyLog)],
+      (
+        driverDailyLog: IDriverDailyLogEvents,
+        coDriverDailyLog: IDriverDailyLogEvents
+      ) => {
+        return { driverDailyLog, coDriverDailyLog };
+      }
+    )
+  );
+
+  events = computed(() => {
+    const dailyLogs = this.dailyLogs();
+    if (!dailyLogs) return [] as IEvent[];
+    return this.computeEventsService.getComputedEvents(dailyLogs);
   });
 
   constructor() {}
@@ -89,7 +59,7 @@ export class MonitorService {
     const timestamp = parts[5];
 
     if (logs !== 'logs' || id === undefined || timestamp === undefined) {
-      this.driverDailyLogEvents.set({} as IDriverDailyLogEvents);
+      this.driverDailyLog.set({} as IDriverDailyLogEvents);
       return;
     }
 
@@ -100,26 +70,21 @@ export class MonitorService {
     this.apiService
       .getDriverDailyLogEvents(id, timestampWithOffSet, tenantId)
       .pipe(
-        tap((x) => {
-          if (x.coDrivers[0] && x.coDrivers[0].id) {
+        tap((driverDailyLog) => {
+          if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
+            const coId = driverDailyLog.coDrivers[0].id;
+            const date = new Date(driverDailyLog.date);
+
             this.apiService
-              .getDriverDailyLogEvents(
-                x.coDrivers[0].id,
-                timestampWithOffSet,
-                tenantId
-              )
+              .getDriverDailyLogEvents(coId, date, tenantId)
               .subscribe({
-                next: (ddle) => this.coDriverDailyLogEvents.set(ddle),
+                next: (dailyLog) => this.coDriverDailyLog.set(dailyLog),
               });
-          } else {
-            this.coDriverDailyLogEvents.set({
-              events: [] as IEvent[],
-            } as IDriverDailyLogEvents);
-          }
+          } else this.coDriverDailyLog.set({} as IDriverDailyLogEvents);
         })
       )
       .subscribe({
-        next: (ddle) => this.driverDailyLogEvents.set(ddle),
+        next: (dailyLog) => this.driverDailyLog.set(dailyLog),
       });
 
     return;

@@ -7,18 +7,17 @@ import {
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';
-import {
-  bindEventViewId,
-  computeEvents,
-  detectAndBindTeleport,
-  filterEvents,
-} from '../helpers/monitor.helpers';
+import { bindEventViewId, filterEvents } from '../helpers/monitor.helpers';
+import { AppService } from './app.service';
+import { ComputeEventsService } from './compute-events.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdvancedScanService {
-  private apiService: ApiService = inject(ApiService);
+  private appService = inject(AppService);
+  private apiService = inject(ApiService);
+  private computeEventsService = inject(ComputeEventsService);
   private progressBarService = inject(ProgressBarService);
 
   prolongedOnDutiesDuration = signal(4200); // 1h10min
@@ -26,25 +25,10 @@ export class AdvancedScanService {
   lowTotalEngineHoursCount = signal(100);
 
   currentCompany = signal({} as ITenant);
-  coDriverDailyLogEvents = signal({
-    events: [] as IEvent[],
-  } as IDriverDailyLogEvents);
 
   advancedScanResults = this.progressBarService.advancedResaults;
 
   constructor() {}
-
-  allTetants$ = () => {
-    return this.apiService.getAccessibleTenants().pipe(
-      tap((tenants) => {
-        this.progressBarService.constant.set(100 / tenants.length);
-      }),
-      mergeMap(
-        (tenant) => from(tenant).pipe()
-        //
-      )
-    );
-  };
 
   dailyLogEvents$(driver: IDriver, date: Date) {
     const tenantId = this.currentCompany().id;
@@ -52,114 +36,60 @@ export class AdvancedScanService {
     return this.apiService
       .getDriverDailyLogEvents(driver.id, date, tenantId)
       .pipe(
-        tap((driverDailyLogEvents) => {
-          // check for co driver
-          if (
-            driverDailyLogEvents.coDrivers[0] &&
-            driverDailyLogEvents.coDrivers[0].id
-          ) {
-            this.apiService
-              .getDriverDailyLogEvents(
-                driverDailyLogEvents.coDrivers[0].id,
-                date,
-                tenantId
-              )
-              .subscribe({
-                next: (coDriverDailyLogEvents) =>
-                  this.coDriverDailyLogEvents.set(coDriverDailyLogEvents),
-              });
-          } else {
-            this.coDriverDailyLogEvents.set({
-              events: [] as IEvent[],
-            } as IDriverDailyLogEvents);
-          }
+        tap((driverDailyLog) => {
+          // if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
+          //   const coId = driverDailyLog.coDrivers[0].id;
 
-          this.coDriverDailyLogEvents().events.length > 0 &&
-            console.log(
-              '>>>>>>>>>>>>>>>>>>>>>>',
-              driverDailyLogEvents.driverFullName,
-              driverDailyLogEvents.coDrivers[0].fullName
-            );
-          this.handleDriverDailyLogEvents(
-            driverDailyLogEvents,
-            this.coDriverDailyLogEvents()
-          );
+          //   this.apiService
+          //     .getDriverDailyLogEvents(coId, date, tenantId)
+          //     .subscribe({
+          //       next: (dailyLog) => this.coDriverDailyLog.set(dailyLog),
+          //     });
+          // } else
+          this.handleDriverDailyLogEvents(driverDailyLog);
         })
       );
   }
 
-  handleDriverDailyLogEvents(
-    driverDailyLogs: IDriverDailyLogEvents,
-    coDriverDailyLogs: IDriverDailyLogEvents
-  ) {
-    this.progressBarService.currentDriver.set(driverDailyLogs.driverFullName);
+  handleDriverDailyLogEvents(driverDailyLog: IDriverDailyLogEvents) {
+    this.progressBarService.currentDriver.set(driverDailyLog.driverFullName);
 
-    const driverEvents = driverDailyLogs.events;
-    const coDriverEvents = coDriverDailyLogs.events;
-    bindEventViewId(driverEvents);
-    coDriverEvents.length && bindEventViewId(coDriverEvents);
+    const driverEvents = driverDailyLog.events;
 
-    let allEvents = [] as IEvent[];
+    let computedEvents = this.computeEventsService.getComputedEvents({
+      driverDailyLog,
+      coDriverDailyLog: {} as IDriverDailyLogEvents,
+    });
 
-    if (coDriverEvents.length > 0) {
-      driverEvents.forEach(
-        (e) =>
-          (e.driver = {
-            id: driverDailyLogs.driverId,
-            name: driverDailyLogs.driverFullName,
-          })
-      );
-      coDriverEvents.forEach(
-        (e) =>
-          (e.driver = {
-            id: coDriverDailyLogs.driverId,
-            name: coDriverDailyLogs.driverFullName,
-          })
-      );
-      allEvents = [...driverEvents, ...coDriverEvents].sort(
-        (a, b) =>
-          new Date(a.realStartTime).getTime() -
-          new Date(b.realStartTime).getTime()
-      );
-    } else {
-      allEvents = [...driverEvents];
-    }
-
-    //
-    // teleport and event errors
-    allEvents = allEvents.filter((event) => filterEvents(event));
-    allEvents = computeEvents(allEvents);
-    allEvents = detectAndBindTeleport(allEvents);
-
-    allEvents.forEach((event) => {
+    computedEvents.forEach((event) => {
       if (event.isTeleport) {
         const detectedTeleport = {
-          driverName: driverDailyLogs.driverFullName,
+          driverName: driverDailyLog.driverFullName,
           id: event.eventSequenceNumber,
           event: event,
         };
-        if (this.advancedScanResults.teleports[driverDailyLogs.companyName]) {
-          this.advancedScanResults.teleports[driverDailyLogs.companyName].push(
+        if (this.advancedScanResults.teleports[driverDailyLog.companyName]) {
+          this.advancedScanResults.teleports[driverDailyLog.companyName].push(
             detectedTeleport
           );
         } else {
-          this.advancedScanResults.teleports[driverDailyLogs.companyName] = [
+          this.advancedScanResults.teleports[driverDailyLog.companyName] = [
             detectedTeleport,
           ];
         }
       }
       if (event.errorMessage) {
         const eventError = {
-          driverName: driverDailyLogs.driverFullName,
+          driverName: driverDailyLog.driverFullName,
           id: event.eventSequenceNumber,
           event: event,
         };
-        if (this.advancedScanResults.eventErrors[driverDailyLogs.companyName]) {
-          this.advancedScanResults.eventErrors[
-            driverDailyLogs.companyName
-          ].push(eventError);
+        if (this.advancedScanResults.eventErrors[driverDailyLog.companyName]) {
+          this.advancedScanResults.eventErrors[driverDailyLog.companyName].push(
+            eventError
+          );
         } else {
-          this.advancedScanResults.eventErrors[driverDailyLogs.companyName] = [
+          this.advancedScanResults.eventErrors[driverDailyLog.companyName] = [
             eventError,
           ];
         }
@@ -171,27 +101,26 @@ export class AdvancedScanService {
       // high elapsed Engine Hours
       if (driverEvents[i].elapsedEngineHours >= this.engineHoursDuration()) {
         const highEngineHoursDriver = {
-          driverName: driverDailyLogs.driverFullName,
+          driverName: driverDailyLog.driverFullName,
           id: driverEvents[i].eventSequenceNumber,
           duration: driverEvents[i].elapsedEngineHours,
         };
         if (
           this.advancedScanResults.highEngineHours[
-            driverDailyLogs.companyName
+            driverDailyLog.companyName
           ] &&
           this.advancedScanResults.highEngineHours[
-            driverDailyLogs.companyName
+            driverDailyLog.companyName
           ].find(
-            (driver) => driver.driverName === driverDailyLogs.driverFullName
+            (driver) => driver.driverName === driverDailyLog.driverFullName
           ) === undefined
         ) {
           this.advancedScanResults.highEngineHours[
-            driverDailyLogs.companyName
+            driverDailyLog.companyName
           ].push(highEngineHoursDriver);
         } else {
-          this.advancedScanResults.highEngineHours[
-            driverDailyLogs.companyName
-          ] = [highEngineHoursDriver];
+          this.advancedScanResults.highEngineHours[driverDailyLog.companyName] =
+            [highEngineHoursDriver];
         }
       }
 
@@ -200,19 +129,18 @@ export class AdvancedScanService {
       if (driverEvents[i].isEventMissingPowerUp) {
         if (
           this.advancedScanResults.missingEngineOn[
-            driverDailyLogs.companyName
+            driverDailyLog.companyName
           ] &&
           !this.advancedScanResults.missingEngineOn[
-            driverDailyLogs.companyName
-          ].includes(driverDailyLogs.driverFullName)
+            driverDailyLog.companyName
+          ].includes(driverDailyLog.driverFullName)
         ) {
           this.advancedScanResults.missingEngineOn[
-            driverDailyLogs.companyName
-          ].push(driverDailyLogs.driverFullName);
+            driverDailyLog.companyName
+          ].push(driverDailyLog.driverFullName);
         } else {
-          this.advancedScanResults.missingEngineOn[
-            driverDailyLogs.companyName
-          ] = [driverDailyLogs.driverFullName];
+          this.advancedScanResults.missingEngineOn[driverDailyLog.companyName] =
+            [driverDailyLog.driverFullName];
         }
       }
       //
@@ -220,19 +148,19 @@ export class AdvancedScanService {
       if (driverEvents[i].engineMinutes < this.lowTotalEngineHoursCount()) {
         if (
           this.advancedScanResults.lowTotalEngineHours[
-            driverDailyLogs.companyName
+            driverDailyLog.companyName
           ] &&
           !this.advancedScanResults.lowTotalEngineHours[
-            driverDailyLogs.companyName
-          ].includes(driverDailyLogs.driverFullName)
+            driverDailyLog.companyName
+          ].includes(driverDailyLog.driverFullName)
         ) {
           this.advancedScanResults.lowTotalEngineHours[
-            driverDailyLogs.companyName
-          ].push(driverDailyLogs.driverFullName);
+            driverDailyLog.companyName
+          ].push(driverDailyLog.driverFullName);
         } else {
           this.advancedScanResults.lowTotalEngineHours[
-            driverDailyLogs.companyName
-          ] = [driverDailyLogs.driverFullName];
+            driverDailyLog.companyName
+          ] = [driverDailyLog.driverFullName];
         }
       }
       //
@@ -243,19 +171,19 @@ export class AdvancedScanService {
       ) {
         if (
           this.advancedScanResults.malfOrDataDiagDetection[
-            driverDailyLogs.companyName
+            driverDailyLog.companyName
           ] &&
           !this.advancedScanResults.malfOrDataDiagDetection[
-            driverDailyLogs.companyName
-          ].includes(driverDailyLogs.driverFullName)
+            driverDailyLog.companyName
+          ].includes(driverDailyLog.driverFullName)
         ) {
           this.advancedScanResults.malfOrDataDiagDetection[
-            driverDailyLogs.companyName
-          ].push(driverDailyLogs.driverFullName);
+            driverDailyLog.companyName
+          ].push(driverDailyLog.driverFullName);
         } else {
           this.advancedScanResults.malfOrDataDiagDetection[
-            driverDailyLogs.companyName
-          ] = [driverDailyLogs.driverFullName];
+            driverDailyLog.companyName
+          ] = [driverDailyLog.driverFullName];
         }
       }
       //
@@ -265,17 +193,17 @@ export class AdvancedScanService {
         'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
       ) {
         if (
-          this.advancedScanResults.pcYm[driverDailyLogs.companyName] &&
-          !this.advancedScanResults.pcYm[driverDailyLogs.companyName].includes(
-            driverDailyLogs.driverFullName
+          this.advancedScanResults.pcYm[driverDailyLog.companyName] &&
+          !this.advancedScanResults.pcYm[driverDailyLog.companyName].includes(
+            driverDailyLog.driverFullName
           )
         ) {
-          this.advancedScanResults.pcYm[driverDailyLogs.companyName].push(
-            driverDailyLogs.driverFullName
+          this.advancedScanResults.pcYm[driverDailyLog.companyName].push(
+            driverDailyLog.driverFullName
           );
         } else {
-          this.advancedScanResults.pcYm[driverDailyLogs.companyName] = [
-            driverDailyLogs.driverFullName,
+          this.advancedScanResults.pcYm[driverDailyLog.companyName] = [
+            driverDailyLog.driverFullName,
           ];
         }
       }
@@ -307,21 +235,21 @@ export class AdvancedScanService {
         };
         if (duration() > this.prolongedOnDutiesDuration()) {
           const prolongedOnDuty = {
-            driverName: driverDailyLogs.driverFullName,
+            driverName: driverDailyLog.driverFullName,
             id: driverEvents[i].eventSequenceNumber,
             duration: duration(),
           };
           if (
             this.advancedScanResults.prolengedOnDuties[
-              driverDailyLogs.companyName
+              driverDailyLog.companyName
             ]
           ) {
             this.advancedScanResults.prolengedOnDuties[
-              driverDailyLogs.companyName
+              driverDailyLog.companyName
             ].push(prolongedOnDuty);
           } else {
             this.advancedScanResults.prolengedOnDuties[
-              driverDailyLogs.companyName
+              driverDailyLog.companyName
             ] = [prolongedOnDuty];
           }
         }
@@ -330,8 +258,11 @@ export class AdvancedScanService {
   }
 
   getLogs(date: Date) {
+    const tenants = this.appService.tenantsSignal();
     this.progressBarService.scanning.set(true);
-    return this.allTetants$().pipe(
+    this.progressBarService.constant.set(100 / tenants.length);
+
+    return from(tenants).pipe(
       concatMap((tenant) => {
         this.currentCompany.set(tenant);
         this.progressBarService.currentCompany.set(this.currentCompany().name);
