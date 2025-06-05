@@ -26,6 +26,28 @@ export class AdvancedScanService {
 
   constructor() {}
 
+  getLogs(date: Date) {
+    const tenants = this.appService.tenantsSignal();
+    this.progressBarService.scanning.set(true);
+
+    return from(tenants).pipe(
+      concatMap((tenant) => {
+        this.currentCompany.set(tenant);
+        this.progressBarService.currentCompany.set(this.currentCompany().name);
+
+        return this.apiService.getLogs(tenant, date).pipe(
+          tap(() =>
+            this.progressBarService.progressValue.update(
+              (prevValue) => prevValue + this.progressBarService.constant()
+            )
+          ),
+          mergeMap((log) => from(log.items)),
+          concatMap((driver) => this.dailyLogEvents$(driver, date))
+        );
+      })
+    );
+  }
+
   dailyLogEvents$(driver: IDriver, date: Date) {
     const tenantId = this.currentCompany().id;
 
@@ -259,27 +281,5 @@ export class AdvancedScanService {
         }
       }
     }
-  }
-
-  getLogs(date: Date) {
-    const tenants = this.appService.tenantsSignal();
-    this.progressBarService.scanning.set(true);
-
-    return from(tenants).pipe(
-      concatMap((tenant) => {
-        this.currentCompany.set(tenant);
-        this.progressBarService.currentCompany.set(this.currentCompany().name);
-
-        return this.apiService.getLogs(tenant, date).pipe(
-          tap(() =>
-            this.progressBarService.progressValue.update(
-              (prevValue) => prevValue + this.progressBarService.constant()
-            )
-          ),
-          mergeMap((log) => from(log.items)),
-          concatMap((driver) => this.dailyLogEvents$(driver, date))
-        );
-      })
-    );
   }
 }
