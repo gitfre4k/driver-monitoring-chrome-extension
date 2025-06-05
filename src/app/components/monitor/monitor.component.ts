@@ -5,10 +5,17 @@ import { MonitorService } from '../../@services/monitor.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-monitor',
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
   providers: [
@@ -20,7 +27,7 @@ export class MonitorComponent {
 
   driverDailyLogEvents = this.monitorService.driverDailyLog;
   events = this.monitorService.computedDailyLogEvents;
-  isUpdating = this.monitorService.isUpdating;
+  isLoading = this.monitorService.isUpdating;
 
   offset = new Date().getTimezoneOffset();
 

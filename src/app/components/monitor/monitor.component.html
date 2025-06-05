@@ -6,9 +6,11 @@
 
   <div class="info">
     <h2 class="info__company">## {{ ddle.companyName }}</h2>
-    <p class="info__driver-name">{{ ddle.driverFullName }}</p>
-    @if (isUpdating()) {
-    <p class="info__date">U P D A T I N G</p>
+    <p class="info__driver-name">
+      {{ isLoading() ? "Loading..." : ddle.driverFullName }}
+    </p>
+    @if (isLoading()) {
+    <mat-spinner [diameter]="16"></mat-spinner>
     } @else {
     <p class="info__date">{{ ddle.date | date : "MMM d, y" : "UTC-5" }}</p>
     }
