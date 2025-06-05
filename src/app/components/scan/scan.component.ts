@@ -1,21 +1,22 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { Observable, Subscription } from 'rxjs';
+
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { AdvancedScanComponent } from '../advanced-scan/advanced-scan.component';
-
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
-import { Observable, Subscription } from 'rxjs';
-
 import { ScanService } from '../../@services/scan.service';
+import { AdvancedScanComponent } from '../advanced-scan/advanced-scan.component';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
+import { ScanResultComponent } from '../scan-result/scan-result.component';
+
 import {
   FormControl,
   FormGroup,
@@ -45,6 +46,7 @@ import { MatDialog } from '@angular/material/dialog';
     MatIconModule,
     MatInputModule,
     AdvancedScanComponent,
+    ScanResultComponent,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
