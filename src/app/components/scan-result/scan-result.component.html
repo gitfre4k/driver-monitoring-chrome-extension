@@ -1,23 +1,324 @@
-<mat-accordion>
-  <mat-expansion-panel hideToggle>
-    <mat-expansion-panel-header>
-      <mat-panel-title> This is the expansion title </mat-panel-title>
-      <mat-panel-description>
-        This is a summary of the content
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    <p>This is the primary content of the panel.</p>
-  </mat-expansion-panel>
-  <mat-expansion-panel
-    (opened)="panelOpenState.set(true)"
-    (closed)="panelOpenState.set(false)"
-  >
-    <mat-expansion-panel-header>
-      <mat-panel-title> Self aware panel </mat-panel-title>
-      <mat-panel-description>
-        Currently I am {{ panelOpenState() ? "open" : "closed" }}
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    <p>I'm visible because I am open</p>
-  </mat-expansion-panel>
-</mat-accordion>
+<div class="scan-results">
+  <h3 class="scan-results__title">Advanced Scan Results</h3>
+
+  <div class="scan-results__content">
+    <mat-accordion>
+      <!--  -->
+      <!-- Teleports -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title> Teleports </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(scanResults.teleports)) {
+          <p>No teleports.</p>
+          <mat-divider></mat-divider>
+          } @else {
+          <ul>
+            @for (teleport of scanResults.teleports | keyvalue; track
+            teleport.key) {
+            <li>
+              <h3>{{ teleport.key }}</h3>
+              @for (driver of teleport.value; track driver.id) {
+              <div class="driver">
+                <a
+                  mat-icon-button
+                  (click)="copyDriverName(driver.driverName)"
+                  matTooltip="Copy to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </a>
+                <p>{{ driver.driverName }}</p>
+              </div>
+              @if (driver.event.isTeleport > 0) {
+              <p>
+                - teleport detected on event #{{ driver.event.viewId }}
+                {{ driver.event.statusName }} [
+                {{ driver.event.isTeleport }} miles ]
+              </p>
+              } @else {
+              <p>
+                - odometer decreased on event #{{ driver.event.viewId }}
+                {{ driver.event.statusName }}
+              </p>
+              } }
+            </li>
+            }
+          </ul>
+          }
+        </div>
+      </mat-expansion-panel>
+
+      <!--  -->
+      <!-- event Errors -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title> event Errors</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(scanResults.eventErrors)) {
+          <p>No event errors.</p>
+          <mat-divider></mat-divider>
+          } @else {
+          <ul>
+            @for (eventError of scanResults.eventErrors | keyvalue; track
+            eventError.key) {
+            <li>
+              <h3>{{ eventError.key }}</h3>
+              @for (driver of eventError.value; track driver.id) {
+              <div class="driver">
+                <a
+                  mat-icon-button
+                  (click)="copyDriverName(driver.driverName)"
+                  matTooltip="Copy to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </a>
+                <p>{{ driver.driverName }}</p>
+              </div>
+              <p>
+                - error detected on event #{{ driver.event.viewId }}
+                {{ driver.event.statusName }}: {{ driver.event.errorMessage }}
+              </p>
+              }
+            </li>
+            }
+          </ul>
+          }
+        </div>
+      </mat-expansion-panel>
+
+      <!--  -->
+      <!-- prolonged OnDutuis -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title> prolenged On Duties</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(scanResults.prolengedOnDuties)) {
+          <p>No prolonged On Duties detected.</p>
+
+          } @else {
+          <ul>
+            @for (onDuty of scanResults.prolengedOnDuties | keyvalue; track
+            onDuty.key) {
+            <li>
+              <h3>{{ onDuty.key }}</h3>
+              @for (driver of onDuty.value; track driver.id) {
+              <div class="driver">
+                <a
+                  mat-icon-button
+                  (click)="copyDriverName(driver.driverName)"
+                  matTooltip="Copy to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </a>
+                <p>{{ driver.driverName }}</p>
+              </div>
+              <p>
+                - prolonged On Duty detected, duration:
+                {{ driver.duration * 1000 | date : "H:mm" : "UTC" }}
+              </p>
+              }
+            </li>
+            }
+          </ul>
+
+          }
+        </div>
+      </mat-expansion-panel>
+
+      <!--  -->
+      <!-- Malfunction / DataDiagnostic -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title> Malfunction / DataDiagnostic</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(scanResults.malfOrDataDiagDetection)) {
+          <p>No malfunctions or data diagnostics detected.</p>
+          <mat-divider></mat-divider>
+          } @else {
+
+          <ul>
+            @for (detection of scanResults.malfOrDataDiagDetection | keyvalue;
+            track detection.key) {
+            <li>
+              <h3>{{ detection.key }}</h3>
+              @for (driver of detection.value; track driver) {
+              <div class="driver">
+                <a
+                  mat-icon-button
+                  (click)="copyDriverName(driver)"
+                  matTooltip="Copy to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </a>
+                <p>{{ driver }}</p>
+              </div>
+              <p>- malfunction or data diagnostic detected</p>
+              }
+            </li>
+            }
+          </ul>
+          <mat-divider></mat-divider>
+          }
+        </div>
+      </mat-expansion-panel>
+
+      <!--  -->
+      <!-- PC/YM  -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title> PC / YM </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(scanResults.pcYm)) {
+          <p>No PC/YM events detected.</p>
+          <mat-divider></mat-divider>
+          } @else {
+
+          <ul>
+            @for (detection of scanResults.pcYm | keyvalue; track detection.key)
+            {
+            <li>
+              <h3>{{ detection.key }}</h3>
+              @for (driver of detection.value; track driver) {
+              <div class="driver">
+                <a
+                  mat-icon-button
+                  (click)="copyDriverName(driver)"
+                  matTooltip="Copy to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </a>
+                <p>{{ driver }}</p>
+              </div>
+              <p>- PC/YM event detected</p>
+              }
+            </li>
+            }
+          </ul>
+          <mat-divider></mat-divider>
+          }
+        </div>
+      </mat-expansion-panel>
+
+      <!--  -->
+      <!-- missing Engine On events -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title> missing Engine On </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(scanResults.missingEngineOn)) {
+          <p>No missing Engine On events detected.</p>
+          <mat-divider></mat-divider>
+          } @else {
+
+          <ul>
+            @for (detection of scanResults.missingEngineOn | keyvalue; track
+            detection.key) {
+            <li>
+              <h3>{{ detection.key }}</h3>
+              @for (driver of detection.value; track driver) {
+              <div class="driver">
+                <a
+                  mat-icon-button
+                  (click)="copyDriverName(driver)"
+                  matTooltip="Copy to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </a>
+                <p>{{ driver }}</p>
+              </div>
+              <p>- missing Engine On detected</p>
+              }
+            </li>
+            }
+          </ul>
+          <mat-divider></mat-divider>
+          }
+        </div>
+      </mat-expansion-panel>
+
+      <!--  -->
+      <!-- high elapsed Engine Hours -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title> high Engine Hours</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(scanResults.highEngineHours)) {
+          <p>Neither high nor negative Engine Hours events detected.</p>
+          <mat-divider></mat-divider>
+          } @else {
+          <ul>
+            @for (highEngineHoursEvent of scanResults.highEngineHours |
+            keyvalue; track highEngineHoursEvent.key) {
+            <li>
+              <h3>{{ highEngineHoursEvent.key }}</h3>
+              @for (driver of highEngineHoursEvent.value; track driver.id) {
+              <div class="driver">
+                <a
+                  mat-icon-button
+                  (click)="copyDriverName(driver.driverName)"
+                  matTooltip="Copy to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </a>
+                <p>{{ driver.driverName }}</p>
+              </div>
+              <p>
+                - high elapsed Engine Hours event detected, count:
+                {{ driver.duration }}
+              </p>
+              }
+            </li>
+            }
+          </ul>
+          <mat-divider></mat-divider>
+          }
+        </div>
+      </mat-expansion-panel>
+
+      <!--  -->
+      <!-- low total Engine Hours events -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>low Total Engine Hours</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(scanResults.lowTotalEngineHours)) {
+          <p>No low total Engine Hours events.</p>
+          <mat-divider></mat-divider>
+          } @else {
+
+          <ul>
+            @for (detection of scanResults.lowTotalEngineHours | keyvalue; track
+            detection.key) {
+            <li>
+              <h3>{{ detection.key }}</h3>
+              @for (driver of detection.value; track driver) {
+              <div class="driver">
+                <a
+                  mat-icon-button
+                  (click)="copyDriverName(driver)"
+                  matTooltip="Copy to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </a>
+                <p>{{ driver }}</p>
+              </div>
+              <p>- low total Engine Hours events detected</p>
+              }
+            </li>
+            }
+          </ul>
+          <mat-divider></mat-divider>
+          }
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

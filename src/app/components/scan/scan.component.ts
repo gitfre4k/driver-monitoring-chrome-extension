@@ -46,7 +46,6 @@ import { MatDialog } from '@angular/material/dialog';
     MatIconModule,
     MatInputModule,
     AdvancedScanComponent,
-    ScanResultComponent,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],

@@ -2,7 +2,6 @@
 
 :root {
   @include mat.expansion-overrides((
-    header-indicator-color: rgb(39 39 42),
     container-background-color: rgb(53, 53, 58),
   ));
 }

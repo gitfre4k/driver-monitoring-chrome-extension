@@ -1,2 +1,73 @@
-@use '@angular/material' as mat;
+.scan-results {
+  //   max-height: fit-content;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
+  &__title {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  &__content {
+    margin: 0px 8px;
+    width: 90%;
+    max-width: 700px;
+
+    overflow-y: scroll;
+    flex-grow: 1;
+
+    &__result {
+      max-height: 50vh;
+      overflow: auto;
+      width: 100%;
+      background-color: rgb(39 39 42);
+
+      text-align: left;
+
+      .violation-report {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        text-align: left;
+
+        :first-child {
+          margin-top: 8px;
+          margin-left: 16px;
+          margin-right: 8px;
+          padding: 0;
+        }
+      }
+
+      .driver {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      h3 {
+        font-weight: 500;
+        margin-left: 0;
+        padding-left: 0;
+      }
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: #6d6d6d;
+  }
+}

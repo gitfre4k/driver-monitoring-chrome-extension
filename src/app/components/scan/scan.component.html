@@ -1,6 +1,4 @@
-@if (false) {
-<app-scan-result></app-scan-result>
-} @else {@if (!scanning()) {
+@if (!scanning()) {
 
 <div class="tab-group tab-group-1">
   <div class="form">
@@ -60,5 +58,4 @@
   [scanSubscription]="scanSubscribtion"
   [scanMode]="scanMode.value"
 ></app-progress-bar>
-<!-- <app-scan-result></app-scan-result> -->
-}}
+}
