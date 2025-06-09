@@ -15,7 +15,6 @@ import { MatInputModule } from '@angular/material/input';
 import { ScanService } from '../../@services/scan.service';
 import { AdvancedScanComponent } from '../advanced-scan/advanced-scan.component';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
-import { ScanResultComponent } from '../scan-result/scan-result.component';
 
 import {
   FormControl,

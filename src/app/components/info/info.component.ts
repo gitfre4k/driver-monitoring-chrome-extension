@@ -1,10 +1,16 @@
-import { Component } from '@angular/core';
-import { ScanResultComponent } from '../scan-result/scan-result.component';
+import { Component, inject } from '@angular/core';
+import { AppService } from '../../@services/app.service';
+import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-info',
-  imports: [ScanResultComponent],
+  imports: [CommonModule],
   templateUrl: './info.component.html',
   styleUrl: './info.component.scss',
 })
-export class InfoComponent {}
+export class InfoComponent {
+  appService = inject(AppService);
+
+  constructor() {}
+}

@@ -11,6 +11,7 @@ import {
 } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { FormattedDateService } from './formatted-date.service';
+import { IAppMasterData } from '../interfaces/app-master-data.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -108,6 +109,17 @@ export class ApiService {
         },
       }
     );
+  }
+
+  getMasterAppData(tenant: ITenant) {
+    const url = 'https://app.monitoringdriver.com/api/Util/GetMasterAppData';
+
+    return this.http.get<IAppMasterData>(url, {
+      withCredentials: true,
+      headers: {
+        'X-Tenant-Id': tenant.id,
+      },
+    });
   }
 
   getLogs(tenant: ITenant, date: Date) {

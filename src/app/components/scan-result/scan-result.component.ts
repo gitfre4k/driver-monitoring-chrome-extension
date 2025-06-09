@@ -10,17 +10,20 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
+import { FormsModule } from '@angular/forms';
+import { MatRadioModule } from '@angular/material/radio';
 
 @Component({
   selector: 'app-scan-result',
   imports: [
     CommonModule,
     MatExpansionModule,
-    MatTooltipModule,
-    MatIconModule,
+    FormsModule,
+    MatRadioModule,
     MatDivider,
-    MatButtonModule,
-    MatTabsModule,
+    MatIconModule,
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',
@@ -30,6 +33,9 @@ export class ScanResultComponent {
   private progressBarService = inject(ProgressBarService);
 
   scanResults = this.progressBarService.advancedResaults;
+
+  favoriteSeason!: string;
+  seasons: string[] = ['Winter', 'Spring', 'Summer', 'Autumn'];
 
   isEmpty(obj: any): boolean {
     return Object.keys(obj).length === 0;

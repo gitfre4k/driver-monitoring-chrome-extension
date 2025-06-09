@@ -1,5 +1,17 @@
-<!-- <div class="tab-group tab-group-3">
-  <p>Driver Monitoring Chrome Extension</p>
-  <p>version: 0.0.3</p>
-</div> -->
-<app-scan-result></app-scan-result>
+<div class="info-tab">
+  <div class="info-tab__tenant">
+    @if (appService.currentTenant(); as tenant) {
+    <h2>## {{ tenant.name }}</h2>
+    <a>{{ tenant.domainName }}</a>
+    <p>{{ tenant.customerContactEmail }}</p>
+    <br />
+    <p>Contact Person:</p>
+    <p>Contact Phone: {{ tenant.customerContactPhone }}</p>
+
+    }
+  </div>
+  <div class="info-tab__extension-version">
+    <p>Driver Monitoring Chrome Extension</p>
+    <p>version: 0.0.3</p>
+  </div>
+</div>

@@ -1,10 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -13,6 +11,7 @@ import { ScanComponent } from './components/scan/scan.component';
 import { MonitorComponent } from './components/monitor/monitor.component';
 import { ProgressBarService } from './@services/progress-bar.service';
 import { InfoComponent } from './components/info/info.component';
+import { ScanResultComponent } from './components/scan-result/scan-result.component';
 
 @Component({
   selector: 'app-root',
@@ -21,15 +20,14 @@ import { InfoComponent } from './components/info/info.component';
   imports: [
     CommonModule,
     MatButtonModule,
-    MatDividerModule,
     MatCardModule,
-    MatListModule,
     MatTabsModule,
     MatIconModule,
     MatTooltipModule,
     ScanComponent,
     MonitorComponent,
     InfoComponent,
+    ScanResultComponent,
   ],
 })
 export class AppComponent {

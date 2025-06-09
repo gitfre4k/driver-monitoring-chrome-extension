@@ -21,6 +21,15 @@
         <app-scan></app-scan>
       </mat-tab>
 
+      <mat-tab label="Report">
+        <ng-template mat-tab-label>
+          <mat-icon id="radar-icon">description</mat-icon>
+          <span class="hide">Report</span>
+        </ng-template>
+
+        <app-scan-result></app-scan-result>
+      </mat-tab>
+
       <mat-tab label="Monitor">
         <ng-template mat-tab-label>
           <mat-icon
@@ -37,6 +46,7 @@
       <mat-tab label="About">
         <ng-template mat-tab-label>
           <mat-icon>info</mat-icon>
+
           <span class="hide">About</span>
         </ng-template>
 

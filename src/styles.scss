@@ -1,17 +1,22 @@
 @use "@angular/material" as mat;
 
 :root {
-  @include mat.expansion-overrides((
-    container-background-color: rgb(53, 53, 58),
-  ));
+  @include mat.expansion-overrides(
+    (
+      container-background-color: rgb(53, 53, 58),
+    )
+  );
 }
 
 html {
   color-scheme: dark;
-  @include mat.theme((color: mat.$blue-palette,
+  @include mat.theme(
+    (
+      color: mat.$blue-palette,
       typography: Roboto,
       density: 0,
-    ));
+    )
+  );
 }
 
 html,
@@ -38,9 +43,4 @@ body {
   @media (max-width: 440px) {
     width: 100%;
   }
-}
-
-.mat-tab-body-wrapper,
-.mat-mdc-tab-body-wrapper {
-  flex-grow: 1;
 }
