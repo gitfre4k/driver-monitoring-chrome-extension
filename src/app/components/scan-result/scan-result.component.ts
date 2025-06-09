@@ -9,10 +9,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 
-/**
- * @title Basic expansion panel
- */
 @Component({
   selector: 'app-scan-result',
   imports: [
@@ -22,6 +20,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatIconModule,
     MatDivider,
     MatButtonModule,
+    MatTabsModule,
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',

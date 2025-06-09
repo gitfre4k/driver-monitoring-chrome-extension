@@ -1,5 +1,4 @@
 .scan-results {
-  //   max-height: fit-content;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -70,4 +69,31 @@
     border-radius: 10px;
     background: #6d6d6d;
   }
+}
+
+mat-tab-group {
+  flex-direction: row;
+}
+
+mat-tab-header {
+  border-bottom: none;
+}
+
+.mat-mdc-tab-labels {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Vertical alignment of label text */
+  padding: 10px 20px; /* Adjust padding */
+  text-align: left; /* Align text to the left */
+}
+
+mat-ink-bar {
+  height: 100%;
+  left: 98% !important;
+  transform: rotate(90deg);
+  transform-origin: right;
+}
+
+mat-tab-body-wrapper {
+  flex: 1 1 auto;
 }
