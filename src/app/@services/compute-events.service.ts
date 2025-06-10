@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import {
   bindEventViewId,
@@ -70,16 +70,20 @@ export class ComputeEventsService {
     let currentDutyStatus = {} as IEvent;
     let currentDriver = {} as IDriverIdAndName;
 
+    //
+    // compute events
     for (let i = 0; i < events.length; i++) {
       events[i].computeIndex = i;
       events[i].statusName = getStatusName(events[i].dutyStatus);
       events[i].occurredDuringDriving = occurredDuringDriving;
 
+      // co-drivers shift end
       if (events[i].driver?.id !== currentDriver.id) {
         currentDriver = events[i].driver;
         events[i].shift = true;
       }
 
+      // double duty status
       if (isDutyStatus(events[i])) {
         currentDutyStatus.statusName === events[i].statusName &&
         currentDutyStatus.driver?.id === events[i].driver?.id
@@ -87,6 +91,24 @@ export class ComputeEventsService {
           : (currentDutyStatus = events[i]);
       }
 
+      // 34 hours break in Sleeper Berth
+      if (events[i].statusName === 'Sleeper Berth') {
+        if (!events[i].realDurationInSeconds) {
+          const sleeperDuration =
+            (new Date().getTime() -
+              new Date(events[i].realStartTime).getTime()) /
+            1000 /
+            60 /
+            60;
+          sleeperDuration > 30 &&
+            (events[i].errorMessage = '34 hour break outside Off Duty');
+        } else {
+          events[i].realDurationInSeconds / 60 / 60 > 30 &&
+            (events[i].errorMessage = '34 hour break outside Off Duty');
+        }
+      }
+
+      // checking for intermediate validity
       if (isDriving(events[i])) {
         occurredDuringDriving = true;
         currentDriving = events[i];
@@ -144,8 +166,9 @@ export class ComputeEventsService {
               (events[currentDriving.computeIndex].errorMessage =
                 'incorrect intermediate count');
           }
+
           //
-          // case when checking ongoing driving has started on previous day
+          // case when checking ongoing driving that has started on previous day
           if (
             currentDriving.realDurationInSeconds === 0 &&
             currentDriving.startTime !== currentDriving.realStartTime

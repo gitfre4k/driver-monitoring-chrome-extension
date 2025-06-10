@@ -1,19 +1,14 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 
 import { ProgressBarService } from '../../@services/progress-bar.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatCardModule } from '@angular/material/card';
-import { MatListModule } from '@angular/material/list';
-import { FormsModule } from '@angular/forms';
-import { MatRadioModule } from '@angular/material/radio';
 
 @Component({
   selector: 'app-scan-result',
@@ -21,9 +16,9 @@ import { MatRadioModule } from '@angular/material/radio';
     CommonModule,
     MatExpansionModule,
     FormsModule,
-    MatRadioModule,
     MatDivider,
     MatIconModule,
+    MatButtonModule,
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',
@@ -51,7 +46,7 @@ export class ScanResultComponent {
 //   if (['Milorad Maric'].includes(this.shift.budaci())) {
 //     return false;
 //   } else {
-//     if ($time > '20:00' || $time < '08:00') {
+//     if (time$ > '20:00' || time$ < '08:00') {
 //       return true;
 //     }
 //     return false;
