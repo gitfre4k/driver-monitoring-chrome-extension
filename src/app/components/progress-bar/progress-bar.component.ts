@@ -30,7 +30,7 @@ export class ProgressBarComponent {
   totalCount = this.progressBarService.totalCount;
 
   stopScan() {
-    this.progressBarService.initializeState();
+    this.progressBarService.initializeState(this.scanMode);
     this.scanSubscription.unsubscribe();
   }
 }

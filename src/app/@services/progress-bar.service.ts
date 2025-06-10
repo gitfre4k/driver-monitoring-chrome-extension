@@ -8,6 +8,7 @@ import {
   IScanErrors,
   IScanViolations,
 } from '../interfaces';
+import { TScanMode } from '../types';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +41,7 @@ export class ProgressBarService {
 
   constructor() {}
 
-  initializeState() {
+  initializeState(scanMode: TScanMode) {
     this.progressValue.set(0);
     this.scanning.set(false);
     this.violations = [];
@@ -49,5 +50,24 @@ export class ProgressBarService {
     this.bufferValue.set(0);
     this.currentCompany.set('Dex Solutions');
     this.totalCount.set(0);
+    switch (scanMode) {
+      case 'violations':
+        return (this.violations = []);
+      case 'dot':
+        return (this.inspections = []);
+      case 'advanced':
+        return (this.advancedResaults = {
+          prolengedOnDuties: {},
+          malfOrDataDiagDetection: {},
+          pcYm: {},
+          missingEngineOn: {},
+          highEngineHours: {},
+          lowTotalEngineHours: {},
+          teleports: {},
+          eventErrors: {},
+        });
+      default:
+        return;
+    }
   }
 }

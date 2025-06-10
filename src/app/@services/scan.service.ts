@@ -22,10 +22,6 @@ export class ScanService {
 
   currentCompany: ICompany = { id: '', name: '' };
 
-  violations = this.progressBarService.violations;
-  inspections = this.progressBarService.inspections;
-  errors = this.progressBarService.errors;
-
   constructor() {}
 
   ngOnInit() {}
@@ -40,22 +36,22 @@ export class ScanService {
       );
 
       scanMode === 'violations'
-        ? this.violations.push({
+        ? this.progressBarService.violations.push({
             company: this.currentCompany.name,
             violations: data as IViolations,
           })
-        : this.inspections.push({
+        : this.progressBarService.inspections.push({
             company: this.currentCompany.name,
             inspections: data as IDOTInspections,
           });
     }
   }
 
-  handleError(error: any) {
+  handleError(error: any, scanMode: TScanMode) {
     this._snackBar
       .open(`An error occurred: ${error.message}`, 'Close')
       .afterDismissed()
-      .pipe(tap(() => this.progressBarService.initializeState()))
+      .pipe(tap(() => this.progressBarService.initializeState(scanMode)))
       .subscribe();
   }
 
@@ -63,11 +59,11 @@ export class ScanService {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
     scanMode === 'violations'
-      ? (instance.violations = this.violations)
-      : (instance.inspections = this.inspections);
+      ? (instance.violations = this.progressBarService.violations)
+      : (instance.inspections = this.progressBarService.inspections);
     dialogRef
       .afterClosed()
-      .subscribe(() => this.progressBarService.initializeState());
+      .subscribe(() => this.progressBarService.initializeState(scanMode));
   }
 
   getAllViolations(range: IRange) {
@@ -89,7 +85,10 @@ export class ScanService {
                 this.progressBarService.progressValue.update(
                   (value) => value + this.progressBarService.constant()
                 );
-                this.errors.push({ error, company: this.currentCompany });
+                this.progressBarService.errors.push({
+                  error,
+                  company: this.currentCompany,
+                });
               },
             }),
             catchError(() => of())
@@ -113,7 +112,10 @@ export class ScanService {
               this.progressBarService.progressValue.update(
                 (value) => value + this.progressBarService.constant()
               );
-              this.errors.push({ error, company: this.currentCompany });
+              this.progressBarService.errors.push({
+                error,
+                company: this.currentCompany,
+              });
             },
           }),
           catchError(() => of())

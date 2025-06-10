@@ -94,7 +94,7 @@ export class ScanComponent {
 
     dialogRef
       .afterClosed()
-      .subscribe(() => this.progressBarService.initializeState());
+      .subscribe(() => this.progressBarService.initializeState('advanced'));
   }
 
   startScan = () => {
@@ -125,7 +125,7 @@ export class ScanComponent {
       ).subscribe({
         next: (data: IViolations | IDOTInspections) =>
           this.scanService.handleScanData(data, this.scanMode.value),
-        error: (err) => this.scanService.handleError(err),
+        error: (err) => this.scanService.handleError(err, this.scanMode.value),
         complete: () =>
           this.scanService.handleScanComplete(this.scanMode.value),
       });

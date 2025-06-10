@@ -2,10 +2,12 @@
   <div class="info-tab__tenant">
     @if (appService.currentTenant(); as tenant) {
     <h2>## {{ tenant.name }}</h2>
-    <a>{{ tenant.domainName }}</a>
+    <a href="{{ tenant.domainName }}" target="_blank">{{
+      tenant.domainName
+    }}</a>
     <p>{{ tenant.customerContactEmail }}</p>
-    <br />
-    <p>Contact Person:</p>
+    <hr />
+    <p>Contact Person: {{ tenant.customerContactName }}</p>
     <p>Contact Phone: {{ tenant.customerContactPhone }}</p>
 
     }

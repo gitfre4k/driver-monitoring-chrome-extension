@@ -7,6 +7,7 @@ import {
   isDriving,
   isDutyStatus,
   isIntermediate,
+  isPcOrYm,
 } from '../helpers/monitor.helpers';
 
 import {
@@ -204,7 +205,7 @@ export class ComputeEventsService {
       }
       // [[ teleport detected ]]
       if (ev1.odometer > ev2.odometer) return -mileageDifference;
-      if (!isDriving(ev1) && !ev1.occurredDuringDriving)
+      if (!isDriving(ev1) && !isPcOrYm(ev1) && !ev1.occurredDuringDriving)
         return mileageDifference;
     }
 

@@ -46,6 +46,10 @@ export const getStatusName = (dutyStatus: string): string => {
   }
 };
 
+export const isPcOrYm = (ev: IEvent) => {
+  return ['PC', 'YM'].includes(ev.statusName);
+};
+
 export const isDriving = (ev: IEvent) => {
   return ev.statusName === 'Driving';
 };
