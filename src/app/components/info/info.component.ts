@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AppService } from '../../@services/app.service';
 import { CommonModule } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-info',
