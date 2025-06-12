@@ -41,14 +41,3 @@ export class ScanResultComponent {
     this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
   }
 }
-
-// const hasSmokingPrivileges = () => {
-//   if (['Milorad Maric'].includes(this.shift.budaci())) {
-//     return false;
-//   } else {
-//     if (time$ > '20:00' || time$ < '08:00') {
-//       return true;
-//     }
-//     return false;
-//   }
-// };

@@ -9,9 +9,20 @@
     <hr />
     <p>Contact Person: {{ tenant.customerContactName }}</p>
     <p>Contact Phone: {{ tenant.customerContactPhone }}</p>
-
     }
   </div>
+  <div class="info-tab__log">
+    <!-- @if (appService.currentLogItem(); as driver) {
+    <h3>{{ driver.fullName }}</h3>
+    <p>ID: {{ driver.driverId }}</p>
+    <p>status: {{ driver.driverStatus }}</p>
+    <p>home terminal time zone: {{ driver.homeTerminalTimeZone }}</p>
+    <p>app type: {{ driver.mobileAppType }}</p>
+    <p>app version: {{ driver.mobileAppVersion }}</p>
+    <p>last sync: {{ driver.lastSync }}</p>
+    } -->
+  </div>
+
   <div class="info-tab__extension-version">
     <p>Driver Monitoring Chrome Extension</p>
     <p>version: 0.0.3</p>

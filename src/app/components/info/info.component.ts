@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { AppService } from '../../@services/app.service';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../../@services/api.service';
 
 @Component({
   selector: 'app-info',
@@ -10,6 +11,6 @@ import { CommonModule } from '@angular/common';
 })
 export class InfoComponent {
   appService = inject(AppService);
-
+  apiService = inject(ApiService);
   constructor() {}
 }
