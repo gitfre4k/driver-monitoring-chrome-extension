@@ -22,6 +22,7 @@ import {
 export class ComputeEventsService {
   constructor() {}
   shiftBreak = signal('');
+  shiftIsReadyToStart = signal(false);
 
   getComputedEvents = ({ driverDailyLog, coDriverDailyLog }: IDailyLogs) => {
     if (!driverDailyLog) return [];
@@ -86,31 +87,55 @@ export class ComputeEventsService {
         events[i].shift = true;
       }
 
-      // too short or no PTI
-      const shiftBreak =
-        new Date().getTime() - new Date(this.shiftBreak()).getTime(); // miliseconds since shift was ready to start
-      const pti =
-        new Date().getTime() - new Date(events[i].realStartTime).getTime(); // miliseconds since event occured
-      if (
-        shiftBreak > pti &&
-        events[i].eventType !== 'CmvEnginePowerUpOrShutDownActivity' &&
-        events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv'
-      ) {
-        if (
-          events[i].statusName !== 'On Duty' ||
-          events[i].realDurationInSeconds < 901
-        ) {
-          events[i].errorMessage = 'Too short or No PTI';
-        }
-        this.shiftBreak.set('');
-      }
-
       // double duty status
       if (isDutyStatus(events[i])) {
         currentDutyStatus.statusName === events[i].statusName &&
         currentDutyStatus.driver?.id === events[i].driver?.id
           ? (events[i].errorMessage = 'double Duty status')
           : (currentDutyStatus = events[i]);
+      }
+
+      // too short or no PTI
+      if (
+        // case 34 break or 10h+ Sleeper/Off
+        ['Sleeper Berth', 'Off Duty'].includes(currentDutyStatus.statusName) &&
+        currentDutyStatus.realDurationInSeconds > 36000 // 10h
+      ) {
+        this.shiftIsReadyToStart.set(true);
+      }
+
+      const shiftBreak =
+        new Date().getTime() - new Date(this.shiftBreak()).getTime(); // miliseconds since shift was ready to start
+      const pti =
+        new Date().getTime() - new Date(events[i].realStartTime).getTime(); // miliseconds since event occured
+      if (
+        (shiftBreak > pti || this.shiftIsReadyToStart()) &&
+        events[i].eventType !== 'CmvEnginePowerUpOrShutDownActivity' &&
+        events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv'
+      ) {
+        if (events[i].statusName === 'Driving') {
+          events[i].errorMessage = 'no Pre-Trip Inspection';
+          this.shiftBreak.set('');
+          this.shiftIsReadyToStart.set(false);
+          console.log('Driving');
+        }
+        if (
+          events[i].statusName === 'On Duty' &&
+          events[i].realDurationInSeconds < 901
+        ) {
+          events[i].errorMessage = 'too short Pre-Trip Inspection';
+          this.shiftBreak.set('');
+          this.shiftIsReadyToStart.set(false);
+          console.log('too short Pre-Trip Inspection');
+        }
+        if (
+          events[i].statusName === 'On Duty' &&
+          events[i].realDurationInSeconds > 901
+        ) {
+          this.shiftBreak.set('');
+          this.shiftIsReadyToStart.set(false);
+          console.log('good Pre-Trip Inspection');
+        }
       }
 
       // 34 hours break in Sleeper Berth
