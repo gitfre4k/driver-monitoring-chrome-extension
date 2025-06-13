@@ -121,6 +121,7 @@ export interface IDriverDailyLogEvents {
   engineOnEventData: IEngineOnEventData;
   isEngineOffFirstEvent: boolean;
   isEngineOffInnerEvents: boolean;
+  shiftBreak: string;
 }
 
 export interface ICoDriver {

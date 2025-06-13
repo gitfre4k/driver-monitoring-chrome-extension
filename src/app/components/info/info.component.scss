@@ -8,9 +8,53 @@
   &__tenant {
     h2 {
       font-size: 20px;
-      margin-top: 32px;
+      margin-top: 16px;
     }
-    text-align: left;
+    &__group {
+      width: 300px;
+      display: flex;
+      gap: 16px;
+      :first-child {
+        text-align: right;
+      }
+      :last-child {
+        text-align: left;
+      }
+
+      span {
+        display: inline-block;
+        width: calc(50% - 8px);
+        text-wrap: nowrap;
+      }
+    }
+  }
+
+  &__log {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &__group {
+      width: 300px;
+      display: flex;
+      gap: 16px;
+      :first-child {
+        text-align: right;
+      }
+      :last-child {
+        text-align: left;
+      }
+
+      span {
+        display: inline-block;
+        width: calc(50% - 8px);
+        text-wrap: nowrap;
+      }
+    }
+    &__single {
+      width: 360px;
+      text-align: center;
+    }
   }
 
   &__extension-version {

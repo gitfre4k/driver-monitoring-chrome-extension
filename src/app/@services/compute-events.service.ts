@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 import {
   bindEventViewId,
@@ -21,9 +21,12 @@ import {
 })
 export class ComputeEventsService {
   constructor() {}
+  shiftBreak = signal('');
 
   getComputedEvents = ({ driverDailyLog, coDriverDailyLog }: IDailyLogs) => {
     if (!driverDailyLog) return [];
+
+    driverDailyLog.shiftBreak && this.shiftBreak.set(driverDailyLog.shiftBreak);
 
     let driverEvents = bindEventViewId(driverDailyLog.events);
     let coDriverEvents = coDriverDailyLog
@@ -81,6 +84,25 @@ export class ComputeEventsService {
       if (events[i].driver?.id !== currentDriver.id) {
         currentDriver = events[i].driver;
         events[i].shift = true;
+      }
+
+      // too short or no PTI
+      const shiftBreak =
+        new Date().getTime() - new Date(this.shiftBreak()).getTime(); // miliseconds since shift was ready to start
+      const pti =
+        new Date().getTime() - new Date(events[i].realStartTime).getTime(); // miliseconds since event occured
+      if (
+        shiftBreak > pti &&
+        events[i].eventType !== 'CmvEnginePowerUpOrShutDownActivity' &&
+        events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv'
+      ) {
+        if (
+          events[i].statusName !== 'On Duty' ||
+          events[i].realDurationInSeconds < 901
+        ) {
+          events[i].errorMessage = 'Too short or No PTI';
+        }
+        this.shiftBreak.set('');
       }
 
       // double duty status

@@ -2,13 +2,26 @@
   <div class="info-tab__tenant">
     @if (appService.currentTenant(); as tenant) {
     <h2>## {{ tenant.name }}</h2>
-    <a href="{{ tenant.domainName }}" target="_blank">{{
-      tenant.domainName
-    }}</a>
-    <p>{{ tenant.customerContactEmail }}</p>
+
+    <div class="info-tab__tenant__group">
+      <span>domain</span
+      ><span
+        ><a href="{{ tenant.domainName }}" target="_blank">{{
+          tenant.domainName
+        }}</a></span
+      >
+    </div>
     <hr />
-    <p>Contact Person: {{ tenant.customerContactName }}</p>
-    <p>Contact Phone: {{ tenant.customerContactPhone }}</p>
+    <div class="info-tab__tenant__group">
+      <span>e-mail</span><span>{{ tenant.customerContactEmail }}</span>
+    </div>
+    <div class="info-tab__tenant__group">
+      <span>contact person:</span><span>{{ tenant.customerContactName }}</span>
+    </div>
+    <div class="info-tab__tenant__group">
+      <span>contact phone:</span><span>{{ tenant.customerContactPhone }}</span>
+    </div>
+
     }
   </div>
   <div class="info-tab__log">
@@ -24,21 +37,34 @@
     <button (click)="getLogs()">get Driver log info</button>
     @if (driver(); as driver) {
     <h3>{{ driver.fullName }}</h3>
-    <p>ID: {{ driver.driverId }}</p>
-    <p>status: {{ driver.driverStatus }}</p>
-    <p>time zone name: {{ driver.homeTerminalTimeZone }}</p>
-    <p>
-      time zone name:
-      {{ monitorService.driverDailyLog()?.homeTerminalTimeZone }}
-    </p>
-    <p>
-      windows timezone:
-      {{ monitorService.driverDailyLog()?.windowsHomeTerminalZone }}
-    </p>
-    <p>app type: {{ driver.mobileAppType }}</p>
-    <p>app version: {{ driver.mobileAppVersion }}</p>
-    <p>last sync: {{ driver.lastSync | date : "HH:mm:ss MMMM d, y" }}</p>
-    <p>last sync: {{ driver.lastSync | dateAgo }}</p>
+    <div class="info-tab__log__group">
+      <span>driver id</span><span>{{ driver.driverId }}</span>
+    </div>
+    <div class="info-tab__log__group">
+      <span>status</span><span>{{ driver.driverStatus }}</span>
+    </div>
+    <div class="info-tab__log__group">
+      <span>app type</span><span>{{ driver.mobileAppType }}</span>
+    </div>
+    <div class="info-tab__log__group">
+      <span>app version</span><span>{{ driver.mobileAppVersion }}</span>
+    </div>
+
+    <div class="info-tab__log__group">
+      <span>last sync</span
+      ><span>{{ driver.lastSync | date : "HH:mm:ss MMMM d, y" }}</span>
+    </div>
+    <div class="info-tab__log__group">
+      <span> </span><span>({{ driver.lastSync | dateAgo }})</span>
+    </div>
+
+    <div class="info-tab__log__group">
+      <span>timezone:</span
+      ><span>{{ monitorService.driverDailyLog()?.homeTerminalTimeZone }}</span>
+    </div>
+    <span class="info-tab__log__single">{{
+      monitorService.driverDailyLog()?.windowsHomeTerminalZone
+    }}</span>
     }
   </div>
 
