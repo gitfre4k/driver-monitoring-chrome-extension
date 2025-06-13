@@ -4,23 +4,35 @@
   justify-content: start;
   align-items: start;
   height: calc(100% - 32px);
-  margin: 32px 0 0;
+  margin: 8px 0 0;
   padding: 0;
+
+  .mat-checkbox {
+    font-size: 10px;
+  }
 
   label {
     width: 100%;
     text-align: center;
-    font-size: 14px;
+    font-size: 13;
+    margin: 0;
+    padding: 0;
   }
 
   .group {
     width: 100%;
     display: flex;
     align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    font-size: 13;
   }
 
   .slider {
     width: 100%;
     max-width: 180px;
+    margin: 0;
+    padding: 0;
   }
 }

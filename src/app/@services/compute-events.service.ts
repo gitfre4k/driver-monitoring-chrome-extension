@@ -24,7 +24,10 @@ export class ComputeEventsService {
   shiftBreak = signal('');
   shiftIsReadyToStart = signal(false);
 
-  getComputedEvents = ({ driverDailyLog, coDriverDailyLog }: IDailyLogs) => {
+  getComputedEvents = (
+    { driverDailyLog, coDriverDailyLog }: IDailyLogs,
+    ptiDuration?: number
+  ) => {
     if (!driverDailyLog) return [];
 
     driverDailyLog.shiftBreak && this.shiftBreak.set(driverDailyLog.shiftBreak);
@@ -59,13 +62,13 @@ export class ComputeEventsService {
     } else events = [...driverEvents];
 
     events = events.filter((event) => filterEvents(event));
-    events = this.computeEvents(events);
+    events = this.computeEvents(events, ptiDuration);
     events = this.detectAndBindTeleport(events);
 
     return events;
   };
 
-  computeEvents = (importedEvents: IEvent[]) => {
+  computeEvents = (importedEvents: IEvent[], ptiDuration?: number) => {
     let events = [...importedEvents];
 
     let occurredDuringDriving = false;
@@ -89,8 +92,8 @@ export class ComputeEventsService {
 
       // double duty status
       if (isDutyStatus(events[i])) {
-        currentDutyStatus.statusName === events[i].statusName &&
-        currentDutyStatus.driver?.id === events[i].driver?.id
+        currentDutyStatus.driver?.id === events[i].driver?.id && // exclude co drivers events
+        currentDutyStatus.statusName === events[i].statusName
           ? (events[i].errorMessage = 'double Duty status')
           : (currentDutyStatus = events[i]);
       }
@@ -103,7 +106,11 @@ export class ComputeEventsService {
       ) {
         this.shiftIsReadyToStart.set(true);
       }
-
+      // ...
+      // combined 10h+ break from multiple switch from off to sleep
+      // ...
+      // multiple shift breaks in same day
+      // ...
       const shiftBreak =
         new Date().getTime() - new Date(this.shiftBreak()).getTime(); // miliseconds since shift was ready to start
       const pti =
@@ -113,6 +120,12 @@ export class ComputeEventsService {
         events[i].eventType !== 'CmvEnginePowerUpOrShutDownActivity' &&
         events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv'
       ) {
+        //
+        // ## Fagor Trucking, LLC
+        // June 13, 2025
+        // ABDI BADIL && Abdi Hussein Mohamed
+        //
+
         if (events[i].statusName === 'Driving') {
           events[i].errorMessage = 'no Pre-Trip Inspection';
           this.shiftBreak.set('');
@@ -121,7 +134,7 @@ export class ComputeEventsService {
         }
         if (
           events[i].statusName === 'On Duty' &&
-          events[i].realDurationInSeconds < 901
+          events[i].realDurationInSeconds < (ptiDuration ? ptiDuration : 901)
         ) {
           events[i].errorMessage = 'too short Pre-Trip Inspection';
           this.shiftBreak.set('');
@@ -130,7 +143,7 @@ export class ComputeEventsService {
         }
         if (
           events[i].statusName === 'On Duty' &&
-          events[i].realDurationInSeconds > 901
+          events[i].realDurationInSeconds > (ptiDuration ? ptiDuration : 901)
         ) {
           this.shiftBreak.set('');
           this.shiftIsReadyToStart.set(false);

@@ -30,6 +30,8 @@ export class AdvancedScanComponent {
   readonly engineSliderValue = this.advancedScanService.engineHoursDuration;
   readonly lowTotalEngineHoursCount =
     this.advancedScanService.lowTotalEngineHoursCount;
+  readonly ptiDurationSliderValue = this.advancedScanService.ptiDuration;
+
   readonly currentCompany = this.progressBarService.currentCompany;
   readonly progress = this.progressBarService.progressValue;
 
@@ -40,6 +42,7 @@ export class AdvancedScanComponent {
 
   prolongedOnDuties = true;
   intermediateValidity = true;
+  pti = true;
   malfunctionsOrDataDiagnostics = true;
   pcYm = true;
   teleports = true;

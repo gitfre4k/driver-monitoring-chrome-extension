@@ -19,6 +19,7 @@ export class AdvancedScanService {
   prolongedOnDutiesDuration = signal(4200); // 1h10min
   engineHoursDuration = signal(14);
   lowTotalEngineHoursCount = signal(100);
+  ptiDuration = signal(901);
 
   currentCompany = signal({} as ITenant);
 
@@ -86,10 +87,13 @@ export class AdvancedScanService {
 
     const driverEvents = driverDailyLog.events;
 
-    let computedEvents = this.computeEventsService.getComputedEvents({
-      driverDailyLog,
-      coDriverDailyLog,
-    });
+    let computedEvents = this.computeEventsService.getComputedEvents(
+      {
+        driverDailyLog,
+        coDriverDailyLog,
+      },
+      this.ptiDuration()
+    );
 
     computedEvents.forEach((event) => {
       if (event.isTeleport) {
