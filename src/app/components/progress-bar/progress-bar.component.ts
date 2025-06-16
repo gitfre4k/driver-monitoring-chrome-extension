@@ -28,6 +28,7 @@ export class ProgressBarComponent {
   currentCompany = this.progressBarService.currentCompany;
   currentDriver = this.progressBarService.currentDriver;
   totalCount = this.progressBarService.totalCount;
+  activeDriversCount = this.progressBarService.activeDriversCount;
 
   stopScan() {
     this.progressBarService.initializeState(this.scanMode);

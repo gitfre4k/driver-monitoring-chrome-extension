@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
 
 import { ScanComponent } from './components/scan/scan.component';
 import { MonitorComponent } from './components/monitor/monitor.component';
@@ -28,6 +29,7 @@ import { ScanResultComponent } from './components/scan-result/scan-result.compon
     MonitorComponent,
     InfoComponent,
     ScanResultComponent,
+    MatBadgeModule,
   ],
 })
 export class AppComponent {

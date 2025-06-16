@@ -23,6 +23,7 @@ export class ProgressBarService {
   currentCompany = signal('Dex Solutions');
   currentDriver = signal('');
   totalCount = signal(0);
+  activeDriversCount = signal(0);
 
   violations: IScanViolations[] = [];
   inspections: IScanDOTInspections[] = [];
@@ -49,14 +50,17 @@ export class ProgressBarService {
     this.errors = [];
     this.bufferValue.set(0);
     this.currentCompany.set('Dex Solutions');
+    this.activeDriversCount.set(0);
     this.totalCount.set(0);
     switch (scanMode) {
       case 'violations':
-        return (this.violations = []);
+        this.violations = [];
+        break;
       case 'dot':
-        return (this.inspections = []);
+        this.inspections = [];
+        break;
       case 'advanced':
-        return (this.advancedResaults = {
+        this.advancedResaults = {
           prolengedOnDuties: {},
           malfOrDataDiagDetection: {},
           pcYm: {},
@@ -65,7 +69,8 @@ export class ProgressBarService {
           lowTotalEngineHours: {},
           teleports: {},
           eventErrors: {},
-        });
+        };
+        break;
       default:
         return;
     }

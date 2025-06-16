@@ -28,6 +28,7 @@ export class ScanResultComponent {
   private progressBarService = inject(ProgressBarService);
 
   scanResults = this.progressBarService.advancedResaults;
+  driverCount = this.progressBarService.activeDriversCount;
 
   favoriteSeason!: string;
   seasons: string[] = ['Winter', 'Spring', 'Summer', 'Autumn'];

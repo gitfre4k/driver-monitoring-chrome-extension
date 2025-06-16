@@ -46,7 +46,10 @@ export class AdvancedScanService {
               )
             ),
             mergeMap((log) => from(log.items)),
-            concatMap((driver) => this.dailyLogEvents$(driver, date))
+            concatMap((driver) => {
+              this.progressBarService.activeDriversCount.update((i) => i + 1);
+              return this.dailyLogEvents$(driver, date);
+            })
           );
         })
       )

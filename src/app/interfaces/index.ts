@@ -186,7 +186,6 @@ export interface IAdvancedResaults {
   missingEngineOn: IDetectedResults;
   highEngineHours: IDetectedResultsWithDuration;
   lowTotalEngineHours: IDetectedResults;
-
   teleports: IDetectedTeleports;
   eventErrors: IEventErrors;
 }

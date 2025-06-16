@@ -10,14 +10,26 @@
     }
 
     <p>{{ currentCompany() }}</p>
-    @if (currentDriver()) {<p>{{currentDriver()}}</p>}
+    @if (currentDriver()) {
+    <p>{{ currentDriver() }}</p>
+    }
     <section>
-      <mat-progress-bar [mode]="'determinate'" [value]="value()" [bufferValue]="bufferValue">
+      <mat-progress-bar
+        [mode]="'determinate'"
+        [value]="value()"
+        [bufferValue]="bufferValue"
+      >
       </mat-progress-bar>
     </section>
     <button mat-button (click)="stopScan()">Stop</button>
   </mat-card-content>
-  <p class="total-count">Total count: {{ totalCount() }}</p>
+  <p class="total-count">
+    {{
+      scanMode === "advanced"
+        ? "Active drivers: " + activeDriversCount()
+        : "Total count: " + totalCount()
+    }}
+  </p>
 </mat-card>
 
 <div class="errors" style="text-align: left">
