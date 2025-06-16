@@ -3,36 +3,24 @@
   flex-direction: column;
   justify-content: start;
   align-items: start;
-  height: calc(100% - 32px);
-  margin: 8px 0 0;
-  padding: 0;
-
-  .mat-checkbox {
-    font-size: 10px;
-  }
-
-  label {
-    width: 100%;
-    text-align: center;
-    font-size: 13;
-    margin: 0;
-    padding: 0;
-  }
 
   .group {
-    width: 100%;
-    display: flex;
+    width: 270px;
+    // width: 90vw;
+    display: grid;
     align-items: center;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
+    grid-template-columns: 25fr 22fr 22fr;
     font-size: 13;
+    :first-child {
+      margin-right: 4px;
+    }
+    :last-child {
+      text-align: right;
+      margin-left: 4px;
+    }
   }
 
-  .slider {
-    width: 100%;
-    max-width: 180px;
-    margin: 0;
-    padding: 0;
-  }
+  // .slider {
+  //   max-width: 180px;
+  // }
 }

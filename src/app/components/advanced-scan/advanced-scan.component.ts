@@ -39,15 +39,4 @@ export class AdvancedScanComponent {
     this.progressBarService.advancedResaults.prolengedOnDuties;
   readonly malfOrDataDiagDetection =
     this.progressBarService.advancedResaults.malfOrDataDiagDetection;
-
-  prolongedOnDuties = true;
-  intermediateValidity = true;
-  pti = true;
-  malfunctionsOrDataDiagnostics = true;
-  pcYm = true;
-  teleports = true;
-  disconnectedDrivings = true;
-  doubleDutyStatuses = true;
-  highEngineHours = true;
-  negativeOrLowEngineHours = true;
 }

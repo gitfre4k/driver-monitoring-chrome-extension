@@ -1,6 +1,10 @@
 @if (!scanning()) {
 
-<div class="tab-group tab-group-1">
+<div
+  [ngClass]="
+    'tab-group tab-group-1' + (scanMode.value === 'advanced' ? '' : ' rize-up')
+  "
+>
   <div class="form">
     <mat-form-field class="radio-group">
       <mat-label>Scan Mode</mat-label>
@@ -44,13 +48,20 @@
       </mat-datepicker-toggle>
       <mat-datepicker #picker2></mat-datepicker>
     </mat-form-field>
-
-    @if (scanMode.value === 'advanced') {
-    <app-advanced-scan></app-advanced-scan>
-    } }
+    }
   </div>
 
-  <button mat-raised-button (click)="startScan()">Scan</button>
+  @if (scanMode.value === 'advanced') {
+  <app-advanced-scan></app-advanced-scan>
+  }
+
+  <button
+    mat-raised-button
+    (click)="startScan()"
+    [ngClass]="scanMode.value === 'advanced' ? '' : ''"
+  >
+    Scan
+  </button>
 </div>
 
 } @else {

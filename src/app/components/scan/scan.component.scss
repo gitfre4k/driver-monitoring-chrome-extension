@@ -1,33 +1,36 @@
 .tab-group {
   display: flex;
   flex-direction: column;
-  margin-top: 32px;
 }
 
 .tab-group.tab-group-1 {
+  padding: 8px;
   justify-content: space-between;
   align-items: center;
-  height: 85%;
-  gap: 32px;
+  // background-color: red;
+  height: calc(100vh - 100px);
+  max-height: 550px;
 
   .form {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
+    margin-top: 32px;
+  }
+  button {
+    height: 32px;
+    padding: 0px 32px;
+    margin-bottom: 16px;
   }
 }
 
-.mat-tab-group {
-  margin-bottom: 48px;
+.tab-group.rize-up {
+  justify-content: start;
+  gap: 32px;
 }
 
 mat-form-field {
   @media (max-width: 380px) {
     width: 225px;
   }
-}
-
-.radio-group {
-  margin-top: 32px;
 }
