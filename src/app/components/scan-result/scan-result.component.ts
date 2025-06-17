@@ -6,7 +6,10 @@ import { MatDivider } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatExpansionModule } from '@angular/material/expansion';
+import {
+  MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
+  MatExpansionModule,
+} from '@angular/material/expansion';
 
 import { ProgressBarService } from '../../@services/progress-bar.service';
 
@@ -22,6 +25,15 @@ import { ProgressBarService } from '../../@services/progress-bar.service';
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',
+  providers: [
+    {
+      provide: MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
+      useValue: {
+        collapsedHeight: '32px',
+        expandedHeight: '40px',
+      },
+    },
+  ],
 })
 export class ScanResultComponent {
   private _snackBar = inject(MatSnackBar);
@@ -30,8 +42,8 @@ export class ScanResultComponent {
   scanResults = this.progressBarService.advancedResaults;
   driverCount = this.progressBarService.activeDriversCount;
 
-  favoriteSeason!: string;
-  seasons: string[] = ['Winter', 'Spring', 'Summer', 'Autumn'];
+  violations = this.progressBarService.violations;
+  violationsCount = this.progressBarService.totalCount;
 
   isEmpty(obj: any): boolean {
     return Object.keys(obj).length === 0;

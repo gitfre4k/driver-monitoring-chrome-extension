@@ -1,6 +1,9 @@
 <div class="test">
   <div class="group">
-    <mat-label>prolonged On Duties</mat-label>
+    <mat-label
+      >prolonged <br />
+      On Duties</mat-label
+    >
     <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
       <input matSliderThumb [(ngModel)]="sliderValue" />
     </mat-slider>
@@ -10,7 +13,10 @@
   </div>
 
   <div class="group">
-    <mat-label>Pre-Trip Inspection</mat-label>
+    <mat-label
+      >Pre-Trip <br />
+      Inspection</mat-label
+    >
     <mat-slider class="slider" [max]="901" [min]="781" [step]="1">
       <input matSliderThumb [(ngModel)]="ptiDurationSliderValue" />
     </mat-slider>
@@ -23,7 +29,10 @@
   </div>
 
   <div class="group">
-    <mat-label>elapsed Engine Hours</mat-label>
+    <mat-label
+      >elapsed <br />
+      Engine Hours</mat-label
+    >
     <mat-slider class="slider" [max]="34" [min]="10" [step]="1">
       <input matSliderThumb [(ngModel)]="engineSliderValue" />
     </mat-slider>
@@ -31,7 +40,10 @@
   </div>
 
   <div class="group">
-    <mat-label>total Engine Hours</mat-label>
+    <mat-label
+      >total <br />
+      Engine Hours</mat-label
+    >
     <mat-slider class="slider" [max]="2000" [min]="0" [step]="25">
       <input matSliderThumb [(ngModel)]="lowTotalEngineHoursCount" />
     </mat-slider>
