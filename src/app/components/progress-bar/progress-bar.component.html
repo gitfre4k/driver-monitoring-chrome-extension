@@ -33,7 +33,13 @@
 </mat-card>
 
 <div class="errors" style="text-align: left">
-  @for (err of this.errors; track err.company.id) {
-  <p class="errors-company">[{{ err.error.name }}] {{ err.company.name }}</p>
+  @for (err of this.errors; track (err.driverName ? err.driverName :
+  err.company.id)) {
+  <span class="errors-company"
+    >[{{ err.error.name }}] {{ err.company.name }}
+    {{ err.driverName ? " - " + err.driverName : "" }}</span
+  >
+  <br />
+  <span style="font-size: 10px">- {{ err.error.message }}</span>
   }
 </div>

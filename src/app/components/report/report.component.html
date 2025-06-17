@@ -2,18 +2,13 @@
   @if (advancedScanResults) {
   <div class="violation-report">
     <mat-icon>article</mat-icon>
-    <h3 mat-dialog-title>Advanced Scan completed.</h3>
+    <h3 mat-dialog-title>Advanced Scan</h3>
   </div>
-  <mat-dialog-content class="mat-typography">
-    <mat-divider></mat-divider>
-
-    <!--  -->
-    <!-- malfunctions or data diagnostics -->
-  </mat-dialog-content>
-
-  <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Close</button>
+  <mat-dialog-content>Advanced scan completed..</mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button mat-dialog-close>OK</button>
   </mat-dialog-actions>
+
   } @if (violations) {
   <div class="violation-report">
     <mat-icon>article</mat-icon>

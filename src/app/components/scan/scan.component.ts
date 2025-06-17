@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { Observable, Subscription } from 'rxjs';
@@ -72,6 +72,7 @@ export class ScanComponent {
     dateTo: new FormControl<Date>(new Date(this.currentDate)),
   });
 
+  disableScan = false;
   scanModes: { value: TScanMode; label: string; id: number }[] = [
     { value: 'violations', label: 'Violations', id: 1 },
     { value: 'dot', label: 'DOT Inspections', id: 2 },
@@ -94,13 +95,17 @@ export class ScanComponent {
 
     dialogRef
       .afterClosed()
-      .subscribe(() => this.progressBarService.initializeState('advanced'));
+      .subscribe(() => this.progressBarService.initializeProgressBar());
   }
 
   startScan = () => {
+    this.disableScan = true;
     const from = this.range.value.dateFrom;
     const to = this.range.value.dateTo;
-    if (!from || !to) return;
+    if (!from || !to) {
+      this.disableScan = false;
+      return;
+    }
 
     const range = {
       dateFrom: new Date(
@@ -125,10 +130,11 @@ export class ScanComponent {
       ).subscribe({
         next: (data: IViolations | IDOTInspections) =>
           this.scanService.handleScanData(data, this.scanMode.value),
-        error: (err) => this.scanService.handleError(err, this.scanMode.value),
+        error: (err) => this.scanService.handleError(err),
         complete: () =>
           this.scanService.handleScanComplete(this.scanMode.value),
       });
     }
+    setTimeout(() => (this.disableScan = false), 3000);
   };
 }

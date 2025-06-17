@@ -8,7 +8,15 @@
     <mat-accordion>
       <mat-expansion-panel style="margin-bottom: 8px">
         <mat-expansion-panel-header>
-          <mat-panel-title> Violations </mat-panel-title>
+          <mat-panel-title
+            >Violations
+            <div
+              style="margin-left: auto"
+              matBadge="{{ violationsCount() ? violationsCount() : null }}"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div
+          ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @for (violation of violations(); track violation.company) {
@@ -100,8 +108,7 @@
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.eventErrors)) {
-          <span>No event errors.</span>
-          <mat-divider></mat-divider>
+          <span style="padding-left: 16px">No event errors.</span>
           } @else {
           <ul>
             @for (company of scanResults.eventErrors | keyvalue; track
@@ -120,11 +127,16 @@
                 <span class="bold">{{ driver.name }}</span>
               </div>
               @for (event of driver.events; track event.id) {
-              <span>
-                - event #{{ event.viewId }} {{ event.statusName }} error:
-                {{ event.errorMessage }}
-              </span>
-              <br />
+              <div class="event-error">
+                <span class="view-id">#{{ event.viewId }}</span>
+                <span [ngClass]="'status ' + event.dutyStatus">{{
+                  event.statusName
+                }}</span>
+                <span class="error-msg">
+                  {{ event.errorMessage }}
+                </span>
+              </div>
+
               } }
             </li>
             }

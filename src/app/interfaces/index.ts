@@ -45,6 +45,7 @@ export interface IScanDOTInspections {
 export interface IScanErrors {
   error: { name: string; message: string };
   company: ITenant;
+  driverName?: string;
 }
 
 export interface IDOTInspections {

@@ -1,5 +1,13 @@
 import { inject, Injectable } from '@angular/core';
-import { catchError, concatMap, from, mergeMap, of, tap } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  from,
+  mergeMap,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -31,9 +39,9 @@ export class ScanService {
       (value) => value + this.progressBarService.constant()
     );
     if (data.totalCount > 0) {
-      this.progressBarService.totalCount.update(
-        (totalCount) => totalCount + data.totalCount
-      );
+      this.progressBarService[
+        scanMode === 'violations' ? 'totalVCount' : 'totalDCount'
+      ].update((totalCount) => totalCount + data.totalCount);
 
       scanMode === 'violations'
         ? this.progressBarService.violations.update((v) => [
@@ -50,11 +58,11 @@ export class ScanService {
     }
   }
 
-  handleError(error: any, scanMode: TScanMode) {
+  handleError(error: any) {
     this._snackBar
       .open(`An error occurred: ${error.message}`, 'Close')
       .afterDismissed()
-      .pipe(tap(() => this.progressBarService.initializeState(scanMode)))
+      .pipe(tap(() => this.progressBarService.initializeProgressBar()))
       .subscribe();
   }
 
@@ -64,9 +72,9 @@ export class ScanService {
     scanMode === 'violations'
       ? (instance.violations = this.progressBarService.violations())
       : (instance.inspections = this.progressBarService.inspections);
-    // dialogRef
-    //   .afterClosed()
-    //   .subscribe(() => this.progressBarService.initializeState(scanMode));
+    dialogRef
+      .afterClosed()
+      .subscribe(() => this.progressBarService.initializeProgressBar());
   }
 
   getAllViolations(range: IRange) {
@@ -77,7 +85,7 @@ export class ScanService {
         tap(() => {
           this.progressBarService.scanning.set(true);
         }),
-        mergeMap((tenants) => from(tenants))
+        switchMap((tenants) => from(tenants))
       )
       .pipe(
         concatMap((tenant) => {
@@ -102,6 +110,7 @@ export class ScanService {
   }
 
   getAllDOTInspections(range: IRange) {
+    this.progressBarService.initializeState('dot');
     return this.apiService.getAccessibleTenants().pipe(
       tap(() => {
         this.progressBarService.scanning.set(true);

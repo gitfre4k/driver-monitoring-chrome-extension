@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { concatMap, finalize, from, mergeMap, tap } from 'rxjs';
+import { catchError, concatMap, finalize, from, mergeMap, of, tap } from 'rxjs';
 import { IDriver, IDriverErrorEvents, ITenant } from '../interfaces';
 import {
   IDailyLogs,
@@ -32,6 +32,7 @@ export class AdvancedScanService {
 
   getLogs(date: Date) {
     const tenants = this.appService.tenantsSignal();
+    this.progressBarService.initializeState('advanced');
     this.progressBarService.scanning.set(true);
 
     return from(tenants)
@@ -43,6 +44,18 @@ export class AdvancedScanService {
           );
 
           return this.apiService.getLogs(tenant, date).pipe(
+            tap({
+              error: (error) => {
+                this.progressBarService.progressValue.update(
+                  (value) => value + this.progressBarService.constant()
+                );
+                this.progressBarService.errors.push({
+                  error,
+                  company: this.currentCompany(),
+                });
+              },
+            }),
+            catchError(() => of()),
             tap(() =>
               this.progressBarService.progressValue.update(
                 (prevValue) => prevValue + this.progressBarService.constant()
@@ -65,12 +78,34 @@ export class AdvancedScanService {
     return this.apiService
       .getDriverDailyLogEvents(driver.id, date, tenantId)
       .pipe(
+        tap({
+          error: (error) => {
+            this.progressBarService.errors.push({
+              error,
+              company: this.currentCompany(),
+              driverName: driver.fullName,
+            });
+          },
+        }),
+        catchError(() => of()),
         tap((driverDailyLog) => {
           if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
             const coId = driverDailyLog.coDrivers[0].id;
 
             this.apiService
               .getDriverDailyLogEvents(coId, date, tenantId)
+              .pipe(
+                tap({
+                  error: (error) => {
+                    this.progressBarService.errors.push({
+                      error,
+                      company: this.currentCompany(),
+                      driverName: driver.fullName,
+                    });
+                  },
+                }),
+                catchError(() => of())
+              )
               .subscribe({
                 next: (coDriverDailyLog) =>
                   this.handleDriverDailyLogEvents({

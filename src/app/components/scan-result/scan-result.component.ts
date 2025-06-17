@@ -12,6 +12,7 @@ import {
 } from '@angular/material/expansion';
 
 import { ProgressBarService } from '../../@services/progress-bar.service';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-scan-result',
@@ -22,6 +23,7 @@ import { ProgressBarService } from '../../@services/progress-bar.service';
     MatDivider,
     MatIconModule,
     MatButtonModule,
+    MatBadgeModule,
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',
@@ -43,7 +45,7 @@ export class ScanResultComponent {
   driverCount = this.progressBarService.activeDriversCount;
 
   violations = this.progressBarService.violations;
-  violationsCount = this.progressBarService.totalCount;
+  violationsCount = this.progressBarService.totalVCount;
 
   isEmpty(obj: any): boolean {
     return Object.keys(obj).length === 0;

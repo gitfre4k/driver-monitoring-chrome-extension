@@ -38,7 +38,7 @@ export class AppComponent {
   private progressBarService = inject(ProgressBarService);
 
   scanning = this.progressBarService.scanning;
-  violationsCount = this.progressBarService.totalCount;
+  violationsCount = this.progressBarService.totalVCount;
 
   constructor() {}
 

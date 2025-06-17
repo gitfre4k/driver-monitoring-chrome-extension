@@ -27,11 +27,14 @@ export class ProgressBarComponent {
   constant = this.progressBarService.constant;
   currentCompany = this.progressBarService.currentCompany;
   currentDriver = this.progressBarService.currentDriver;
-  totalCount = this.progressBarService.totalCount;
+  totalCount =
+    this.progressBarService[
+      this.scanMode === 'violations' ? 'totalVCount' : 'totalDCount'
+    ];
   activeDriversCount = this.progressBarService.activeDriversCount;
 
   stopScan() {
-    this.progressBarService.initializeState(this.scanMode);
+    this.progressBarService.initializeProgressBar();
     this.scanSubscription.unsubscribe();
   }
 }
