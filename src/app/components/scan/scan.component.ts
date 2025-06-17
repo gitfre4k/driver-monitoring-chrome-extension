@@ -92,8 +92,9 @@ export class ScanComponent {
     let instance = dialogRef.componentInstance;
     instance.advancedScanResults = this.progressBarService.advancedResaults;
 
-    dialogRef.afterClosed();
-    // .subscribe(() => this.progressBarService.initializeState('advanced'));
+    dialogRef
+      .afterClosed()
+      .subscribe(() => this.progressBarService.initializeState('advanced'));
   }
 
   startScan = () => {

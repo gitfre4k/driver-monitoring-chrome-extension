@@ -4,16 +4,14 @@
   <span style="margin-bottom: 12px">Active Drivers: {{ driverCount }}</span>
   }
   <div class="scan-results__content">
+    @if (violations().length > 0) {
     <mat-accordion>
       <mat-expansion-panel style="margin-bottom: 8px">
         <mat-expansion-panel-header>
           <mat-panel-title> Violations </mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (violations.length < 0) {
-          <span>No violations.</span>
-          <mat-divider></mat-divider>
-          } @else { @for (violation of violations; track violation.company) {
+          @for (violation of violations(); track violation.company) {
           <h3># {{ violation.company }}</h3>
 
           @for (item of violation.violations.items; track item.id) {
@@ -37,15 +35,17 @@
           </ul>
           }
           <mat-divider></mat-divider>
-          } }
+          }
         </div>
       </mat-expansion-panel>
     </mat-accordion>
 
+    }
+
     <!--  -->
     <!--  -->
     <!--  -->
-    <mat-accordion>
+    <mat-accordion MatAccordionDisplayMode="flat">
       <!--  -->
       <!-- Teleports -->
       <mat-expansion-panel>
@@ -58,11 +58,11 @@
           <mat-divider></mat-divider>
           } @else {
           <ul>
-            @for (teleport of scanResults.teleports | keyvalue; track
-            teleport.key) {
+            @for (company of scanResults.teleports | keyvalue; track
+            company.key) {
             <li>
-              <h3>{{ teleport.key }}</h3>
-              @for (driver of teleport.value; track driver.id) {
+              <h3>{{ company.key }}</h3>
+              @for (driver of company.value; track driver.id) {
               <div class="driver">
                 <a
                   mat-icon-button
@@ -71,7 +71,7 @@
                 >
                   <mat-icon>content_copy</mat-icon>
                 </a>
-                <span>{{ driver.driverName }}</span>
+                <span class="bold">{{ driver.driverName }}</span>
               </div>
               @if (driver.event.isTeleport > 0) {
               <span>
@@ -104,26 +104,28 @@
           <mat-divider></mat-divider>
           } @else {
           <ul>
-            @for (eventError of scanResults.eventErrors | keyvalue; track
-            eventError.key) {
+            @for (company of scanResults.eventErrors | keyvalue; track
+            company.key) {
             <li>
-              <h3>{{ eventError.key }}</h3>
-              @for (driver of eventError.value; track driver.id) {
+              <h3>{{ company.key }}</h3>
+              @for (driver of company.value; track driver.name) {
               <div class="driver">
                 <a
                   mat-icon-button
-                  (click)="copyDriverName(driver.driverName)"
+                  (click)="copyDriverName(driver.name)"
                   matTooltip="Copy to clipboard"
                 >
                   <mat-icon>content_copy</mat-icon>
                 </a>
-                <span>{{ driver.driverName }}</span>
+                <span class="bold">{{ driver.name }}</span>
               </div>
+              @for (event of driver.events; track event.id) {
               <span>
-                - error detected on event #{{ driver.event.viewId }}
-                {{ driver.event.statusName }}: {{ driver.event.errorMessage }}
+                - event #{{ event.viewId }} {{ event.statusName }} error:
+                {{ event.errorMessage }}
               </span>
-              }
+              <br />
+              } }
             </li>
             }
           </ul>
@@ -156,7 +158,7 @@
                 >
                   <mat-icon>content_copy</mat-icon>
                 </a>
-                <span>{{ driver.driverName }}</span>
+                <span class="bold">{{ driver.driverName }}</span>
               </div>
               <span>
                 - prolonged On Duty detected, duration:
@@ -197,7 +199,7 @@
                 >
                   <mat-icon>content_copy</mat-icon>
                 </a>
-                <span>{{ driver }}</span>
+                <span class="bold">{{ driver }}</span>
               </div>
               <span>- malfunction or data diagnostic detected</span>
               }
@@ -235,7 +237,7 @@
                 >
                   <mat-icon>content_copy</mat-icon>
                 </a>
-                <span>{{ driver }}</span>
+                <span class="bold">{{ driver }}</span>
               </div>
               <span>- PC/YM event detected</span>
               }
@@ -273,7 +275,7 @@
                 >
                   <mat-icon>content_copy</mat-icon>
                 </a>
-                <span>{{ driver }}</span>
+                <span class="bold">{{ driver }}</span>
               </div>
               <span>- missing Engine On detected</span>
               }
@@ -289,11 +291,11 @@
       <!-- high elapsed Engine Hours -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title> high Engine Hours</mat-panel-title>
+          <mat-panel-title>high elapsed Engine Hours</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.highEngineHours)) {
-          <span>Neither high nor negative Engine Hours events detected.</span>
+          <span>No high elapsed Engine Hours events.</span>
           <mat-divider></mat-divider>
           } @else {
           <ul>
@@ -310,7 +312,7 @@
                 >
                   <mat-icon>content_copy</mat-icon>
                 </a>
-                <span>{{ driver.driverName }}</span>
+                <span class="bold">{{ driver.driverName }}</span>
               </div>
               <span>
                 - high elapsed Engine Hours event detected, count:
@@ -329,7 +331,7 @@
       <!-- low total Engine Hours events -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>low Total Engine Hours</mat-panel-title>
+          <mat-panel-title>low total Engine Hours</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.lowTotalEngineHours)) {
@@ -351,9 +353,11 @@
                 >
                   <mat-icon>content_copy</mat-icon>
                 </a>
-                <span>{{ driver }}</span>
+                <span class="bold">{{ driver }}</span>
               </div>
-              <span>- low total Engine Hours events detected</span>
+              <span
+                >- event(s) with low total Engine Hours events detected</span
+              >
               }
             </li>
             }

@@ -36,10 +36,13 @@ export class ScanService {
       );
 
       scanMode === 'violations'
-        ? this.progressBarService.violations.push({
-            company: this.currentCompany.name,
-            violations: data as IViolations,
-          })
+        ? this.progressBarService.violations.update((v) => [
+            ...v,
+            {
+              company: this.currentCompany.name,
+              violations: data as IViolations,
+            },
+          ])
         : this.progressBarService.inspections.push({
             company: this.currentCompany.name,
             inspections: data as IDOTInspections,
@@ -59,14 +62,15 @@ export class ScanService {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
     scanMode === 'violations'
-      ? (instance.violations = this.progressBarService.violations)
+      ? (instance.violations = this.progressBarService.violations())
       : (instance.inspections = this.progressBarService.inspections);
-    dialogRef
-      .afterClosed()
-      .subscribe(() => this.progressBarService.initializeState(scanMode));
+    // dialogRef
+    //   .afterClosed()
+    //   .subscribe(() => this.progressBarService.initializeState(scanMode));
   }
 
   getAllViolations(range: IRange) {
+    this.progressBarService.initializeState('violations');
     return this.apiService
       .getAccessibleTenants()
       .pipe(

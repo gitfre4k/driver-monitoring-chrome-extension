@@ -171,12 +171,13 @@ export interface IDetectedResults {
   [company: string]: string[];
 }
 
+export interface IDriverErrorEvents {
+  name: string;
+  events: ICEvent[];
+}
+
 export interface IEventErrors {
-  [company: string]: {
-    driverName: string;
-    id: string;
-    event: ICEvent;
-  }[];
+  [company: string]: IDriverErrorEvents[];
 }
 
 export interface IAdvancedResaults {

@@ -1,8 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { concatMap, finalize, from, mergeMap, take, tap } from 'rxjs';
-import { IDriver, ITenant } from '../interfaces';
-import { IDailyLogs } from '../interfaces/driver-daily-log-events.interface';
+import { concatMap, finalize, from, mergeMap, tap } from 'rxjs';
+import { IDriver, IDriverErrorEvents, ITenant } from '../interfaces';
+import {
+  IDailyLogs,
+  IEvent,
+} from '../interfaces/driver-daily-log-events.interface';
 import { ProgressBarService } from './progress-bar.service';
 import { AppService } from './app.service';
 import { ComputeEventsService } from './compute-events.service';
@@ -98,6 +101,7 @@ export class AdvancedScanService {
       this.ptiDuration()
     );
 
+    const eventsErrors: IEvent[] = [];
     computedEvents.forEach((event) => {
       if (event.isTeleport) {
         const detectedTeleport = {
@@ -115,23 +119,26 @@ export class AdvancedScanService {
           ];
         }
       }
+      // ,
       if (event.errorMessage) {
-        const eventError = {
-          driverName: driverDailyLog.driverFullName,
-          id: event.eventSequenceNumber,
-          event: event,
-        };
-        if (this.advancedScanResults.eventErrors[driverDailyLog.companyName]) {
-          this.advancedScanResults.eventErrors[driverDailyLog.companyName].push(
-            eventError
-          );
-        } else {
-          this.advancedScanResults.eventErrors[driverDailyLog.companyName] = [
-            eventError,
-          ];
-        }
+        eventsErrors.push(event);
       }
     });
+    if (eventsErrors.length > 0) {
+      const driverErrorEvents: IDriverErrorEvents = {
+        name: driverDailyLog.driverFullName,
+        events: eventsErrors,
+      };
+      if (this.advancedScanResults.eventErrors[driverDailyLog.companyName]) {
+        this.advancedScanResults.eventErrors[driverDailyLog.companyName].push(
+          driverErrorEvents
+        );
+      } else {
+        this.advancedScanResults.eventErrors[driverDailyLog.companyName] = [
+          driverErrorEvents,
+        ];
+      }
+    }
 
     for (let i = 0; i < driverEvents.length; i++) {
       //

@@ -24,8 +24,8 @@ export class ProgressBarService {
   currentDriver = signal('');
   totalCount = signal(0);
   activeDriversCount = signal(0);
+  violations = signal<IScanViolations[]>([]);
 
-  violations: IScanViolations[] = [];
   inspections: IScanDOTInspections[] = [];
   advancedResaults: IAdvancedResaults = {
     prolengedOnDuties: {},
@@ -42,10 +42,9 @@ export class ProgressBarService {
 
   constructor() {}
 
-  initializeState(scanMode: TScanMode) {
+  initializeState(scanMode?: TScanMode) {
     this.progressValue.set(0);
     this.scanning.set(false);
-    this.violations = [];
     this.inspections = [];
     this.errors = [];
     this.bufferValue.set(0);
@@ -54,7 +53,7 @@ export class ProgressBarService {
     this.totalCount.set(0);
     switch (scanMode) {
       case 'violations':
-        this.violations = [];
+        this.violations.set([]);
         break;
       case 'dot':
         this.inspections = [];

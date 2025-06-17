@@ -34,6 +34,8 @@
       ul {
         // list-style-type: "## ";
         list-style: none;
+        margin-left: 0;
+        margin-bottom: 8px;
       }
 
       .driver {
@@ -41,6 +43,10 @@
         justify-content: start;
         align-items: center;
         flex-wrap: wrap;
+
+        .bold {
+          font-weight: bold;
+        }
       }
     }
   }
