@@ -55,4 +55,23 @@ export class ScanResultComponent {
     navigator.clipboard.writeText(name);
     this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
   }
+
+  get malfTitle(): string {
+    return window.innerWidth > 350
+      ? 'Malfunction / DataDiagnostic'
+      : 'Malf. / DataDiag.';
+  }
+  get elapsedEHTitle(): string {
+    return window.innerWidth > 335
+      ? 'high elapsed Engine Hours'
+      : 'high elapsed EH';
+  }
+  get lowTotalEHTitle(): string {
+    return window.innerWidth > 303 ? 'low total Engine Hours' : 'low total EH';
+  }
+  get prolongedOnDutiesTitle(): string {
+    return window.innerWidth > 286
+      ? 'prolenged On Duties'
+      : 'prolenged OnDuties';
+  }
 }

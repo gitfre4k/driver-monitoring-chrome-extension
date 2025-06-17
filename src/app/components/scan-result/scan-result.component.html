@@ -62,8 +62,7 @@
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.teleports)) {
-          <span>No teleports.</span>
-          <mat-divider></mat-divider>
+          <div class="scan-results__content__result__empty">No teleports.</div>
           } @else {
           <ul>
             @for (company of scanResults.teleports | keyvalue; track
@@ -108,7 +107,9 @@
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.eventErrors)) {
-          <span style="padding-left: 16px">No event errors.</span>
+          <div class="scan-results__content__result__empty">
+            No event errors.
+          </div>
           } @else {
           <ul>
             @for (company of scanResults.eventErrors | keyvalue; track
@@ -149,7 +150,7 @@
       <!-- prolonged OnDutuis -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title> prolenged On Duties</mat-panel-title>
+          <mat-panel-title>{{ prolongedOnDutiesTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.prolengedOnDuties)) {
@@ -189,7 +190,7 @@
       <!-- Malfunction / DataDiagnostic -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title> Malfunction / DataDiagnostic</mat-panel-title>
+          <mat-panel-title>{{ malfTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.malfOrDataDiagDetection)) {
@@ -303,7 +304,7 @@
       <!-- high elapsed Engine Hours -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>high elapsed Engine Hours</mat-panel-title>
+          <mat-panel-title>{{ elapsedEHTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.highEngineHours)) {
@@ -343,7 +344,7 @@
       <!-- low total Engine Hours events -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>low total Engine Hours</mat-panel-title>
+          <mat-panel-title>{{ lowTotalEHTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.lowTotalEngineHours)) {

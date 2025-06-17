@@ -19,10 +19,15 @@
   }
 }
 .errors {
-  margin-top: 16px;
-  width: 90%;
+  overflow: hidden;
+  max-width: 80vw;
   padding-left: 12px;
   span {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* number of lines to show */
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
     margin: 0;
   }
 }

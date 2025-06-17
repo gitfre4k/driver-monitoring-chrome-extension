@@ -1,4 +1,4 @@
-@media (max-width: 500px) {
+@media (max-width: 440px) {
   .hide {
     display: none;
   }
@@ -62,4 +62,9 @@ span {
 .material-symbols-outlined {
   margin-left: 0;
   font-size: 26px;
+}
+
+::ng-deep .mat-mdc-tab.mdc-tab {
+  min-width: 50px !important;
+  padding: 0 13px;
 }
