@@ -13,6 +13,7 @@ import {
 
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { MatBadgeModule } from '@angular/material/badge';
+import { UrlService } from '../../@services/url.service';
 
 @Component({
   selector: 'app-scan-result',
@@ -40,6 +41,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 export class ScanResultComponent {
   private _snackBar = inject(MatSnackBar);
   private progressBarService = inject(ProgressBarService);
+  private urlService = inject(UrlService);
 
   scanResults = this.progressBarService.advancedResaults;
   driverCount = this.progressBarService.activeDriversCount;
@@ -55,6 +57,10 @@ export class ScanResultComponent {
     navigator.clipboard.writeText(name);
     this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
   }
+
+  navigate = () => {
+    this.urlService.navigateChromeActiveTab('https://www.google.com');
+  };
 
   get malfTitle(): string {
     return window.innerWidth > 350

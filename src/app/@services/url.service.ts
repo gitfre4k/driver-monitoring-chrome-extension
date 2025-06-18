@@ -4,6 +4,7 @@ import { Injectable, signal, NgZone } from '@angular/core';
   providedIn: 'root',
 })
 export class UrlService {
+  tabId = signal<number | null>(null);
   url = signal<string | null>(null);
   tenant = signal<{
     id: string;
@@ -22,6 +23,7 @@ export class UrlService {
             "UrlService: Received 'urlChanged' message from background script.",
             request?.data
           );
+          this.tabId.set(request.data.tabId);
           request?.data?.url &&
             request.data.url !== this.url() &&
             this.url.set(request.data.url);
@@ -62,6 +64,7 @@ export class UrlService {
 
     chrome.tabs.getCurrent((tab) => {
       if (tab && tab.id) {
+        console.log(tab, tab.id);
         chrome.runtime.sendMessage(
           { action: 'contentScriptReady', tabId: tab.id },
           (response) => {
@@ -85,4 +88,10 @@ export class UrlService {
       }
     });
   }
+
+  navigateChromeActiveTab = (url: string) => {
+    const tabId = this.tabId();
+    if (!tabId) return console.log('TABAT IDI tab id / di bat DID BATAB');
+    return chrome.tabs.update(tabId, { url });
+  };
 }

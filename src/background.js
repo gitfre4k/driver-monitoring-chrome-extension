@@ -27,7 +27,7 @@ function sendMessageToContentScript(tabId, url, tenantData) {
   chrome.runtime.sendMessage(
     {
       action: "urlChanged",
-      data: { url: url, tenant: tenantData },
+      data: { tabId: tabId, url: url, tenant: tenantData },
     },
     (response) => {
       if (chrome.runtime.lastError) {
