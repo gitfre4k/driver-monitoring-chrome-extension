@@ -23,6 +23,7 @@ export class AdvancedScanService {
   engineHoursDuration = signal(14);
   lowTotalEngineHoursCount = signal(100);
   ptiDuration = signal(901);
+  sleeperDuration = signal(30);
 
   currentCompany = signal({} as ITenant);
 
@@ -133,7 +134,8 @@ export class AdvancedScanService {
         driverDailyLog,
         coDriverDailyLog,
       },
-      this.ptiDuration()
+      this.ptiDuration(),
+      this.sleeperDuration()
     );
 
     const eventsErrors: IEvent[] = [];
@@ -222,6 +224,7 @@ export class AdvancedScanService {
             [driverDailyLog.driverFullName];
         }
       }
+
       //
       // low total Engine Hours
       if (driverEvents[i].engineMinutes < this.lowTotalEngineHoursCount()) {
@@ -242,6 +245,7 @@ export class AdvancedScanService {
           ] = [driverDailyLog.driverFullName];
         }
       }
+
       //
       // Malfunction or Data Diagnostic Detection
       if (
@@ -265,6 +269,7 @@ export class AdvancedScanService {
           ] = [driverDailyLog.driverFullName];
         }
       }
+
       //
       // PC/YM detection
       if (
@@ -286,6 +291,7 @@ export class AdvancedScanService {
           ];
         }
       }
+
       //
       // prolonged On Duties
       if (driverEvents[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {

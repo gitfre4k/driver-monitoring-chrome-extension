@@ -31,6 +31,7 @@ export class AdvancedScanComponent {
   readonly lowTotalEngineHoursCount =
     this.advancedScanService.lowTotalEngineHoursCount;
   readonly ptiDurationSliderValue = this.advancedScanService.ptiDuration;
+  readonly sleeperDuration = this.advancedScanService.sleeperDuration;
 
   readonly currentCompany = this.progressBarService.currentCompany;
   readonly progress = this.progressBarService.progressValue;

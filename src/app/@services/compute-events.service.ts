@@ -20,13 +20,15 @@ import {
   providedIn: 'root',
 })
 export class ComputeEventsService {
-  constructor() {}
   shiftBreak = signal('');
   shiftIsReadyToStart = signal(false);
 
+  constructor() {}
+
   getComputedEvents = (
     { driverDailyLog, coDriverDailyLog }: IDailyLogs,
-    ptiDuration?: number
+    ptiDuration?: number,
+    sleeperMinDuration?: number
   ) => {
     if (!driverDailyLog) return [];
 
@@ -62,13 +64,17 @@ export class ComputeEventsService {
     } else events = [...driverEvents];
 
     events = events.filter((event) => filterEvents(event));
-    events = this.computeEvents(events, ptiDuration);
+    events = this.computeEvents(events, ptiDuration, sleeperMinDuration);
     events = this.detectAndBindTeleport(events);
 
     return events;
   };
 
-  computeEvents = (importedEvents: IEvent[], ptiDuration?: number) => {
+  computeEvents = (
+    importedEvents: IEvent[],
+    ptiDuration?: number,
+    sleeperMinDuration?: number
+  ) => {
     let events = [...importedEvents];
 
     let occurredDuringDriving = false;
@@ -98,7 +104,7 @@ export class ComputeEventsService {
           : (currentDutyStatus = events[i]);
       }
 
-      // too short or no PTI
+      // Pre-Trip Inspection validity ````````````#####################`````````````````##########################````````````````#################````````````
       if (
         // case 34 break or 10h+ Sleeper/Off
         ['Sleeper Berth', 'Off Duty'].includes(currentDutyStatus.statusName) &&
@@ -110,6 +116,8 @@ export class ComputeEventsService {
       // combined 10h+ break from multiple switch from off to sleep
       // ...
       // multiple shift breaks in same day
+      // ...
+      // case 34h marker
       // ...
       const shiftBreak =
         new Date().getTime() - new Date(this.shiftBreak()).getTime(); // miliseconds since shift was ready to start
@@ -125,7 +133,6 @@ export class ComputeEventsService {
         // June 13, 2025
         // ABDI BADIL && Abdi Hussein Mohamed
         //
-
         if (events[i].statusName === 'Driving') {
           events[i].errorMessage = 'no Pre-Trip Inspection';
           this.shiftBreak.set('');
@@ -160,10 +167,11 @@ export class ComputeEventsService {
             1000 /
             60 /
             60;
-          sleeperDuration > 30 &&
+          sleeperDuration > (sleeperMinDuration ? sleeperMinDuration : 30) &&
             (events[i].errorMessage = '34 hour break outside Off Duty');
         } else {
-          events[i].realDurationInSeconds / 60 / 60 > 30 &&
+          events[i].realDurationInSeconds / 60 / 60 >
+            (sleeperMinDuration ? sleeperMinDuration : 30) &&
             (events[i].errorMessage = '34 hour break outside Off Duty');
         }
       }
@@ -262,7 +270,6 @@ export class ComputeEventsService {
 
   detectAndBindTeleport = (importedEvents: IEvent[]) => {
     let events = [...importedEvents];
-
     for (let i = 0; i < events.length - 1; i++) {
       // detect and report undefined odometer value
       !events[i].odometer &&

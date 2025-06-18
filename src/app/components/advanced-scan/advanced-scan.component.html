@@ -30,6 +30,17 @@
 
   <div class="group">
     <mat-label
+      >34hr break in <br />
+      Sleeper Berth</mat-label
+    >
+    <mat-slider class="slider" [max]="34" [min]="20" [step]="1">
+      <input matSliderThumb [(ngModel)]="sleeperDuration" />
+    </mat-slider>
+    <mat-label class="label-right"> {{ sleeperDuration() }}h+</mat-label>
+  </div>
+
+  <div class="group">
+    <mat-label
       >elapsed <br />
       Engine Hours</mat-label
     >

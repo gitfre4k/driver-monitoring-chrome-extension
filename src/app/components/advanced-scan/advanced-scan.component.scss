@@ -6,7 +6,7 @@
 
   .group {
     width: 270px;
-    // width: 90vw;
+    max-width: 90wv;
     display: grid;
     align-items: center;
     grid-template-columns: 25fr 22fr 22fr;
