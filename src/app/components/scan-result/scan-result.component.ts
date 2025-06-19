@@ -58,9 +58,18 @@ export class ScanResultComponent {
     this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
   }
 
-  navigate = () => {
-    this.urlService.navigateChromeActiveTab('https://www.google.com');
-  };
+  openLogs(id: number, date: string, tenantId: string) {
+    console.log('############# ', id, date, tenantId);
+    if (!id || !date) return;
+
+    const url = `https://app.monitoringdriver.com/logs/${id}/${date}/`;
+    console.log('############# ', url);
+
+    // update local storage tenant ID
+    // ...
+
+    this.urlService.navigateChromeActiveTab(url);
+  }
 
   get malfTitle(): string {
     return window.innerWidth > 350

@@ -38,6 +38,8 @@ export interface IEvent {
   computeIndex: number;
   driver: IDriverIdAndName;
   shift: boolean;
+  tenantId: string;
+  date: string;
 }
 
 export interface IDriverIdAndName {

@@ -1,5 +1,3 @@
-<button (click)="navigate()">NnN</button>
-
 <div class="scan-results">
   <h3 class="scan-results__title">Scan Results</h3>
   @if (driverCount(); as driverCount) {
@@ -127,6 +125,7 @@
                 >
                   <mat-icon>content_copy</mat-icon>
                 </a>
+
                 <span class="bold">{{ driver.name }}</span>
               </div>
               @for (event of driver.events; track event.id) {
@@ -138,6 +137,20 @@
                 <span class="error-msg">
                   {{ event.errorMessage }}
                 </span>
+
+                <a
+                  mat-icon-button
+                  (click)="
+                    openLogs(event.driver.id, event.date, event.tenantId)
+                  "
+                  matTooltip="Open driver daily logs in browser"
+                >
+                  <mat-icon
+                    ><span class="material-symbols-outlined">
+                      file_export
+                    </span></mat-icon
+                  >
+                </a>
               </div>
 
               } }

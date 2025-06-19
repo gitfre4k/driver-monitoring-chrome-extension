@@ -15,6 +15,7 @@ import {
   IDriverIdAndName,
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
+import { ICompany } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +29,8 @@ export class ComputeEventsService {
   getComputedEvents = (
     { driverDailyLog, coDriverDailyLog }: IDailyLogs,
     ptiDuration?: number,
-    sleeperMinDuration?: number
+    sleeperMinDuration?: number,
+    tenat?: ICompany
   ) => {
     if (!driverDailyLog) return [];
 
@@ -41,14 +43,14 @@ export class ComputeEventsService {
 
     let events = [] as IEvent[];
 
+    driverEvents.forEach(
+      (e) =>
+        (e.driver = {
+          id: driverDailyLog.driverId,
+          name: driverDailyLog.driverFullName,
+        })
+    );
     if (coDriverDailyLog && coDriverEvents && coDriverEvents?.length > 0) {
-      driverEvents.forEach(
-        (e) =>
-          (e.driver = {
-            id: driverDailyLog.driverId,
-            name: driverDailyLog.driverFullName,
-          })
-      );
       coDriverEvents.forEach(
         (e) =>
           (e.driver = {
@@ -64,7 +66,13 @@ export class ComputeEventsService {
     } else events = [...driverEvents];
 
     events = events.filter((event) => filterEvents(event));
-    events = this.computeEvents(events, ptiDuration, sleeperMinDuration);
+    events = this.computeEvents(
+      events,
+      ptiDuration,
+      sleeperMinDuration,
+      driverDailyLog.date,
+      tenat
+    );
     events = this.detectAndBindTeleport(events);
 
     return events;
@@ -73,7 +81,9 @@ export class ComputeEventsService {
   computeEvents = (
     importedEvents: IEvent[],
     ptiDuration?: number,
-    sleeperMinDuration?: number
+    sleeperMinDuration?: number,
+    date?: string,
+    tenant?: ICompany
   ) => {
     let events = [...importedEvents];
 
@@ -89,6 +99,8 @@ export class ComputeEventsService {
       events[i].computeIndex = i;
       events[i].statusName = getStatusName(events[i].dutyStatus);
       events[i].occurredDuringDriving = occurredDuringDriving;
+      date && (events[i].date = date);
+      tenant && (events[i].tenantId = tenant.id);
 
       // co-drivers shift end
       if (events[i].driver?.id !== currentDriver.id) {

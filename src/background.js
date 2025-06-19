@@ -14,11 +14,16 @@ async function getMasterToolsProviderTenant(tabId) {
     if (results && results.length > 0 && results[0].result !== null) {
       return results[0].result;
     } else {
-      console.warn(`MASTER_TOOLS_PROVIDER_TENANT not found in localStorage for tab ${tabId}.`);
+      console.warn(
+        `MASTER_TOOLS_PROVIDER_TENANT not found in localStorage for tab ${tabId}.`
+      );
       return null;
     }
   } catch (error) {
-    console.error(`Error getting MASTER_TOOLS_PROVIDER_TENANT for tab ${tabId}:`, error);
+    console.error(
+      `Error getting MASTER_TOOLS_PROVIDER_TENANT for tab ${tabId}:`,
+      error
+    );
     return null;
   }
 }
@@ -31,9 +36,15 @@ function sendMessageToContentScript(tabId, url, tenantData) {
     },
     (response) => {
       if (chrome.runtime.lastError) {
-        console.error("Error sending message to content script:", chrome.runtime.lastError.message);
+        console.error(
+          "Error sending message to content script:",
+          chrome.runtime.lastError.message
+        );
       } else {
-        console.log("Message sent successfully. Response from content script:", response);
+        console.log(
+          "Message sent successfully. Response from content script:",
+          response
+        );
       }
     }
   );
@@ -52,7 +63,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const MASTER_TOOLS_PROVIDER_TENANT = await getMasterToolsProviderTenant(
       tabId
     );
-    sendMessageToContentScript(tabId, changeInfo.url, MASTER_TOOLS_PROVIDER_TENANT);
+    sendMessageToContentScript(
+      tabId,
+      changeInfo.url,
+      MASTER_TOOLS_PROVIDER_TENANT
+    );
   }
 });
 
@@ -67,7 +82,11 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
       const MASTER_TOOLS_PROVIDER_TENANT = await getMasterToolsProviderTenant(
         activeInfo.tabId
       );
-      sendMessageToContentScript(activeInfo.tabId, tab.url, MASTER_TOOLS_PROVIDER_TENANT);
+      sendMessageToContentScript(
+        activeInfo.tabId,
+        tab.url,
+        MASTER_TOOLS_PROVIDER_TENANT
+      );
     }
   });
 });
