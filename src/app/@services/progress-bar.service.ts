@@ -41,6 +41,16 @@ export class ProgressBarService {
 
   errors: IScanErrors[] = [];
 
+  removeItem(company: string, driverName: string, eventId: number) {
+    const driver = this.advancedResaults.eventErrors[company].find(
+      (d) => d.name === driverName
+    );
+    const evId = driver?.events.findIndex((ev) => ev.id === eventId);
+
+    if (evId && evId > -1)
+      this.advancedResaults.eventErrors[company].slice(evId);
+  }
+
   constructor() {}
 
   initializeProgressBar() {
