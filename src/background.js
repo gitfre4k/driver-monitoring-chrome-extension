@@ -1,6 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   console.log("onInstalled....");
 });
+console.log('Background service worker active.');
 
 async function getMasterToolsProviderTenant(tabId) {
   try {
@@ -90,3 +91,63 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
     }
   });
 });
+
+
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'updateLocalStorage') {
+    const { tabId, key, value } = message.payload;
+
+    if (tabId === undefined || key === undefined || value === undefined) {
+      console.error('Invalid payload for updateLocalStorage:', message.payload);
+      sendResponse({ success: false, error: 'Missing tabId, key, or value' });
+      return true; // Indicate that sendResponse will be called asynchronously
+    }
+
+    // Check if the tab exists and is accessible
+    chrome.tabs.get(tabId, (tab) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error getting tab:', chrome.runtime.lastError.message);
+        sendResponse({ success: false, error: 'Tab not found or inaccessible.' });
+        return;
+      }
+      if (!tab) {
+        console.error(`Tab with ID ${tabId} not found.`);
+        sendResponse({ success: false, error: 'Tab not found.' });
+        return;
+      }
+
+      // Execute a function directly in the target tab's context
+      chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        function: (localStorageKey, localStorageValue) => {
+          try {
+            localStorage.setItem(localStorageKey, localStorageValue);
+            return { success: true };
+          } catch (e) {
+            return { success: false, error: e.message };
+          }
+        },
+        args: [key, value]
+      })
+      .then((results) => {
+        // results is an array, each element corresponds to a result from each frame.
+        // For 'function' injection, it's usually one element from the main frame.
+        const result = results[0]?.result; // Get the result from the executed function
+
+        if (result && result.success) {
+          sendResponse({ success: true, message: `Local storage updated for tab ${tabId}.` });
+        } else {
+          sendResponse({ success: false, error: result?.error || 'Unknown error during script execution.' });
+        }
+      })
+      .catch((error) => {
+        console.error('Error executing script:', error);
+        sendResponse({ success: false, error: `Failed to execute script: ${error.message}` });
+      });
+    });
+
+    return true; // Keep the message channel open for sendResponse
+  }
+});
+

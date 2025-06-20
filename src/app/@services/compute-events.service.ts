@@ -15,7 +15,7 @@ import {
   IDriverIdAndName,
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
-import { ICompany } from '../interfaces';
+import { ICompany, ITenant } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -28,9 +28,9 @@ export class ComputeEventsService {
 
   getComputedEvents = (
     { driverDailyLog, coDriverDailyLog }: IDailyLogs,
+    tenant?: ITenant,
     ptiDuration?: number,
-    sleeperMinDuration?: number,
-    tenat?: ICompany
+    sleeperMinDuration?: number
   ) => {
     if (!driverDailyLog) return [];
 
@@ -71,7 +71,7 @@ export class ComputeEventsService {
       ptiDuration,
       sleeperMinDuration,
       driverDailyLog.date,
-      tenat
+      tenant
     );
     events = this.detectAndBindTeleport(events);
 
@@ -83,7 +83,7 @@ export class ComputeEventsService {
     ptiDuration?: number,
     sleeperMinDuration?: number,
     date?: string,
-    tenant?: ICompany
+    tenant?: ITenant
   ) => {
     let events = [...importedEvents];
 
@@ -100,7 +100,7 @@ export class ComputeEventsService {
       events[i].statusName = getStatusName(events[i].dutyStatus);
       events[i].occurredDuringDriving = occurredDuringDriving;
       date && (events[i].date = date);
-      tenant && (events[i].tenantId = tenant.id);
+      tenant && (events[i].tenant = tenant);
 
       // co-drivers shift end
       if (events[i].driver?.id !== currentDriver.id) {

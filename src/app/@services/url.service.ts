@@ -1,9 +1,13 @@
-import { Injectable, signal, NgZone } from '@angular/core';
+import { Injectable, signal, NgZone, inject } from '@angular/core';
+import { LocalStorageService } from './local-storage.service';
+import { ICompany } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UrlService {
+  localStorageService = inject(LocalStorageService);
+
   tabId = signal<number | null>(null);
   url = signal<string | null>(null);
   tenant = signal<{
@@ -89,9 +93,20 @@ export class UrlService {
     });
   }
 
-  navigateChromeActiveTab = (url: string) => {
+  navigateChromeActiveTab = (url: string, tenant: ICompany) => {
     const tabId = this.tabId();
-    if (!tabId) return console.log('TABAT IDI tab id / di bat DID BATAB');
-    return chrome.tabs.update(tabId, { url });
+    if (!tabId) return console.log('URL Service - no tabId');
+
+    const key = 'MASTER_TOOLS_PROVIDER_TENANT';
+    const value = JSON.stringify({
+      prologs: {
+        id: tenant.id,
+        name: tenant.name,
+      },
+    });
+
+    this.localStorageService
+      .updateTabLocalStorage(tabId, key, value)
+      .subscribe({ next: () => chrome.tabs.update(tabId, { url }) });
   };
 }

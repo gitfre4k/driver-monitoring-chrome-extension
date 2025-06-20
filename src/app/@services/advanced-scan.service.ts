@@ -25,8 +25,6 @@ export class AdvancedScanService {
   ptiDuration = signal(901);
   sleeperDuration = signal(30);
 
-  currentCompany = signal({} as ITenant);
-
   advancedScanResults = this.progressBarService.advancedResaults;
 
   constructor() {}
@@ -39,10 +37,7 @@ export class AdvancedScanService {
     return from(tenants)
       .pipe(
         concatMap((tenant) => {
-          this.currentCompany.set(tenant);
-          this.progressBarService.currentCompany.set(
-            this.currentCompany().name
-          );
+          this.progressBarService.currentCompany.set(tenant.name);
 
           return this.apiService.getLogs(tenant, date).pipe(
             tap({
@@ -52,7 +47,7 @@ export class AdvancedScanService {
                 );
                 this.progressBarService.errors.push({
                   error,
-                  company: this.currentCompany(),
+                  company: tenant,
                 });
               },
             }),
@@ -65,7 +60,7 @@ export class AdvancedScanService {
             mergeMap((log) => from(log.items)),
             concatMap((driver) => {
               this.progressBarService.activeDriversCount.update((i) => i + 1);
-              return this.dailyLogEvents$(driver, date);
+              return this.dailyLogEvents$(driver, date, tenant);
             })
           );
         })
@@ -73,17 +68,15 @@ export class AdvancedScanService {
       .pipe(finalize(() => console.log(this.advancedScanResults)));
   }
 
-  dailyLogEvents$(driver: IDriver, date: Date) {
-    const tenantId = this.currentCompany().id;
-
+  dailyLogEvents$(driver: IDriver, date: Date, tenant: ITenant) {
     return this.apiService
-      .getDriverDailyLogEvents(driver.id, date, tenantId)
+      .getDriverDailyLogEvents(driver.id, date, tenant.id)
       .pipe(
         tap({
           error: (error) => {
             this.progressBarService.errors.push({
               error,
-              company: this.currentCompany(),
+              company: tenant,
               driverName: driver.fullName,
             });
           },
@@ -94,13 +87,13 @@ export class AdvancedScanService {
             const coId = driverDailyLog.coDrivers[0].id;
 
             this.apiService
-              .getDriverDailyLogEvents(coId, date, tenantId)
+              .getDriverDailyLogEvents(coId, date, tenant.id)
               .pipe(
                 tap({
                   error: (error) => {
                     this.progressBarService.errors.push({
                       error,
-                      company: this.currentCompany(),
+                      company: tenant,
                       driverName: driver.fullName,
                     });
                   },
@@ -109,21 +102,30 @@ export class AdvancedScanService {
               )
               .subscribe({
                 next: (coDriverDailyLog) =>
-                  this.handleDriverDailyLogEvents({
-                    driverDailyLog,
-                    coDriverDailyLog,
-                  }),
+                  this.handleDriverDailyLogEvents(
+                    {
+                      driverDailyLog,
+                      coDriverDailyLog,
+                    },
+                    tenant
+                  ),
               });
           } else
-            this.handleDriverDailyLogEvents({
-              driverDailyLog,
-              coDriverDailyLog: null,
-            });
+            this.handleDriverDailyLogEvents(
+              {
+                driverDailyLog,
+                coDriverDailyLog: null,
+              },
+              tenant
+            );
         })
       );
   }
 
-  handleDriverDailyLogEvents({ driverDailyLog, coDriverDailyLog }: IDailyLogs) {
+  handleDriverDailyLogEvents(
+    { driverDailyLog, coDriverDailyLog }: IDailyLogs,
+    tenant: ITenant
+  ) {
     if (!driverDailyLog) return;
     this.progressBarService.currentDriver.set(driverDailyLog.driverFullName);
 
@@ -134,6 +136,7 @@ export class AdvancedScanService {
         driverDailyLog,
         coDriverDailyLog,
       },
+      tenant,
       this.ptiDuration(),
       this.sleeperDuration()
     );

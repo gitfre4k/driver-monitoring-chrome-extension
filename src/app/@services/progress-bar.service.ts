@@ -20,8 +20,8 @@ export class ProgressBarService {
   progressValue = signal(0);
   bufferValue = signal(0);
   constant = computed(() => 100 / this.appService.tenantsSignal().length);
-  currentCompany = signal('Dex Solutions');
   currentDriver = signal('');
+  currentCompany = signal('Dex Solutions');
   totalVCount = signal(0);
   totalDCount = signal(0);
   activeDriversCount = signal(0);

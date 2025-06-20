@@ -46,7 +46,11 @@
         li {
           .event-error {
             display: grid;
-            grid-template-columns: 30px 100px 1fr;
+            grid-template-columns: 30px 100px 4fr 1fr;
+            padding: 0;
+            margin: 0;
+            font-family: Roboto, Helvetica Neue, sans-serif;
+            font-weight: 400;
             align-items: center;
             width: 100%;
             font-size: 13px;
@@ -58,7 +62,7 @@
             }
             .status {
               font-size: 11px;
-              margin: 1px 5px;
+              margin: 0 4px;
               padding: 0;
               border-radius: 12px;
               width: 85px;
@@ -73,9 +77,15 @@
 
       .driver {
         display: flex;
-        justify-content: start;
         align-items: center;
-        flex-wrap: wrap;
+        justify-content: space-between;
+        width: 80%;
+
+        .name {
+          display: flex;
+          align-items: center;
+          justify-content: start;
+        }
 
         .bold {
           font-weight: bold;
@@ -126,4 +136,8 @@
 .EngineShutDownConventionalLocationPrecision,
 .EngineShutDownReducedLocationPrecision {
   background-color: rgb(107 114 128);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }

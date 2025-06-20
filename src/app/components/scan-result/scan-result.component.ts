@@ -14,6 +14,9 @@ import {
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { UrlService } from '../../@services/url.service';
+import { LocalStorageService } from '../../@services/local-storage.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ICompany, ITenant } from '../../interfaces';
 
 @Component({
   selector: 'app-scan-result',
@@ -25,6 +28,7 @@ import { UrlService } from '../../@services/url.service';
     MatIconModule,
     MatButtonModule,
     MatBadgeModule,
+    MatTooltipModule,
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',
@@ -42,6 +46,7 @@ export class ScanResultComponent {
   private _snackBar = inject(MatSnackBar);
   private progressBarService = inject(ProgressBarService);
   private urlService = inject(UrlService);
+  private localStorageService = inject(LocalStorageService);
 
   scanResults = this.progressBarService.advancedResaults;
   driverCount = this.progressBarService.activeDriversCount;
@@ -58,17 +63,19 @@ export class ScanResultComponent {
     this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
   }
 
-  openLogs(id: number, date: string, tenantId: string) {
-    console.log('############# ', id, date, tenantId);
-    if (!id || !date) return;
+  openLogs(id: number, date: string, tenant: ITenant) {
+    console.log('############# id = ', id);
+    console.log('############# date = ', date);
+    console.log('############# tenant = ', JSON.stringify(tenant));
+    if (!id || !date || !tenant?.id) return;
 
     const url = `https://app.monitoringdriver.com/logs/${id}/${date}/`;
-    console.log('############# ', url);
+    console.log('############# ~~~ #url:\n', url);
 
     // update local storage tenant ID
     // ...
 
-    this.urlService.navigateChromeActiveTab(url);
+    this.urlService.navigateChromeActiveTab(url, tenant);
   }
 
   get malfTitle(): string {

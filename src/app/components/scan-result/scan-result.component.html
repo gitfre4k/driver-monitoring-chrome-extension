@@ -3,7 +3,10 @@
   @if (driverCount(); as driverCount) {
   <span style="margin-bottom: 12px">Active Drivers: {{ driverCount }}</span>
   }
+
   <div class="scan-results__content">
+    <!--  -->
+    <!-- Violations conditional expansion panel -->
     @if (violations().length > 0) {
     <mat-accordion>
       <mat-expansion-panel style="margin-bottom: 8px">
@@ -51,8 +54,7 @@
     }
 
     <!--  -->
-    <!--  -->
-    <!--  -->
+    <!-- expansion panel -->
     <mat-accordion MatAccordionDisplayMode="flat">
       <!--  -->
       <!-- Teleports -->
@@ -103,7 +105,7 @@
       <!-- event Errors -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title> event Errors</mat-panel-title>
+          <mat-panel-title>event Errors</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(scanResults.eventErrors)) {
@@ -118,15 +120,30 @@
               <h3>{{ company.key }}</h3>
               @for (driver of company.value; track driver.name) {
               <div class="driver">
+                <div class="name">
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.name)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                  <span class="bold">{{ driver.name }}</span>
+                </div>
+
                 <a
                   mat-icon-button
-                  (click)="copyDriverName(driver.name)"
-                  matTooltip="Copy to clipboard"
+                  matTooltip="Open driver daily logs in web app"
+                  (click)="
+                    openLogs(
+                      driver.events[0].driver.id,
+                      driver.events[0].date,
+                      driver.events[0].tenant
+                    )
+                  "
                 >
-                  <mat-icon>content_copy</mat-icon>
+                  <mat-icon>open_in_browser</mat-icon>
                 </a>
-
-                <span class="bold">{{ driver.name }}</span>
               </div>
               @for (event of driver.events; track event.id) {
               <div class="event-error">
@@ -138,19 +155,9 @@
                   {{ event.errorMessage }}
                 </span>
 
-                <a
-                  mat-icon-button
-                  (click)="
-                    openLogs(event.driver.id, event.date, event.tenantId)
-                  "
-                  matTooltip="Open driver daily logs in browser"
+                <a mat-icon-button matTooltip="Done"
+                  ><mat-icon>done</mat-icon></a
                 >
-                  <mat-icon
-                    ><span class="material-symbols-outlined">
-                      file_export
-                    </span></mat-icon
-                  >
-                </a>
               </div>
 
               } }

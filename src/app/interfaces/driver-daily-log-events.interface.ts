@@ -1,3 +1,5 @@
+import { ITenant } from './';
+
 export interface IEvent {
   id: number;
   dutyStatus: string;
@@ -38,8 +40,8 @@ export interface IEvent {
   computeIndex: number;
   driver: IDriverIdAndName;
   shift: boolean;
-  tenantId: string;
   date: string;
+  tenant: ITenant;
 }
 
 export interface IDriverIdAndName {

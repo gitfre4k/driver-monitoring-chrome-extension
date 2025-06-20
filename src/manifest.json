@@ -1,47 +1,39 @@
 {
-    "manifest_version": 3,
-    "name": "Driver Monitoring Chrome Extension",
-    "version": "0.0.2",
-    "description": "An early-stage Chrome extension developed to assist with user interactions within the Driver Monitoring web application.",
-    "icons": {
-        "16": "favicon-dex.png",
-        "32": "favicon-dex.png",
-        "48": "favicon-dex.png",
-        "128": "favicon-dex.png"
-    },
-    "permissions": [
-        "storage",
-        "tabs",
-        "activeTab",
-        "cookies",
-        "scripting",
-        "sidePanel"
-    ],
-    "side_panel": {
-        "default_path": "index.html"
-    },
-    "host_permissions": [
-        "https://app.monitoringdriver.com/*"
-    ],
-    "background": {
-        "service_worker": "background.js"
-    },
-    "action": {
-        "default_popup": "index.html"
-    }, 
-    "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self'"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://app.monitoringdriver.com/*"
-            ],
-            "js": [
-                "content-script.js"
-            ], "ts": [
-                
-            ]
-        }
-    ]
+  "manifest_version": 3,
+  "name": "Driver Monitoring Chrome Extension",
+  "version": "0.0.3",
+  "description": "An early-stage Chrome extension developed to assist with user interactions within the Driver Monitoring web application.",
+  "icons": {
+    "16": "favicon-dex.png",
+    "32": "favicon-dex.png",
+    "48": "favicon-dex.png",
+    "128": "favicon-dex.png"
+  },
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "cookies",
+    "scripting",
+    "sidePanel"
+  ],
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "host_permissions": ["https://app.monitoringdriver.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "index.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://app.monitoringdriver.com/*"],
+      "js": ["content-script.js"]
+    }
+  ]
 }
