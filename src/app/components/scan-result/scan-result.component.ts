@@ -71,6 +71,8 @@ export class ScanResultComponent {
     this.urlService.navigateChromeActiveTab(url);
   }
 
+  taskDone(company: string, driverName: string, eventIid: number) {}
+
   get malfTitle(): string {
     return window.innerWidth > 350
       ? 'Malfunction / DataDiagnostic'

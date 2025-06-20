@@ -140,6 +140,18 @@
 
                 <a
                   mat-icon-button
+                  (click)="taskDone(company.key, driver.name, event.id)"
+                  matTooltip="Done"
+                >
+                  <mat-icon
+                    ><span class="material-symbols-outlined">
+                      check
+                    </span></mat-icon
+                  >
+                </a>
+
+                <a
+                  mat-icon-button
                   (click)="
                     openLogs(event.driver.id, event.date, event.tenantId)
                   "
@@ -147,7 +159,7 @@
                 >
                   <mat-icon
                     ><span class="material-symbols-outlined">
-                      file_export
+                      outbound
                     </span></mat-icon
                   >
                 </a>
