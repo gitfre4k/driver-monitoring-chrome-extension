@@ -81,18 +81,45 @@
                   <mat-icon>content_copy</mat-icon>
                 </a>
                 <span class="bold">{{ driver.driverName }}</span>
+                <a
+                  mat-icon-button
+                  matTooltip="Open driver daily logs in web app"
+                  (click)="
+                    openLogs(
+                      driver.event.driver.id,
+                      driver.event.date,
+                      driver.event.tenant
+                    )
+                  "
+                >
+                  <mat-icon>open_in_browser</mat-icon>
+                </a>
               </div>
               @if (driver.event.isTeleport > 0) {
-              <span>
+              <div class="event-error">
+                <span class="view-id">#{{ driver.event.viewId }}</span>
+                <span [ngClass]="'status ' + driver.event.dutyStatus">{{
+                  driver.event.statusName
+                }}</span>
+                <span class="error-msg">
+                  [ {{ driver.event.isTeleport }} miles ]
+                </span>
+
+                <a mat-icon-button matTooltip="Done"
+                  ><mat-icon>done</mat-icon></a
+                >
+              </div>
+
+              <!-- <span>
                 - teleport detected on event #{{ driver.event.viewId }}
-                {{ driver.event.statusName }} [
-                {{ driver.event.isTeleport }} miles ]
+                {{ driver.event.statusName }} 
+               
               </span>
               } @else {
               <span>
                 - odometer decreased on event #{{ driver.event.viewId }}
                 {{ driver.event.statusName }}
-              </span>
+              </span> -->
               } }
             </li>
             }
