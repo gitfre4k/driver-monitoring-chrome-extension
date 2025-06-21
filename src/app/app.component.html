@@ -10,7 +10,9 @@
     <mat-tab-group
       mat-stretch-tabs="true"
       mat-align-tabs="start"
+      preserveContent="true"
       id="tab-group"
+      [selectedIndex]="selectedTabIndex()"
     >
       <mat-tab label="Scan">
         <ng-template mat-tab-label>

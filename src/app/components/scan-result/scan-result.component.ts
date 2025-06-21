@@ -46,7 +46,6 @@ export class ScanResultComponent {
   private _snackBar = inject(MatSnackBar);
   private progressBarService = inject(ProgressBarService);
   private urlService = inject(UrlService);
-  private localStorageService = inject(LocalStorageService);
 
   scanResults = this.progressBarService.advancedResaults;
   driverCount = this.progressBarService.activeDriversCount;
@@ -68,13 +67,8 @@ export class ScanResultComponent {
     console.log('############# date = ', date);
     console.log('############# tenant = ', JSON.stringify(tenant));
     if (!id || !date || !tenant?.id) return;
-
     const url = `https://app.monitoringdriver.com/logs/${id}/${date}/`;
     console.log('############# ~~~ #url:\n', url);
-
-    // update local storage tenant ID
-    // ...
-
     this.urlService.navigateChromeActiveTab(url, tenant);
   }
 

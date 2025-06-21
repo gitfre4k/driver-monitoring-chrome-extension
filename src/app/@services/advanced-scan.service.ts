@@ -140,34 +140,40 @@ export class AdvancedScanService {
       this.ptiDuration(),
       this.sleeperDuration()
     );
+    const errorEvents: IEvent[] = [];
+    const detectedTeleportEvents: IEvent[] = [];
 
-    const eventsErrors: IEvent[] = [];
     computedEvents.forEach((event) => {
       if (event.isTeleport) {
-        const detectedTeleport = {
-          driverName: driverDailyLog.driverFullName,
-          id: event.eventSequenceNumber,
-          event: event,
-        };
-        if (this.advancedScanResults.teleports[driverDailyLog.companyName]) {
-          this.advancedScanResults.teleports[driverDailyLog.companyName].push(
-            detectedTeleport
-          );
-        } else {
-          this.advancedScanResults.teleports[driverDailyLog.companyName] = [
-            detectedTeleport,
-          ];
-        }
+        detectedTeleportEvents.push(event);
       }
-      // ,
       if (event.errorMessage) {
-        eventsErrors.push(event);
+        errorEvents.push(event);
       }
     });
-    if (eventsErrors.length > 0) {
+    // handle driver teleport events
+    if (detectedTeleportEvents.length > 0) {
+      const driverTeleportEvents = {
+        driverName: driverDailyLog.driverFullName,
+        events: detectedTeleportEvents,
+      };
+
+      if (this.advancedScanResults.teleports[driverDailyLog.companyName]) {
+        this.advancedScanResults.teleports[driverDailyLog.companyName].push(
+          driverTeleportEvents
+        );
+      } else {
+        this.advancedScanResults.teleports[driverDailyLog.companyName] = [
+          driverTeleportEvents,
+        ];
+      }
+    }
+
+    // handle driver error events
+    if (errorEvents.length > 0) {
       const driverErrorEvents: IDriverErrorEvents = {
         name: driverDailyLog.driverFullName,
-        events: eventsErrors,
+        events: errorEvents,
       };
       if (this.advancedScanResults.eventErrors[driverDailyLog.companyName]) {
         this.advancedScanResults.eventErrors[driverDailyLog.companyName].push(

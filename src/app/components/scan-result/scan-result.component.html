@@ -66,61 +66,63 @@
           @if (isEmpty(scanResults.teleports)) {
           <div class="scan-results__content__result__empty">No teleports.</div>
           } @else {
-          <ul>
+          <ul class="list-of-tenants">
             @for (company of scanResults.teleports | keyvalue; track
             company.key) {
-            <li>
-              <h3>{{ company.key }}</h3>
-              @for (driver of company.value; track driver.id) {
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
+              @for (driver of company.value; track driver.driverName) {
               <div class="driver">
-                <a
-                  mat-icon-button
-                  (click)="copyDriverName(driver.driverName)"
-                  matTooltip="Copy to clipboard"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </a>
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.events[0].driver.id,
+                        driver.events[0].date,
+                        driver.events[0].tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.driverName)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
+
                 <span class="bold">{{ driver.driverName }}</span>
-                <a
-                  mat-icon-button
-                  matTooltip="Open driver daily logs in web app"
-                  (click)="
-                    openLogs(
-                      driver.event.driver.id,
-                      driver.event.date,
-                      driver.event.tenant
-                    )
-                  "
-                >
-                  <mat-icon>open_in_browser</mat-icon>
-                </a>
               </div>
-              @if (driver.event.isTeleport > 0) {
-              <div class="event-error">
-                <span class="view-id">#{{ driver.event.viewId }}</span>
-                <span [ngClass]="'status ' + driver.event.dutyStatus">{{
-                  driver.event.statusName
-                }}</span>
-                <span class="error-msg">
-                  [ {{ driver.event.isTeleport }} miles ]
-                </span>
+              <ul class="inner-ul">
+                @for (event of driver.events; track event.id) {
+                <li class="event-error">
+                  <span class="view-id">#{{ event.viewId }}</span>
 
-                <a mat-icon-button matTooltip="Done"
-                  ><mat-icon>done</mat-icon></a
-                >
-              </div>
+                  <span [ngClass]="'status ' + event.dutyStatus">{{
+                    event.statusName
+                  }}</span>
 
-              <!-- <span>
-                - teleport detected on event #{{ driver.event.viewId }}
-                {{ driver.event.statusName }} 
-               
-              </span>
-              } @else {
-              <span>
-                - odometer decreased on event #{{ driver.event.viewId }}
-                {{ driver.event.statusName }}
-              </span> -->
-              } }
+                  <span class="error-msg">
+                    {{
+                      event.isTeleport > 0
+                        ? "teleport [ " + event.isTeleport + " miles ]"
+                        : "odometer decreased"
+                    }}
+                  </span>
+
+                  <a mat-icon-button matTooltip="Done" class="on-hover"
+                    ><mat-icon>close</mat-icon></a
+                  >
+                </li>
+
+                }
+              </ul>
+              }
             </li>
             }
           </ul>
@@ -140,14 +142,27 @@
             No event errors.
           </div>
           } @else {
-          <ul>
+          <ul class="list-of-tenants">
             @for (company of scanResults.eventErrors | keyvalue; track
             company.key) {
-            <li>
-              <h3>{{ company.key }}</h3>
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.name) {
               <div class="driver">
-                <div class="name">
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.events[0].driver.id,
+                        driver.events[0].date,
+                        driver.events[0].tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
                   <a
                     mat-icon-button
                     (click)="copyDriverName(driver.name)"
@@ -155,39 +170,32 @@
                   >
                     <mat-icon>content_copy</mat-icon>
                   </a>
-                  <span class="bold">{{ driver.name }}</span>
                 </div>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Open driver daily logs in web app"
-                  (click)="
-                    openLogs(
-                      driver.events[0].driver.id,
-                      driver.events[0].date,
-                      driver.events[0].tenant
-                    )
-                  "
-                >
-                  <mat-icon>open_in_browser</mat-icon>
-                </a>
+                <span class="bold">{{ driver.name }}</span>
               </div>
-              @for (event of driver.events; track event.id) {
-              <div class="event-error">
-                <span class="view-id">#{{ event.viewId }}</span>
-                <span [ngClass]="'status ' + event.dutyStatus">{{
-                  event.statusName
-                }}</span>
-                <span class="error-msg">
-                  {{ event.errorMessage }}
-                </span>
+              <ul class="inner-ul">
+                @for (event of driver.events; track event.id) {
+                <li class="event-error">
+                  <span class="view-id">#{{ event.viewId }}</span>
 
-                <a mat-icon-button matTooltip="Done"
-                  ><mat-icon>done</mat-icon></a
-                >
-              </div>
+                  <span [ngClass]="'status ' + event.dutyStatus">{{
+                    event.statusName
+                  }}</span>
 
-              } }
+                  <span class="error-msg">
+                    {{ event.errorMessage }}
+                  </span>
+
+                  <a mat-icon-button matTooltip="Done" class="on-hover"
+                    ><mat-icon>close</mat-icon></a
+                  >
+                </li>
+
+                }
+              </ul>
+
+              }
             </li>
             }
           </ul>

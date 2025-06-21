@@ -1,12 +1,14 @@
 import { Injectable, signal, NgZone, inject } from '@angular/core';
 import { LocalStorageService } from './local-storage.service';
 import { ICompany } from '../interfaces';
+import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UrlService {
   localStorageService = inject(LocalStorageService);
+  extensionTabNavService = inject(ExtensionTabNavigationService);
 
   tabId = signal<number | null>(null);
   url = signal<string | null>(null);
@@ -107,6 +109,11 @@ export class UrlService {
 
     this.localStorageService
       .updateTabLocalStorage(tabId, key, value)
-      .subscribe({ next: () => chrome.tabs.update(tabId, { url }) });
+      .subscribe({
+        next: () => {
+          this.extensionTabNavService.selectedTabIndex.set(2);
+          chrome.tabs.update(tabId, { url });
+        },
+      });
   };
 }

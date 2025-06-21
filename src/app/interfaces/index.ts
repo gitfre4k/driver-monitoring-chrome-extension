@@ -160,16 +160,16 @@ export interface IDetectedResultsWithDuration {
     duration: number;
   }[];
 }
-export interface IDetectedTeleports {
-  [company: string]: {
-    driverName: string;
-    id: string;
-    event: ICEvent;
-  }[];
+export interface ITeleportsEvents {
+  [company: string]: IDriverTeleportEvents[];
+}
+export interface IDriverTeleportEvents {
+  driverName: string;
+  events: ICEvent[];
 }
 
-export interface IDetectedResults {
-  [company: string]: string[];
+export interface IEventErrors {
+  [company: string]: IDriverErrorEvents[];
 }
 
 export interface IDriverErrorEvents {
@@ -177,8 +177,8 @@ export interface IDriverErrorEvents {
   events: ICEvent[];
 }
 
-export interface IEventErrors {
-  [company: string]: IDriverErrorEvents[];
+export interface IDetectedResults {
+  [company: string]: string[];
 }
 
 export interface IAdvancedResaults {
@@ -188,6 +188,6 @@ export interface IAdvancedResaults {
   missingEngineOn: IDetectedResults;
   highEngineHours: IDetectedResultsWithDuration;
   lowTotalEngineHours: IDetectedResults;
-  teleports: IDetectedTeleports;
+  teleports: ITeleportsEvents;
   eventErrors: IEventErrors;
 }
