@@ -68,3 +68,7 @@ span {
   min-width: 50px !important;
   padding: 0 13px;
 }
+
+::ng-deep .mat-mdc-tab-body-content {
+  overflow: hidden !important;
+}

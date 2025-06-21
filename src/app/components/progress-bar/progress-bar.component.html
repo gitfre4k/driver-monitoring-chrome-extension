@@ -1,46 +1,48 @@
-<mat-card id="mat-card-wrapper-2">
-  <mat-card-content>
-    @if (scanMode === "advanced") {
-    <h2>Advanced scan detection in progress...</h2>
-    } @else {
-    <h2>
-      {{ scanMode === "violations" ? "Violation" : "FMCSA inspection" }}
-      detection in progress...
-    </h2>
+<div class="container">
+  <mat-card id="mat-card-wrapper-2">
+    <mat-card-content>
+      @if (scanMode === "advanced") {
+      <h2>Advanced scan detection in progress...</h2>
+      } @else {
+      <h2>
+        {{ scanMode === "violations" ? "Violation" : "FMCSA inspection" }}
+        detection in progress...
+      </h2>
+      }
+
+      <p>{{ currentCompany() }}</p>
+      @if (currentDriver()) {
+      <p>{{ currentDriver() }}</p>
+      }
+      <section>
+        <mat-progress-bar
+          [mode]="'determinate'"
+          [value]="value()"
+          [bufferValue]="bufferValue"
+        >
+        </mat-progress-bar>
+      </section>
+      <button mat-button (click)="stopScan()">Stop</button>
+    </mat-card-content>
+    <p class="total-count">
+      {{
+        scanMode === "advanced"
+          ? "Active drivers: " + activeDriversCount()
+          : "Total count: " + totalCount()
+      }}
+    </p>
+  </mat-card>
+
+  <div class="errors" style="text-align: left">
+    @for (err of this.errors; track (err.driverName ? err.driverName :
+    err.company.id)) {
+    <span class="errors-company"
+      >[{{ err.error.name }}] {{ err.company.name }}
+      {{ err.driverName ? " - " + err.driverName : "" }}</span
+    >
+    <span style="font-size: 10px">- {{ err.error.message }}</span>
+    <br />
+
     }
-
-    <p>{{ currentCompany() }}</p>
-    @if (currentDriver()) {
-    <p>{{ currentDriver() }}</p>
-    }
-    <section>
-      <mat-progress-bar
-        [mode]="'determinate'"
-        [value]="value()"
-        [bufferValue]="bufferValue"
-      >
-      </mat-progress-bar>
-    </section>
-    <button mat-button (click)="stopScan()">Stop</button>
-  </mat-card-content>
-  <p class="total-count">
-    {{
-      scanMode === "advanced"
-        ? "Active drivers: " + activeDriversCount()
-        : "Total count: " + totalCount()
-    }}
-  </p>
-</mat-card>
-
-<div class="errors" style="text-align: left">
-  @for (err of this.errors; track (err.driverName ? err.driverName :
-  err.company.id)) {
-  <span class="errors-company"
-    >[{{ err.error.name }}] {{ err.company.name }}
-    {{ err.driverName ? " - " + err.driverName : "" }}</span
-  >
-  <span style="font-size: 10px">- {{ err.error.message }}</span>
-  <br />
-
-  }
+  </div>
 </div>

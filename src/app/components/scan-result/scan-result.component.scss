@@ -1,16 +1,32 @@
+::ng-deep {
+  mat-expansion-panel {
+    .mat-expansion-panel-body {
+      padding: 0px;
+      margin: 0;
+    }
+  }
+}
+
 .scan-results {
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0 8px;
+  width: calc(100% - 16px);
+  padding-right: 10px; // for scrollbar outside scan
 
   &__title {
     font-size: 20px;
     text-align: center;
   }
 
+  &__driver-count {
+    margin-bottom: 12px;
+  }
+
   &__content {
-    overflow-y: scroll;
+    overflow-y: hidden;
     flex-grow: 1;
 
     &__result {
@@ -24,18 +40,18 @@
       }
 
       .list-of-tenants {
-        // list-style-type: "## ";
         list-style: none;
         padding: 0px;
         margin: 0px;
         margin-bottom: 8px;
 
         .company {
+          margin-top: 8px;
           &-name {
             font-size: 18px;
             padding: 0px;
             padding-left: 8px;
-            margin: 0px;
+            margin: 0;
           }
 
           .driver {
@@ -48,7 +64,7 @@
               display: flex;
               align-items: center;
               justify-content: start;
-              padding-left: 4px;
+              padding-left: 2px;
             }
 
             .bold {
@@ -59,18 +75,19 @@
           .inner-ul {
             list-style-type: none;
             margin: 0;
+            margin-bottom: 4px;
             padding: 0;
             padding-left: 12px;
 
-            :last-child {
-              margin-bottom: 8px;
-            }
+            white-space: nowrap;
+            overflow: hidden;
 
             .event-error {
               display: grid;
-              grid-template-columns: 30px 100px 5fr 1fr;
+              grid-template-columns: 30px 90px 5fr 1fr;
               position: relative;
               padding: 0;
+              margin: 0;
               font-family: Roboto, Helvetica Neue, sans-serif;
               font-weight: 400;
               align-items: center;
@@ -79,28 +96,42 @@
               line-height: 1.6;
 
               .view-id {
-                margin: 0px 3px;
+                margin: 0 3px;
                 text-align: right;
               }
               .status {
                 font-size: 12px;
-                margin: 0 4px;
+                margin: 1px 0;
                 padding: 0;
                 border-radius: 12px;
                 width: 85px;
                 text-align: center;
               }
-              // .error-msg {
-              //   padding-left: 4px;
-              // }
+              .error-msg {
+                margin: 0;
+                padding: 0;
+                text-overflow: ellipsis;
+              }
               .on-hover {
                 position: absolute;
                 right: 12px;
+                top: -8px;
                 display: none;
+                line-height: 18px;
+              }
+              .on-hover .material-icons {
+                font-size: 18px; /* Make the icon smaller (e.g., 18px instead of default 24px) */
+                width: 18px; /* Match icon width to font-size */
+                height: 18px; /* Match icon height to font-size */
+                vertical-align: middle; /* Ensure icon is vertically aligned */
               }
             }
             .event-error:hover .on-hover {
               display: block;
+            }
+            .event-error:hover {
+              box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Example: Increase elevation */
+              background-color: rgb(53, 53, 58);
             }
           }
         }
@@ -110,18 +141,16 @@
 
   ::-webkit-scrollbar {
     width: 7px;
+    margin-right: 7px;
   }
-
-  ::-webkit-scrollbar-track {
-    background-color: transparent;
-    -webkit-border-radius: 10px;
-    border-radius: 10px;
-  }
-
   ::-webkit-scrollbar-thumb {
-    -webkit-border-radius: 10px;
-    border-radius: 10px;
-    background: #6d6d6d;
+    background-color: #7775;
+    border-radius: 100px;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: #5555;
+    border-radius: 100px;
+    margin-block: 3em;
   }
 }
 

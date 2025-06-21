@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatDivider } from '@angular/material/divider';
+import { MatDivider, MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -14,9 +14,8 @@ import {
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { UrlService } from '../../@services/url.service';
-import { LocalStorageService } from '../../@services/local-storage.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ICompany, ITenant } from '../../interfaces';
+import { ITenant } from '../../interfaces';
 
 @Component({
   selector: 'app-scan-result',
@@ -29,6 +28,7 @@ import { ICompany, ITenant } from '../../interfaces';
     MatButtonModule,
     MatBadgeModule,
     MatTooltipModule,
+    MatDividerModule,
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',

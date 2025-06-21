@@ -1,7 +1,9 @@
 <div class="scan-results">
   <h3 class="scan-results__title">Scan Results</h3>
   @if (driverCount(); as driverCount) {
-  <span style="margin-bottom: 12px">Active Drivers: {{ driverCount }}</span>
+  <span class="scan-results__driver-count"
+    >Active Drivers: {{ driverCount }}</span
+  >
   }
 
   <div class="scan-results__content">
@@ -116,13 +118,14 @@
                   </span>
 
                   <a mat-icon-button matTooltip="Done" class="on-hover"
-                    ><mat-icon>close</mat-icon></a
+                    ><span class="material-icons"> clear </span></a
                   >
                 </li>
 
                 }
               </ul>
               }
+              <mat-divider></mat-divider>
             </li>
             }
           </ul>
@@ -188,13 +191,13 @@
                   </span>
 
                   <a mat-icon-button matTooltip="Done" class="on-hover"
-                    ><mat-icon>close</mat-icon></a
+                    ><span class="material-icons"> clear </span></a
                   >
                 </li>
 
                 }
               </ul>
-
+              <mat-divider></mat-divider>
               }
             </li>
             }

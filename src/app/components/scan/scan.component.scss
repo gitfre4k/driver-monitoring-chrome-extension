@@ -31,6 +31,7 @@
 
 mat-form-field {
   @media (max-width: 380px) {
-    width: 225px;
+    width: 200px;
+    font-size: 13px;
   }
 }
