@@ -135,6 +135,6 @@ export class ScanComponent {
           this.scanService.handleScanComplete(this.scanMode.value),
       });
     }
-    setTimeout(() => (this.disableScan = false), 3000);
+    setTimeout(() => (this.disableScan = false), 2000);
   };
 }

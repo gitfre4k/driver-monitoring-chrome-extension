@@ -24,29 +24,54 @@
           ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @for (violation of violations(); track violation.company) {
-          <h3># {{ violation.company }}</h3>
+          <ul class="list-of-tenants">
+            @for (violation of violations(); track violation.company) {
+            <li class="company">
+              <span class="company-name">{{ violation.company }}</span>
 
-          @for (item of violation.violations.items; track item.id) {
-          <div class="driver">
-            <a
-              mat-icon-button
-              (click)="copyDriverName(item.driverName)"
-              matTooltip="Copy to clipboard"
-            >
-              <mat-icon>content_copy</mat-icon>
-            </a>
-            <span>{{ item.driverName }}</span>
-          </div>
+              @for (item of violation.violations.items; track item.id) {
+              <div class="driver">
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        +item.driverId,
+                        item.violations[0].logDate,
+                        violation.tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(item.driverName)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
 
-          <ul>
-            @for (v of item.violations; track v.violationId){
-            <li>
-              <span>{{ v.type }}</span>
+                <span class="bold">{{ item.driverName }}</span>
+              </div>
+
+              <ul class="inner-ul">
+                @for (v of item.violations; track v.violationId){
+                <li class="event-violation">
+                  <span>{{ v.type }}</span>
+                  <a mat-icon-button matTooltip="Done" class="on-hover"
+                    ><span class="material-icons"> clear </span></a
+                  >
+                </li>
+                }
+              </ul>
+              }
             </li>
             }
           </ul>
-          } }
+          @for (violation of violations(); track violation.company) { }
         </div>
       </mat-expansion-panel>
     </mat-accordion>

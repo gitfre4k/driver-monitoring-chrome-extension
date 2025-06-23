@@ -63,16 +63,12 @@ export class ScanResultComponent {
   }
 
   openLogs(id: number, date: string, tenant: ITenant) {
-    console.log('############# id = ', id);
-    console.log('############# date = ', date);
-    console.log('############# tenant = ', JSON.stringify(tenant));
     if (!id || !date || !tenant?.id) return;
-    const url = `https://app.monitoringdriver.com/logs/${id}/${date}/`;
-    console.log('############# ~~~ #url:\n', url);
-    this.urlService.navigateChromeActiveTab(url, tenant);
+    this.urlService.navigateChromeActiveTab(
+      `https://app.monitoringdriver.com/logs/${id}/${date}/`,
+      tenant
+    );
   }
-
-  taskDone(company: string, driverName: string, eventIid: number) {}
 
   get malfTitle(): string {
     return window.innerWidth > 350

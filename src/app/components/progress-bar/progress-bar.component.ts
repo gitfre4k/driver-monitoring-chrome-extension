@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, computed, inject, Input } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -27,10 +27,12 @@ export class ProgressBarComponent {
   constant = this.progressBarService.constant;
   currentCompany = this.progressBarService.currentCompany;
   currentDriver = this.progressBarService.currentDriver;
-  totalCount =
+  totalCount = computed(() =>
     this.progressBarService[
       this.scanMode === 'violations' ? 'totalVCount' : 'totalDCount'
-    ];
+    ]()
+  );
+
   activeDriversCount = this.progressBarService.activeDriversCount;
 
   stopScan() {

@@ -22,7 +22,7 @@ export class AdvancedScanService {
   prolongedOnDutiesDuration = signal(4200); // 1h10min
   engineHoursDuration = signal(14);
   lowTotalEngineHoursCount = signal(100);
-  ptiDuration = signal(901);
+  ptiDuration = signal(781);
   sleeperDuration = signal(30);
 
   advancedScanResults = this.progressBarService.advancedResaults;

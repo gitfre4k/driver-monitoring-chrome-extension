@@ -87,6 +87,19 @@
             // white-space: nowrap;
             // overflow: hidden;
 
+            .event-violation {
+              position: relative;
+              padding: 0;
+              margin: 0;
+              font-family: Roboto, Helvetica Neue, sans-serif;
+              font-weight: 400;
+              text-overflow: ellipsis;
+              align-items: center;
+              font-size: 12px;
+              width: 100%;
+              line-height: 1.6;
+            }
+
             .event-error {
               display: grid;
               grid-template-columns: 30px 90px 5fr 1fr;
@@ -135,6 +148,13 @@
               display: block;
             }
             .event-error:hover {
+              box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Example: Increase elevation */
+              background-color: rgb(53, 53, 58);
+            }
+            .event-violation:hover .on-hover {
+              display: block;
+            }
+            .event-violation:hover {
               box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Example: Increase elevation */
               background-color: rgb(53, 53, 58);
             }

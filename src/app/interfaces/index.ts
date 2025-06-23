@@ -34,6 +34,7 @@ export interface IProgressBar {
 
 export interface IScanViolations {
   company: string;
+  tenant: ITenant;
   violations: IViolations;
 }
 

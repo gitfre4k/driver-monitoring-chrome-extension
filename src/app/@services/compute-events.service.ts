@@ -128,8 +128,6 @@ export class ComputeEventsService {
       // ...
       // combined 10h+ break from multiple switch from off to sleep
       // ...
-      // multiple shift breaks in same day
-      // ...
       // case 34h marker
       // ...
       const shiftBreak =
@@ -165,6 +163,7 @@ export class ComputeEventsService {
         }
         if (
           events[i].statusName === 'On Duty' &&
+          events[i].realDurationInSeconds !== 0 &&
           events[i].realDurationInSeconds < (ptiDuration ? ptiDuration : 901)
         ) {
           events[i].errorMessage = 'short Pre-Trip Inspection';

@@ -14,6 +14,11 @@ import { ProgressBarService } from './@services/progress-bar.service';
 import { InfoComponent } from './components/info/info.component';
 import { ScanResultComponent } from './components/scan-result/scan-result.component';
 import { ExtensionTabNavigationService } from './@services/extension-tab-navigation.service';
+import { interval, Subscription } from 'rxjs';
+import { ScanService } from './@services/scan.service';
+import { FormattedDateService } from './@services/formatted-date.service';
+import { IViolations } from './interfaces';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-root',
@@ -42,12 +47,24 @@ export class AppComponent {
   }
   private extensionTabNavigationService = inject(ExtensionTabNavigationService);
   private progressBarService = inject(ProgressBarService);
+  private scanService = inject(ScanService);
+  private formattedDateService = inject(FormattedDateService);
+  private _snackBar = inject(MatSnackBar);
+
+  private currentDate = new Date(
+    this.formattedDateService.getFormatedDates().currentDate
+  );
+  private sevenDaysAgo = new Date(
+    this.formattedDateService.getFormatedDates().sevenDaysAgo
+  );
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
   violationsCount = this.progressBarService.totalVCount;
 
   isPopup = false;
+
+  timerSub!: Subscription;
 
   constructor() {}
 
@@ -56,15 +73,47 @@ export class AppComponent {
       const views = chrome.extension.getViews({ type: 'popup' });
       this.isPopup = views.some((view) => view === window);
     }
+
+    this.timerSub = interval(300000).subscribe({
+      next: () => {
+        if (!this.scanning()) {
+          this._snackBar.open(`Violations auto-scan initiated`, 'OK', {
+            duration: 3000,
+          });
+          return this.scanService
+            .getAllViolations({
+              dateFrom: new Date(
+                new Date(this.sevenDaysAgo.getTime()).toUTCString()
+              ),
+              dateTo: new Date(
+                new Date(this.currentDate.getTime()).toUTCString()
+              ),
+            })
+            .subscribe({
+              next: (data: IViolations) =>
+                this.scanService.handleScanData(data, 'violations'),
+              error: (err) => this.scanService.handleError(err),
+              complete: () => this.scanService.handleScanComplete('violations'),
+            });
+        } else
+          return this._snackBar.open(`Violations auto-scan skiped`, 'OK', {
+            duration: 3000,
+          });
+      },
+    });
   }
 
   ngAfterViewInit() {
     if (this.isPopup) this.popUp();
   }
 
-  private handleKeyboardEvent(event: KeyboardEvent) {
-    console.log('Key pressed:', event.key, 'Code:', event.code);
+  ngOnDestroy(): void {
+    if (this.timerSub) {
+      this.timerSub.unsubscribe();
+    }
+  }
 
+  private handleKeyboardEvent(event: KeyboardEvent) {
     switch (event.key) {
       case '1':
         //  if (event.ctrlKey) console.log('Ctrl + 1 pressed!');
@@ -84,7 +133,6 @@ export class AppComponent {
         event.preventDefault();
         break;
       default:
-        // console.log(`${event.key} pressed`);
         break;
     }
   }

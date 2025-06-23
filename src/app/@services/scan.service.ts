@@ -17,6 +17,7 @@ import { ReportComponent } from '../components/report/report.component';
 
 import { ICompany, IDOTInspections, IRange, IViolations } from '../interfaces';
 import { TScanMode } from '../types';
+import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,7 @@ import { TScanMode } from '../types';
 export class ScanService {
   private apiService: ApiService = inject(ApiService);
   private progressBarService = inject(ProgressBarService);
+  private extensionTabNavService = inject(ExtensionTabNavigationService);
   private _snackBar = inject(MatSnackBar);
 
   readonly dialog = inject(MatDialog);
@@ -48,6 +50,10 @@ export class ScanService {
             ...v,
             {
               company: this.currentCompany.name,
+              tenant: {
+                id: this.currentCompany.id,
+                name: this.currentCompany.name,
+              },
               violations: data as IViolations,
             },
           ])
@@ -66,15 +72,30 @@ export class ScanService {
       .subscribe();
   }
 
+  violationsDetected = (v: number) => {
+    this.extensionTabNavService.selectedTabIndex.set(1);
+    this._snackBar.open(`Auto-scan competed: ${v} violations detected`, 'OK', {
+      duration: 1500,
+    });
+  };
+
   handleScanComplete(scanMode: TScanMode) {
-    const dialogRef = this.dialog.open(ReportComponent);
-    let instance = dialogRef.componentInstance;
-    scanMode === 'violations'
-      ? (instance.violations = this.progressBarService.violations())
-      : (instance.inspections = this.progressBarService.inspections);
-    dialogRef
-      .afterClosed()
-      .subscribe(() => this.progressBarService.initializeProgressBar());
+    if (scanMode === 'violations') {
+      const v = this.progressBarService.violations().length;
+      v > 0
+        ? this.violationsDetected(v)
+        : this._snackBar.open(`Auto-scan competed: no violations`, 'OK', {
+            duration: 1500,
+          });
+      this.progressBarService.initializeProgressBar();
+    } else {
+      const dialogRef = this.dialog.open(ReportComponent);
+      let instance = dialogRef.componentInstance;
+      instance.inspections = this.progressBarService.inspections;
+      dialogRef
+        .afterClosed()
+        .subscribe(() => this.progressBarService.initializeProgressBar());
+    }
   }
 
   getAllViolations(range: IRange) {
