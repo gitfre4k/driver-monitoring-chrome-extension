@@ -3,7 +3,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 import { ApiService } from './api.service';
 import { UrlService } from './url.service';
-import { IDriver, ILog, ITenant } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',

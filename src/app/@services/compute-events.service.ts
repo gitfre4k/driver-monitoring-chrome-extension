@@ -15,7 +15,7 @@ import {
   IDriverIdAndName,
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
-import { ICompany, ITenant } from '../interfaces';
+import { ITenant } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -92,6 +92,7 @@ export class ComputeEventsService {
     let intermediateCount = 0;
     let currentDutyStatus = {} as IEvent;
     let currentDriver = {} as IDriverIdAndName;
+    this.shiftIsReadyToStart.set(false);
 
     //
     // compute events
@@ -120,7 +121,7 @@ export class ComputeEventsService {
       if (
         // case 34 break or 10h+ Sleeper/Off
         ['Sleeper Berth', 'Off Duty'].includes(currentDutyStatus.statusName) &&
-        currentDutyStatus.realDurationInSeconds > 36000 // 10h
+        currentDutyStatus.realDurationInSeconds / 60 / 60 > 10
       ) {
         this.shiftIsReadyToStart.set(true);
       }
@@ -138,7 +139,8 @@ export class ComputeEventsService {
       if (
         (shiftBreak > pti || this.shiftIsReadyToStart()) &&
         events[i].eventType !== 'CmvEnginePowerUpOrShutDownActivity' &&
-        events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv'
+        events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv' &&
+        currentDutyStatus.driver?.id === events[i].driver?.id
       ) {
         //
         // ## Fagor Trucking, LLC
@@ -146,6 +148,16 @@ export class ComputeEventsService {
         // ABDI BADIL && Abdi Hussein Mohamed
         //
         if (events[i].statusName === 'Driving') {
+          console.log('PTI PTI PTI');
+          console.log(
+            'this.shiftIsReadyToStart() ',
+            this.shiftIsReadyToStart()
+          );
+          console.log('shiftBreak ', shiftBreak);
+          console.log('pti ', pti);
+          console.log(shiftBreak > pti);
+          console.log('currentDutyStatus ', currentDutyStatus);
+          console.log('PTI PTI PTI');
           events[i].errorMessage = 'no Pre-Trip Inspection';
           this.shiftBreak.set('');
           this.shiftIsReadyToStart.set(false);
@@ -155,10 +167,10 @@ export class ComputeEventsService {
           events[i].statusName === 'On Duty' &&
           events[i].realDurationInSeconds < (ptiDuration ? ptiDuration : 901)
         ) {
-          events[i].errorMessage = 'too short Pre-Trip Inspection';
+          events[i].errorMessage = 'short Pre-Trip Inspection';
           this.shiftBreak.set('');
           this.shiftIsReadyToStart.set(false);
-          console.log('too short Pre-Trip Inspection');
+          console.log('short Pre-Trip Inspection');
         }
         if (
           events[i].statusName === 'On Duty' &&
@@ -180,11 +192,11 @@ export class ComputeEventsService {
             60 /
             60;
           sleeperDuration > (sleeperMinDuration ? sleeperMinDuration : 30) &&
-            (events[i].errorMessage = '34 hour break outside Off Duty');
+            (events[i].errorMessage = '34hr break outside Off Duty');
         } else {
           events[i].realDurationInSeconds / 60 / 60 >
             (sleeperMinDuration ? sleeperMinDuration : 30) &&
-            (events[i].errorMessage = '34 hour break outside Off Duty');
+            (events[i].errorMessage = '34hr break outside Off Duty');
         }
       }
 

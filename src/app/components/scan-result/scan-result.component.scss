@@ -39,6 +39,11 @@
         margin: 12px;
       }
 
+      hr {
+        width: 80%;
+        border-top: 0.5px solid;
+      }
+
       .list-of-tenants {
         list-style: none;
         padding: 0px;
@@ -48,7 +53,7 @@
         .company {
           margin-top: 8px;
           &-name {
-            font-size: 18px;
+            font-size: 19px;
             padding: 0px;
             padding-left: 8px;
             margin: 0;
@@ -79,8 +84,8 @@
             padding: 0;
             padding-left: 12px;
 
-            white-space: nowrap;
-            overflow: hidden;
+            // white-space: nowrap;
+            // overflow: hidden;
 
             .event-error {
               display: grid;
@@ -90,6 +95,7 @@
               margin: 0;
               font-family: Roboto, Helvetica Neue, sans-serif;
               font-weight: 400;
+              text-overflow: ellipsis;
               align-items: center;
               font-size: 12px;
               width: 100%;
@@ -110,7 +116,6 @@
               .error-msg {
                 margin: 0;
                 padding: 0;
-                text-overflow: ellipsis;
               }
               .on-hover {
                 position: absolute;
