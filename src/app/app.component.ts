@@ -77,7 +77,7 @@ export class AppComponent {
     this.timerSub = interval(300000).subscribe({
       next: () => {
         if (!this.scanning()) {
-          this._snackBar.open(`Violations auto-scan initiated`, 'OK', {
+          this._snackBar.open(`Initiating violations auto-scan`, 'OK', {
             duration: 3000,
           });
           return this.scanService
@@ -135,6 +135,10 @@ export class AppComponent {
       default:
         break;
     }
+  }
+
+  changeSelectedIndex(i: number) {
+    this.extensionTabNavigationService.selectedTabIndex.set(i);
   }
 
   popUp() {

@@ -84,9 +84,13 @@ export class ScanService {
       const v = this.progressBarService.violations().length;
       v > 0
         ? this.violationsDetected(v)
-        : this._snackBar.open(`Auto-scan competed: no violations`, 'OK', {
-            duration: 1500,
-          });
+        : this._snackBar.open(
+            `Violations scan completed - no violations`,
+            'OK',
+            {
+              duration: 3000,
+            }
+          );
       this.progressBarService.initializeProgressBar();
     } else {
       const dialogRef = this.dialog.open(ReportComponent);

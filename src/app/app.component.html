@@ -13,6 +13,7 @@
       preserveContent="true"
       id="tab-group"
       [selectedIndex]="selectedTabIndex()"
+      (selectedIndexChange)="changeSelectedIndex($event)"
     >
       <mat-tab label="Scan">
         <ng-template mat-tab-label>
