@@ -37,7 +37,7 @@
                     matTooltip="Open driver daily logs in web app"
                     (click)="
                       openLogs(
-                        +item.driverId,
+                        item.id,
                         item.violations[0].logDate,
                         violation.tenant
                       )
