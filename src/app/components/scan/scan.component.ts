@@ -1,7 +1,15 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { Observable, Subscription } from 'rxjs';
+import {
+  concatMap,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  Subscription,
+} from 'rxjs';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,13 +30,15 @@ import {
   ReactiveFormsModule,
   FormsModule,
 } from '@angular/forms';
-import { IDOTInspections, IViolations } from '../../interfaces';
+import { IDOTInspections, ITenant, IViolations } from '../../interfaces';
 import { FormattedDateService } from '../../@services/formatted-date.service';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { ReportComponent } from '../report/report.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ApiService } from '../../@services/api.service';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-scan',
@@ -56,6 +66,7 @@ export class ScanComponent {
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
   private progressBarService = inject(ProgressBarService);
+  private apiService = inject(ApiService);
 
   readonly dialog = inject(MatDialog);
 
@@ -97,6 +108,70 @@ export class ScanComponent {
       .afterClosed()
       .subscribe(() => this.progressBarService.initializeProgressBar());
   }
+
+  davaiMadaFakinDateRange({
+    dateFrom,
+    dateTo,
+  }: {
+    dateFrom: DateTime;
+    dateTo: DateTime;
+  }) {
+    const dates: DateTime[] = [];
+    let currentDay = dateFrom.startOf('day');
+
+    while (currentDay <= dateTo.startOf('day')) {
+      dates.push(currentDay);
+      currentDay = currentDay.plus({ days: 1 });
+    }
+
+    return dates as DateTime<true>[];
+  }
+
+  // ASTRA ~ tenant ID ~ 3a1758eb-7650-97b5-abde-26d631e2c39e
+  davai = () => {
+    const zoneName = DateTime.local().zoneName;
+    const date = DateTime.now().setZone(zoneName).startOf('day');
+
+    const dateTo = date.startOf('month');
+    const dateFrom = dateTo.minus({ month: 1 });
+    if (!dateTo || !dateFrom) return;
+
+    console.log('~~~ getMadaFakinMadaFakaRakkaMakkaTon ~~~');
+    console.log('dateFrom: ', dateFrom);
+    console.log('dateTo: ', dateTo);
+
+    const dateRange = this.davaiMadaFakinDateRange({ dateFrom, dateTo });
+
+    this.apiService
+      .getMadaFakinLogs('3a1758eb-7650-97b5-abde-26d631e2c39e', dateRange)
+      .pipe(
+        mergeMap((logs) => from(logs.items)),
+        concatMap((driver) =>
+          from(dateRange).pipe(
+            map((day) => ({ id: driver.id, date: day.toUTC().toISO() }))
+          )
+        )
+      )
+      .pipe(
+        concatMap((logInfo) =>
+          this.apiService.getMadaFakinDriverDailyLogEvents(
+            logInfo.id,
+            logInfo.date,
+            '3a1758eb-7650-97b5-abde-26d631e2c39e'
+          )
+        )
+      )
+      .subscribe({
+        next: (data) => {
+          console.log('~~~ getMadaFakinMadaFakaRakkaMakkaTonLOGSAaaaa ~~~');
+          console.log(data.driverFullName);
+          console.log(data.date);
+          console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+          console.log(data);
+          console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+        },
+      });
+  };
 
   startScan = () => {
     this.disableScan = true;

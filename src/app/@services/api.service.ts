@@ -12,6 +12,7 @@ import {
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { FormattedDateService } from './formatted-date.service';
 import { IAppMasterData } from '../interfaces/app-master-data.interface';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -161,6 +162,59 @@ export class ApiService {
       withCredentials: true,
       headers: {
         'X-Tenant-Id': tenant.id,
+      },
+    });
+  }
+
+  getMadaFakinDriverDailyLogEvents(
+    driverId: number,
+    logDate: string,
+    tenantId: string
+  ) {
+    const body = { driverId, logDate };
+    return this.http.post<IDriverDailyLogEvents>(
+      'https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog',
+      body,
+      {
+        withCredentials: true,
+        headers: {
+          'X-Tenant-Id': `${tenantId}`,
+        },
+      }
+    );
+  }
+
+  getMadaFakinLogs(tenantId: string, dateRange: DateTime[]) {
+    const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
+    const body = {
+      filterRule: {
+        condition: 'AND',
+        filterRules: [
+          {
+            field: 'lastSync',
+            operator: 'gte',
+            value: dateRange[0].toUTC().toISO(),
+          },
+          {
+            field: 'lastSync',
+            operator: 'lte',
+            value: dateRange[dateRange.length - 1].toUTC().toISO(),
+          },
+        ],
+      },
+      searchRule: {
+        columns: ['driverId', 'fullName'],
+        text: '',
+      },
+      sorting: 'fullName asc',
+      skipCount: 0,
+      maxResultCount: 1000,
+    };
+
+    return this.http.post<ILog>(url, body, {
+      withCredentials: true,
+      headers: {
+        'X-Tenant-Id': tenantId,
       },
     });
   }
