@@ -20,6 +20,7 @@ import { ScanService } from './@services/scan.service';
 import { FormattedDateService } from './@services/formatted-date.service';
 import { IViolations } from './interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MonthlyUsageScanComponent } from './components/monthly-usage-scan/monthly-usage-scan.component';
 
 @Component({
   selector: 'app-root',
@@ -37,6 +38,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     InfoComponent,
     ScanResultComponent,
     MatBadgeModule,
+    MonthlyUsageScanComponent,
   ],
 })
 export class AppComponent {
