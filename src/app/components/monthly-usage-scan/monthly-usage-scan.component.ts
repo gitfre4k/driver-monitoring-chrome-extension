@@ -1,18 +1,66 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DateTime } from 'luxon';
 import { ApiService } from '../../@services/api.service';
-import { concatMap, from, map, mergeMap, Observable, Subscription } from 'rxjs';
-import { ILog } from '../../interfaces';
+import { concatMap, from, map, mergeMap, Subscription, tap } from 'rxjs';
+import { IDriverDailyLogEvents } from '../../interfaces/driver-daily-log-events.interface';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-monthly-usage-scan',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './monthly-usage-scan.component.html',
   styleUrl: './monthly-usage-scan.component.scss',
 })
 export class MonthlyUsageScanComponent {
   private apiService = inject(ApiService);
   davaiSub = new Subscription();
+
+  constant = 0;
+  progress = signal(0);
+
+  monthlyScanResult = signal(
+    {} as {
+      [driverName: string]: IDriverDailyLogEvents[];
+    }
+  );
+
+  vehiclesActiveDays = computed(() => {
+    const scanResult = this.monthlyScanResult();
+
+    const vehiclesActiveDays = {} as {
+      [id: number]: { name: string; activeDaysCount: number };
+    };
+
+    for (const driver in scanResult) {
+      scanResult[driver].forEach((log) =>
+        log.vehicles.forEach(
+          (truck) =>
+            this.wasTruckActive(log, truck.id) &&
+            (vehiclesActiveDays[truck.id]
+              ? vehiclesActiveDays[truck.id].activeDaysCount++
+              : (vehiclesActiveDays[truck.id] = {
+                  name: truck.name,
+                  activeDaysCount: 1,
+                }))
+        )
+      );
+    }
+
+    return vehiclesActiveDays;
+  });
+
+  wasTruckActive(log: IDriverDailyLogEvents, id: number) {
+    for (let i = 0; i < log.events.length; i++) {
+      if (
+        log.events[i].vehicleId === id &&
+        ['ChangeToDrivingStatus', 'ChangeToOnDutyNotDrivingStatus'].includes(
+          log.events[i].dutyStatus
+        )
+      )
+        return true;
+    }
+    return false;
+  }
 
   davaiMadaFakinDateRange({
     dateFrom,
@@ -50,6 +98,9 @@ export class MonthlyUsageScanComponent {
     this.davaiSub = this.apiService
       .getMadaFakinLogs('3a1758eb-7650-97b5-abde-26d631e2c39e', dateRange)
       .pipe(
+        tap(
+          (log) => (this.constant = 100 / (log.totalCount * dateRange.length))
+        ),
         mergeMap((logs) => from(logs.items)),
         concatMap((driver) =>
           from(dateRange).pipe(
@@ -67,13 +118,27 @@ export class MonthlyUsageScanComponent {
         )
       )
       .subscribe({
-        next: (data) => {
+        next: (log) => {
           console.log('~~~ getMadaFakinMadaFakaRakkaMakkaTonLOGSAaaaa ~~~');
-          console.log(data.driverFullName);
-          console.log(data.date);
+          console.log(log.driverFullName);
+          console.log(log.date);
           console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-          console.log(data);
+          console.log(log);
           console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+
+          this.progress.update((currentState) => currentState + this.constant);
+
+          if (this.monthlyScanResult()[log.driverFullName]?.length > 0) {
+            this.monthlyScanResult.update((currentState) => ({
+              ...currentState,
+              [log.driverFullName]: [...currentState[log.driverFullName], log],
+            }));
+          } else {
+            this.monthlyScanResult.update((currentState) => ({
+              ...currentState,
+              [log.driverFullName]: [log],
+            }));
+          }
         },
       });
   };
