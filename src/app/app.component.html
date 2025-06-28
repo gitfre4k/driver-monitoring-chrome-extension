@@ -6,7 +6,11 @@
     [ngClass]="scanning() ? 'none' : 'open-in-new-window'"
     ><mat-icon>open_in_new</mat-icon></a
   >
-  <mat-card appearance="outlined" id="mat-card-wrapper">
+  <mat-card
+    appearance="outlined"
+    outlined-outline-width="10"
+    id="mat-card-wrapper"
+  >
     <mat-tab-group
       mat-stretch-tabs="true"
       mat-align-tabs="start"
