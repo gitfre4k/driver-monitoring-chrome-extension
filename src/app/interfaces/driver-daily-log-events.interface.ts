@@ -47,6 +47,7 @@ export interface IEvent {
 export interface IDriverIdAndName {
   id: number;
   name: string;
+  isCoDriver: boolean
 }
 
 export interface IVehicle {
