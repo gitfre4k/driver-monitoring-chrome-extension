@@ -90,10 +90,9 @@ export class ComputeEventsService {
   ) => {
     let events = [...importedEvents];
 
-
     this.shiftIsReadyToStartDriver.set(false);
     this.shiftIsReadyToStartCoDriver.set(false)
-    
+
     let currentDriver = {} as IDriverIdAndName;
     interface IDriverEventInfo {
       occurredDuringDriving: boolean
