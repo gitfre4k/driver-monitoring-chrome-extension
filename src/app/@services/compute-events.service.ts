@@ -12,7 +12,9 @@ import {
 
 import {
   IDailyLogs,
+  IDriverBreaks,
   IDriverIdAndName,
+  IDriverState,
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
 import { ITenant } from '../interfaces';
@@ -21,8 +23,19 @@ import { ITenant } from '../interfaces';
   providedIn: 'root',
 })
 export class ComputeEventsService {
-  shiftBreak = signal('');
-  shiftIsReadyToStart = signal(false);
+  initialDriverState: IDriverState = {
+    currentDriving: null,
+    intermediateCount: 0,
+    currentDutyStatus: {} as IEvent,
+    occurredDuringDriving: false,
+    shiftIsReadyToStart: false,
+    break: {
+      shift: '',
+      cycle: '',
+    },
+  };
+  driverState = signal(this.initialDriverState);
+  coDriverState = signal(this.initialDriverState);
 
   constructor() {}
 
@@ -34,19 +47,41 @@ export class ComputeEventsService {
   ) => {
     if (!driverDailyLog) return [];
 
-    driverDailyLog.shiftBreak && this.shiftBreak.set(driverDailyLog.shiftBreak);
+    // initialize state
+    this.driverState.set(this.initialDriverState);
+    this.coDriverState.set(this.initialDriverState);
+    driverDailyLog.shiftBreak &&
+      this.driverState.update((prev) => ({
+        ...prev,
+        break: { ...prev.break, shift: driverDailyLog.shiftBreak },
+      }));
+    driverDailyLog.cycleBreak &&
+      this.driverState.update((prev) => ({
+        ...prev,
+        break: { ...prev.break, cycle: driverDailyLog.cycleBreak },
+      }));
+    coDriverDailyLog?.shiftBreak &&
+      this.driverState.update((prev) => ({
+        ...prev,
+        break: { ...prev.break, shift: coDriverDailyLog.shiftBreak },
+      }));
+    coDriverDailyLog?.cycleBreak &&
+      this.driverState.update((prev) => ({
+        ...prev,
+        break: { ...prev.break, cycle: coDriverDailyLog.cycleBreak },
+      }));
 
+    let events = [] as IEvent[];
     let driverEvents = bindEventViewId(driverDailyLog.events);
     let coDriverEvents = coDriverDailyLog
       ? bindEventViewId(coDriverDailyLog.events)
       : null;
 
-    let events = [] as IEvent[];
-
     driverEvents.forEach(
       (e) =>
         (e.driver = {
           id: driverDailyLog.driverId,
+          viewId: driverDailyLog.driverId,
           name: driverDailyLog.driverFullName,
         })
     );
@@ -55,6 +90,7 @@ export class ComputeEventsService {
         (e) =>
           (e.driver = {
             id: coDriverDailyLog.driverId,
+            viewId: driverDailyLog.driverId,
             name: coDriverDailyLog.driverFullName,
           })
       );
@@ -86,18 +122,23 @@ export class ComputeEventsService {
     tenant?: ITenant
   ) => {
     let events = [...importedEvents];
-
-    let occurredDuringDriving = false;
-    let currentDriving: IEvent | null = null;
-    let intermediateCount = 0;
-    let currentDutyStatus = {} as IEvent;
     let currentDriver = {} as IDriverIdAndName;
-    this.shiftIsReadyToStart.set(false);
 
     //
     // compute events
     for (let i = 0; i < events.length; i++) {
+      let {
+        currentDriving,
+        intermediateCount,
+        currentDutyStatus,
+        occurredDuringDriving,
+        shiftIsReadyToStart,
+        break: { shift, cycle },
+      } = events[i].driver.viewId === events[i].driver.id
+        ? this.driverState()
+        : this.coDriverState();
       events[i].computeIndex = i;
+      events[i].errorMessages = [];
       events[i].statusName = getStatusName(events[i].dutyStatus);
       events[i].occurredDuringDriving = occurredDuringDriving;
       date && (events[i].date = date);
@@ -112,9 +153,10 @@ export class ComputeEventsService {
       // double duty status
       if (isDutyStatus(events[i])) {
         currentDutyStatus.driver?.id === events[i].driver?.id && // exclude co drivers events
-        currentDutyStatus.statusName === events[i].statusName
-          ? (events[i].errorMessage = 'double Duty status')
-          : (currentDutyStatus = events[i]);
+          (currentDutyStatus.statusName === events[i].statusName
+            ? events[i].errorMessages.push('double Duty status')
+            : (currentDutyStatus = events[i]));
+        //
       }
 
       // Pre-Trip Inspection validity ````````````#####################`````````````````##########################````````````````#################````````````
@@ -123,22 +165,26 @@ export class ComputeEventsService {
         ['Sleeper Berth', 'Off Duty'].includes(currentDutyStatus.statusName) &&
         currentDutyStatus.realDurationInSeconds / 60 / 60 > 10
       ) {
-        this.shiftIsReadyToStart.set(true);
+        shiftIsReadyToStart = true;
       }
       // ...
       // combined 10h+ break from multiple switch from off to sleep
       // ...
       // case 34h marker
       // ...
-      const shiftBreak =
-        new Date().getTime() - new Date(this.shiftBreak()).getTime(); // miliseconds since shift was ready to start
-      const pti =
-        new Date().getTime() - new Date(events[i].realStartTime).getTime(); // miliseconds since event occured
+      const timeSinceShiftResetOccured =
+        new Date().getTime() - new Date(shift).getTime(); // miliseconds
+      const timeSinceCycleResetOccured =
+        new Date().getTime() - new Date(cycle).getTime(); // miliseconds
+      const timeSinceEventOccured =
+        new Date().getTime() - new Date(events[i].realStartTime).getTime(); // miliseconds
       if (
-        (shiftBreak > pti || this.shiftIsReadyToStart()) &&
+        (timeSinceShiftResetOccured > timeSinceEventOccured ||
+          timeSinceCycleResetOccured > timeSinceEventOccured ||
+          shiftIsReadyToStart) &&
         events[i].eventType !== 'CmvEnginePowerUpOrShutDownActivity' &&
-        events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv' &&
-        currentDutyStatus.driver?.id === events[i].driver?.id
+        events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv'
+        //  && currentDutyStatus.driver?.id === events[i].driver?.id
       ) {
         //
         // ## Fagor Trucking, LLC
@@ -146,38 +192,33 @@ export class ComputeEventsService {
         // ABDI BADIL && Abdi Hussein Mohamed
         //
         if (events[i].statusName === 'Driving') {
-          console.log('PTI PTI PTI');
+          events[i].errorMessages.push('no Pre-Trip Inspection');
+          timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
+          timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
+          shiftIsReadyToStart = false;
           console.log(
-            'this.shiftIsReadyToStart() ',
-            this.shiftIsReadyToStart()
+            '[Pre-Trip Inspection validity] driving occured before PTI was detected'
           );
-          console.log('shiftBreak ', shiftBreak);
-          console.log('pti ', pti);
-          console.log(shiftBreak > pti);
-          console.log('currentDutyStatus ', currentDutyStatus);
-          console.log('PTI PTI PTI');
-          events[i].errorMessage = 'no Pre-Trip Inspection';
-          this.shiftBreak.set('');
-          this.shiftIsReadyToStart.set(false);
-          console.log('Driving');
         }
         if (
           events[i].statusName === 'On Duty' &&
           events[i].realDurationInSeconds !== 0 &&
           events[i].realDurationInSeconds < (ptiDuration ? ptiDuration : 901)
         ) {
-          events[i].errorMessage = 'short Pre-Trip Inspection';
-          this.shiftBreak.set('');
-          this.shiftIsReadyToStart.set(false);
-          console.log('short Pre-Trip Inspection');
+          events[i].errorMessages.push('short Pre-Trip Inspection');
+          timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
+          timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
+          shiftIsReadyToStart = false;
+          console.log('[Pre-Trip Inspection validity] short PTI detected');
         }
         if (
           events[i].statusName === 'On Duty' &&
           events[i].realDurationInSeconds > (ptiDuration ? ptiDuration : 901)
         ) {
-          this.shiftBreak.set('');
-          this.shiftIsReadyToStart.set(false);
-          console.log('good Pre-Trip Inspection');
+          timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
+          timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
+          shiftIsReadyToStart = false;
+          console.log('[Pre-Trip Inspection validity] valid PTI detected');
         }
       }
 
@@ -191,11 +232,11 @@ export class ComputeEventsService {
             60 /
             60;
           sleeperDuration > (sleeperMinDuration ? sleeperMinDuration : 30) &&
-            (events[i].errorMessage = '34hr break outside Off Duty');
+            events[i].errorMessages.push('34hr break outside Off Duty');
         } else {
           events[i].realDurationInSeconds / 60 / 60 >
             (sleeperMinDuration ? sleeperMinDuration : 30) &&
-            (events[i].errorMessage = '34hr break outside Off Duty');
+            events[i].errorMessages.push('34hr break outside Off Duty');
         }
       }
 
@@ -207,14 +248,14 @@ export class ComputeEventsService {
       if (isIntermediate(events[i])) {
         intermediateCount++;
         if (!currentDriving) {
-          events[i].errorMessage = 'outside driving scope';
+          events[i].errorMessages.push('outside driving scope');
         } else {
           let diff =
             +new Date(events[i].realStartTime) -
             +new Date(currentDriving.realStartTime);
           let remainder = diff % (3600 * 1000);
           !(3600 * 1000 - remainder <= 1000 || remainder <= 1000) &&
-            (events[i].errorMessage = 'incorrect timestamp');
+            events[i].errorMessages.push('incorrect timestamp');
         }
       }
       if (
@@ -233,8 +274,9 @@ export class ComputeEventsService {
           ) {
             Math.floor((currentDriving.durationInSeconds - 1) / 3600) !== // -1
               intermediateCount &&
-              (events[currentDriving.computeIndex].errorMessage =
-                'incorrect intermediate count');
+              events[currentDriving.computeIndex].errorMessages.push(
+                'incorrect intermediate count'
+              );
           }
 
           // case when driving has started on previous day
@@ -254,8 +296,9 @@ export class ComputeEventsService {
 
             totalIntermediateCount - previousDayIntermediateCount !==
               intermediateCount &&
-              (events[currentDriving.computeIndex].errorMessage =
-                'incorrect intermediate count');
+              events[currentDriving.computeIndex].errorMessages.push(
+                'incorrect intermediate count'
+              );
           }
 
           //
@@ -277,8 +320,9 @@ export class ComputeEventsService {
 
             totalIntermediateCount - previousDayIntermediateCount !==
               intermediateCount &&
-              (events[currentDriving.computeIndex].errorMessage =
-                'incorrect intermediate count');
+              events[currentDriving.computeIndex].errorMessages.push(
+                'incorrect intermediate count'
+              );
           }
         }
 
@@ -287,6 +331,19 @@ export class ComputeEventsService {
         currentDriving = null;
         intermediateCount = 0;
       }
+
+      (events[i].driver.viewId === events[i].driver.id
+        ? this.driverState
+        : this.coDriverState
+      ).update((prev) => ({
+        ...prev,
+        currentDriving,
+        intermediateCount,
+        currentDutyStatus,
+        occurredDuringDriving,
+        shiftIsReadyToStart,
+        break: { ...prev.break, shift, cycle },
+      }));
     }
     return events;
   };
@@ -297,7 +354,7 @@ export class ComputeEventsService {
       // detect and report undefined odometer value
       !events[i].odometer &&
         !events[i].isFirstEvent &&
-        (events[i].errorMessage = 'undefined odometer value');
+        events[i].errorMessages.push('undefined odometer value');
 
       // check for teleport
       events[i + 1].isTeleport = this.isTeleport(events[i], events[i + 1]);
@@ -307,7 +364,7 @@ export class ComputeEventsService {
 
   isTeleport = (ev1: IEvent, ev2: IEvent) => {
     const mileageDifference = Math.abs(ev1.odometer - ev2.odometer);
-    if (ev1.vehicleId !== ev2.vehicleId) {
+    if (ev1.vehicleId && ev2.vehicleId && ev1.vehicleId !== ev2.vehicleId) {
       ev2.truckChange = true;
       return 0;
     }

@@ -147,7 +147,7 @@ export class AdvancedScanService {
       if (event.isTeleport) {
         detectedTeleportEvents.push(event);
       }
-      if (event.errorMessage) {
+      if (event.errorMessages.length > 0) {
         errorEvents.push(event);
       }
     });

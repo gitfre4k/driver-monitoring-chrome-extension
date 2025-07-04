@@ -22,7 +22,10 @@
 
       <li>
         <div class="event">
-          <span [ngClass]="'view-id ' + (event.errorMessage ? ' error' : '')"
+          <span
+            [ngClass]="
+              'view-id ' + (event.errorMessages.length ? ' error' : '')
+            "
             >{{ event.viewId }}.</span
           >
           <span
@@ -40,17 +43,18 @@
 
           <p [ngClass]="'status ' + event.dutyStatus">{{ event.statusName }}</p>
 
-          @if(event.errorMessage) {
-          <span class="note" style="color: red; margin: 0px 5px">{{
-            event.errorMessage
-          }}</span>
-          }@else if(event.isTeleport) {
+          @if(event.isTeleport) {
           <span class="note" style="color: red; margin: 0px 5px">{{
             event.isTeleport > 0
               ? "teleport [ " + event.isTeleport + " miles ]"
               : "odometer decreased"
           }}</span>
-          } @else {
+          }@if(event.errorMessages.length > 0) { @for (message of
+          event.errorMessages; track $index) {
+          <span class="note" style="color: red; margin: 0px 5px">{{
+            message
+          }}</span>
+          } } @else {
           <span class="duration">{{
             event.realDurationInSeconds
               ? (event.realDurationInSeconds * 1000 | date : "HH:mm" : "UTC")

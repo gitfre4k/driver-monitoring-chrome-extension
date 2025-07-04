@@ -210,7 +210,9 @@
                   }}</span>
 
                   <span class="error-msg">
-                    {{ event.errorMessage }}
+                    @for(message of event.errorMessages; track $index) {
+                    {{ message }}
+                    }
                   </span>
 
                   <a mat-icon-button matTooltip="Done" class="on-hover"

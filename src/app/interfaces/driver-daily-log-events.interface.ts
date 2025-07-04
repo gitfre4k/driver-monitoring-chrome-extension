@@ -36,7 +36,7 @@ export interface IEvent {
   truckChange: boolean;
   viewId: number;
   error: boolean;
-  errorMessage: string;
+  errorMessages: string[];
   computeIndex: number;
   driver: IDriverIdAndName;
   shift: boolean;
@@ -47,6 +47,7 @@ export interface IEvent {
 export interface IDriverIdAndName {
   id: number;
   name: string;
+  viewId: number;
 }
 
 export interface IVehicle {
@@ -126,6 +127,7 @@ export interface IDriverDailyLogEvents {
   isEngineOffFirstEvent: boolean;
   isEngineOffInnerEvents: boolean;
   shiftBreak: string;
+  cycleBreak: string;
 }
 
 export interface ICoDriver {
@@ -136,4 +138,23 @@ export interface ICoDriver {
 export interface IDailyLogs {
   driverDailyLog: IDriverDailyLogEvents | null;
   coDriverDailyLog: IDriverDailyLogEvents | null;
+}
+
+export interface IDriverBreak {
+  shift: string;
+  cycle: string;
+}
+
+export interface IDriverBreaks {
+  driver: IDriverBreak;
+  coDriver: IDriverBreak;
+}
+
+export interface IDriverState {
+  currentDriving: IEvent | null;
+  intermediateCount: number;
+  currentDutyStatus: IEvent;
+  occurredDuringDriving: boolean;
+  shiftIsReadyToStart: boolean;
+  break: IDriverBreak;
 }

@@ -1,7 +1,5 @@
 import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DateTime } from 'luxon';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -20,7 +18,6 @@ import { ScanService } from './@services/scan.service';
 import { FormattedDateService } from './@services/formatted-date.service';
 import { IViolations } from './interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MonthlyUsageScanComponent } from './components/monthly-usage-scan/monthly-usage-scan.component';
 
 @Component({
   selector: 'app-root',
@@ -38,7 +35,6 @@ import { MonthlyUsageScanComponent } from './components/monthly-usage-scan/month
     InfoComponent,
     ScanResultComponent,
     MatBadgeModule,
-    MonthlyUsageScanComponent,
   ],
 })
 export class AppComponent {
