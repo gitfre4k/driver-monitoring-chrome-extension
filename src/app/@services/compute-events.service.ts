@@ -23,8 +23,19 @@ import { ITenant } from '../interfaces';
   providedIn: 'root',
 })
 export class ComputeEventsService {
-  shiftBreak = signal('');
-  shiftIsReadyToStart = signal(false);
+  initialDriverState: IDriverState = {
+    currentDriving: null,
+    intermediateCount: 0,
+    currentDutyStatus: {} as IEvent,
+    occurredDuringDriving: false,
+    shiftIsReadyToStart: false,
+    break: {
+      shift: '',
+      cycle: '',
+    },
+  };
+  driverState = signal(this.initialDriverState);
+  coDriverState = signal(this.initialDriverState);
 
   constructor() {}
 
@@ -72,7 +83,6 @@ export class ComputeEventsService {
           id: driverDailyLog.driverId,
           viewId: driverDailyLog.driverId,
           name: driverDailyLog.driverFullName,
-          isCoDriver: false,
         })
     );
     if (coDriverDailyLog && coDriverEvents && coDriverEvents?.length > 0) {
@@ -82,7 +92,6 @@ export class ComputeEventsService {
             id: coDriverDailyLog.driverId,
             viewId: driverDailyLog.driverId,
             name: coDriverDailyLog.driverFullName,
-            isCoDriver: true,
           })
       );
       events = [...driverEvents, ...coDriverEvents].sort(
@@ -113,13 +122,7 @@ export class ComputeEventsService {
     tenant?: ITenant
   ) => {
     let events = [...importedEvents];
-
-    let occurredDuringDriving = false;
-    let currentDriving: IEvent | null = null;
-    let intermediateCount = 0;
-    let currentDutyStatus = {} as IEvent;
     let currentDriver = {} as IDriverIdAndName;
-    this.shiftIsReadyToStart.set(false);
 
     //
     // compute events
