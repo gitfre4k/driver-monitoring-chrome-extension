@@ -1,6 +1,16 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import { catchError, concatMap, finalize, from, mergeMap, of, tap } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  finalize,
+  from,
+  mergeMap,
+  of,
+  switchMap,
+  tap,
+  toArray,
+} from 'rxjs';
 import { IDriver, IDriverErrorEvents, ITenant } from '../interfaces';
 import {
   IDailyLogs,
@@ -57,11 +67,12 @@ export class AdvancedScanService {
                 (prevValue) => prevValue + this.progressBarService.constant()
               )
             ),
-            mergeMap((log) => from(log.items)),
-            concatMap((driver) => {
+            concatMap((log) => from(log.items)),
+            mergeMap((driver) => {
               this.progressBarService.activeDriversCount.update((i) => i + 1);
               return this.dailyLogEvents$(driver, date, tenant);
-            })
+            }, 10),
+            toArray()
           );
         })
       )

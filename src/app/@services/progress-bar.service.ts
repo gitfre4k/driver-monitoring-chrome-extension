@@ -28,7 +28,7 @@ export class ProgressBarService {
 
   violations = signal<IScanViolations[]>([]);
   inspections: IScanDOTInspections[] = [];
-  advancedResaults: IAdvancedResaults = {
+  advancedResaultsInitialState: IAdvancedResaults = {
     prolengedOnDuties: {},
     malfOrDataDiagDetection: {},
     pcYm: {},
@@ -38,6 +38,7 @@ export class ProgressBarService {
     teleports: {},
     eventErrors: {},
   };
+  advancedResaults: IAdvancedResaults = this.advancedResaultsInitialState;
 
   errors: IScanErrors[] = [];
 
@@ -74,16 +75,7 @@ export class ProgressBarService {
         break;
       case 'advanced':
         this.activeDriversCount.set(0);
-        this.advancedResaults = {
-          prolengedOnDuties: {},
-          malfOrDataDiagDetection: {},
-          pcYm: {},
-          missingEngineOn: {},
-          highEngineHours: {},
-          lowTotalEngineHours: {},
-          teleports: {},
-          eventErrors: {},
-        };
+        this.advancedResaults = this.advancedResaultsInitialState;
         break;
       default:
         return;
