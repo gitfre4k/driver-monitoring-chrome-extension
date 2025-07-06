@@ -58,7 +58,7 @@ export class ProgressBarService {
     this.scanning.set(false);
     this.progressValue.set(0);
     this.bufferValue.set(0);
-    this.currentCompany.set('Dex Solutions');
+    this.currentCompany.set('');
     this.errors = [];
   }
 

@@ -17,7 +17,7 @@ import { ApiService } from './api.service';
 import { ProgressBarService } from './progress-bar.service';
 import { ReportComponent } from '../components/report/report.component';
 
-import { ICompany, IDOTInspections, IRange, IViolations } from '../interfaces';
+import { IDOTInspections, IRange, IViolations } from '../interfaces';
 import { TScanMode } from '../types';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 
@@ -100,6 +100,7 @@ export class ScanService {
   getAllViolations(range: IRange) {
     this.progressBarService.initializeState('violations');
     this.progressBarService.scanning.set(true);
+
     return this.apiService
       .getAccessibleTenants()
       .pipe(switchMap((tenants) => from(tenants)))

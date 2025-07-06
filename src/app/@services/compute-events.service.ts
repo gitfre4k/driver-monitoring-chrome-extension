@@ -46,9 +46,10 @@ export class ComputeEventsService {
   ) => {
     if (!driverDailyLog) return [];
 
+    //
     // initialize state
+    //// driver
     this.driverState.set(this.initialDriverState);
-    this.coDriverState.set(this.initialDriverState);
     driverDailyLog.shiftBreak &&
       this.driverState.update((prev) => ({
         ...prev,
@@ -59,13 +60,15 @@ export class ComputeEventsService {
         ...prev,
         break: { ...prev.break, cycle: driverDailyLog.cycleBreak },
       }));
+    //// coDriver
+    this.coDriverState.set(this.initialDriverState);
     coDriverDailyLog?.shiftBreak &&
-      this.driverState.update((prev) => ({
+      this.coDriverState.update((prev) => ({
         ...prev,
         break: { ...prev.break, shift: coDriverDailyLog.shiftBreak },
       }));
     coDriverDailyLog?.cycleBreak &&
-      this.driverState.update((prev) => ({
+      this.coDriverState.update((prev) => ({
         ...prev,
         break: { ...prev.break, cycle: coDriverDailyLog.cycleBreak },
       }));
@@ -143,7 +146,7 @@ export class ComputeEventsService {
       date && (events[i].date = date);
       tenant && (events[i].tenant = tenant);
 
-      // assign current driver co-drivers shift end
+      // assign end of shift for current driver
       if (events[i].driver?.id !== currentDriver.id) {
         currentDriver = events[i].driver;
         events[i].shift = true;
@@ -151,10 +154,13 @@ export class ComputeEventsService {
 
       // assign duty status and double duty check
       if (isDutyStatus(events[i])) {
-        currentDutyStatus.driver?.id === events[i].driver?.id && // exclude co drivers events
-          (currentDutyStatus.statusName === events[i].statusName
-            ? events[i].errorMessages.push('double Duty status')
-            : (currentDutyStatus = events[i]));
+        if (currentDutyStatus.id) {
+          currentDutyStatus.driver?.id === events[i].driver?.id && // exclude co drivers events
+            (currentDutyStatus.statusName === events[i].statusName
+              ? events[i].errorMessages.push('double Duty status')
+              : (currentDutyStatus = events[i]));
+        } else currentDutyStatus = events[i];
+
         //
       }
 
@@ -204,6 +210,10 @@ export class ComputeEventsService {
           events[i].realDurationInSeconds !== 0 &&
           events[i].realDurationInSeconds < (ptiDuration ? ptiDuration : 901)
         ) {
+          console.log('~~~~~~~~~~ SHORT PTI');
+          console.log(events[i]);
+          console.log(events[i].realDurationInSeconds);
+          console.log(ptiDuration);
           events[i].errorMessages.push('short Pre-Trip Inspection');
           timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
           timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
