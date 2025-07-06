@@ -2,6 +2,7 @@ import { ProgressBarMode } from '@angular/material/progress-bar';
 import { IEvent as ICEvent } from '../interfaces/driver-daily-log-events.interface';
 
 export interface IViolations {
+  company: ITenant;
   totalCount: number;
   items: [
     {
@@ -33,8 +34,6 @@ export interface IProgressBar {
 }
 
 export interface IScanViolations {
-  company: string;
-  tenant: ITenant;
   violations: IViolations;
 }
 

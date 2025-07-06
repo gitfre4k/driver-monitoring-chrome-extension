@@ -25,9 +25,12 @@
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           <ul class="list-of-tenants">
-            @for (violation of violations(); track violation.company) {
+            @for (violation of violations(); track
+            violation.violations.company.id) {
             <li class="company">
-              <span class="company-name">{{ violation.company }}</span>
+              <span class="company-name">{{
+                violation.violations.company.name
+              }}</span>
 
               @for (item of violation.violations.items; track item.id) {
               <div class="driver">
@@ -39,7 +42,7 @@
                       openLogs(
                         item.id,
                         item.violations[0].logDate,
-                        violation.tenant
+                        violation.violations.company
                       )
                     "
                   >
@@ -71,7 +74,6 @@
             </li>
             }
           </ul>
-          @for (violation of violations(); track violation.company) { }
         </div>
       </mat-expansion-panel>
     </mat-accordion>

@@ -1,15 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import {
-  concatMap,
-  from,
-  map,
-  mergeMap,
-  Observable,
-  of,
-  Subscription,
-} from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,14 +22,13 @@ import {
   ReactiveFormsModule,
   FormsModule,
 } from '@angular/forms';
-import { IDOTInspections, ITenant, IViolations } from '../../interfaces';
+import { IDOTInspections, IViolations } from '../../interfaces';
 import { FormattedDateService } from '../../@services/formatted-date.service';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { ReportComponent } from '../report/report.component';
 import { MatDialog } from '@angular/material/dialog';
-import { ApiService } from '../../@services/api.service';
 
 @Component({
   selector: 'app-scan',
@@ -65,7 +56,6 @@ export class ScanComponent {
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
   private progressBarService = inject(ProgressBarService);
-  private apiService = inject(ApiService);
 
   readonly dialog = inject(MatDialog);
 
@@ -138,7 +128,7 @@ export class ScanComponent {
           ? this.scanService.getAllViolations(range)
           : (this.scanService.getAllDOTInspections(range) as Observable<any>)
       ).subscribe({
-        next: (data: IViolations | IDOTInspections) =>
+        next: (data: IViolations[] | IDOTInspections[]) =>
           this.scanService.handleScanData(data, this.scanMode.value),
         error: (err) => this.scanService.handleError(err),
         complete: () =>

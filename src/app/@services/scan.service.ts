@@ -3,10 +3,12 @@ import {
   catchError,
   concatMap,
   from,
+  map,
   mergeMap,
   of,
   switchMap,
   tap,
+  toArray,
 } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -30,38 +32,31 @@ export class ScanService {
 
   readonly dialog = inject(MatDialog);
 
-  currentCompany: ICompany = { id: '', name: '' };
-
   constructor() {}
 
   ngOnInit() {}
 
-  handleScanData(data: IViolations | IDOTInspections, scanMode: TScanMode) {
-    this.progressBarService.progressValue.update(
-      (value) => value + this.progressBarService.constant()
-    );
-    if (data.totalCount > 0) {
-      this.progressBarService[
-        scanMode === 'violations' ? 'totalVCount' : 'totalDCount'
-      ].update((totalCount) => totalCount + data.totalCount);
+  handleScanData(data: IViolations[] | IDOTInspections[], scanMode: TScanMode) {
+    data.forEach((result) => {
+      if (result.totalCount > 0) {
+        scanMode === 'dot' &&
+          this.progressBarService.totalDCount.update(
+            (totalCount) => totalCount + result.totalCount
+          );
 
-      scanMode === 'violations'
-        ? this.progressBarService.violations.update((v) => [
-            ...v,
-            {
-              company: this.currentCompany.name,
-              tenant: {
-                id: this.currentCompany.id,
-                name: this.currentCompany.name,
+        scanMode === 'violations'
+          ? this.progressBarService.violations.update((v) => [
+              ...v,
+              {
+                violations: result as IViolations,
               },
-              violations: data as IViolations,
-            },
-          ])
-        : this.progressBarService.inspections.push({
-            company: this.currentCompany.name,
-            inspections: data as IDOTInspections,
-          });
-    }
+            ])
+          : this.progressBarService.inspections.push({
+              company: 'this.currentCompany.name',
+              inspections: result as IDOTInspections,
+            });
+      }
+    });
   }
 
   handleError(error: any) {
@@ -104,33 +99,47 @@ export class ScanService {
 
   getAllViolations(range: IRange) {
     this.progressBarService.initializeState('violations');
+    this.progressBarService.scanning.set(true);
     return this.apiService
       .getAccessibleTenants()
+      .pipe(switchMap((tenants) => from(tenants)))
       .pipe(
-        tap(() => {
-          this.progressBarService.scanning.set(true);
-        }),
-        switchMap((tenants) => from(tenants))
-      )
-      .pipe(
-        concatMap((tenant) => {
-          this.currentCompany = tenant;
-          this.progressBarService.currentCompany.set(this.currentCompany.name);
-          return this.apiService.getViolations(tenant, range).pipe(
-            tap({
-              error: (error) => {
-                this.progressBarService.progressValue.update(
-                  (value) => value + this.progressBarService.constant()
-                );
-                this.progressBarService.errors.push({
-                  error,
-                  company: this.currentCompany,
-                });
-              },
-            }),
-            catchError(() => of())
+        mergeMap((tenant) => {
+          this.progressBarService.currentCompany.set(tenant.name);
+          this.progressBarService.progressValue.update(
+            (value) => value + this.progressBarService.constant()
           );
-        })
+          return this.apiService
+            .getViolations(tenant, range)
+            .pipe(
+              tap({
+                error: (error) => {
+                  this.progressBarService.progressValue.update(
+                    (value) => value + this.progressBarService.constant()
+                  );
+                  this.progressBarService.errors.push({
+                    error,
+                    company: tenant,
+                  });
+                },
+              }),
+              catchError(() => of())
+            )
+            .pipe(
+              tap(
+                (v) =>
+                  v.totalCount &&
+                  this.progressBarService.totalVCount.update(
+                    (prev) => prev + v.totalCount
+                  )
+              ),
+              map((v) => {
+                v.company = tenant;
+                return v;
+              })
+            );
+        }, 10),
+        toArray()
       );
   }
 
@@ -142,8 +151,7 @@ export class ScanService {
       }),
       mergeMap((tenants) => from(tenants)),
       concatMap((tenant) => {
-        this.currentCompany = tenant;
-        this.progressBarService.currentCompany.set(this.currentCompany.name);
+        this.progressBarService.currentCompany.set(tenant.name);
         return this.apiService.getDOTInspectionList(tenant, range).pipe(
           tap({
             error: (error) => {
@@ -152,7 +160,7 @@ export class ScanService {
               );
               this.progressBarService.errors.push({
                 error,
-                company: this.currentCompany,
+                company: tenant,
               });
             },
           }),

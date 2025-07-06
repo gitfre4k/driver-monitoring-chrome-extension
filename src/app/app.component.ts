@@ -89,7 +89,7 @@ export class AppComponent {
               ),
             })
             .subscribe({
-              next: (data: IViolations) =>
+              next: (data: IViolations[]) =>
                 this.scanService.handleScanData(data, 'violations'),
               error: (err) => this.scanService.handleError(err),
               complete: () => this.scanService.handleScanComplete('violations'),
