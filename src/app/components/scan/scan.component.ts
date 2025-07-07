@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { Observable, Subscription } from 'rxjs';
+import { Observable, single, Subscription } from 'rxjs';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,6 +32,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DateTime } from 'luxon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-scan',
@@ -50,6 +51,7 @@ import { MatRadioModule } from '@angular/material/radio';
     AdvancedScanComponent,
     MatTooltipModule,
     MatRadioModule,
+    MatCheckboxModule,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
@@ -77,6 +79,8 @@ export class ScanComponent {
     dateTo: new FormControl<Date>(new Date(this.currentDate)),
   });
 
+  checked = signal(true);
+
   disableScan = false;
   scanModes: { value: TScanMode; label: string; id: number }[] = [
     { value: 'violations', label: 'Violations', id: 1 },
@@ -86,6 +90,7 @@ export class ScanComponent {
 
   scanSubscribtion = new Subscription();
   scanning = this.progressBarService.scanning;
+  vLastSync = this.progressBarService.violationsLastSync;
 
   constructor() {}
 
@@ -103,7 +108,10 @@ export class ScanComponent {
       .subscribe(() => this.progressBarService.initializeProgressBar());
   }
 
-  startViolationsScan = () => {};
+  startViolationsScan = () => {
+    this.scanMode.setValue('violations');
+    this.startScan();
+  };
 
   startScan = () => {
     this.disableScan = true;

@@ -22,11 +22,13 @@ export class ProgressBarService {
   constant = computed(() => 100 / this.appService.tenantsSignal().length);
   currentDriver = signal('');
   currentCompany = signal('Dex Solutions');
-  totalVCount = signal(0);
   totalDCount = signal(0);
   activeDriversCount = signal(0);
 
   violations = signal<IScanViolations[]>([]);
+  totalVCount = signal(0);
+  violationsLastSync = signal('');
+
   inspections: IScanDOTInspections[] = [];
   advancedResaultsInitialState: IAdvancedResaults = {
     prolengedOnDuties: {},

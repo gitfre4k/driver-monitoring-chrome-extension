@@ -8,13 +8,12 @@
   justify-content: space-between;
   align-items: center;
   // background-color: red;
-  height: calc(100vh - 100px);
-  max-height: 550px;
+  height: calc(100vh - 70px);
+
   .form {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 48px;
   }
   button {
     height: 32px;
@@ -40,8 +39,65 @@ mat-form-field {
   flex-direction: column;
   margin: 15px 0;
   align-items: flex-start;
+  .example-radio-button {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    .custom {
+      display: flex;
+      align-items: center;
+    }
+  }
 }
 
-.example-radio-button {
-  margin: 5px;
+.icon-display {
+  transform: scale(1.1);
+}
+
+.scan-violations {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  width: 100%;
+  gap: 16px;
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    &__sync {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      &__title {
+        margin-right: auto;
+        font-size: 16px;
+      }
+      &__stats {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+    &__check {
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
+.mat-mdc-radio-button {
+  --mat-radio-label-text-size: 12px;
+  --mat-radio-label-text-line-height: 12px;
+  height: 24px;
+}
+
+.mat-mdc-radio-button .mdc-radio__outer-circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  border-width: 2px !important;
+  border-style: solid !important;
+  border-radius: 15% !important;
 }

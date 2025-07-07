@@ -20,6 +20,7 @@ import { ReportComponent } from '../components/report/report.component';
 import { IDOTInspections, IRange, IViolations } from '../interfaces';
 import { TScanMode } from '../types';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -86,6 +87,7 @@ export class ScanService {
               duration: 3000,
             }
           );
+      this.progressBarService.violationsLastSync.set(DateTime.now().toISO());
       this.progressBarService.initializeProgressBar();
     } else {
       const dialogRef = this.dialog.open(ReportComponent);
