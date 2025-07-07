@@ -107,7 +107,7 @@ export interface IEvent {
   averageSpeed?: number;
   coDriverDisplayName: string;
   coDriverId: string;
-
+  // custom
   statusName: string;
   isTeleport: number;
   occurredDuringDriving: boolean;
@@ -160,6 +160,14 @@ export interface IDetectedResultsWithDuration {
     duration: number;
   }[];
 }
+
+export interface IProlongedOnDutyEvents {
+  driverName: string;
+  events: ICEvent[];
+}
+export interface IDetectedOnDuties {
+  [company: string]: IProlongedOnDutyEvents[];
+}
 export interface ITeleportsEvents {
   [company: string]: IDriverTeleportEvents[];
 }
@@ -182,7 +190,7 @@ export interface IDetectedResults {
 }
 
 export interface IAdvancedResaults {
-  prolengedOnDuties: IDetectedResultsWithDuration;
+  prolengedOnDuties: IDetectedOnDuties;
   malfOrDataDiagDetection: IDetectedResults;
   pcYm: IDetectedResults;
   missingEngineOn: IDetectedResults;
@@ -190,4 +198,28 @@ export interface IAdvancedResaults {
   lowTotalEngineHours: IDetectedResults;
   teleports: ITeleportsEvents;
   eventErrors: IEventErrors;
+}
+
+export interface IEventDetails {
+  accumulatedVehicleMiles: number;
+  countryId: number;
+  driverId: number;
+  driversLocationDescription: string;
+  elapsedEngineHours: number;
+  eventSequenceIdNumber: string;
+  eventTypeCode: string;
+  eventUuid: string;
+  geolocation: string;
+  id: number;
+  latitude: string;
+  locationSource: string;
+  longitude: string;
+  note: string;
+  shippingDocumentNumber: string;
+  startTime: string; // This is a date-time string, consider using Date type if parsing it
+  stateId: number;
+  totalEngineHours: number;
+  totalVehicleMiles: number;
+  trailerNumbers: string;
+  vehicleId: number;
 }

@@ -7,11 +7,15 @@ import {
   from,
   mergeMap,
   of,
-  switchMap,
   tap,
   toArray,
 } from 'rxjs';
-import { IDriver, IDriverErrorEvents, ITenant } from '../interfaces';
+import {
+  IDriver,
+  IDriverErrorEvents,
+  IProlongedOnDutyEvents,
+  ITenant,
+} from '../interfaces';
 import {
   IDailyLogs,
   IEvent,
@@ -149,10 +153,12 @@ export class AdvancedScanService {
       },
       tenant,
       this.ptiDuration(),
+      this.prolongedOnDutiesDuration(),
       this.sleeperDuration()
     );
     const errorEvents: IEvent[] = [];
     const detectedTeleportEvents: IEvent[] = [];
+    const prolongedOnDutyEvents: IEvent[] = [];
 
     computedEvents.forEach((event) => {
       if (event.isTeleport) {
@@ -161,8 +167,30 @@ export class AdvancedScanService {
       if (event.errorMessages.length > 0) {
         errorEvents.push(event);
       }
+      if (event.onDutyDuration) {
+        prolongedOnDutyEvents.push(event);
+      }
     });
-    // handle driver teleport events
+    ////////////
+    // handle Prolonged On Duty events
+    if (prolongedOnDutyEvents.length > 0) {
+      const driverProlongedOnDuties: IProlongedOnDutyEvents = {
+        driverName: driverDailyLog.driverFullName,
+        events: prolongedOnDutyEvents,
+      };
+      if (
+        this.advancedScanResults.prolengedOnDuties[driverDailyLog.companyName]
+      ) {
+        this.advancedScanResults.prolengedOnDuties[
+          driverDailyLog.companyName
+        ].push(driverProlongedOnDuties);
+      } else {
+        this.advancedScanResults.prolengedOnDuties[driverDailyLog.companyName] =
+          [driverProlongedOnDuties];
+      }
+    }
+    ////////////
+    // handle Teleport events
     if (detectedTeleportEvents.length > 0) {
       const driverTeleportEvents = {
         driverName: driverDailyLog.driverFullName,
@@ -179,8 +207,8 @@ export class AdvancedScanService {
         ];
       }
     }
-
-    // handle driver error events
+    ////////////
+    // handle Error events
     if (errorEvents.length > 0) {
       const driverErrorEvents: IDriverErrorEvents = {
         name: driverDailyLog.driverFullName,
@@ -309,54 +337,6 @@ export class AdvancedScanService {
           this.advancedScanResults.pcYm[driverDailyLog.companyName] = [
             driverDailyLog.driverFullName,
           ];
-        }
-      }
-
-      //
-      // prolonged On Duties
-      if (driverEvents[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {
-        const duration = () => {
-          // OnDuty has started and ended within same day
-          if (
-            driverEvents[i].realDurationInSeconds ===
-            driverEvents[i].durationInSeconds
-          )
-            return driverEvents[i].durationInSeconds;
-
-          // OnDuty has started on previous day and ended on current day
-          if (
-            driverEvents[i].realDurationInSeconds >
-            driverEvents[i].durationInSeconds
-          ) {
-            return driverEvents[i].realDurationInSeconds;
-          }
-          // ongoin OnDuty has started on previous day
-          else {
-            const startTime = new Date(driverEvents[i].realStartTime).getTime();
-            const now = new Date().getTime();
-
-            return (now - startTime) / 1000;
-          }
-        };
-        if (duration() > this.prolongedOnDutiesDuration()) {
-          const prolongedOnDuty = {
-            driverName: driverDailyLog.driverFullName,
-            id: driverEvents[i].eventSequenceNumber,
-            duration: duration(),
-          };
-          if (
-            this.advancedScanResults.prolengedOnDuties[
-              driverDailyLog.companyName
-            ]
-          ) {
-            this.advancedScanResults.prolengedOnDuties[
-              driverDailyLog.companyName
-            ].push(prolongedOnDuty);
-          } else {
-            this.advancedScanResults.prolengedOnDuties[
-              driverDailyLog.companyName
-            ] = [prolongedOnDuty];
-          }
         }
       }
     }

@@ -8,6 +8,7 @@ import {
   IDOTInspections,
   ITenant,
   ILog,
+  IEventDetails,
 } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { FormattedDateService } from './formatted-date.service';
@@ -40,6 +41,16 @@ export class ApiService {
   };
 
   constructor() {}
+
+  // https://app.monitoringdriver.com/api/Logs/GetEvent/505900
+
+  getEvent(id: number) {
+    console.log('[API Service]: getEvent() called');
+    return this.http.get<IEventDetails>(
+      `https://app.monitoringdriver.com/api/Logs/GetEvent/${id}`,
+      { withCredentials: true }
+    );
+  }
 
   getAccessibleTenants() {
     return from(

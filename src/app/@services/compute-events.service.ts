@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 
 import {
   bindEventViewId,
@@ -17,11 +17,14 @@ import {
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
 import { ITenant } from '../interfaces';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ComputeEventsService {
+  apiService = inject(ApiService);
+
   initialDriverState: IDriverState = {
     currentDriving: null,
     intermediateCount: 0,
@@ -42,6 +45,7 @@ export class ComputeEventsService {
     { driverDailyLog, coDriverDailyLog }: IDailyLogs,
     tenant?: ITenant,
     ptiDuration?: number,
+    prolongedOnDutiesDuration?: number,
     sleeperMinDuration?: number
   ) => {
     if (!driverDailyLog) return [];
@@ -107,6 +111,7 @@ export class ComputeEventsService {
     events = this.computeEvents(
       events,
       ptiDuration,
+      prolongedOnDutiesDuration,
       sleeperMinDuration,
       driverDailyLog.date,
       tenant
@@ -119,6 +124,7 @@ export class ComputeEventsService {
   computeEvents = (
     importedEvents: IEvent[],
     ptiDuration?: number,
+    prolongedOnDutiesDuration?: number,
     sleeperMinDuration?: number,
     date?: string,
     tenant?: ITenant
@@ -126,7 +132,7 @@ export class ComputeEventsService {
     let events = [...importedEvents];
     let currentDriver = {} as IDriverIdAndName;
 
-    //
+    ////////////////////
     // compute events
     for (let i = 0; i < events.length; i++) {
       let {
@@ -163,7 +169,7 @@ export class ComputeEventsService {
 
         //
       }
-
+      ////////////////////
       // Pre-Trip Inspection validity ````````````#####################`````````````````##########################````````````````#################````````````
       if (
         // case 34 break or 10h+ Sleeper/Off
@@ -231,6 +237,19 @@ export class ComputeEventsService {
         }
       }
 
+      ////////////////////
+      // prolonged On Duties
+      if (events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {
+        const duration = this.getOnDutyDuration(events[i]);
+        if (
+          duration >
+          (prolongedOnDutiesDuration ? prolongedOnDutiesDuration : 901)
+        ) {
+          events[i].onDutyDuration = duration;
+        }
+      }
+
+      ////////////////////
       // 34 hours break in Sleeper Berth
       if (events[i].statusName === 'Sleeper Berth') {
         if (!events[i].realDurationInSeconds) {
@@ -249,6 +268,7 @@ export class ComputeEventsService {
         }
       }
 
+      ////////////////////
       // checking for intermediate validity
       if (isDriving(events[i])) {
         occurredDuringDriving = true;
@@ -311,7 +331,7 @@ export class ComputeEventsService {
           }
 
           //
-          // case when checking ongoing driving that has started on previous day
+          // case when ongoing driving that has started on previous day
           if (
             currentDriving.realDurationInSeconds === 0 &&
             currentDriving.startTime !== currentDriving.realStartTime
@@ -357,6 +377,23 @@ export class ComputeEventsService {
     return events;
   };
 
+  getOnDutyDuration = (event: IEvent) => {
+    // OnDuty has started and ended within same day
+    if (event.realDurationInSeconds === event.durationInSeconds)
+      return event.durationInSeconds;
+    // OnDuty has started on previous day and ended on current day
+    if (event.realDurationInSeconds > event.durationInSeconds) {
+      return event.realDurationInSeconds;
+    }
+    // ongoin OnDuty has started on previous day
+    else {
+      const startTime = new Date(event.realStartTime).getTime();
+      const now = new Date().getTime();
+
+      return (now - startTime) / 1000;
+    }
+  };
+
   detectAndBindTeleport = (importedEvents: IEvent[]) => {
     let events = [...importedEvents];
     for (let i = 0; i < events.length - 1; i++) {
@@ -384,10 +421,10 @@ export class ComputeEventsService {
       }
       // [[ teleport detected ]]
       if (ev1.odometer > ev2.odometer) return -mileageDifference;
-      if (!isDriving(ev1) && !isPcOrYm(ev1) && !ev1.occurredDuringDriving)
+      if (!isDriving(ev1) && !isPcOrYm(ev1) && !ev1.occurredDuringDriving) {
         return mileageDifference;
+      }
     }
-
     return 0;
   };
 }

@@ -43,18 +43,6 @@
 
           <p [ngClass]="'status ' + event.dutyStatus">{{ event.statusName }}</p>
 
-          @if(event.isTeleport) {
-          <span class="note" style="color: red; margin: 0px 5px">{{
-            event.isTeleport > 0
-              ? "teleport [ " + event.isTeleport + " miles ]"
-              : "odometer decreased"
-          }}</span>
-          }@if(event.errorMessages.length > 0) { @for (message of
-          event.errorMessages; track $index) {
-          <span class="note" style="color: red; margin: 0px 5px">{{
-            message
-          }}</span>
-          } } @else {
           <span class="duration">{{
             event.realDurationInSeconds
               ? (event.realDurationInSeconds * 1000 | date : "HH:mm" : "UTC")
@@ -62,6 +50,23 @@
               ? (event.durationInSeconds * 1000 | date : "HH:mm" : "UTC")
               : ""
           }}</span>
+
+          @if(event.isTeleport || event.errorMessages.length > 0) {
+          <span class="note" style="color: red"
+            >{{
+              event.isTeleport
+                ? event.isTeleport > 0
+                  ? "teleport [ " + event.isTeleport + " miles ]"
+                  : "odometer decreased"
+                : ""
+            }}
+            @if(event.errorMessages.length > 0 && event.isTeleport) { <br />
+            }
+            {{
+              event.errorMessages.length > 0 ? event.errorMessages[0] : ""
+            }}</span
+          >
+          } @else {
           <span class="note">{{ event.notes }}</span>
           }
         </div>

@@ -29,6 +29,9 @@ import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { ReportComponent } from '../report/report.component';
 import { MatDialog } from '@angular/material/dialog';
+import { DateTime } from 'luxon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatRadioModule } from '@angular/material/radio';
 
 @Component({
   selector: 'app-scan',
@@ -45,6 +48,8 @@ import { MatDialog } from '@angular/material/dialog';
     MatIconModule,
     MatInputModule,
     AdvancedScanComponent,
+    MatTooltipModule,
+    MatRadioModule,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
@@ -64,7 +69,7 @@ export class ScanComponent {
   private sevenDaysAgo =
     this.formattedDateService.getFormatedDates().sevenDaysAgo;
 
-  readonly scanMode = new FormControl<TScanMode>('violations', {
+  readonly scanMode = new FormControl<TScanMode>('advanced', {
     nonNullable: true,
   });
   readonly range = new FormGroup({
@@ -98,6 +103,8 @@ export class ScanComponent {
       .subscribe(() => this.progressBarService.initializeProgressBar());
   }
 
+  startViolationsScan = () => {};
+
   startScan = () => {
     this.disableScan = true;
     const from = this.range.value.dateFrom;
@@ -106,14 +113,18 @@ export class ScanComponent {
       this.disableScan = false;
       return;
     }
+    console.log(
+      '## [Scan Component] DateTime.fromJSDate(to).toUTC().toJSDate()'
+    );
+    console.log(DateTime.fromJSDate(to).toUTC().toJSDate());
 
     const range = {
-      dateFrom: new Date(
-        new Date(
-          (this.scanMode.value === 'violations' ? from : to).getTime()
-        ).toUTCString()
-      ),
-      dateTo: new Date(new Date(to.getTime()).toUTCString()),
+      dateFrom: DateTime.fromJSDate(
+        this.scanMode.value === 'violations' ? from : to
+      )
+        .toUTC()
+        .toJSDate(),
+      dateTo: DateTime.fromJSDate(to).toUTC().toJSDate(),
     };
 
     if (this.scanMode.value === 'advanced') {

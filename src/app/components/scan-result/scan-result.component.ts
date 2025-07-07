@@ -16,6 +16,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { UrlService } from '../../@services/url.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ITenant } from '../../interfaces';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-scan-result',
@@ -64,8 +65,12 @@ export class ScanResultComponent {
 
   openLogs(id: number, date: string, tenant: ITenant) {
     if (!id || !date || !tenant?.id) return;
+    const logDate = DateTime.fromISO(date).toUTC();
+    console.log('~~~~~~~~~~~~~~~~~~~~');
+    console.log(date);
+    console.log(logDate);
     this.urlService.navigateChromeActiveTab(
-      `https://app.monitoringdriver.com/logs/${id}/${date}/`,
+      `https://app.monitoringdriver.com/logs/${id}/${logDate}/`,
       tenant
     );
   }
