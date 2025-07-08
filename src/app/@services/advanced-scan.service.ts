@@ -159,16 +159,22 @@ export class AdvancedScanService {
     const errorEvents: IEvent[] = [];
     const detectedTeleportEvents: IEvent[] = [];
     const prolongedOnDutyEvents: IEvent[] = [];
+    const manualDrivings: IEvent[] = [];
 
     computedEvents.forEach((event) => {
-      if (event.isTeleport) {
-        detectedTeleportEvents.push(event);
-      }
-      if (event.errorMessages.length > 0) {
-        errorEvents.push(event);
-      }
-      if (event.onDutyDuration) {
-        prolongedOnDutyEvents.push(event);
+      if (event.driver.id === driverDailyLog.driverId) {
+        if (event.isTeleport) {
+          detectedTeleportEvents.push(event);
+        }
+        if (event.errorMessages.length > 0) {
+          errorEvents.push(event);
+        }
+        if (event.onDutyDuration) {
+          prolongedOnDutyEvents.push(event);
+        }
+        if (event.manualDriving) {
+          manualDrivings.push(event);
+        }
       }
     });
     ////////////
@@ -315,6 +321,28 @@ export class AdvancedScanService {
           this.advancedScanResults.malfOrDataDiagDetection[
             driverDailyLog.companyName
           ] = [driverDailyLog.driverFullName];
+        }
+      }
+
+      //////////////
+      // Manual Driving Detection
+      if (manualDrivings.length > 0) {
+        const driverManualDrivings: IDriverErrorEvents = {
+          name: driverDailyLog.driverFullName,
+          events: manualDrivings,
+        };
+        if (
+          this.advancedScanResults.manualDrivingDetection[
+            driverDailyLog.companyName
+          ]
+        ) {
+          this.advancedScanResults.manualDrivingDetection[
+            driverDailyLog.companyName
+          ].push(driverManualDrivings);
+        } else {
+          this.advancedScanResults.manualDrivingDetection[
+            driverDailyLog.companyName
+          ] = [driverManualDrivings];
         }
       }
 

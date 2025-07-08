@@ -24,7 +24,9 @@
         <div class="event">
           <span
             [ngClass]="
-              'view-id ' + (event.errorMessages.length ? ' error' : '')
+              'view-id ' +
+              (event.errorMessages.length ? ' error' : '') +
+              (event.manualDriving ? ' warn' : '')
             "
             >{{ event.viewId }}.</span
           >
@@ -51,24 +53,35 @@
               : ""
           }}</span>
 
-          @if(event.isTeleport || event.errorMessages.length > 0) {
-          <span class="note" style="color: red"
-            >{{
+          @if(event.isTeleport || event.errorMessages.length > 0 ||
+          event.manualDriving) {
+          <span class="note" style="color: red">
+            <!-- [teleport] message-->
+            {{
               event.isTeleport
                 ? event.isTeleport > 0
                   ? "teleport [ " + event.isTeleport + " miles ]"
                   : "odometer decreased"
                 : ""
             }}
-            @if(event.errorMessages.length > 0 && event.isTeleport) { <br />
+            @if(event.isTeleport && (event.errorMessages.length > 0 )) { <br />
             }
-            {{
-              event.errorMessages.length > 0 ? event.errorMessages[0] : ""
-            }}</span
-          >
+            <!-- [eventErrors] message-->
+            {{ event.errorMessages.length > 0 ? event.errorMessages[0] : "" }}
+            <!-- warnings -->
+            @if (event.manualDriving) { @if(event.isTeleport ||
+            (event.errorMessages.length > 0 )) { <br />
+            }
+            <span class="note" style="color: yellow"> manual origin </span>
+            }
+          </span>
+          }
+
+          <!-- @else if(event.manualDriving) {
+          <span class="note" style="color: yellow"> manual origin </span>
           } @else {
           <span class="note">{{ event.notes }}</span>
-          }
+          } -->
         </div>
       </li>
       }

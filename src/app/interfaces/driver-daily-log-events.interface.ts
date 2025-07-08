@@ -43,6 +43,7 @@ export interface IEvent {
   date: string;
   tenant: ITenant;
   onDutyDuration: number;
+  manualDriving: boolean;
 }
 
 export interface IDriverIdAndName {

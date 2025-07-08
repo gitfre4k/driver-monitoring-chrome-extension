@@ -39,6 +39,7 @@ export class ProgressBarService {
     lowTotalEngineHours: {},
     teleports: {},
     eventErrors: {},
+    manualDrivingDetection: {},
   };
   advancedResaults: IAdvancedResaults = this.advancedResaultsInitialState;
 

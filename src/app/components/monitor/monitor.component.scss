@@ -85,7 +85,7 @@
           width: 100%;
 
           .view-id {
-            padding: 3px;
+            padding: 4px;
             margin: 0px 3px;
             text-align: right;
           }
@@ -97,7 +97,18 @@
 
           .error {
             border: 2px solid red;
+            border-left: 4px solid red;
             padding: 1px;
+            margin: 1px 2px 0 0;
+          }
+
+          .warn {
+            padding: 0px;
+            margin: 1px 0 0 5px;
+            // background-color: yellow;
+            border-right: 5px solid yellow;
+            background-color: yellow;
+            color: black;
           }
 
           .approved {

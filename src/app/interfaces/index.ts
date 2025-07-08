@@ -198,6 +198,7 @@ export interface IAdvancedResaults {
   lowTotalEngineHours: IDetectedResults;
   teleports: ITeleportsEvents;
   eventErrors: IEventErrors;
+  manualDrivingDetection: IEventErrors;
 }
 
 export interface IEventDetails {

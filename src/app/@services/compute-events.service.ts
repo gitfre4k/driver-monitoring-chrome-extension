@@ -50,9 +50,9 @@ export class ComputeEventsService {
   ) => {
     if (!driverDailyLog) return [];
 
-    //
+    //////////////////////////
     // initialize state
-    //// driver
+    ////// driver
     this.driverState.set(this.initialDriverState);
     driverDailyLog.shiftBreak &&
       this.driverState.update((prev) => ({
@@ -64,7 +64,9 @@ export class ComputeEventsService {
         ...prev,
         break: { ...prev.break, cycle: driverDailyLog.cycleBreak },
       }));
-    //// coDriver
+    //////////////////////////
+    // initialize state
+    ////// coDriver
     this.coDriverState.set(this.initialDriverState);
     coDriverDailyLog?.shiftBreak &&
       this.coDriverState.update((prev) => ({
@@ -131,6 +133,7 @@ export class ComputeEventsService {
   ) => {
     let events = [...importedEvents];
     let currentDriver = {} as IDriverIdAndName;
+    let wannabePTIonDutyId = 0;
 
     ////////////////////
     // compute events
@@ -197,43 +200,42 @@ export class ComputeEventsService {
         events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv'
         //  && currentDutyStatus.driver?.id === events[i].driver?.id
       ) {
-        //
-        // ## Fagor Trucking, LLC
-        // June 13, 2025
-        // ABDI BADIL && Abdi Hussein Mohamed
-        //
+        // ## DM International
+        // Jul 8, 2025
+        // Milan Krstic
+        if (
+          events[i].statusName === 'On Duty' &&
+          events[i].realDurationInSeconds !== 0
+        ) {
+          // PTI duration validity
+          if (
+            events[i].realDurationInSeconds >= (ptiDuration ? ptiDuration : 901)
+          ) {
+            timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
+            timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
+            shiftIsReadyToStart = false;
+            wannabePTIonDutyId = 0;
+            console.log('[Pre-Trip Inspection validity] valid PTI detected');
+          } else {
+            wannabePTIonDutyId = i;
+            console.log('[Pre-Trip Inspection validity] short PTI detected');
+          }
+        }
+        // no PTI
         if (events[i].statusName === 'Driving') {
-          events[i].errorMessages.push('no Pre-Trip Inspection');
+          wannabePTIonDutyId
+            ? events[wannabePTIonDutyId].errorMessages.push(
+                'short Pre-Trip Inspection'
+              )
+            : events[i].errorMessages.push('no Pre-Trip Inspection');
+
           timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
           timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
           shiftIsReadyToStart = false;
+          wannabePTIonDutyId = 0;
           console.log(
-            '[Pre-Trip Inspection validity] driving occured before PTI was detected'
+            '[Pre-Trip Inspection validity] driving occured before valid PTI'
           );
-        }
-        if (
-          events[i].statusName === 'On Duty' &&
-          events[i].realDurationInSeconds !== 0 &&
-          events[i].realDurationInSeconds < (ptiDuration ? ptiDuration : 901)
-        ) {
-          console.log('~~~~~~~~~~ SHORT PTI');
-          console.log(events[i]);
-          console.log(events[i].realDurationInSeconds);
-          console.log(ptiDuration);
-          events[i].errorMessages.push('short Pre-Trip Inspection');
-          timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
-          timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
-          shiftIsReadyToStart = false;
-          console.log('[Pre-Trip Inspection validity] short PTI detected');
-        }
-        if (
-          events[i].statusName === 'On Duty' &&
-          events[i].realDurationInSeconds > (ptiDuration ? ptiDuration : 901)
-        ) {
-          timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
-          timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
-          shiftIsReadyToStart = false;
-          console.log('[Pre-Trip Inspection validity] valid PTI detected');
         }
       }
 
@@ -266,6 +268,15 @@ export class ComputeEventsService {
             (sleeperMinDuration ? sleeperMinDuration : 30) &&
             events[i].errorMessages.push('34hr break outside Off Duty');
         }
+      }
+
+      ////////////////////
+      // check for Manual Drivings
+      if (
+        events[i].dutyStatus === 'ChangeToDrivingStatus' &&
+        events[i].origin === 'EditedOrEnteredByTheDriver'
+      ) {
+        events[i].manualDriving = true;
       }
 
       ////////////////////
