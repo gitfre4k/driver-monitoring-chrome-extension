@@ -75,7 +75,7 @@ export class AppComponent {
 
     this.timerSub = interval(300000).subscribe({
       next: () => {
-        if (!this.scanning()) {
+        if (!this.scanning() && this.scanService.autoScan()) {
           this._snackBar.open(`Initiating violations auto-scan`, 'OK', {
             duration: 3000,
           });
@@ -95,9 +95,12 @@ export class AppComponent {
               complete: () => this.scanService.handleScanComplete('violations'),
             });
         } else
-          return this._snackBar.open(`Violations auto-scan skiped`, 'OK', {
-            duration: 3000,
-          });
+          return (
+            this.scanService.autoScan() &&
+            this._snackBar.open(`Violations auto-scan skiped`, 'OK', {
+              duration: 3000,
+            })
+          );
       },
     });
   }

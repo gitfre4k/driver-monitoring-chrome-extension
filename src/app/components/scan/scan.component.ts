@@ -1,7 +1,7 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { Observable, single, Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,14 +16,8 @@ import { ScanService } from '../../@services/scan.service';
 import { AdvancedScanComponent } from '../advanced-scan/advanced-scan.component';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  FormsModule,
-} from '@angular/forms';
+import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { IDOTInspections, IViolations } from '../../interfaces';
-import { FormattedDateService } from '../../@services/formatted-date.service';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
@@ -32,7 +26,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DateTime } from 'luxon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-scan',
@@ -51,35 +45,36 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     AdvancedScanComponent,
     MatTooltipModule,
     MatRadioModule,
-    MatCheckboxModule,
+
+    MatSlideToggleModule,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
   styleUrl: './scan.component.scss',
 })
 export class ScanComponent {
-  private scanService: ScanService = inject(ScanService);
-  private formattedDateService = inject(FormattedDateService);
+  scanService: ScanService = inject(ScanService);
+
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
   private progressBarService = inject(ProgressBarService);
 
   readonly dialog = inject(MatDialog);
 
-  private currentDate =
-    this.formattedDateService.getFormatedDates().currentDate;
-  private sevenDaysAgo =
-    this.formattedDateService.getFormatedDates().sevenDaysAgo;
+  private currentDate = DateTime.now().toJSDate();
+  private sevenDaysAgo = DateTime.now().minus({ days: 7 }).toJSDate();
+  private monthAgo = DateTime.now().minus({ months: 1 }).toJSDate();
+
+  selectedRange = signal<'week' | 'month'>('week');
+  dateRange = computed(() =>
+    this.selectedRange() === 'week'
+      ? { dateFrom: this.sevenDaysAgo, dateTo: this.currentDate }
+      : { dateFrom: this.monthAgo, dateTo: this.currentDate }
+  );
 
   readonly scanMode = new FormControl<TScanMode>('advanced', {
     nonNullable: true,
   });
-  readonly range = new FormGroup({
-    dateFrom: new FormControl<Date>(new Date(this.sevenDaysAgo)),
-    dateTo: new FormControl<Date>(new Date(this.currentDate)),
-  });
-
-  checked = signal(true);
 
   disableScan = false;
   scanModes: { value: TScanMode; label: string; id: number }[] = [
@@ -115,32 +110,40 @@ export class ScanComponent {
 
   startScan = () => {
     this.disableScan = true;
-    const from = this.range.value.dateFrom;
-    const to = this.range.value.dateTo;
+    const { dateFrom: from, dateTo: to } = this.dateRange();
     if (!from || !to) {
       this.disableScan = false;
       return;
     }
-    console.log(
-      '## [Scan Component] DateTime.fromJSDate(to).toUTC().toJSDate()'
-    );
-    console.log(DateTime.fromJSDate(to).toUTC().toJSDate());
-
     const range = {
       dateFrom: DateTime.fromJSDate(
         this.scanMode.value === 'violations' ? from : to
       )
+        .endOf('day')
         .toUTC()
         .toJSDate(),
-      dateTo: DateTime.fromJSDate(to).toUTC().toJSDate(),
+      dateTo: DateTime.fromJSDate(to).endOf('day').toUTC().toJSDate(),
     };
 
+    console.log('[Scan Component] dateFrom: ');
+    console.log(
+      '[Scan Component]',
+      DateTime.fromJSDate(from).endOf('day').toUTC().toJSDate().toISOString()
+    );
+    console.log('[Scan Component] dateTo: ');
+    console.log(
+      '[Scan Component]',
+      DateTime.fromJSDate(to).endOf('day').toUTC().toJSDate().toISOString()
+    );
+
     if (this.scanMode.value === 'advanced') {
-      this.scanSubscribtion = this.advancedScanService.getLogs(to).subscribe({
-        complete: () => {
-          this.handleAdvancedScanComplete();
-        },
-      });
+      this.scanSubscribtion = this.advancedScanService
+        .getLogs(range.dateTo)
+        .subscribe({
+          complete: () => {
+            this.handleAdvancedScanComplete();
+          },
+        });
     } else {
       this.scanSubscribtion = (
         this.scanMode.value === 'violations'

@@ -43,6 +43,10 @@ export class AdvancedScanService {
 
   constructor() {}
 
+  misovLog: {
+    [companyName: string]: { totalCount: number; drivers: string[] };
+  } = {};
+
   getLogs(date: Date) {
     const tenants = this.appService.tenantsSignal();
     this.progressBarService.initializeState('advanced');
@@ -71,6 +75,14 @@ export class AdvancedScanService {
                 (prevValue) => prevValue + this.progressBarService.constant()
               )
             ),
+            tap((log) => {
+              const drivers: string[] = [];
+              log.items.forEach((d) => drivers.push(d.fullName));
+              this.misovLog[tenant.name] = {
+                totalCount: log.totalCount,
+                drivers,
+              };
+            }),
             concatMap((log) => from(log.items)),
             mergeMap((driver) => {
               this.progressBarService.activeDriversCount.update((i) => i + 1);
@@ -80,7 +92,21 @@ export class AdvancedScanService {
           );
         })
       )
-      .pipe(finalize(() => console.log(this.advancedScanResults)));
+      .pipe(
+        finalize(() => {
+          console.log(this.advancedScanResults);
+          console.log('~~~~~~~~~~~~~~~~~~~~~~~');
+          console.log('~~~~~~[MISOV LOG]~~~~~~');
+          console.log('~~~~~~~~~~~~~~~~~~~~~~~');
+          for (let company in this.misovLog) {
+            console.log('## ' + company);
+            console.log(`[total count]: ${this.misovLog[company].totalCount}`);
+            this.misovLog[company].drivers.forEach((d) =>
+              console.log(`- ${d}`)
+            );
+          }
+        })
+      );
   }
 
   dailyLogEvents$(driver: IDriver, date: Date, tenant: ITenant) {

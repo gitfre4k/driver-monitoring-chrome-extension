@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   catchError,
   concatMap,
@@ -32,6 +32,8 @@ export class ScanService {
   private _snackBar = inject(MatSnackBar);
 
   readonly dialog = inject(MatDialog);
+
+  autoScan = signal(true);
 
   constructor() {}
 

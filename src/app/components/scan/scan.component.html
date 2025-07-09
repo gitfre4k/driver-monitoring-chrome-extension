@@ -5,10 +5,13 @@
   <fieldset class="scan-violations">
     <legend>Violations</legend>
     <div class="scan-violations__sync">
-      <mat-checkbox class="scan-violations__sync-check" [(ngModel)]="checked"
-        >auto scan<br />
-        every 5min</mat-checkbox
+      <mat-slide-toggle
+        class="scan-violations__sync-auto"
+        [(ngModel)]="scanService.autoScan"
+        onchange=""
       >
+        Enable Auto-Scan
+      </mat-slide-toggle>
       <div class="scan-violations__sync-stats">
         @if (vLastSync(); as lastSync) {
         <span>
@@ -29,60 +32,27 @@
 
     <!-- radio buttons -->
     <div class="scan-violations__options">
-      <mat-radio-group class="scan-violations__options-radio">
+      <mat-radio-group
+        class="scan-violations__options-radio"
+        [(ngModel)]="selectedRange"
+      >
         <mat-radio-button
           class="scan-violations__options-radio-button"
           [value]="'week'"
-          [ariaSetSize]="1"
           >last week</mat-radio-button
         >
 
         <mat-radio-button
           class="scan-violations__options-radio-button"
-          [value]="'mounth'"
+          [value]="'month'"
           >last month</mat-radio-button
         >
-        <mat-radio-button
-          class="scan-violations__options-radio-button"
-          [value]="'custom'"
-        >
-          <div class="scan-violations__options-radio-button-custom">
-            <!-- hidden date range input -->
-            <mat-form-field style="visibility: hidden; width: 0; height: 0">
-              <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-                <input
-                  matStartDate
-                  formControlName="dateFrom"
-                  placeholder="Start date"
-                />
-                <input
-                  matEndDate
-                  formControlName="dateTo"
-                  placeholder="End date"
-                />
-              </mat-date-range-input>
-            </mat-form-field>
-            <!-- calendar opener -->
-            <mat-date-range-picker #picker></mat-date-range-picker>
-
-            <span style="font-size: 10px"
-              >{{ range.value.dateFrom | date : "mediumDate" }} - <br />
-              {{ range.value.dateTo | date : "mediumDate" }}</span
-            >
-            <a
-              mat-icon-button
-              (click)="picker.open()"
-              matTooltip="Select date range"
-              class="scan-violations__options-radio-button-custom-calendar"
-            >
-              <mat-icon
-                class="scan-violations__options-radio-button-custom-calendar-icon"
-                >calendar_month</mat-icon
-              >
-            </a>
-          </div>
-        </mat-radio-button>
       </mat-radio-group>
+
+      <span class="scan-violations__options-daterange"
+        >{{ dateRange().dateFrom | date : "mediumDate" }} -
+        {{ dateRange().dateTo | date : "mediumDate" }}Z</span
+      >
     </div>
   </fieldset>
 
@@ -94,7 +64,7 @@
     (click)="startScan()"
     class="scan-submit"
   >
-    Scan
+    Analyze Driver Logs
   </button>
 
   } @else {
