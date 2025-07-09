@@ -123,13 +123,19 @@ export interface IDriverDailyLogEvents {
   inspectionReports: any[];
   exceptions: any[];
   hosDetails: IHosDetails;
-  refuels: any[];
+  refuels: IRefuels[];
   firstEventTime: string;
   engineOnEventData: IEngineOnEventData;
   isEngineOffFirstEvent: boolean;
   isEngineOffInnerEvents: boolean;
   shiftBreak: string;
   cycleBreak: string;
+}
+
+export interface IRefuels {
+  time: string;
+  location: string;
+  isFromProvider: boolean;
 }
 
 export interface ICoDriver {
