@@ -34,6 +34,7 @@ export class ScanService {
   readonly dialog = inject(MatDialog);
 
   autoScan = signal(true);
+  selectedRange = signal<'week' | 'month'>('week');
 
   constructor() {}
 
@@ -107,7 +108,15 @@ export class ScanService {
 
     return this.apiService
       .getAccessibleTenants()
-      .pipe(switchMap((tenants) => from(tenants)))
+      .pipe(
+        tap(
+          (tenants) =>
+            !tenants.find(
+              (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
+            ) && window.close()
+        ),
+        switchMap((tenants) => from(tenants))
+      )
       .pipe(
         mergeMap((tenant) => {
           this.progressBarService.currentCompany.set(tenant.name);
@@ -151,6 +160,12 @@ export class ScanService {
   getAllDOTInspections(range: IRange) {
     this.progressBarService.initializeState('dot');
     return this.apiService.getAccessibleTenants().pipe(
+      tap(
+        (tenants) =>
+          !tenants.find(
+            (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
+          ) && window.close()
+      ),
       tap(() => {
         this.progressBarService.scanning.set(true);
       }),

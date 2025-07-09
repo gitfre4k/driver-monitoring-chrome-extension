@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { Observable, Subscription } from 'rxjs';
@@ -65,9 +65,8 @@ export class ScanComponent {
   private sevenDaysAgo = DateTime.now().minus({ days: 7 }).toJSDate();
   private monthAgo = DateTime.now().minus({ months: 1 }).toJSDate();
 
-  selectedRange = signal<'week' | 'month'>('week');
   dateRange = computed(() =>
-    this.selectedRange() === 'week'
+    this.scanService.selectedRange() === 'week'
       ? { dateFrom: this.sevenDaysAgo, dateTo: this.currentDate }
       : { dateFrom: this.monthAgo, dateTo: this.currentDate }
   );
@@ -105,6 +104,11 @@ export class ScanComponent {
 
   startViolationsScan = () => {
     this.scanMode.setValue('violations');
+    this.startScan();
+  };
+
+  analyzeDriverLogs = () => {
+    this.scanMode.setValue('advanced');
     this.startScan();
   };
 

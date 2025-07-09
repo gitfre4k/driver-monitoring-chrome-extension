@@ -15,9 +15,9 @@ import { ScanResultComponent } from './components/scan-result/scan-result.compon
 import { ExtensionTabNavigationService } from './@services/extension-tab-navigation.service';
 import { interval, Subscription } from 'rxjs';
 import { ScanService } from './@services/scan.service';
-import { FormattedDateService } from './@services/formatted-date.service';
 import { IViolations } from './interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DateService } from './@services/date.service';
 
 @Component({
   selector: 'app-root',
@@ -47,15 +47,8 @@ export class AppComponent {
   private extensionTabNavigationService = inject(ExtensionTabNavigationService);
   private progressBarService = inject(ProgressBarService);
   private scanService = inject(ScanService);
-  private formattedDateService = inject(FormattedDateService);
   private _snackBar = inject(MatSnackBar);
-
-  private currentDate = new Date(
-    this.formattedDateService.getFormatedDates().currentDate
-  );
-  private sevenDaysAgo = new Date(
-    this.formattedDateService.getFormatedDates().sevenDaysAgo
-  );
+  private dateService = inject(DateService);
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
@@ -81,12 +74,11 @@ export class AppComponent {
           });
           return this.scanService
             .getAllViolations({
-              dateFrom: new Date(
-                new Date(this.sevenDaysAgo.getTime()).toUTCString()
-              ),
-              dateTo: new Date(
-                new Date(this.currentDate.getTime()).toUTCString()
-              ),
+              dateFrom:
+                this.scanService.selectedRange() === 'week'
+                  ? this.dateService.sevenDaysAgo
+                  : this.dateService.monthAgo,
+              dateTo: this.dateService.today,
             })
             .subscribe({
               next: (data: IViolations[]) =>

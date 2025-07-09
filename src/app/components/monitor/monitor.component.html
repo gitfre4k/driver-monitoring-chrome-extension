@@ -9,7 +9,7 @@
     @if (isLoading()) {
     <mat-spinner [diameter]="16"></mat-spinner>
     } @else {
-    <p class="info__date">{{ ddle.date | date : "MMM d, y" : "UTC-5" }}</p>
+    <p class="info__date">{{ ddle.date | date : "MMM d, y" }}</p>
     }
   </div>
 

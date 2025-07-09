@@ -8,7 +8,6 @@
       <mat-slide-toggle
         class="scan-violations__sync-auto"
         [(ngModel)]="scanService.autoScan"
-        onchange=""
       >
         Enable Auto-Scan
       </mat-slide-toggle>
@@ -24,6 +23,7 @@
           mat-icon-button
           (click)="startViolationsScan()"
           matTooltip="Check for violations"
+          [disabled]="disableScan"
         >
           <mat-icon class="icon-display">sync</mat-icon></a
         >
@@ -34,7 +34,7 @@
     <div class="scan-violations__options">
       <mat-radio-group
         class="scan-violations__options-radio"
-        [(ngModel)]="selectedRange"
+        [(ngModel)]="scanService.selectedRange"
       >
         <mat-radio-button
           class="scan-violations__options-radio-button"
@@ -51,7 +51,7 @@
 
       <span class="scan-violations__options-daterange"
         >{{ dateRange().dateFrom | date : "mediumDate" }} -
-        {{ dateRange().dateTo | date : "mediumDate" }}Z</span
+        {{ dateRange().dateTo | date : "mediumDate" }}</span
       >
     </div>
   </fieldset>
@@ -61,7 +61,7 @@
   <button
     [disabled]="disableScan"
     mat-raised-button
-    (click)="startScan()"
+    (click)="analyzeDriverLogs()"
     class="scan-submit"
   >
     Analyze Driver Logs

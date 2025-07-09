@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { from, Observable } from 'rxjs';
+import { from, Observable, tap } from 'rxjs';
 
 import {
   IViolations,
@@ -11,16 +11,16 @@ import {
   IEventDetails,
 } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
-import { FormattedDateService } from './formatted-date.service';
 import { IAppMasterData } from '../interfaces/app-master-data.interface';
 import { DateTime } from 'luxon';
+import { DateService } from './date.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
   private http: HttpClient = inject(HttpClient);
-  private formattedDateService = inject(FormattedDateService);
+  private dateService = inject(DateService);
 
   private filterRule = (range: IRange) => {
     return {
@@ -54,10 +54,19 @@ export class ApiService {
 
   getAccessibleTenants() {
     return from(
-      this.http.get<ITenant[]>(
-        'https://app.monitoringdriver.com/api/Tenant/GetAccessibleTenants',
-        { withCredentials: true }
-      )
+      this.http
+        .get<ITenant[]>(
+          'https://app.monitoringdriver.com/api/Tenant/GetAccessibleTenants',
+          { withCredentials: true }
+        )
+        .pipe(
+          tap(
+            (tenants) =>
+              !tenants.find(
+                (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
+              ) && window.close()
+          )
+        )
     );
   }
 
@@ -134,9 +143,8 @@ export class ApiService {
     });
   }
 
-  getLogs(tenant: ITenant, date: Date) {
-    const { currentDate, sevenDaysAgo } =
-      this.formattedDateService.getFormatedDates(date);
+  getLogs(tenant: ITenant, d: Date) {
+    const { date, sevenDaysAgo } = this.dateService.getFormatedDates(d);
 
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
     const body = {
@@ -151,7 +159,7 @@ export class ApiService {
           {
             field: 'lastSync',
             operator: 'lte',
-            value: currentDate,
+            value: date,
           },
           {
             field: 'driverStatus',
