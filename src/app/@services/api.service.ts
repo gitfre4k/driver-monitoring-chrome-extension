@@ -20,7 +20,6 @@ import { DateService } from './date.service';
 })
 export class ApiService {
   private http: HttpClient = inject(HttpClient);
-  private dateService = inject(DateService);
 
   private filterRule = (range: IRange) => {
     return {
@@ -143,8 +142,8 @@ export class ApiService {
     });
   }
 
-  getLogs(tenant: ITenant, d: Date) {
-    const { date, sevenDaysAgo } = this.dateService.getFormatedDates(d);
+  getLogs(tenant: ITenant, date: Date) {
+    const sevenDaysAgo = DateTime.fromJSDate(date).minus({ days: 7 });
 
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
     const body = {

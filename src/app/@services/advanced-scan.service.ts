@@ -95,16 +95,6 @@ export class AdvancedScanService {
       .pipe(
         finalize(() => {
           console.log(this.advancedScanResults);
-          console.log('~~~~~~~~~~~~~~~~~~~~~~~');
-          console.log('~~~~~~[MISOV LOG]~~~~~~');
-          console.log('~~~~~~~~~~~~~~~~~~~~~~~');
-          for (let company in this.misovLog) {
-            console.log('## ' + company);
-            console.log(`[total count]: ${this.misovLog[company].totalCount}`);
-            this.misovLog[company].drivers.forEach((d) =>
-              console.log(`- ${d}`)
-            );
-          }
         })
       );
   }

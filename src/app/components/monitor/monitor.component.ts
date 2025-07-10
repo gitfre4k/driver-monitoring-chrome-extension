@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DateService } from '../../@services/date.service';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-monitor',
@@ -22,21 +22,16 @@ import { DateService } from '../../@services/date.service';
   providers: [],
 })
 export class MonitorComponent {
-  private monitorService = inject(MonitorService);
-  private dateService = inject(DateService);
-
-  driverDailyLogEvents = this.monitorService.driverDailyLog;
-  events = this.monitorService.computedDailyLogEvents;
-  isLoading = this.monitorService.isUpdating;
+  monitorService = inject(MonitorService);
 
   refresh = () => {
     this.monitorService.refresh.update((value) => value + 1);
   };
 
   get date() {
-    const ddle = this.driverDailyLogEvents();
-    if (!ddle) return new Date();
+    const zone = this.monitorService.driverDailyLog()?.homeTerminalTimeZone!;
+    const date = this.monitorService.driverDailyLog()?.date!;
 
-    return this.dateService.getFormatedDates(new Date(ddle.date)).date;
+    return DateTime.fromISO(date).setZone(zone).toISO();
   }
 }

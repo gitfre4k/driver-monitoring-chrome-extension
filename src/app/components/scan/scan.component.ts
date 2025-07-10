@@ -27,6 +27,7 @@ import { DateTime } from 'luxon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { DateService } from '../../@services/date.service';
 
 @Component({
   selector: 'app-scan',
@@ -54,6 +55,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 })
 export class ScanComponent {
   scanService: ScanService = inject(ScanService);
+  dateService = inject(DateService);
 
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
@@ -61,15 +63,13 @@ export class ScanComponent {
 
   readonly dialog = inject(MatDialog);
 
-  private currentDate = DateTime.now().toJSDate();
-  private sevenDaysAgo = DateTime.now().minus({ days: 7 }).toJSDate();
-  private monthAgo = DateTime.now().minus({ months: 1 }).toJSDate();
-
-  dateRange = computed(() =>
-    this.scanService.selectedRange() === 'week'
-      ? { dateFrom: this.sevenDaysAgo, dateTo: this.currentDate }
-      : { dateFrom: this.monthAgo, dateTo: this.currentDate }
-  );
+  dateRange = computed(() => ({
+    dateFrom:
+      this.scanService.selectedRange() === 'week'
+        ? this.dateService.sevenDaysAgo
+        : this.dateService.monthAgo,
+    dateTo: this.dateService.today,
+  }));
 
   readonly scanMode = new FormControl<TScanMode>('advanced', {
     nonNullable: true,
@@ -114,35 +114,15 @@ export class ScanComponent {
 
   startScan = () => {
     this.disableScan = true;
-    const { dateFrom: from, dateTo: to } = this.dateRange();
-    if (!from || !to) {
+    const { dateFrom, dateTo } = this.dateRange();
+    if (!dateFrom || !dateTo) {
       this.disableScan = false;
       return;
     }
-    const range = {
-      dateFrom: DateTime.fromJSDate(
-        this.scanMode.value === 'violations' ? from : to
-      )
-        .endOf('day')
-        .toUTC()
-        .toJSDate(),
-      dateTo: DateTime.fromJSDate(to).endOf('day').toUTC().toJSDate(),
-    };
-
-    console.log('[Scan Component] dateFrom: ');
-    console.log(
-      '[Scan Component]',
-      DateTime.fromJSDate(from).endOf('day').toUTC().toJSDate().toISOString()
-    );
-    console.log('[Scan Component] dateTo: ');
-    console.log(
-      '[Scan Component]',
-      DateTime.fromJSDate(to).endOf('day').toUTC().toJSDate().toISOString()
-    );
 
     if (this.scanMode.value === 'advanced') {
       this.scanSubscribtion = this.advancedScanService
-        .getLogs(range.dateTo)
+        .getLogs(dateTo)
         .subscribe({
           complete: () => {
             this.handleAdvancedScanComplete();
@@ -151,8 +131,11 @@ export class ScanComponent {
     } else {
       this.scanSubscribtion = (
         this.scanMode.value === 'violations'
-          ? this.scanService.getAllViolations(range)
-          : (this.scanService.getAllDOTInspections(range) as Observable<any>)
+          ? this.scanService.getAllViolations({ dateFrom, dateTo })
+          : (this.scanService.getAllDOTInspections({
+              dateFrom,
+              dateTo,
+            }) as Observable<any>)
       ).subscribe({
         next: (data: IViolations[] | IDOTInspections[]) =>
           this.scanService.handleScanData(data, this.scanMode.value),
