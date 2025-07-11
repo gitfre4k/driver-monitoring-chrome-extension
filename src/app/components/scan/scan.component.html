@@ -3,7 +3,12 @@
   <!--////////////////////  -->
   <!-- Violations -->
   <fieldset class="scan-violations">
-    <legend>Violations</legend>
+    <legend>
+      <mat-select [(value)]="selectedValue" class="scan-violations__select">
+        <mat-option value="Violations">Violations</mat-option>
+        <mat-option value="DOT Inspections">DOT Inspections</mat-option>
+      </mat-select>
+    </legend>
     <div class="scan-violations__sync">
       <mat-slide-toggle
         class="scan-violations__sync-auto"
@@ -47,10 +52,50 @@
           [value]="'month'"
           >last month</mat-radio-button
         >
+
+        <mat-radio-button
+          class="scan-violations__options-radio-button"
+          [value]="'custom'"
+        >
+          <div class="custom">
+            custom
+            <div style="display: none">
+              <mat-date-range-input
+                [rangePicker]="rangePicker"
+                [formGroup]="range"
+                style="display: none"
+              >
+                <input
+                  matStartDate
+                  formControlName="start"
+                  placeholder="Start date"
+                />
+                <input
+                  matEndDate
+                  formControlName="end"
+                  placeholder="End date"
+                />
+              </mat-date-range-input>
+            </div>
+
+            <mat-date-range-picker #rangePicker>
+              <mat-date-range-picker-actions>
+                <button matButton matDateRangePickerCancel>Cancel</button>
+                <button matButton="elevated" matDateRangePickerApply>
+                  Apply
+                </button>
+              </mat-date-range-picker-actions>
+            </mat-date-range-picker>
+          </div>
+        </mat-radio-button>
       </mat-radio-group>
 
-      <span class="scan-violations__options-daterange"
-        >{{ dateRange().dateFrom | date : "mediumDate" }} -
+      <span class="scan-violations__options-daterange">
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="rangePicker"
+        ></mat-datepicker-toggle>
+        {{ dateRange().dateFrom | date : "mediumDate" }} -
         {{ dateRange().dateTo | date : "mediumDate" }}</span
       >
     </div>

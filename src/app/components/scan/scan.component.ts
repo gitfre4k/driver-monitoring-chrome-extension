@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { Observable, Subscription } from 'rxjs';
@@ -16,14 +16,18 @@ import { ScanService } from '../../@services/scan.service';
 import { AdvancedScanComponent } from '../advanced-scan/advanced-scan.component';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 
-import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import {
+  FormControl,
+  ReactiveFormsModule,
+  FormsModule,
+  FormGroup,
+} from '@angular/forms';
 import { IDOTInspections, IViolations } from '../../interfaces';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { ReportComponent } from '../report/report.component';
 import { MatDialog } from '@angular/material/dialog';
-import { DateTime } from 'luxon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -46,7 +50,6 @@ import { DateService } from '../../@services/date.service';
     AdvancedScanComponent,
     MatTooltipModule,
     MatRadioModule,
-
     MatSlideToggleModule,
   ],
   templateUrl: './scan.component.html',
@@ -63,13 +66,32 @@ export class ScanComponent {
 
   readonly dialog = inject(MatDialog);
 
-  dateRange = computed(() => ({
-    dateFrom:
-      this.scanService.selectedRange() === 'week'
-        ? this.dateService.sevenDaysAgo
-        : this.dateService.monthAgo,
-    dateTo: this.dateService.today,
-  }));
+  selectedValue = signal<'Violations' | 'DOT Inspections'>('Violations');
+  dateRange = computed(() => {
+    let dateFrom: Date;
+    let dateTo = this.dateService.today;
+    switch (this.scanService.selectedRange()) {
+      case 'custom':
+        dateFrom = this.range.value.start
+          ? this.range.value.start
+          : this.dateService.sevenDaysAgo;
+        dateTo = this.range.value.end
+          ? this.range.value.end
+          : this.dateService.today;
+        break;
+      case 'month':
+        dateFrom = this.dateService.monthAgo;
+        break;
+      default:
+        dateFrom = this.dateService.sevenDaysAgo;
+        dateTo = this.dateService.today;
+    }
+    return { dateFrom, dateTo };
+  });
+  range = new FormGroup({
+    start: new FormControl<Date | null>(null),
+    end: new FormControl<Date | null>(null),
+  });
 
   readonly scanMode = new FormControl<TScanMode>('advanced', {
     nonNullable: true,

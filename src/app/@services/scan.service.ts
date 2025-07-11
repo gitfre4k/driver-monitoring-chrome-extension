@@ -34,7 +34,7 @@ export class ScanService {
   readonly dialog = inject(MatDialog);
 
   autoScan = signal(true);
-  selectedRange = signal<'week' | 'month'>('week');
+  selectedRange = signal<'week' | 'month' | 'custom'>('week');
 
   constructor() {}
 

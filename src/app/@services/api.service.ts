@@ -13,7 +13,6 @@ import {
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { IAppMasterData } from '../interfaces/app-master-data.interface';
 import { DateTime } from 'luxon';
-import { DateService } from './date.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,12 +27,12 @@ export class ApiService {
         {
           field: 'dateFrom',
           operator: 'equals',
-          value: range.dateFrom,
+          value: DateTime.fromJSDate(range.dateFrom).toISO(),
         },
         {
           field: 'dateTo',
           operator: 'equals',
-          value: range.dateTo,
+          value: DateTime.fromJSDate(range.dateTo).toISO(),
         },
       ],
     };
@@ -153,12 +152,12 @@ export class ApiService {
           {
             field: 'lastSync',
             operator: 'gte',
-            value: sevenDaysAgo,
+            value: sevenDaysAgo.toISO(),
           },
           {
             field: 'lastSync',
             operator: 'lte',
-            value: date,
+            value: DateTime.fromJSDate(date).toISO(),
           },
           {
             field: 'driverStatus',
