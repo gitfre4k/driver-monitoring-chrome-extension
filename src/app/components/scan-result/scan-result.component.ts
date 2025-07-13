@@ -65,7 +65,11 @@ export class ScanResultComponent {
 
   openLogs(id: number, date: string, tenant: ITenant) {
     if (!id || !date || !tenant?.id) return;
-    const logDate = DateTime.fromISO(date).startOf('day').toUTC().toISO();
+    const logDate = DateTime.fromISO(date)
+      .minus({ days: 1 })
+      .startOf('day')
+      .toUTC()
+      .toISO();
     console.log('~~~~~~~~~~~~~~~~~~~~');
     console.log(date);
     console.log(logDate);

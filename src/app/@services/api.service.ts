@@ -117,7 +117,7 @@ export class ApiService {
   getDriverDailyLogEvents(driverId: number, date: Date, tenantId: string) {
     const body = {
       driverId,
-      logDate: DateTime.fromJSDate(date).toUTC().toISO(),
+      logDate: DateTime.fromJSDate(date).toISO(),
     };
     console.log('[API Service] getDriverDailyLogEvents ', body.logDate);
     return this.http.post<IDriverDailyLogEvents>(
@@ -133,11 +133,8 @@ export class ApiService {
   }
 
   getLogs(tenant: ITenant, date: Date) {
-    const sevenDaysAgo = DateTime.fromJSDate(date)
-      .minus({ days: 7 })
-      .toUTC()
-      .toISO();
-    const selectedDate = DateTime.fromJSDate(date).toUTC().toISO();
+    const sevenDaysAgo = DateTime.fromJSDate(date).minus({ days: 7 }).toISO();
+    const selectedDate = DateTime.fromJSDate(date).toISO();
     console.log('[API Service] getLogs => ', selectedDate, sevenDaysAgo);
 
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';

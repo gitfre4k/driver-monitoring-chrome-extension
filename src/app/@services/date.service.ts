@@ -5,21 +5,23 @@ import { DateTime } from 'luxon';
   providedIn: 'root',
 })
 export class DateService {
-  constructor() {}
+  constructor() {
+    console.log('################ [Date Service]', this.today);
+  }
 
   get today() {
-    return DateTime.now().endOf('day').toUTC().toJSDate();
+    return DateTime.utc().endOf('day').toJSDate();
   }
 
   get sevenDaysAgo() {
-    return DateTime.now().minus({ days: 7 }).endOf('day').toUTC().toJSDate();
+    return DateTime.now().minus({ days: 7 }).endOf('day').toJSDate();
   }
 
   get monthAgo() {
-    return DateTime.now().minus({ months: 1 }).endOf('day').toUTC().toJSDate();
+    return DateTime.now().minus({ months: 1 }).endOf('day').toJSDate();
   }
 
-  // getFormatedDates(d: Date) {
+  // getFormatedDates(d: Date) {query
   //   return {
   //     date: DateTime.fromJSDate(d).startOf('day').toUTC().toJSDate(),
   //     sevenDaysAgo: DateTime.fromJSDate(d)

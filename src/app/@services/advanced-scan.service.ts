@@ -23,6 +23,7 @@ import {
 import { ProgressBarService } from './progress-bar.service';
 import { AppService } from './app.service';
 import { ComputeEventsService } from './compute-events.service';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -110,6 +111,7 @@ export class AdvancedScanService {
   }
 
   dailyLogEvents$(driver: IDriver, tenant: ITenant, date: Date) {
+    // const date = DateTime.fromJSDate(d).startOf('day').toJSDate();
     return this.apiService
       .getDriverDailyLogEvents(driver.id, date, tenant.id)
       .pipe(
