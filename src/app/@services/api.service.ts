@@ -40,8 +40,6 @@ export class ApiService {
 
   constructor() {}
 
-  // https://app.monitoringdriver.com/api/Logs/GetEvent/505900
-
   getEvent(id: number) {
     console.log('[API Service]: getEvent() called');
     return this.http.get<IEventDetails>(
@@ -116,8 +114,12 @@ export class ApiService {
     );
   }
 
-  getDriverDailyLogEvents(driverId: number, logDate: Date, tenantId: string) {
-    const body = { driverId, logDate };
+  getDriverDailyLogEvents(driverId: number, date: Date, tenantId: string) {
+    const body = {
+      driverId,
+      logDate: DateTime.fromJSDate(date).toUTC().toISO(),
+    };
+    console.log('[API Service] getDriverDailyLogEvents ', body.logDate);
     return this.http.post<IDriverDailyLogEvents>(
       'https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog',
       body,
@@ -130,19 +132,13 @@ export class ApiService {
     );
   }
 
-  getMasterAppData(tenant: ITenant) {
-    const url = 'https://app.monitoringdriver.com/api/Util/GetMasterAppData';
-
-    return this.http.get<IAppMasterData>(url, {
-      withCredentials: true,
-      headers: {
-        'X-Tenant-Id': tenant.id,
-      },
-    });
-  }
-
   getLogs(tenant: ITenant, date: Date) {
-    const sevenDaysAgo = DateTime.fromJSDate(date).minus({ days: 7 });
+    const sevenDaysAgo = DateTime.fromJSDate(date)
+      .minus({ days: 7 })
+      .toUTC()
+      .toISO();
+    const selectedDate = DateTime.fromJSDate(date).toUTC().toISO();
+    console.log('[API Service] getLogs => ', selectedDate, sevenDaysAgo);
 
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
     const body = {
@@ -152,12 +148,12 @@ export class ApiService {
           {
             field: 'lastSync',
             operator: 'gte',
-            value: sevenDaysAgo.toISO(),
+            value: sevenDaysAgo,
           },
           {
             field: 'lastSync',
             operator: 'lte',
-            value: DateTime.fromJSDate(date).toISO(),
+            value: selectedDate,
           },
           {
             field: 'driverStatus',
@@ -176,6 +172,17 @@ export class ApiService {
     };
 
     return this.http.post<ILog>(url, body, {
+      withCredentials: true,
+      headers: {
+        'X-Tenant-Id': tenant.id,
+      },
+    });
+  }
+
+  getMasterAppData(tenant: ITenant) {
+    const url = 'https://app.monitoringdriver.com/api/Util/GetMasterAppData';
+
+    return this.http.get<IAppMasterData>(url, {
       withCredentials: true,
       headers: {
         'X-Tenant-Id': tenant.id,

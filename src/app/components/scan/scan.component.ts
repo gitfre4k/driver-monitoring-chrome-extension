@@ -146,9 +146,7 @@ export class ScanComponent {
       this.scanSubscribtion = this.advancedScanService
         .getLogs(dateTo)
         .subscribe({
-          complete: () => {
-            this.handleAdvancedScanComplete();
-          },
+          complete: () => this.handleAdvancedScanComplete(),
         });
     } else {
       this.scanSubscribtion = (

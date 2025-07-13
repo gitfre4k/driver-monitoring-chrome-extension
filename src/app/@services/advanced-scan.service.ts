@@ -58,6 +58,9 @@ export class AdvancedScanService {
           this.progressBarService.currentCompany.set(tenant.name);
 
           return this.apiService.getLogs(tenant, date).pipe(
+            tap(() =>
+              console.log('[Advanced Scan Service] getLogs => ## ', tenant.name)
+            ),
             tap({
               error: (error) => {
                 this.progressBarService.progressValue.update(
@@ -86,7 +89,7 @@ export class AdvancedScanService {
             concatMap((log) => from(log.items)),
             mergeMap((driver) => {
               this.progressBarService.activeDriversCount.update((i) => i + 1);
-              return this.dailyLogEvents$(driver, date, tenant);
+              return this.dailyLogEvents$(driver, tenant, date);
             }, 10),
             toArray()
           );
@@ -95,11 +98,18 @@ export class AdvancedScanService {
       .pipe(
         finalize(() => {
           console.log(this.advancedScanResults);
+          for (let company in this.misovLog) {
+            console.log('## ' + company);
+            console.log(`[total count]: ${this.misovLog[company].totalCount}`);
+            this.misovLog[company].drivers.forEach((d) =>
+              console.log(`- ${d}`)
+            );
+          }
         })
       );
   }
 
-  dailyLogEvents$(driver: IDriver, date: Date, tenant: ITenant) {
+  dailyLogEvents$(driver: IDriver, tenant: ITenant, date: Date) {
     return this.apiService
       .getDriverDailyLogEvents(driver.id, date, tenant.id)
       .pipe(

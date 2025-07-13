@@ -78,7 +78,7 @@ export class ComputeEventsService {
         ...prev,
         break: { ...prev.break, cycle: coDriverDailyLog.cycleBreak },
       }));
-
+    /////////////////////
     let events = [] as IEvent[];
     let driverEvents = bindEventViewId(driverDailyLog.events);
     let coDriverEvents = coDriverDailyLog
@@ -215,10 +215,10 @@ export class ComputeEventsService {
             timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
             shiftIsReadyToStart = false;
             wannabePTIonDutyId = 0;
-            console.log('[Pre-Trip Inspection validity] valid PTI detected');
+            // console.log('[Pre-Trip Inspection validity] valid PTI detected');
           } else {
             wannabePTIonDutyId = i;
-            console.log('[Pre-Trip Inspection validity] short PTI detected');
+            // console.log('[Pre-Trip Inspection validity] short PTI detected');
           }
         }
         // no PTI
@@ -233,9 +233,9 @@ export class ComputeEventsService {
           timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
           shiftIsReadyToStart = false;
           wannabePTIonDutyId = 0;
-          console.log(
-            '[Pre-Trip Inspection validity] driving occured before valid PTI'
-          );
+          // console.log(
+          // '[Pre-Trip Inspection validity] driving occured before valid PTI'
+          // );
         }
       }
 
