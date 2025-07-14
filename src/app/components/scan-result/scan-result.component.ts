@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
   MatExpansionModule,
+  MatExpansionPanel,
 } from '@angular/material/expansion';
 
 import { ProgressBarService } from '../../@services/progress-bar.service';
@@ -17,6 +18,7 @@ import { UrlService } from '../../@services/url.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ITenant } from '../../interfaces';
 import { DateTime } from 'luxon';
+import { PanelService } from '../../@services/panel.service';
 
 @Component({
   selector: 'app-scan-result',
@@ -47,6 +49,7 @@ export class ScanResultComponent {
   private _snackBar = inject(MatSnackBar);
   private progressBarService = inject(ProgressBarService);
   private urlService = inject(UrlService);
+  panelService = inject(PanelService);
 
   scanResults = this.progressBarService.advancedResaults;
   driverCount = this.progressBarService.activeDriversCount;
@@ -64,20 +67,13 @@ export class ScanResultComponent {
   }
 
   openLogs(id: number, date: string, tenant: ITenant) {
-    if (!id || !date || !tenant?.id) return;
-    const logDate = DateTime.fromISO(date)
-      .minus({ days: 1 })
-      .startOf('day')
-      .toUTC()
-      .toISO();
-    console.log('~~~~~~~~~~~~~~~~~~~~');
-    console.log(date);
-    console.log(logDate);
     this.urlService.navigateChromeActiveTab(
-      `https://app.monitoringdriver.com/logs/${id}/${logDate}/`,
+      `https://app.monitoringdriver.com/logs/${id}/${date}/`,
       tenant
     );
   }
+
+  constructor() {}
 
   get malfTitle(): string {
     return window.innerWidth > 350

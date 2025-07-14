@@ -59,7 +59,7 @@
         >
           <div class="custom">
             custom
-            <div style="display: none">
+            <div>
               <mat-date-range-input
                 [rangePicker]="rangePicker"
                 [formGroup]="range"
@@ -78,7 +78,10 @@
               </mat-date-range-input>
             </div>
 
-            <mat-date-range-picker #rangePicker>
+            <mat-date-range-picker
+              #rangePicker
+              [disabled]="scanService.selectedRange() !== 'custom'"
+            >
               <mat-date-range-picker-actions>
                 <button matButton matDateRangePickerCancel>Cancel</button>
                 <button matButton="elevated" matDateRangePickerApply>
@@ -91,13 +94,13 @@
       </mat-radio-group>
 
       <span class="scan-violations__options-daterange">
+        {{ dateRange().dateFrom | date : "mediumDate" }} -
+        {{ dateRange().dateTo | date : "mediumDate" }}
         <mat-datepicker-toggle
           matIconSuffix
           [for]="rangePicker"
         ></mat-datepicker-toggle>
-        {{ dateRange().dateFrom | date : "mediumDate" }} -
-        {{ dateRange().dateTo | date : "mediumDate" }}</span
-      >
+      </span>
     </div>
   </fieldset>
 

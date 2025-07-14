@@ -11,7 +11,11 @@
       <!-- //////////////////////////////////  -->
       <!-- Violations -->
       @if (violations().length > 0) {
-      <mat-expansion-panel>
+      <mat-expansion-panel
+        [expanded]="panelService.violationPanelIsOpened()"
+        (opened)="panelService.violationPanelIsOpened.set(true)"
+        (closed)="panelService.violationPanelIsOpened.set(false)"
+      >
         <mat-expansion-panel-header>
           <mat-panel-title
             >Violations

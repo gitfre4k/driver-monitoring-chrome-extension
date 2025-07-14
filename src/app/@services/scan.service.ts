@@ -21,6 +21,7 @@ import { IDOTInspections, IRange, IViolations } from '../interfaces';
 import { TScanMode } from '../types';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { DateTime } from 'luxon';
+import { PanelService } from './panel.service';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +31,7 @@ export class ScanService {
   private progressBarService = inject(ProgressBarService);
   private extensionTabNavService = inject(ExtensionTabNavigationService);
   private _snackBar = inject(MatSnackBar);
+  private panelService = inject(PanelService);
 
   readonly dialog = inject(MatDialog);
 
@@ -72,10 +74,11 @@ export class ScanService {
   }
 
   violationsDetected = (v: number) => {
-    this.extensionTabNavService.selectedTabIndex.set(1);
     this._snackBar.open(`Auto-scan competed: ${v} violations detected`, 'OK', {
       duration: 1500,
     });
+    this.extensionTabNavService.selectedTabIndex.set(1);
+    this.panelService.violationPanelIsOpened.set(true);
   };
 
   handleScanComplete(scanMode: TScanMode) {

@@ -9,6 +9,7 @@ import {
 import { UrlService } from './url.service';
 import { ComputeEventsService } from './compute-events.service';
 import { tap } from 'rxjs';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -48,18 +49,15 @@ export class MonitorService {
       this.isUpdating.set(false);
       return;
     }
-    // //////////////////////////////////////////////////
-    // /////////////////////  suka   //////////////////// ```````````````````````````
-    // //////////////////////////////////////////////////
-    const timestampWithOffSet = new Date(
-      new Date(new Date(timestamp).setHours(19, 0, 0, 0))
-    );
-    // //////////////////////////////////////////////////
-    // /////////////////////  suka   //////////////////// ```````````````````````````
-    // //////////////////////////////////////////////////
+
+    // const timestampWithOffSet = new Date(
+    //   new Date(new Date(timestamp).setHours(19, 0, 0, 0))
+    // );
+
+    const date = DateTime.fromISO(timestamp).toUTC().toJSDate();
 
     this.apiService
-      .getDriverDailyLogEvents(id, timestampWithOffSet, tenantId)
+      .getDriverDailyLogEvents(id, date, tenantId)
       .pipe(
         tap((driverDailyLog) => {
           this.driverDailyLog.set(driverDailyLog);
@@ -67,7 +65,7 @@ export class MonitorService {
           if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
             const coId = driverDailyLog.coDrivers[0].id;
             this.apiService
-              .getDriverDailyLogEvents(coId, timestampWithOffSet, tenantId)
+              .getDriverDailyLogEvents(coId, date, tenantId)
               .subscribe({
                 next: (coDriverDailyLog) =>
                   this.handleDriverDailyLogEvents({

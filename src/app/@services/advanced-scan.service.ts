@@ -24,6 +24,7 @@ import { ProgressBarService } from './progress-bar.service';
 import { AppService } from './app.service';
 import { ComputeEventsService } from './compute-events.service';
 import { DateTime } from 'luxon';
+import { DateService } from './date.service';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +34,7 @@ export class AdvancedScanService {
   private apiService = inject(ApiService);
   private computeEventsService = inject(ComputeEventsService);
   private progressBarService = inject(ProgressBarService);
+  private dateService = inject(DateService);
 
   prolongedOnDutiesDuration = signal(4200); // 1h10min
   engineHoursDuration = signal(14);
@@ -59,9 +61,7 @@ export class AdvancedScanService {
           this.progressBarService.currentCompany.set(tenant.name);
 
           return this.apiService.getLogs(tenant, date).pipe(
-            tap(() =>
-              console.log('[Advanced Scan Service] getLogs => ## ', tenant.name)
-            ),
+            tap(() => console.log('[Advanced Scan Service] ## ', tenant.name)),
             tap({
               error: (error) => {
                 this.progressBarService.progressValue.update(
@@ -110,8 +110,8 @@ export class AdvancedScanService {
       );
   }
 
-  dailyLogEvents$(driver: IDriver, tenant: ITenant, date: Date) {
-    // const date = DateTime.fromJSDate(d).startOf('day').toJSDate();
+  dailyLogEvents$(driver: IDriver, tenant: ITenant, d: Date) {
+    const date = this.dateService.getDailyLogsDate(d);
     return this.apiService
       .getDriverDailyLogEvents(driver.id, date, tenant.id)
       .pipe(

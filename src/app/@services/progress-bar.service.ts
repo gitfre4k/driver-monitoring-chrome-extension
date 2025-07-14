@@ -78,7 +78,7 @@ export class ProgressBarService {
         break;
       case 'advanced':
         this.activeDriversCount.set(0);
-        this.advancedResaults = this.advancedResaultsInitialState;
+        this.advancedResaults = { ...this.advancedResaultsInitialState };
         break;
       default:
         return;

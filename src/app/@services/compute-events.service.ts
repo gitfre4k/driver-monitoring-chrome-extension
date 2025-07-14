@@ -18,6 +18,7 @@ import {
 } from '../interfaces/driver-daily-log-events.interface';
 import { ITenant } from '../interfaces';
 import { ApiService } from './api.service';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -110,6 +111,7 @@ export class ComputeEventsService {
     } else events = [...driverEvents];
 
     events = events.filter((event) => filterEvents(event));
+
     events = this.computeEvents(
       events,
       ptiDuration,

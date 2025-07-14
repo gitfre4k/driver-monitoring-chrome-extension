@@ -6,36 +6,51 @@ import { DateTime } from 'luxon';
 })
 export class DateService {
   constructor() {
-    console.log('################ [Date Service]', this.today);
+    console.log(
+      '##~##~##~#~##~#~#~',
+      this.offSet,
+      DateTime.local().zoneName,
+      DateTime.fromJSDate(this.today)
+        .minus({ days: 2 })
+        .plus({ milliseconds: 1 })
+        .toUTC()
+        .toISO()
+    );
+  }
+
+  getDailyLogsDate(date: Date) {
+    return DateTime.fromJSDate(date)
+      .setZone('utc')
+      .minus({ days: 2 })
+      .plus({ milliseconds: 1 })
+      .toJSDate();
+  }
+
+  get offSet() {
+    return DateTime.local().offset;
   }
 
   get today() {
-    return DateTime.utc().endOf('day').toJSDate();
+    return DateTime.now()
+      .setZone('utc')
+      .endOf('day')
+      .minus({ minutes: this.offSet })
+      .toJSDate();
   }
 
   get sevenDaysAgo() {
-    return DateTime.now().minus({ days: 7 }).endOf('day').toJSDate();
+    return DateTime.now()
+      .setZone('utc')
+      .endOf('day')
+      .minus({ minutes: this.offSet, days: 7 })
+      .toJSDate();
   }
 
   get monthAgo() {
-    return DateTime.now().minus({ months: 1 }).endOf('day').toJSDate();
+    return DateTime.now()
+      .setZone('utc')
+      .endOf('day')
+      .minus({ minutes: this.offSet, months: 1 })
+      .toJSDate();
   }
-
-  // getFormatedDates(d: Date) {query
-  //   return {
-  //     date: DateTime.fromJSDate(d).startOf('day').toUTC().toJSDate(),
-  //     sevenDaysAgo: DateTime.fromJSDate(d)
-  //       .minus({ days: 7 })
-
-  //       .startOf('day')
-  //       .toUTC()
-  //       .toJSDate(),
-  //     monthAgo: DateTime.fromJSDate(d)
-  //       .minus({ months: 1 })
-
-  //       .startOf('day')
-  //       .toUTC()
-  //       .toJSDate(),
-  //   };
-  // }
 }

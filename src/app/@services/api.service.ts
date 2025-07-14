@@ -27,12 +27,12 @@ export class ApiService {
         {
           field: 'dateFrom',
           operator: 'equals',
-          value: DateTime.fromJSDate(range.dateFrom).toISO(),
+          value: DateTime.fromJSDate(range.dateFrom).toUTC().toISO(),
         },
         {
           field: 'dateTo',
           operator: 'equals',
-          value: DateTime.fromJSDate(range.dateTo).toISO(),
+          value: DateTime.fromJSDate(range.dateTo).toUTC().toISO(),
         },
       ],
     };
@@ -87,6 +87,7 @@ export class ApiService {
           withCredentials: true,
           headers: {
             'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         }
       )
@@ -107,6 +108,7 @@ export class ApiService {
         {
           withCredentials: true,
           headers: {
+            'x-client-timezone': `${DateTime.local().zoneName}`,
             'X-Tenant-Id': `${tenant.id}`,
           },
         }
@@ -117,15 +119,16 @@ export class ApiService {
   getDriverDailyLogEvents(driverId: number, date: Date, tenantId: string) {
     const body = {
       driverId,
-      logDate: DateTime.fromJSDate(date).toISO(),
+      logDate: DateTime.fromJSDate(date).toUTC().toISO(),
     };
-    console.log('[API Service] getDriverDailyLogEvents ', body.logDate);
+    console.log('[API Service] ## ', body.logDate);
     return this.http.post<IDriverDailyLogEvents>(
       'https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog',
       body,
       {
         withCredentials: true,
         headers: {
+          'x-client-timezone': `${DateTime.local().zoneName}`,
           'X-Tenant-Id': `${tenantId}`,
         },
       }
@@ -133,8 +136,9 @@ export class ApiService {
   }
 
   getLogs(tenant: ITenant, date: Date) {
-    const sevenDaysAgo = DateTime.fromJSDate(date).minus({ days: 7 }).toISO();
-    const selectedDate = DateTime.fromJSDate(date).toISO();
+    const d = DateTime.fromJSDate(date);
+    const selectedDate = d.toUTC().toISO();
+    const sevenDaysAgo = d.minus({ days: 7 }).toUTC().toISO();
     console.log('[API Service] getLogs => ', selectedDate, sevenDaysAgo);
 
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
@@ -171,6 +175,7 @@ export class ApiService {
     return this.http.post<ILog>(url, body, {
       withCredentials: true,
       headers: {
+        'x-client-timezone': `${DateTime.local().zoneName}`,
         'X-Tenant-Id': tenant.id,
       },
     });
