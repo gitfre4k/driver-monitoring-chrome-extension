@@ -34,7 +34,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: start;
-  gap: 5vh;
   position: relative;
   padding: 0px 18px;
 
@@ -102,9 +101,27 @@
     }
   }
 
-  &__submit {
-    margin-bottom: 32px;
-    padding: 0px 32px;
-    min-height: 32px !important;
+  &__date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &-picker {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      :first-child {
+        text-align: right;
+      }
+      span {
+        width: 100px;
+      }
+    }
+    &__submit {
+      margin-bottom: 32px;
+      padding: 0px 32px;
+      min-height: 32px !important;
+    }
   }
 }

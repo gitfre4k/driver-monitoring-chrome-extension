@@ -115,14 +115,35 @@
 
   <app-advanced-scan></app-advanced-scan>
 
-  <button
-    [disabled]="disableScan"
-    mat-raised-button
-    (click)="analyzeDriverLogs()"
-    class="scan__submit"
-  >
-    Analyze Driver Logs
-  </button>
+  <mat-form-field style="display: none">
+    <input
+      matInput
+      [matDatepicker]="picker"
+      [formControl]="date"
+      [value]="date"
+      (dateChange)="addEvent('change', $event)"
+    />
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+  <div class="scan__date">
+    <div class="scan__date-picker">
+      <span>{{ date.value | date : "mediumDate" : "utc" }}</span>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <span>UTC</span>
+    </div>
+    <button
+      [disabled]="disableScan"
+      mat-raised-button
+      (click)="analyzeDriverLogs()"
+      class="scan__date-submit"
+    >
+      Analyze Driver Logs
+    </button>
+  </div>
 
   } @else {
   <app-progress-bar

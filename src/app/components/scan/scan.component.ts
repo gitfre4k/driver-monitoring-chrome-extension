@@ -6,7 +6,10 @@ import { Observable, Subscription } from 'rxjs';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+  MatDatepickerInputEvent,
+  MatDatepickerModule,
+} from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
@@ -67,6 +70,7 @@ export class ScanComponent {
 
   readonly dialog = inject(MatDialog);
 
+  date = new FormControl<Date>(this.dateService.today);
   range = new FormGroup({
     start: new FormControl<Date | null>(null),
     end: new FormControl<Date | null>(null),
@@ -120,6 +124,9 @@ export class ScanComponent {
     this.destroyRef.onDestroy(() => this.scanSubscribtion.unsubscribe());
   }
 
+  changeDate(ev: MatDatepickerInputEvent<Date>) {
+    this.date.setValue(this.dateService.getQueryDate(ev.value!));
+  }
   updateRange() {
     this.updateRangeTrigger.update((prev) => prev + 1);
   }
