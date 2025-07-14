@@ -160,8 +160,9 @@ export class ScanComponent {
     }
 
     if (this.scanMode.value === 'advanced') {
+      if (!this.date.value) return;
       this.scanSubscribtion = this.advancedScanService
-        .getLogs(dateTo)
+        .getLogs(this.date.value)
         .subscribe({
           complete: () => this.handleAdvancedScanComplete(),
         });

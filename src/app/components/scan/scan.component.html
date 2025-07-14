@@ -120,8 +120,7 @@
       matInput
       [matDatepicker]="picker"
       [formControl]="date"
-      [value]="date"
-      (dateChange)="addEvent('change', $event)"
+      (dateChange)="changeDate($event)"
     />
     <mat-datepicker #picker></mat-datepicker>
   </mat-form-field>
