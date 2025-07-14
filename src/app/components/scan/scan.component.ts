@@ -32,6 +32,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DateService } from '../../@services/date.service';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-scan',
@@ -66,17 +67,24 @@ export class ScanComponent {
 
   readonly dialog = inject(MatDialog);
 
+  range = new FormGroup({
+    start: new FormControl<Date | null>(null),
+    end: new FormControl<Date | null>(null),
+  });
+
   selectedValue = signal<'Violations' | 'DOT Inspections'>('Violations');
+  updateRangeTrigger = signal(0);
   dateRange = computed(() => {
     let dateFrom: Date;
     let dateTo = this.dateService.today;
+    this.updateRangeTrigger();
     switch (this.scanService.selectedRange()) {
       case 'custom':
         dateFrom = this.range.value.start
-          ? this.range.value.start
+          ? this.dateService.getQueryDate(this.range.value.start)
           : this.dateService.sevenDaysAgo;
         dateTo = this.range.value.end
-          ? this.range.value.end
+          ? this.dateService.getQueryDate(this.range.value.end)
           : this.dateService.today;
         break;
       case 'month':
@@ -86,11 +94,8 @@ export class ScanComponent {
         dateFrom = this.dateService.sevenDaysAgo;
         dateTo = this.dateService.today;
     }
+
     return { dateFrom, dateTo };
-  });
-  range = new FormGroup({
-    start: new FormControl<Date | null>(null),
-    end: new FormControl<Date | null>(null),
   });
 
   readonly scanMode = new FormControl<TScanMode>('advanced', {
@@ -98,6 +103,7 @@ export class ScanComponent {
   });
 
   disableScan = false;
+  clientTimeZone = DateTime.local().zoneName;
   scanModes: { value: TScanMode; label: string; id: number }[] = [
     { value: 'violations', label: 'Violations', id: 1 },
     { value: 'dot', label: 'DOT Inspections', id: 2 },
@@ -112,6 +118,10 @@ export class ScanComponent {
 
   ngOnInit() {
     this.destroyRef.onDestroy(() => this.scanSubscribtion.unsubscribe());
+  }
+
+  updateRange() {
+    this.updateRangeTrigger.update((prev) => prev + 1);
   }
 
   handleAdvancedScanComplete() {

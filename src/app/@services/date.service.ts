@@ -9,12 +9,8 @@ export class DateService {
     console.log(
       '##~##~##~#~##~#~#~',
       this.offSet,
-      DateTime.local().zoneName,
-      DateTime.fromJSDate(this.today)
-        .minus({ days: 2 })
-        .plus({ milliseconds: 1 })
-        .toUTC()
-        .toISO()
+      DateTime.fromJSDate(this.today).toUTC().toISO(),
+      DateTime.fromJSDate(this.getDailyLogsDate(this.today)).toUTC().toISO()
     );
   }
 
@@ -23,6 +19,14 @@ export class DateService {
       .setZone('utc')
       .minus({ days: 2 })
       .plus({ milliseconds: 1 })
+      .toJSDate();
+  }
+
+  getQueryDate(date: Date) {
+    return DateTime.fromJSDate(date)
+      .setZone('utc')
+      .endOf('day')
+      .minus({ minutes: this.offSet })
       .toJSDate();
   }
 

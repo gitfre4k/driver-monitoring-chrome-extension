@@ -9,7 +9,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
   MatExpansionModule,
-  MatExpansionPanel,
 } from '@angular/material/expansion';
 
 import { ProgressBarService } from '../../@services/progress-bar.service';

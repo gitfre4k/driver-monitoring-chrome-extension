@@ -18,18 +18,28 @@
   top: -2px;
 }
 
+.hide {
+  display: none;
+}
+@media (max-width: 366px) {
+  .hide {
+    display: initial;
+  }
+}
+
 .scan {
-  width: calc(100vw - 50px);
-  height: calc(100vh - 83px);
+  width: calc(100vw - 42px);
+  height: calc(100vh - 55px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: start;
   gap: 5vh;
   position: relative;
-  padding: 8px 16px;
+  padding: 0px 18px;
 
   &-violations {
+    margin-top: 4px;
     & {
       width: 100%;
       max-width: 432px;
@@ -69,8 +79,10 @@
 
     &__options {
       display: flex;
+      width: 100%;
       &-radio {
         display: flex;
+        min-width: 35%;
         flex-direction: column;
         margin: 0;
         align-items: flex-start;
@@ -80,75 +92,19 @@
         align-self: flex-end;
         display: flex;
         align-items: center;
+        text-align: right;
+        gap: 5px;
         margin-left: auto;
-        margin-right: 0px;
+        margin-right: 12px;
         font-size: 12px;
         line-height: 20px;
       }
     }
   }
 
-  &-submit {
+  &__submit {
     margin-bottom: 32px;
     padding: 0px 32px;
-    height: 32px;
+    min-height: 32px !important;
   }
 }
-
-// .mat-mdc-icon-button.calendar {
-//   --mdc-icon-button-state-layer-size: 28px;
-//   height: 24px;
-//   --mdc-icon-button-state-size: 10px;
-// }
-
-// .mat-mdc-radio-button {
-//   --mat-radio-label-text-size: 12px;
-//   --mat-radio-label-text-line-height: 12px;
-//   height: 24px;
-// }
-
-// .mat-mdc-radio-button .mdc-radio__outer-circle {
-//   position: absolute;
-//   top: 0;
-//   left: 0;
-//   width: 50%;
-//   height: 50%;
-//   border-width: 2px !important;
-//   border-style: solid !important;
-//   border-radius: 15% !important;
-// }
-// .tab-group {
-//   display: flex;
-//   flex-direction: column;
-// }
-
-// .tab-group.tab-group-1 {
-//   padding: 8px;
-//   justify-content: space-between;
-//   align-items: center;
-//   // height: calc(100vh - 70px);
-
-//   .form {
-//     display: flex;
-//     flex-direction: column;
-//     align-items: center;
-//     justify-content: center;
-//   }
-//   button {
-//     height: 32px;
-//     // padding: 0px 32px;
-//     margin-bottom: 16px;
-//   }
-// }
-
-// .tab-group.rize-up {
-//   justify-content: start;
-//   gap: 32px;
-// }
-
-// mat-form-field {
-//   @media (max-width: 380px) {
-//     width: 200px;
-//     font-size: 13px;
-//   }
-// }

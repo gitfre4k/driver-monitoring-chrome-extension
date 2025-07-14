@@ -1,7 +1,7 @@
 <div class="scan">
   @if (!scanning()) {
   <!--////////////////////  -->
-  <!-- Violations -->
+  <!-- Violations and DOT Inspections -->
   <fieldset class="scan-violations">
     <legend>
       <mat-select [(value)]="selectedValue" class="scan-violations__select">
@@ -9,6 +9,7 @@
         <mat-option value="DOT Inspections">DOT Inspections</mat-option>
       </mat-select>
     </legend>
+    @if (selectedValue() === 'Violations') {
     <div class="scan-violations__sync">
       <mat-slide-toggle
         class="scan-violations__sync-auto"
@@ -84,7 +85,11 @@
             >
               <mat-date-range-picker-actions>
                 <button matButton matDateRangePickerCancel>Cancel</button>
-                <button matButton="elevated" matDateRangePickerApply>
+                <button
+                  matButton="elevated"
+                  matDateRangePickerApply
+                  (click)="updateRange()"
+                >
                   Apply
                 </button>
               </mat-date-range-picker-actions>
@@ -94,14 +99,18 @@
       </mat-radio-group>
 
       <span class="scan-violations__options-daterange">
-        {{ dateRange().dateFrom | date : "mediumDate" }} -
-        {{ dateRange().dateTo | date : "mediumDate" }}
+        {{ dateRange().dateFrom | date : "MMM d, yy" : "utc" }}
+        <br class="hide" />
+        -
+        {{ dateRange().dateTo | date : "MMM d, yy" : "utc" }}
         <mat-datepicker-toggle
           matIconSuffix
           [for]="rangePicker"
         ></mat-datepicker-toggle>
+        UTC
       </span>
     </div>
+    }
   </fieldset>
 
   <app-advanced-scan></app-advanced-scan>
@@ -110,7 +119,7 @@
     [disabled]="disableScan"
     mat-raised-button
     (click)="analyzeDriverLogs()"
-    class="scan-submit"
+    class="scan__submit"
   >
     Analyze Driver Logs
   </button>

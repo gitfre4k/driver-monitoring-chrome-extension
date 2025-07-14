@@ -136,7 +136,7 @@ export class AppComponent {
   }
 
   popUp() {
-    const windowFeatures = `width=397,height=640,left=100000,top=0`;
+    const windowFeatures = `width=397,height=736,left=100000,top=0`;
     window.open('index.html', '', windowFeatures);
     window.close();
   }

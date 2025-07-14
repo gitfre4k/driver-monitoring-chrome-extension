@@ -7,6 +7,10 @@
   }
 }
 
+.error {
+  color: var(--mat-badge-text-color, var(--mat-sys-on-error));
+}
+
 .scan-results {
   height: 100%;
   display: flex;
@@ -122,6 +126,7 @@
               font-size: 12px;
               width: 100%;
               line-height: 1.6;
+
               .on-hover {
                 position: absolute;
                 right: 12px;
