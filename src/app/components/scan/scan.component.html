@@ -41,6 +41,7 @@
       <mat-radio-group
         class="scan-violations__options-radio"
         [(ngModel)]="scanService.selectedRange"
+        (ngModelChange)="onRadioChange()"
       >
         <mat-radio-button
           class="scan-violations__options-radio-button"
@@ -85,7 +86,11 @@
             >
               <mat-date-range-picker-actions>
                 <button matButton matDateRangePickerCancel>Cancel</button>
-                <button matButton="elevated" matDateRangePickerApply>
+                <button
+                  matButton="elevated"
+                  matDateRangePickerApply
+                  (click)="updateRange()"
+                >
                   Apply
                 </button>
               </mat-date-range-picker-actions>
@@ -95,15 +100,14 @@
       </mat-radio-group>
 
       <span class="scan-violations__options-daterange">
-        {{ dateRange().dateFrom | date : "MMM d, yy" : "utc" }}
+        {{ range.value.start | date : "MMM d, yyyy" }}
         <br class="hide" />
         -
-        {{ dateRange().dateTo | date : "MMM d, yy" : "utc" }}
+        {{ range.value.end | date : "MMM d, yyyy" }}
         <mat-datepicker-toggle
           matIconSuffix
           [for]="rangePicker"
         ></mat-datepicker-toggle>
-        UTC
       </span>
     </div>
     }
@@ -123,12 +127,13 @@
 
   <div class="scan__date">
     <div class="scan__date-picker">
-      <span>{{ date.value | date : "mediumDate" : "utc" }}</span>
+      <span>{{
+        date.value | date : "mediumDate" : "utc" + dateService.offSet
+      }}</span>
       <mat-datepicker-toggle
         matIconSuffix
         [for]="picker"
       ></mat-datepicker-toggle>
-      <span>UTC</span>
     </div>
     <button
       [disabled]="disableScan"

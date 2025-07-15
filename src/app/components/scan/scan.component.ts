@@ -70,33 +70,38 @@ export class ScanComponent {
 
   readonly dialog = inject(MatDialog);
 
-  date = new FormControl<Date>(this.dateService.today);
-  range = new FormGroup({
-    start: new FormControl<Date | null>(null),
-    end: new FormControl<Date | null>(null),
-  });
-
   selectedValue = signal<'Violations' | 'DOT Inspections'>('Violations');
+
+  // Analyze Date
+  date = new FormControl<Date>(DateTime.now().toJSDate());
+  analyzeDate = signal(this.dateService.today);
+
+  // Range Date
+  range = new FormGroup({
+    end: new FormControl<Date>(DateTime.now().toJSDate()),
+    start: new FormControl<Date>(DateTime.now().minus({ days: 7 }).toJSDate()),
+  });
   updateRangeTrigger = signal(0);
   dateRange = computed(() => {
+    const { today, sevenDaysAgo, monthAgo, getQueryDate } = this.dateService;
     let dateFrom: Date;
-    let dateTo = this.dateService.today;
+    let dateTo = today;
     this.updateRangeTrigger();
     switch (this.scanService.selectedRange()) {
       case 'custom':
         dateFrom = this.range.value.start
-          ? this.dateService.getQueryDate(this.range.value.start)
-          : this.dateService.sevenDaysAgo;
+          ? getQueryDate(this.range.value.start)
+          : sevenDaysAgo;
         dateTo = this.range.value.end
-          ? this.dateService.getQueryDate(this.range.value.end)
-          : this.dateService.today;
+          ? getQueryDate(this.range.value.end)
+          : today;
         break;
       case 'month':
-        dateFrom = this.dateService.monthAgo;
+        dateFrom = monthAgo;
         break;
       default:
-        dateFrom = this.dateService.sevenDaysAgo;
-        dateTo = this.dateService.today;
+        dateFrom = sevenDaysAgo;
+        dateTo = today;
     }
 
     return { dateFrom, dateTo };
@@ -125,10 +130,21 @@ export class ScanComponent {
   }
 
   changeDate(ev: MatDatepickerInputEvent<Date>) {
-    this.date.setValue(this.dateService.getQueryDate(ev.value!));
+    if (!ev.value) return;
+    this.analyzeDate.set(this.dateService.getQueryDate(ev.value));
   }
   updateRange() {
     this.updateRangeTrigger.update((prev) => prev + 1);
+  }
+  onRadioChange() {
+    const value = this.scanService.selectedRange();
+    if (value === 'custom') return;
+
+    const { todayLocal, sevenDaysAgoLocal, monthAgoLocal } = this.dateService;
+    this.range.setValue({
+      start: value === 'week' ? sevenDaysAgoLocal : monthAgoLocal,
+      end: todayLocal,
+    });
   }
 
   handleAdvancedScanComplete() {
@@ -153,20 +169,26 @@ export class ScanComponent {
 
   startScan = () => {
     this.disableScan = true;
+    const date = this.analyzeDate();
     const { dateFrom, dateTo } = this.dateRange();
-    if (!dateFrom || !dateTo) {
-      this.disableScan = false;
-      return;
-    }
-
+    //////////////////////
+    // Analyze Driver Logs
     if (this.scanMode.value === 'advanced') {
-      if (!this.date.value) return;
-      this.scanSubscribtion = this.advancedScanService
-        .getLogs(this.date.value)
-        .subscribe({
-          complete: () => this.handleAdvancedScanComplete(),
-        });
-    } else {
+      if (!date) {
+        this.disableScan = false;
+        return;
+      }
+      this.scanSubscribtion = this.advancedScanService.getLogs(date).subscribe({
+        complete: () => this.handleAdvancedScanComplete(),
+      });
+    }
+    //////////////////////
+    // Scan for Violations / DOT Inspections
+    else {
+      if (!dateFrom || !dateTo) {
+        this.disableScan = false;
+        return;
+      }
       this.scanSubscribtion = (
         this.scanMode.value === 'violations'
           ? this.scanService.getAllViolations({ dateFrom, dateTo })

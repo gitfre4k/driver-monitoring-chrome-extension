@@ -15,9 +15,10 @@ export class DateService {
   }
 
   getDailyLogsDate(date: Date) {
+    const utcHour = DateTime.fromJSDate(date).hour;
     return DateTime.fromJSDate(date)
       .setZone('utc')
-      .minus({ days: 2 })
+      .minus({ days: utcHour >= 0 && utcHour < 12 ? 2 : 1 })
       .plus({ milliseconds: 1 })
       .toJSDate();
   }
@@ -33,7 +34,6 @@ export class DateService {
   get offSet() {
     return DateTime.local().offset;
   }
-
   get today() {
     return DateTime.now()
       .setZone('utc')
@@ -41,7 +41,6 @@ export class DateService {
       .minus({ minutes: this.offSet })
       .toJSDate();
   }
-
   get sevenDaysAgo() {
     return DateTime.now()
       .setZone('utc')
@@ -49,12 +48,21 @@ export class DateService {
       .minus({ minutes: this.offSet, days: 7 })
       .toJSDate();
   }
-
   get monthAgo() {
     return DateTime.now()
       .setZone('utc')
       .endOf('day')
       .minus({ minutes: this.offSet, months: 1 })
       .toJSDate();
+  }
+
+  get todayLocal() {
+    return DateTime.now().startOf('day').toJSDate();
+  }
+  get sevenDaysAgoLocal() {
+    return DateTime.now().startOf('day').minus({ days: 7 }).toJSDate();
+  }
+  get monthAgoLocal() {
+    return DateTime.now().startOf('day').minus({ months: 1 }).toJSDate();
   }
 }
