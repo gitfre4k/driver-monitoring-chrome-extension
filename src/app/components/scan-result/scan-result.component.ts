@@ -46,11 +46,10 @@ import { PanelService } from '../../@services/panel.service';
 })
 export class ScanResultComponent {
   private _snackBar = inject(MatSnackBar);
-  private progressBarService = inject(ProgressBarService);
   private urlService = inject(UrlService);
   panelService = inject(PanelService);
+  progressBarService = inject(ProgressBarService);
 
-  scanResults = this.progressBarService.advancedResaults;
   driverCount = this.progressBarService.activeDriversCount;
 
   violations = this.progressBarService.violations;

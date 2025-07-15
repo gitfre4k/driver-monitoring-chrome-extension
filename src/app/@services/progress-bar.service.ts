@@ -30,7 +30,8 @@ export class ProgressBarService {
   violationsLastSync = signal('');
 
   inspections: IScanDOTInspections[] = [];
-  advancedResaultsInitialState: IAdvancedResaults = {
+
+  initialAdvancedScanResults: IAdvancedResaults = {
     prolengedOnDuties: {},
     malfOrDataDiagDetection: {},
     pcYm: {},
@@ -41,7 +42,10 @@ export class ProgressBarService {
     eventErrors: {},
     manualDrivingDetection: {},
   };
-  advancedResaults: IAdvancedResaults = this.advancedResaultsInitialState;
+
+  advancedResaults: IAdvancedResaults = JSON.parse(
+    JSON.stringify(this.initialAdvancedScanResults)
+  );
 
   errors: IScanErrors[] = [];
 
@@ -78,7 +82,9 @@ export class ProgressBarService {
         break;
       case 'advanced':
         this.activeDriversCount.set(0);
-        this.advancedResaults = { ...this.advancedResaultsInitialState };
+        this.advancedResaults = JSON.parse(
+          JSON.stringify(this.initialAdvancedScanResults)
+        );
         break;
       default:
         return;

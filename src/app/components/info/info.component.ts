@@ -5,6 +5,9 @@ import { ApiService } from '../../@services/api.service';
 import { IDriver } from '../../interfaces';
 import { MonitorService } from '../../@services/monitor.service';
 import { DateAgoPipe } from '../../pipes/date-ago.pipe';
+import { concatMap, from, map, mergeMap, tap } from 'rxjs';
+import { DateTime } from 'luxon';
+import { DateService } from '../../@services/date.service';
 
 @Component({
   selector: 'app-info',
@@ -16,8 +19,11 @@ export class InfoComponent {
   appService = inject(AppService);
   apiService = inject(ApiService);
   monitorService = inject(MonitorService);
+  dateService = inject(DateService);
 
   driver = signal<IDriver | null>(null);
+
+  lowVersion: { [key: string]: string[] } = {};
 
   constructor() {}
 

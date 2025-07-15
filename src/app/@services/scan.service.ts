@@ -77,7 +77,7 @@ export class ScanService {
     this._snackBar.open(`Auto-scan competed: ${v} violations detected`, 'OK', {
       duration: 1500,
     });
-    this.extensionTabNavService.selectedTabIndex.set(1);
+    // this.extensionTabNavService.selectedTabIndex.set(1);
     this.panelService.violationPanelIsOpened.set(true);
   };
 

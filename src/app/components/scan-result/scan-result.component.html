@@ -89,14 +89,14 @@
           <mat-panel-title> teleports </mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(scanResults.teleports)) {
+          @if (isEmpty(progressBarService.advancedResaults.teleports)) {
           <div class="scan-results__content__result__empty">
             No teleports detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of scanResults.teleports | keyvalue; track
-            company.key) {
+            @for (company of progressBarService.advancedResaults.teleports |
+            keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -165,14 +165,14 @@
           <mat-panel-title>event Errors</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(scanResults.eventErrors)) {
+          @if (isEmpty(progressBarService.advancedResaults.eventErrors)) {
           <div class="scan-results__content__result__empty">
             No event errors.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of scanResults.eventErrors | keyvalue; track
-            company.key) {
+            @for (company of progressBarService.advancedResaults.eventErrors |
+            keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.name) {
@@ -239,14 +239,15 @@
           <mat-panel-title>{{ prolongedOnDutiesTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(scanResults.prolengedOnDuties)) {
+          @if (isEmpty(progressBarService.advancedResaults.prolengedOnDuties)) {
           <div class="scan-results__content__result__empty">
             No prolonged On Duties detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of scanResults.prolengedOnDuties | keyvalue; track
-            company.key) {
+            @for (company of
+            progressBarService.advancedResaults.prolengedOnDuties | keyvalue;
+            track company.key) {
             <li class="company">
               <h3 class="company-name">{{ company.key }}</h3>
               @for (driver of company.value; track driver.driverName) {
@@ -312,14 +313,17 @@
           <mat-panel-title>{{ malfTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(scanResults.malfOrDataDiagDetection)) {
+          @if
+          (isEmpty(progressBarService.advancedResaults.malfOrDataDiagDetection))
+          {
           <span>No malfunctions or data diagnostics detected.</span>
           <mat-divider></mat-divider>
           } @else {
 
           <ul>
-            @for (detection of scanResults.malfOrDataDiagDetection | keyvalue;
-            track detection.key) {
+            @for (detection of
+            progressBarService.advancedResaults.malfOrDataDiagDetection |
+            keyvalue; track detection.key) {
             <li>
               <h3>{{ detection.key }}</h3>
               @for (driver of detection.value; track driver) {
@@ -350,14 +354,14 @@
           <mat-panel-title> PC / YM </mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(scanResults.pcYm)) {
+          @if (isEmpty(progressBarService.advancedResaults.pcYm)) {
           <span>No PC/YM events detected.</span>
           <mat-divider></mat-divider>
           } @else {
 
           <ul>
-            @for (detection of scanResults.pcYm | keyvalue; track detection.key)
-            {
+            @for (detection of progressBarService.advancedResaults.pcYm |
+            keyvalue; track detection.key) {
             <li>
               <h3>{{ detection.key }}</h3>
               @for (driver of detection.value; track driver) {
@@ -388,14 +392,15 @@
           <mat-panel-title> missing Engine On </mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(scanResults.missingEngineOn)) {
+          @if (isEmpty(progressBarService.advancedResaults.missingEngineOn)) {
           <span>No missing Engine On events detected.</span>
           <mat-divider></mat-divider>
           } @else {
 
           <ul>
-            @for (detection of scanResults.missingEngineOn | keyvalue; track
-            detection.key) {
+            @for (detection of
+            progressBarService.advancedResaults.missingEngineOn | keyvalue;
+            track detection.key) {
             <li>
               <h3>{{ detection.key }}</h3>
               @for (driver of detection.value; track driver) {
@@ -426,13 +431,14 @@
           <mat-panel-title>{{ elapsedEHTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(scanResults.highEngineHours)) {
+          @if (isEmpty(progressBarService.advancedResaults.highEngineHours)) {
           <span>No high elapsed Engine Hours events.</span>
           <mat-divider></mat-divider>
           } @else {
           <ul>
-            @for (highEngineHoursEvent of scanResults.highEngineHours |
-            keyvalue; track highEngineHoursEvent.key) {
+            @for (highEngineHoursEvent of
+            progressBarService.advancedResaults.highEngineHours | keyvalue;
+            track highEngineHoursEvent.key) {
             <li>
               <h3>{{ highEngineHoursEvent.key }}</h3>
               @for (driver of highEngineHoursEvent.value; track driver.id) {
@@ -466,14 +472,17 @@
           <mat-panel-title>manual Drivings</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(scanResults.manualDrivingDetection)) {
+          @if
+          (isEmpty(progressBarService.advancedResaults.manualDrivingDetection))
+          {
           <div class="scan-results__content__result__empty">
             No manual Driving events detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of scanResults.manualDrivingDetection | keyvalue;
-            track company.key) {
+            @for (company of
+            progressBarService.advancedResaults.manualDrivingDetection |
+            keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.name) {
@@ -536,14 +545,16 @@
           <mat-panel-title>{{ lowTotalEHTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(scanResults.lowTotalEngineHours)) {
+          @if (isEmpty(progressBarService.advancedResaults.lowTotalEngineHours))
+          {
           <span>No low total Engine Hours events.</span>
           <mat-divider></mat-divider>
           } @else {
 
           <ul>
-            @for (detection of scanResults.lowTotalEngineHours | keyvalue; track
-            detection.key) {
+            @for (detection of
+            progressBarService.advancedResaults.lowTotalEngineHours | keyvalue;
+            track detection.key) {
             <li>
               <h3>{{ detection.key }}</h3>
               @for (driver of detection.value; track driver) {
