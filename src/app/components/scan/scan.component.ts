@@ -130,8 +130,7 @@ export class ScanComponent {
   }
 
   changeDate(ev: MatDatepickerInputEvent<Date>) {
-    if (!ev.value) return;
-    this.analyzeDate.set(this.dateService.getQueryDate(ev.value));
+    this.analyzeDate.set(this.dateService.getAnalyzeQueryDate(ev.value!));
   }
   updateRange() {
     this.updateRangeTrigger.update((prev) => prev + 1);
@@ -169,11 +168,10 @@ export class ScanComponent {
 
   startScan = () => {
     this.disableScan = true;
-    const date = this.analyzeDate();
-    const { dateFrom, dateTo } = this.dateRange();
     //////////////////////
     // Analyze Driver Logs
     if (this.scanMode.value === 'advanced') {
+      const date = this.analyzeDate();
       if (!date) {
         this.disableScan = false;
         return;
@@ -185,6 +183,7 @@ export class ScanComponent {
     //////////////////////
     // Scan for Violations / DOT Inspections
     else {
+      const { dateFrom, dateTo } = this.dateRange();
       if (!dateFrom || !dateTo) {
         this.disableScan = false;
         return;

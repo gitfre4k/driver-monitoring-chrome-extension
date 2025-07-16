@@ -74,16 +74,20 @@ export class ScanService {
   }
 
   violationsDetected = (v: number) => {
-    this._snackBar.open(`Auto-scan competed: ${v} violations detected`, 'OK', {
-      duration: 1500,
-    });
+    this._snackBar.open(
+      `Violations scan competed: ${v} violations detected`,
+      'OK',
+      {
+        duration: 3000,
+      }
+    );
     // this.extensionTabNavService.selectedTabIndex.set(1);
     this.panelService.violationPanelIsOpened.set(true);
   };
 
   handleScanComplete(scanMode: TScanMode) {
     if (scanMode === 'violations') {
-      const v = this.progressBarService.violations().length;
+      const v = this.progressBarService.totalVCount();
       v > 0
         ? this.violationsDetected(v)
         : this._snackBar.open(

@@ -18,13 +18,12 @@
         Enable Auto-Scan
       </mat-slide-toggle>
       <div class="scan-violations__sync-stats">
-        @if (vLastSync(); as lastSync) {
+        @if (scanService.autoScan()) { @if (vLastSync(); as lastSync) {
         <span>
           last sync: <br />
           {{ vLastSync() | date : "shortTime" }}</span
         >
         }
-
         <a
           mat-icon-button
           (click)="startViolationsScan()"
@@ -33,9 +32,16 @@
         >
           <mat-icon class="icon-display">sync</mat-icon></a
         >
+        } @else {
+        <button
+          mat-raised-button
+          (click)="startViolationsScan()"
+          [disabled]="disableScan"
+        >
+          Scan</button
+        >}
       </div>
     </div>
-
     <!-- radio buttons -->
     <div class="scan-violations__options">
       <mat-radio-group
@@ -125,21 +131,19 @@
     <mat-datepicker #picker></mat-datepicker>
   </mat-form-field>
 
-  <div class="scan__date">
-    <div class="scan__date-picker">
-      <span>{{
-        date.value | date : "mediumDate" : "utc" + dateService.offSet
-      }}</span>
+  <div class="scan__analyze">
+    <div class="scan__analyze-date">
       <mat-datepicker-toggle
         matIconSuffix
         [for]="picker"
       ></mat-datepicker-toggle>
+      <span>{{ date.value | date : "mediumDate" }}</span>
     </div>
     <button
       [disabled]="disableScan"
       mat-raised-button
       (click)="analyzeDriverLogs()"
-      class="scan__date-submit"
+      class="scan__analyze-submit"
     >
       Analyze Driver Logs
     </button>

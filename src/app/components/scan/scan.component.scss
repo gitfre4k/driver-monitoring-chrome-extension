@@ -33,17 +33,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: start;
+  justify-content: space-between;
   position: relative;
   padding: 0px 18px;
 
   &-violations {
     margin-top: 4px;
+    margin-bottom: 16px;
     & {
       width: 100%;
       max-width: 432px;
       border-radius: 12px;
-      // padding-bottom: 12px;
     }
 
     &__select {
@@ -73,6 +73,17 @@
           margin: 0;
           padding: 0;
         }
+
+        a {
+          margin-right: 8px;
+        }
+
+        button {
+          margin-top: 8px;
+          margin-right: 16px;
+          height: 32px;
+          font-size: 13px;
+        }
       }
     }
 
@@ -101,27 +112,17 @@
     }
   }
 
-  &__date {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    &-picker {
+  &__analyze {
+    margin-bottom: 32px;
+    &-date {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 6px;
-      :first-child {
-        text-align: right;
-      }
-      span {
-        width: 100px;
-      }
+      margin-bottom: 16px;
     }
-    &__submit {
-      margin-bottom: 32px;
-      padding: 0px 32px;
-      min-height: 32px !important;
+    &-submit {
+      height: 32px;
     }
   }
 }

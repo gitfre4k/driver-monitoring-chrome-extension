@@ -5,17 +5,10 @@ import { DateTime } from 'luxon';
   providedIn: 'root',
 })
 export class DateService {
-  constructor() {
-    console.log(
-      '##~##~##~#~##~#~#~',
-      this.offSet,
-      DateTime.fromJSDate(this.today).toUTC().toISO(),
-      DateTime.fromJSDate(this.getDailyLogsDate(this.today)).toUTC().toISO()
-    );
-  }
+  constructor() {}
 
   getDailyLogsDate(date: Date) {
-    const utcHour = DateTime.fromJSDate(date).hour;
+    const utcHour = DateTime.fromJSDate(date).toUTC().hour;
     return DateTime.fromJSDate(date)
       .setZone('utc')
       .minus({ days: utcHour >= 0 && utcHour < 12 ? 2 : 1 })
@@ -27,8 +20,12 @@ export class DateService {
     return DateTime.fromJSDate(date)
       .setZone('utc')
       .endOf('day')
-      .minus({ minutes: this.offSet })
+      .minus({ minutes: DateTime.local().offset })
       .toJSDate();
+  }
+
+  getAnalyzeQueryDate(date: Date) {
+    return DateTime.fromJSDate(date).endOf('day').setZone('utc').toJSDate();
   }
 
   get offSet() {
