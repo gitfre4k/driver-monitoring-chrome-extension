@@ -9,11 +9,13 @@ export class DateService {
 
   getDailyLogsDate(date: Date) {
     const utcHour = DateTime.fromJSDate(date).toUTC().hour;
-    return DateTime.fromJSDate(date)
+    const logsDate = DateTime.fromJSDate(date)
       .setZone('utc')
       .minus({ days: utcHour >= 0 && utcHour < 12 ? 2 : 1 })
       .plus({ milliseconds: 1 })
       .toJSDate();
+    console.log('qqqqqqqqqqq', logsDate, utcHour);
+    return logsDate;
   }
 
   getQueryDate(date: Date) {
