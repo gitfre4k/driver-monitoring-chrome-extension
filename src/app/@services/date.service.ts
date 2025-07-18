@@ -8,13 +8,20 @@ export class DateService {
   constructor() {}
 
   getDailyLogsDate(date: Date) {
-    const utcHour = DateTime.fromJSDate(date).toUTC().hour;
+    const utcHour = DateTime.utc().hour;
+    const days = utcHour >= 0 && utcHour < 12 ? 2 : 1;
+
     const logsDate = DateTime.fromJSDate(date)
       .setZone('utc')
-      .minus({ days: utcHour >= 0 && utcHour < 12 ? 2 : 1 })
+      .minus({ days })
       .plus({ milliseconds: 1 })
       .toJSDate();
-    console.log('qqqqqqqqqqq', logsDate, utcHour);
+
+    console.log('## getDailyLogsDate ~~~~~~~~~~~~~~', logsDate, utcHour);
+    console.log('logsDate ', logsDate);
+    console.log('utcHour ', utcHour);
+    console.log('realUtcHour ', DateTime.utc().hour);
+
     return logsDate;
   }
 

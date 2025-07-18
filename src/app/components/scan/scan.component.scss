@@ -34,12 +34,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  position: relative;
   padding: 0px 18px;
 
   &-violations {
     margin-top: 4px;
     margin-bottom: 16px;
+
     & {
       width: 100%;
       max-width: 432px;
@@ -55,41 +55,49 @@
       align-items: center;
       justify-content: space-between;
 
-      &-auto {
-        transform: scale(0.9) !important;
-      }
-
       &-stats {
-        display: flex;
-        align-items: center;
-        text-align: right;
-        margin: 0;
-        padding: 0;
-        line-height: 16px;
-        gap: 8px;
+        height: 40px;
 
-        .icon-display {
-          transform: scale(1.4);
+        &__auto-scan {
+          display: flex;
+          align-items: center;
+          text-align: right;
           margin: 0;
           padding: 0;
+          line-height: 16px;
+          gap: 8px;
+
+          .icon-display {
+            transform: scale(1.4);
+            margin: 0;
+            padding: 0;
+          }
+
+          a {
+            margin-right: 8px;
+          }
         }
 
-        a {
-          margin-right: 8px;
-        }
-
-        button {
-          margin-top: 8px;
-          margin-right: 16px;
-          height: 32px;
-          font-size: 13px;
+        &__manual-scan {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          padding: 0;
+          margin: 0;
+          margin-top: 4px;
+          margin-right: 10px;
+          button {
+            height: 32px;
+            width: 70px;
+            font-size: 13px;
+            margin-bottom: 16px;
+          }
         }
       }
     }
 
     &__options {
       display: flex;
-      width: 100%;
       &-radio {
         display: flex;
         min-width: 35%;

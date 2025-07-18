@@ -65,7 +65,10 @@
               </div>
 
               <ul class="inner-ul">
-                @for (v of item.violations; track v.violationId){
+                @for (v of item.violations | slice:0:3; track v.violationId; let
+                i = $index ){ @if(i === 2) {
+                <li>...and {{ item.violations.length - 3 }} more</li>
+                } @else {
                 <li class="event-violation">
                   <span style="color: rgb(236, 103, 55)"
                     >[{{ v.logDate | date : "MMM d" : v.homeTerminalTimeZone }}]
@@ -75,7 +78,7 @@
                     ><span class="material-icons"> clear </span></a
                   >
                 </li>
-                }
+                } }
               </ul>
               }
             </li>

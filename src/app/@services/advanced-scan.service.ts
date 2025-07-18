@@ -23,7 +23,6 @@ import {
 import { ProgressBarService } from './progress-bar.service';
 import { AppService } from './app.service';
 import { ComputeEventsService } from './compute-events.service';
-import { DateTime } from 'luxon';
 import { DateService } from './date.service';
 
 @Injectable({

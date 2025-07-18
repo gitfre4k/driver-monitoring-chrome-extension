@@ -18,28 +18,40 @@
         Enable Auto-Scan
       </mat-slide-toggle>
       <div class="scan-violations__sync-stats">
-        @if (scanService.autoScan()) { @if (vLastSync(); as lastSync) {
-        <span>
-          last sync: <br />
-          {{ vLastSync() | date : "shortTime" }}</span
-        >
-        }
-        <a
-          mat-icon-button
-          (click)="startViolationsScan()"
-          matTooltip="Check for violations"
-          [disabled]="disableScan"
-        >
-          <mat-icon class="icon-display">sync</mat-icon></a
-        >
+        @if (scanService.autoScan()) {
+        <div class="scan-violations__sync-stats__auto-scan">
+          @if (vLastSync(); as lastSync) {
+          <span>
+            last sync: <br />
+            {{ lastSync | date : "shortTime" }}</span
+          >
+          }
+          <a
+            mat-icon-button
+            (click)="startViolationsScan()"
+            matTooltip="Check for violations"
+            [disabled]="disableScan"
+          >
+            <mat-icon class="icon-display">sync</mat-icon></a
+          >
+        </div>
         } @else {
-        <button
-          mat-raised-button
-          (click)="startViolationsScan()"
-          [disabled]="disableScan"
-        >
-          Scan</button
-        >}
+        <div class="scan-violations__sync-stats__manual-scan">
+          <button
+            mat-raised-button
+            (click)="startViolationsScan()"
+            [disabled]="disableScan"
+          >
+            Scan
+          </button>
+          @if (vLastSync(); as lastSync) {
+          <span>
+            last scan:
+            {{ lastSync | date : "shortTime" }}</span
+          >
+          }
+        </div>
+        }
       </div>
     </div>
     <!-- radio buttons -->
