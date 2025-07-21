@@ -12,9 +12,9 @@
       <!-- Violations -->
       @if (violations().length > 0) {
       <mat-expansion-panel
-        [expanded]="panelService.violationPanelIsOpened()"
-        (opened)="panelService.violationPanelIsOpened.set(true)"
-        (closed)="panelService.violationPanelIsOpened.set(false)"
+        [expanded]="extensionNavigation.violationPanelIsOpened()"
+        (opened)="extensionNavigation.violationPanelIsOpened.set(true)"
+        (closed)="extensionNavigation.violationPanelIsOpened.set(false)"
       >
         <mat-expansion-panel-header>
           <mat-panel-title
@@ -37,6 +37,7 @@
               }}</span>
 
               @for (item of violation.violations.items; track item.id) {
+
               <div class="driver">
                 <div class="btns">
                   <a
@@ -62,6 +63,14 @@
                 </div>
 
                 <span class="bold">{{ item.driverName }}</span>
+
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="on-hover"
+                  (click)="deleteViolation(item.id)"
+                  ><span class="material-icons"> clear </span></a
+                >
               </div>
 
               <ul class="inner-ul">
@@ -75,9 +84,6 @@
                   <span style="color: rgb(236, 103, 55)"
                     >[{{ v.logDate | date : "MMM d" : v.homeTerminalTimeZone }}]
                     {{ v.type }}</span
-                  >
-                  <a mat-icon-button matTooltip="Done" class="on-hover"
-                    ><span class="material-icons"> clear </span></a
                   >
                 </li>
                 } }
@@ -602,9 +608,9 @@
       <!-- DOT Inspections -->
       @if (inspections().length > 0) {
       <mat-expansion-panel
-        [expanded]="panelService.dotPanelIsOpened()"
-        (opened)="panelService.dotPanelIsOpened.set(true)"
-        (closed)="panelService.dotPanelIsOpened.set(false)"
+        [expanded]="extensionNavigation.dotPanelIsOpened()"
+        (opened)="extensionNavigation.dotPanelIsOpened.set(true)"
+        (closed)="extensionNavigation.dotPanelIsOpened.set(false)"
       >
         <mat-expansion-panel-header>
           <mat-panel-title

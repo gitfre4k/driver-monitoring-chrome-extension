@@ -4,24 +4,20 @@ import { IEvent as ICEvent } from '../interfaces/driver-daily-log-events.interfa
 export interface IViolations {
   company: ITenant;
   totalCount: number;
-  items: [
-    {
-      id: number;
-      driverId: string;
-      driverName: string;
-      violationsCount: number;
-      violations: [
-        {
-          violationId: string;
-          type: string;
-          startTime: string;
-          endTime: string;
-          logDate: string;
-          homeTerminalTimeZone: string;
-        }
-      ];
-    }
-  ];
+  items: {
+    id: number;
+    driverId: string;
+    driverName: string;
+    violationsCount: number;
+    violations: {
+      violationId: string;
+      type: string;
+      startTime: string;
+      endTime: string;
+      logDate: string;
+      homeTerminalTimeZone: string;
+    }[];
+  }[];
 }
 
 export interface IProgressBar {

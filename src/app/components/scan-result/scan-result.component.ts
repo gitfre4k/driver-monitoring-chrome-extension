@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -16,8 +16,7 @@ import {
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { UrlService } from '../../@services/url.service';
 import { ITenant } from '../../interfaces';
-import { DateTime } from 'luxon';
-import { PanelService } from '../../@services/panel.service';
+import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
 
 @Component({
   selector: 'app-scan-result',
@@ -47,15 +46,24 @@ import { PanelService } from '../../@services/panel.service';
 export class ScanResultComponent {
   private _snackBar = inject(MatSnackBar);
   private urlService = inject(UrlService);
-  panelService = inject(PanelService);
   progressBarService = inject(ProgressBarService);
+  extensionNavigation = inject(ExtensionTabNavigationService);
 
   driverCount = this.progressBarService.activeDriversCount;
 
   violations = this.progressBarService.violations;
-  violationsCount = this.progressBarService.totalVCount;
+  violationsCount = computed(() => {
+    let totalVCount = 0;
+    this.violations().forEach(
+      (v) => (totalVCount = totalVCount + v.violations.items.length)
+    );
+
+    return totalVCount;
+  });
   inspections = this.progressBarService.inspections;
   inspectionsCount = this.progressBarService.totalDCount;
+
+  constructor() {}
 
   isEmpty(obj: any): boolean {
     return Object.keys(obj).length === 0;
@@ -73,7 +81,19 @@ export class ScanResultComponent {
     );
   }
 
-  constructor() {}
+  deleteViolation(id: number) {
+    this.violations.update((prevValue) => {
+      let violations = prevValue;
+      violations.forEach((v) => {
+        v.violations.items = v.violations.items.filter(
+          (driver) => driver.id !== id
+        );
+      });
+      violations.filter((v) => v.violations.items.length === 0);
+      console.log(violations);
+      return violations;
+    });
+  }
 
   get malfTitle(): string {
     return window.innerWidth > 350

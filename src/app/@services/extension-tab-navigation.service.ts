@@ -6,5 +6,7 @@ import { Injectable, signal } from '@angular/core';
 export class ExtensionTabNavigationService {
   selectedTabIndex = signal(0);
 
+  violationPanelIsOpened = signal(false);
+  dotPanelIsOpened = signal(false);
   constructor() {}
 }

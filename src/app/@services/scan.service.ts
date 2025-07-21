@@ -1,7 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import {
   catchError,
-  concatMap,
   from,
   map,
   mergeMap,
@@ -15,13 +14,11 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ApiService } from './api.service';
 import { ProgressBarService } from './progress-bar.service';
-import { ReportComponent } from '../components/report/report.component';
 
 import { IDOTInspections, IRange, IViolations } from '../interfaces';
 import { TScanMode } from '../types';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { DateTime } from 'luxon';
-import { PanelService } from './panel.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,11 +28,11 @@ export class ScanService {
   private progressBarService = inject(ProgressBarService);
   private extensionTabNavService = inject(ExtensionTabNavigationService);
   private _snackBar = inject(MatSnackBar);
-  private panelService = inject(PanelService);
 
   readonly dialog = inject(MatDialog);
 
   autoScan = signal(true);
+  autofocus = signal(true);
   selectedRange = signal<'week' | 'month' | 'custom'>('week');
 
   constructor() {}
@@ -78,8 +75,11 @@ export class ScanService {
         duration: 3000,
       }
     );
-    // this.extensionTabNavService.selectedTabIndex.set(1);
-    // this.panelService.violationPanelIsOpened.set(true);
+
+    if (this.autofocus()) {
+      this.extensionTabNavService.selectedTabIndex.set(1);
+      this.extensionTabNavService.violationPanelIsOpened.set(true);
+    }
   };
 
   dotInspectionsDetected = (d: number) => {
@@ -91,7 +91,7 @@ export class ScanService {
       }
     );
     this.extensionTabNavService.selectedTabIndex.set(1);
-    this.panelService.dotPanelIsOpened.set(true);
+    this.extensionTabNavService.dotPanelIsOpened.set(true);
   };
 
   handleScanComplete(scanMode: TScanMode) {

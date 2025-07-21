@@ -36,6 +36,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DateService } from '../../@services/date.service';
 import { DateTime } from 'luxon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-scan',
@@ -55,6 +56,7 @@ import { DateTime } from 'luxon';
     MatTooltipModule,
     MatRadioModule,
     MatSlideToggleModule,
+    MatCheckboxModule,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
