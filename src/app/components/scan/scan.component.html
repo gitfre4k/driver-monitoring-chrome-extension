@@ -1,25 +1,61 @@
 <div class="scan">
   @if (!scanning()) {
+
   <!--////////////////////  -->
-  <!-- Violations and DOT Inspections -->
-  <fieldset class="scan-violations">
-    <legend>
-      <mat-select [(value)]="selectedValue" class="scan-violations__select">
-        <mat-option value="Violations">Violations</mat-option>
-        <mat-option value="DOT Inspections">DOT Inspections</mat-option>
-      </mat-select>
-    </legend>
-    @if (selectedValue() === 'Violations') {
-    <div class="scan-violations__sync">
+  <!-- Druver Log Analysis -->
+  <fieldset class="scan__log-analysis">
+    <legend>Driver Log Analysis</legend>
+
+    <div class="scan__log-analysis__options">
+      <span class="scan__log-analysis__options-title">include:</span>
+      <app-advanced-scan></app-advanced-scan>
+    </div>
+
+    <mat-form-field style="display: none">
+      <input
+        matInput
+        [matDatepicker]="picker"
+        [formControl]="date"
+        (dateChange)="changeDate($event)"
+      />
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <div class="scan__log-analysis__form">
+      <div></div>
+      <div class="scan__log-analysis__form-date">
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <span>{{ date.value | date : "mediumDate" }}</span>
+      </div>
+      <div class="scan__log-analysis__form-submit">
+        <button
+          [disabled]="disableScan"
+          matButton="tonal"
+          (click)="analyzeDriverLogs()"
+        >
+          Analyze
+        </button>
+      </div>
+    </div>
+  </fieldset>
+
+  <!--////////////////////  -->
+  <!-- Violations -->
+  <fieldset class="scan__violations">
+    <legend>Violations</legend>
+    <div class="scan__violations__sync">
       <mat-slide-toggle
-        class="scan-violations__sync-auto"
         [(ngModel)]="scanService.autoScan"
+        style="transform: scale(0.85)"
       >
         Enable Auto-Scan
       </mat-slide-toggle>
-      <div class="scan-violations__sync-stats">
+      <div class="scan__violations__sync-stats">
         @if (scanService.autoScan()) {
-        <div class="scan-violations__sync-stats__auto-scan">
+        <div class="scan__violations__sync-stats__auto-scan">
           @if (vLastSync(); as lastSync) {
           <span>
             last sync: <br />
@@ -36,9 +72,9 @@
           >
         </div>
         } @else {
-        <div class="scan-violations__sync-stats__manual-scan">
+        <div class="scan__violations__sync-stats__manual-scan">
           <button
-            mat-raised-button
+            matButton="tonal"
             (click)="startViolationsScan()"
             [disabled]="disableScan"
           >
@@ -55,26 +91,26 @@
       </div>
     </div>
     <!-- radio buttons -->
-    <div class="scan-violations__options">
+    <div class="scan__violations__options">
       <mat-radio-group
-        class="scan-violations__options-radio"
+        class="scan__violations__options-radio"
         [(ngModel)]="scanService.selectedRange"
         (ngModelChange)="onRadioChange()"
       >
         <mat-radio-button
-          class="scan-violations__options-radio-button"
+          class="scan__violations__options-radio-button"
           [value]="'week'"
           >last week</mat-radio-button
         >
 
         <mat-radio-button
-          class="scan-violations__options-radio-button"
+          class="scan__violations__options-radio-button"
           [value]="'month'"
           >last month</mat-radio-button
         >
 
         <mat-radio-button
-          class="scan-violations__options-radio-button"
+          class="scan__violations__options-radio-button"
           [value]="'custom'"
         >
           <div class="custom">
@@ -117,7 +153,7 @@
         </mat-radio-button>
       </mat-radio-group>
 
-      <span class="scan-violations__options-daterange">
+      <span class="scan__violations__options-daterange">
         {{ range.value.start | date : "MMM d, yyyy" }}
         <br class="hide" />
         -
@@ -128,38 +164,43 @@
         ></mat-datepicker-toggle>
       </span>
     </div>
-    }
   </fieldset>
 
-  <app-advanced-scan></app-advanced-scan>
+  <!--////////////////////  -->
+  <!-- DOT Inspections -->
+  <fieldset class="scan__dot">
+    <legend>FMCSA Inpsections</legend>
 
-  <mat-form-field style="display: none">
-    <input
-      matInput
-      [matDatepicker]="picker"
-      [formControl]="date"
-      (dateChange)="changeDate($event)"
-    />
-    <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
+    <mat-form-field style="display: none">
+      <input
+        matInput
+        [matDatepicker]="pickerDOT"
+        [formControl]="date2"
+        (dateChange)="changeDOTDate($event)"
+      />
+      <mat-datepicker #pickerDOT></mat-datepicker>
+    </mat-form-field>
 
-  <div class="scan__analyze">
-    <div class="scan__analyze-date">
-      <mat-datepicker-toggle
-        matIconSuffix
-        [for]="picker"
-      ></mat-datepicker-toggle>
-      <span>{{ date.value | date : "mediumDate" }}</span>
+    <div class="scan__log-analysis__form">
+      <div></div>
+      <div class="scan__log-analysis__form-date">
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="pickerDOT"
+        ></mat-datepicker-toggle>
+        <span>{{ date2.value | date : "mediumDate" }}</span>
+      </div>
+      <div class="scan__log-analysis__form-submit">
+        <button
+          [disabled]="disableScan"
+          matButton="tonal"
+          (click)="startDOTScan()"
+        >
+          Scan
+        </button>
+      </div>
     </div>
-    <button
-      [disabled]="disableScan"
-      mat-raised-button
-      (click)="analyzeDriverLogs()"
-      class="scan__analyze-submit"
-    >
-      Analyze Driver Logs
-    </button>
-  </div>
+  </fieldset>
 
   } @else {
   <app-progress-bar

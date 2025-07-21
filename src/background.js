@@ -1,8 +1,10 @@
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("onInstalled....");
+  console.log(">> [background.js] chrome.runtime.onInstalled");
 });
-console.log("Background service worker active.");
+console.log(">> [background.js] service worker active.");
 
+///////////////////
+// "MASTER_TOOLS_PROVIDER_TENANT"
 async function getMasterToolsProviderTenant(tabId) {
   try {
     const results = await chrome.scripting.executeScript({
@@ -16,19 +18,21 @@ async function getMasterToolsProviderTenant(tabId) {
       return results[0].result;
     } else {
       console.warn(
-        `MASTER_TOOLS_PROVIDER_TENANT not found in localStorage for tab ${tabId}.`
+        ` >> [background.js] MASTER_TOOLS_PROVIDER_TENANT not found in localStorage for tab ${tabId}.`
       );
       return null;
     }
   } catch (error) {
     console.error(
-      `Error getting MASTER_TOOLS_PROVIDER_TENANT for tab ${tabId}:`,
+      ` >> [background.js] Error getting MASTER_TOOLS_PROVIDER_TENANT for tab ${tabId}:`,
       error
     );
     return null;
   }
 }
 
+///////////////////
+// on URL Change
 function sendMessageToContentScript(tabId, url, tenantData) {
   chrome.runtime.sendMessage(
     {
@@ -38,12 +42,12 @@ function sendMessageToContentScript(tabId, url, tenantData) {
     (response) => {
       if (chrome.runtime.lastError) {
         console.error(
-          "Error sending message to content script:",
+          ">> [background.js] Error sending message to content script:",
           chrome.runtime.lastError.message
         );
       } else {
         console.log(
-          "Message sent successfully. Response from content script:",
+          ">> [background.js] Message sent successfully. Response from content script:",
           response
         );
       }
@@ -51,6 +55,8 @@ function sendMessageToContentScript(tabId, url, tenantData) {
   );
 }
 
+///////////////////
+// on chrome tab change
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tab || !tab.url) {
     return;
@@ -60,7 +66,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     changeInfo.url &&
     changeInfo.url.startsWith("https://app.monitoringdriver.com/")
   ) {
-    console.log(`URL changed to: ${changeInfo.url}`);
+    console.log(`>> [background.js] URL changed to: ${changeInfo.url}`);
     const MASTER_TOOLS_PROVIDER_TENANT = await getMasterToolsProviderTenant(
       tabId
     );
@@ -79,7 +85,7 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
     }
 
     if (tab.url && tab.url.startsWith("https://app.monitoringdriver.com/")) {
-      console.log(`Tab activated: ${tab.url}`);
+      console.log(`>> [background.js] Tab activated: ${tab.url}`);
       const MASTER_TOOLS_PROVIDER_TENANT = await getMasterToolsProviderTenant(
         activeInfo.tabId
       );
@@ -97,7 +103,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const { tabId, key, value } = message.payload;
 
     if (tabId === undefined || key === undefined || value === undefined) {
-      console.error("Invalid payload for updateLocalStorage:", message.payload);
+      console.error(">> [background.js] Invalid payload for updateLocalStorage:", message.payload);
       sendResponse({ success: false, error: "Missing tabId, key, or value" });
       return true; // Indicate that sendResponse will be called asynchronously
     }
@@ -105,7 +111,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Check if the tab exists and is accessible
     chrome.tabs.get(tabId, (tab) => {
       if (chrome.runtime.lastError) {
-        console.error("Error getting tab:", chrome.runtime.lastError.message);
+        console.error(">> [background.js] Error getting tab:", chrome.runtime.lastError.message);
         sendResponse({
           success: false,
           error: "Tab not found or inaccessible.",
@@ -113,7 +119,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return;
       }
       if (!tab) {
-        console.error(`Tab with ID ${tabId} not found.`);
+        console.error(`>> [background.js] Tab with ID ${tabId} not found.`);
         sendResponse({ success: false, error: "Tab not found." });
         return;
       }
@@ -150,7 +156,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         })
         .catch((error) => {
-          console.error("Error executing script:", error);
+          console.error(">> [background.js] Error executing script:", error);
           sendResponse({
             success: false,
             error: `Failed to execute script: ${error.message}`,
@@ -160,4 +166,51 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     return true; // Keep the message channel open for sendResponse
   }
+});
+
+
+
+///////////////////
+// Shared state: A global counter and a flag for a unique operation
+let globalCounter = 0;
+let isUniqueOperationInProgress = false;
+
+console.log(">> [background.js] Background script loaded. Initial counter:", globalCounter);
+
+// Listen for messages from other parts of the extension (e.g., Angular popup)
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("Message received in background:", message);
+
+    if (message.action === "incrementCounter") {
+        globalCounter++;
+        console.log("Counter incremented to:", globalCounter);
+        sendResponse({ type: "counterUpdate", newCount: globalCounter });
+        return true; // Indicate that sendResponse will be called asynchronously
+    } else if (message.action === "startUniqueOperation") {
+        if (isUniqueOperationInProgress) {
+            console.log("Unique operation already in progress. Ignoring request.");
+            sendResponse({ type: "operationStatus", status: "already_running" });
+        } else {
+            isUniqueOperationInProgress = true;
+            console.log("Starting unique operation...");
+
+            // Simulate a long-running, unique task
+            setTimeout(() => {
+                console.log("Unique operation finished.");
+                isUniqueOperationInProgress = false;
+                // Optionally, send a message back to all active contexts or a specific one
+                chrome.runtime.sendMessage({ type: "operationStatus", status: "finished" });
+            }, 3000); // Simulate a 3-second operation
+
+            sendResponse({ type: "operationStatus", status: "started" });
+        }
+        return true; // Indicate that sendResponse will be called asynchronously
+    } else if (message.action === "getInitialState") {
+        sendResponse({
+            type: "initialState",
+            initialCount: globalCounter,
+            operationStatus: isUniqueOperationInProgress ? "running" : "idle"
+        });
+        return true;
+    }
 });

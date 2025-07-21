@@ -9,4 +9,5 @@ export interface PanelAction {
 })
 export class PanelService {
   violationPanelIsOpened = signal(false);
+  dotPanelIsOpened = signal(false);
 }

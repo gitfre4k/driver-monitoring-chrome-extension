@@ -70,11 +70,11 @@ export class ScanComponent {
 
   readonly dialog = inject(MatDialog);
 
-  selectedValue = signal<'Violations' | 'DOT Inspections'>('Violations');
-
   // Analyze Date
   date = new FormControl<Date>(DateTime.now().toJSDate());
   analyzeDate = signal(this.dateService.today);
+  date2 = new FormControl<Date>(DateTime.now().toJSDate());
+  dotDate = signal(this.dateService.today);
 
   // Range Date
   range = new FormGroup({
@@ -132,6 +132,9 @@ export class ScanComponent {
   changeDate(ev: MatDatepickerInputEvent<Date>) {
     this.analyzeDate.set(this.dateService.getAnalyzeQueryDate(ev.value!));
   }
+  changeDOTDate(ev: MatDatepickerInputEvent<Date>) {
+    this.dotDate.set(this.dateService.getAnalyzeQueryDate(ev.value!));
+  }
   updateRange() {
     this.updateRangeTrigger.update((prev) => prev + 1);
   }
@@ -161,6 +164,11 @@ export class ScanComponent {
     this.startScan();
   };
 
+  startDOTScan = () => {
+    this.scanMode.setValue('dot');
+    this.startScan();
+  };
+
   analyzeDriverLogs = () => {
     this.scanMode.setValue('advanced');
     this.startScan();
@@ -184,7 +192,8 @@ export class ScanComponent {
     // Scan for Violations / DOT Inspections
     else {
       const { dateFrom, dateTo } = this.dateRange();
-      if (!dateFrom || !dateTo) {
+      const dotDate = this.dotDate();
+      if (!dateFrom || !dateTo || !dotDate) {
         this.disableScan = false;
         return;
       }
@@ -192,8 +201,8 @@ export class ScanComponent {
         this.scanMode.value === 'violations'
           ? this.scanService.getAllViolations({ dateFrom, dateTo })
           : (this.scanService.getAllDOTInspections({
-              dateFrom,
-              dateTo,
+              dateFrom: dotDate,
+              dateTo: dotDate,
             }) as Observable<any>)
       ).subscribe({
         next: (data: IViolations[] | IDOTInspections[]) =>

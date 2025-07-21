@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -6,15 +6,15 @@ import { MatDivider, MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
 import {
   MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
   MatExpansionModule,
 } from '@angular/material/expansion';
 
 import { ProgressBarService } from '../../@services/progress-bar.service';
-import { MatBadgeModule } from '@angular/material/badge';
 import { UrlService } from '../../@services/url.service';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ITenant } from '../../interfaces';
 import { DateTime } from 'luxon';
 import { PanelService } from '../../@services/panel.service';
@@ -54,6 +54,8 @@ export class ScanResultComponent {
 
   violations = this.progressBarService.violations;
   violationsCount = this.progressBarService.totalVCount;
+  inspections = this.progressBarService.inspections;
+  inspectionsCount = this.progressBarService.totalDCount;
 
   isEmpty(obj: any): boolean {
     return Object.keys(obj).length === 0;

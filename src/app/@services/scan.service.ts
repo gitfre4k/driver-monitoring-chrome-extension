@@ -45,11 +45,6 @@ export class ScanService {
   handleScanData(data: IViolations[] | IDOTInspections[], scanMode: TScanMode) {
     data.forEach((result) => {
       if (result.totalCount > 0) {
-        scanMode === 'dot' &&
-          this.progressBarService.totalDCount.update(
-            (totalCount) => totalCount + result.totalCount
-          );
-
         scanMode === 'violations'
           ? this.progressBarService.violations.update((v) => [
               ...v,
@@ -57,10 +52,12 @@ export class ScanService {
                 violations: result as IViolations,
               },
             ])
-          : this.progressBarService.inspections.push({
-              company: 'this.currentCompany.name',
-              inspections: result as IDOTInspections,
-            });
+          : this.progressBarService.inspections.update((d) => [
+              ...d,
+              {
+                inspections: result as any,
+              },
+            ]);
       }
     });
   }
@@ -75,14 +72,26 @@ export class ScanService {
 
   violationsDetected = (v: number) => {
     this._snackBar.open(
-      `Violations scan competed: ${v} violations detected`,
+      `Scan compete: ${v} violation${v > 1 ? 's' : ''} detected`,
       'OK',
       {
         duration: 3000,
       }
     );
     // this.extensionTabNavService.selectedTabIndex.set(1);
-    this.panelService.violationPanelIsOpened.set(true);
+    // this.panelService.violationPanelIsOpened.set(true);
+  };
+
+  dotInspectionsDetected = (d: number) => {
+    this._snackBar.open(
+      `Scan compete: ${d} DOT Inspection${d > 1 ? 's' : ''} detected`,
+      'OK',
+      {
+        duration: 3000,
+      }
+    );
+    this.extensionTabNavService.selectedTabIndex.set(1);
+    this.panelService.dotPanelIsOpened.set(true);
   };
 
   handleScanComplete(scanMode: TScanMode) {
@@ -90,8 +99,17 @@ export class ScanService {
       const v = this.progressBarService.totalVCount();
       v > 0
         ? this.violationsDetected(v)
+        : this._snackBar.open(`Scan complete: no violations detected`, 'OK', {
+            duration: 3000,
+          });
+      this.progressBarService.violationsLastSync.set(DateTime.now().toISO());
+      this.progressBarService.initializeProgressBar();
+    } else {
+      const dot = this.progressBarService.totalDCount();
+      dot > 0
+        ? this.dotInspectionsDetected(dot)
         : this._snackBar.open(
-            `Violations scan completed - no violations`,
+            `Scan complete: no DOT Inspections detected`,
             'OK',
             {
               duration: 3000,
@@ -99,13 +117,6 @@ export class ScanService {
           );
       this.progressBarService.violationsLastSync.set(DateTime.now().toISO());
       this.progressBarService.initializeProgressBar();
-    } else {
-      const dialogRef = this.dialog.open(ReportComponent);
-      let instance = dialogRef.componentInstance;
-      instance.inspections = this.progressBarService.inspections;
-      dialogRef
-        .afterClosed()
-        .subscribe(() => this.progressBarService.initializeProgressBar());
     }
   }
 
@@ -166,34 +177,56 @@ export class ScanService {
 
   getAllDOTInspections(range: IRange) {
     this.progressBarService.initializeState('dot');
-    return this.apiService.getAccessibleTenants().pipe(
-      tap(
-        (tenants) =>
-          !tenants.find(
-            (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
-          ) && window.close()
-      ),
-      tap(() => {
-        this.progressBarService.scanning.set(true);
-      }),
-      mergeMap((tenants) => from(tenants)),
-      concatMap((tenant) => {
-        this.progressBarService.currentCompany.set(tenant.name);
-        return this.apiService.getDOTInspectionList(tenant, range).pipe(
-          tap({
-            error: (error) => {
-              this.progressBarService.progressValue.update(
-                (value) => value + this.progressBarService.constant()
-              );
-              this.progressBarService.errors.push({
-                error,
-                company: tenant,
-              });
-            },
-          }),
-          catchError(() => of())
-        );
-      })
-    );
+    this.progressBarService.scanning.set(true);
+
+    return this.apiService
+      .getAccessibleTenants()
+      .pipe(
+        tap(
+          (tenants) =>
+            !tenants.find(
+              (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
+            ) && window.close()
+        ),
+        switchMap((tenants) => from(tenants))
+      )
+      .pipe(
+        mergeMap((tenant) => {
+          this.progressBarService.currentCompany.set(tenant.name);
+          this.progressBarService.progressValue.update(
+            (value) => value + this.progressBarService.constant()
+          );
+          return this.apiService
+            .getDOTInspectionList(tenant, range)
+            .pipe(
+              tap({
+                error: (error) => {
+                  this.progressBarService.progressValue.update(
+                    (value) => value + this.progressBarService.constant()
+                  );
+                  this.progressBarService.errors.push({
+                    error,
+                    company: tenant,
+                  });
+                },
+              }),
+              catchError(() => of())
+            )
+            .pipe(
+              tap(
+                (dot) =>
+                  dot.totalCount &&
+                  this.progressBarService.totalDCount.update(
+                    (prev) => prev + dot.totalCount
+                  )
+              ),
+              map((dot) => {
+                dot.company = tenant;
+                return dot;
+              })
+            );
+        }, 10),
+        toArray()
+      );
   }
 }

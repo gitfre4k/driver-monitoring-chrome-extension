@@ -18,6 +18,7 @@ import { ScanService } from './@services/scan.service';
 import { IViolations } from './interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateService } from './@services/date.service';
+import { AppSingletonService } from './@services/app-singleton.service';
 
 @Component({
   selector: 'app-root',
@@ -49,12 +50,16 @@ export class AppComponent {
   private scanService = inject(ScanService);
   private _snackBar = inject(MatSnackBar);
   private dateService = inject(DateService);
+  private appSingletonService = inject(AppSingletonService);
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
   violationsCount = this.progressBarService.totalVCount;
 
   isPopup = false;
+  currentCounter: number = 0;
+  currentOperationStatus: string = 'idle';
+  private subscriptions: Subscription = new Subscription();
 
   timerSub!: Subscription;
 
@@ -66,6 +71,7 @@ export class AppComponent {
       this.isPopup = views.some((view) => view === window);
     }
 
+    // Auto-Scan
     this.timerSub = interval(300000).subscribe({
       next: () => {
         if (!this.scanning() && this.scanService.autoScan()) {
@@ -95,16 +101,32 @@ export class AppComponent {
           );
       },
     });
+
+    this.subscriptions.add(
+      this.appSingletonService.counter$.subscribe((count) => {
+        this.currentCounter = count;
+      })
+    );
+    this.subscriptions.add(
+      this.appSingletonService.operationStatus$.subscribe((status) => {
+        this.currentOperationStatus = status;
+      })
+    );
   }
 
   ngAfterViewInit() {
-    if (this.isPopup) this.popUp();
+    if (this.isPopup) {
+      console.log('[App Component] before startOperation ');
+      this.startOperation();
+      console.log('[App Component] after startOperation ');
+
+      this.popUp();
+    }
   }
 
   ngOnDestroy(): void {
-    if (this.timerSub) {
-      this.timerSub.unsubscribe();
-    }
+    if (this.timerSub) this.timerSub.unsubscribe();
+    if (this.subscriptions) this.subscriptions.unsubscribe();
   }
 
   private handleKeyboardEvent(event: KeyboardEvent) {
@@ -135,8 +157,17 @@ export class AppComponent {
     this.extensionTabNavigationService.selectedTabIndex.set(i);
   }
 
+  increment(): void {
+    this.appSingletonService.incrementCounter();
+  }
+
+  startOperation(): void {
+    this.appSingletonService.startUniqueOperation();
+  }
+
   popUp() {
-    const windowFeatures = `width=397,height=736,right=0,top=0`;
+    let height = window.screen.availHeight;
+    const windowFeatures = `width=397,height=${height},left=384384,top=0`;
     window.open('index.html', '', windowFeatures);
     window.close();
   }

@@ -29,7 +29,8 @@ export interface IEvent {
   isFirstEvent: boolean;
   coDriverDisplayName: string;
   coDriverId: string;
-
+  //////////////
+  // custom
   statusName: string;
   isTeleport: number;
   occurredDuringDriving: boolean;

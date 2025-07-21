@@ -38,7 +38,6 @@ export interface IScanViolations {
 }
 
 export interface IScanDOTInspections {
-  company: string;
   inspections: IDOTInspections;
 }
 
@@ -49,6 +48,7 @@ export interface IScanErrors {
 }
 
 export interface IDOTInspections {
+  company: ITenant;
   totalCount: number;
   items: [
     {

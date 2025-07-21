@@ -101,7 +101,7 @@
                 text-align: right;
               }
               .status {
-                font-size: 12px;
+                font-size: 11px;
                 margin: 1px 0;
                 padding: 0;
                 border-radius: 12px;
@@ -201,4 +201,11 @@
 
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.mat-badge-custom {
+  .mat-badge-content {
+    background: rgb(20, 46, 104);
+    color: white;
+  }
 }

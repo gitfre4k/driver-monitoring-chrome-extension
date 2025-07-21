@@ -22,14 +22,14 @@ export class ProgressBarService {
   constant = computed(() => 100 / this.appService.tenantsSignal().length);
   currentDriver = signal('');
   currentCompany = signal('Dex Solutions');
-  totalDCount = signal(0);
   activeDriversCount = signal(0);
 
   violations = signal<IScanViolations[]>([]);
   totalVCount = signal(0);
   violationsLastSync = signal('');
 
-  inspections: IScanDOTInspections[] = [];
+  inspections = signal<IScanDOTInspections[]>([]);
+  totalDCount = signal(0);
 
   initialAdvancedScanResults: IAdvancedResaults = {
     prolengedOnDuties: {},
@@ -78,7 +78,7 @@ export class ProgressBarService {
         break;
       case 'dot':
         this.totalDCount.set(0);
-        this.inspections = [];
+        this.inspections.set([]);
         break;
       case 'advanced':
         this.activeDriversCount.set(0);

@@ -44,3 +44,8 @@ body {
     width: 100%;
   }
 }
+
+.my-small-slide-toggle .mat-slide-toggle {
+  transform: scale(0.6) translateX(-10px); /* Adjust translateX if needed */
+  transform-origin: left center;
+}

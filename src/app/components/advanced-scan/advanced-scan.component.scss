@@ -5,18 +5,17 @@
   align-items: start;
 
   .group {
-    width: 270px;
-    max-width: 90wv;
+    width: 90vw;
+    max-width: 300px;
     display: grid;
     align-items: center;
-    grid-template-columns: 25fr 22fr 22fr;
+    grid-template-columns: 26fr auto 22fr;
     font-size: 13;
     :first-child {
-      margin-right: 4px;
+      text-align: left;
     }
     :last-child {
       text-align: right;
-      margin-left: 4px;
     }
   }
 
