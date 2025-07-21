@@ -9,7 +9,7 @@ export class DateService {
 
   getDailyLogsDate(date: Date) {
     const utcHour = DateTime.utc().hour;
-    const days = utcHour >= 0 && utcHour < 12 ? 2 : 1; // 2: 1
+    const days = utcHour >= 0 && utcHour < 6 ? 2 : 1; // 2: 1
 
     const logsDate = DateTime.fromJSDate(date)
       .setZone('utc')
