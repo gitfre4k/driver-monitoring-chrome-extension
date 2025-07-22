@@ -75,8 +75,10 @@ export class ScanComponent {
   // Analyze Date
   date = new FormControl<Date>(DateTime.now().toJSDate());
   analyzeDate = signal(this.dateService.today);
-  date2 = new FormControl<Date>(DateTime.now().toJSDate());
-  dotDate = signal(this.dateService.today);
+  date2 = new FormControl<Date>(DateTime.now().startOf('day').toJSDate());
+  dotDate = signal(
+    this.dateService.getQueryDate(DateTime.now().startOf('day').toJSDate())
+  );
 
   // Range Date
   range = new FormGroup({
@@ -135,7 +137,7 @@ export class ScanComponent {
     this.analyzeDate.set(this.dateService.getAnalyzeQueryDate(ev.value!));
   }
   changeDOTDate(ev: MatDatepickerInputEvent<Date>) {
-    this.dotDate.set(this.dateService.getAnalyzeQueryDate(ev.value!));
+    this.dotDate.set(this.dateService.getQueryDate(ev.value!));
   }
   updateRange() {
     this.updateRangeTrigger.update((prev) => prev + 1);
