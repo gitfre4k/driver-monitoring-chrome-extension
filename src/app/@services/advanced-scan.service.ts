@@ -95,7 +95,6 @@ export class AdvancedScanService {
       )
       .pipe(
         finalize(() => {
-          console.log(this.progressBarService.advancedResaults);
           for (let company in this.misovLog) {
             console.log('## ' + company);
             console.log(`[total count]: ${this.misovLog[company].totalCount}`);
@@ -184,7 +183,12 @@ export class AdvancedScanService {
     const errorEvents: IEvent[] = [];
     const detectedTeleportEvents: IEvent[] = [];
     const prolongedOnDutyEvents: IEvent[] = [];
-    const manualDrivings: IEvent[] = [];
+    const manualDrivingEvents: IEvent[] = [];
+    const highEngineHourEvents: IEvent[] = [];
+    const missingEngineOnEvents: IEvent[] = [];
+    const lowTotalEHEvents: IEvent[] = [];
+    const malfEvents: IEvent[] = [];
+    const pcYmEvents: IEvent[] = [];
 
     computedEvents.forEach((event) => {
       if (event.driver.id === driverDailyLog.driverId) {
@@ -198,10 +202,32 @@ export class AdvancedScanService {
           prolongedOnDutyEvents.push(event);
         }
         if (event.manualDriving) {
-          manualDrivings.push(event);
+          manualDrivingEvents.push(event);
+        }
+        if (event.elapsedEngineHours >= this.engineHoursDuration()) {
+          highEngineHourEvents.push(event);
+        }
+        if (event.isEventMissingPowerUp) {
+          missingEngineOnEvents.push(event);
+        }
+        if (event.engineMinutes < this.lowTotalEngineHoursCount()) {
+          lowTotalEHEvents.push(event);
+        }
+        if (
+          event.eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence'
+        ) {
+          malfEvents.push(event);
+        }
+        if (
+          event.eventType ===
+          'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
+        ) {
+          pcYmEvents.push(event);
         }
       }
     });
+
+    const { companyName } = driverDailyLog;
     ////////////
     // handle Prolonged On Duty events
     if (prolongedOnDutyEvents.length > 0) {
@@ -209,20 +235,15 @@ export class AdvancedScanService {
         driverName: driverDailyLog.driverFullName,
         events: prolongedOnDutyEvents,
       };
-      if (
-        this.progressBarService.advancedResaults.prolengedOnDuties[
-          driverDailyLog.companyName
-        ]
-      ) {
-        this.progressBarService.advancedResaults.prolengedOnDuties[
-          driverDailyLog.companyName
-        ].push(driverProlongedOnDuties);
-      } else {
-        this.progressBarService.advancedResaults.prolengedOnDuties[
-          driverDailyLog.companyName
-        ] = [driverProlongedOnDuties];
-      }
+      this.progressBarService.prolengedOnDuty.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(driverProlongedOnDuties);
+        else newValue[companyName] = [driverProlongedOnDuties];
+        return newValue;
+      });
     }
+
     ////////////
     // handle Teleport events
     if (detectedTeleportEvents.length > 0) {
@@ -230,20 +251,13 @@ export class AdvancedScanService {
         driverName: driverDailyLog.driverFullName,
         events: detectedTeleportEvents,
       };
-
-      if (
-        this.progressBarService.advancedResaults.teleports[
-          driverDailyLog.companyName
-        ]
-      ) {
-        this.progressBarService.advancedResaults.teleports[
-          driverDailyLog.companyName
-        ].push(driverTeleportEvents);
-      } else {
-        this.progressBarService.advancedResaults.teleports[
-          driverDailyLog.companyName
-        ] = [driverTeleportEvents];
-      }
+      this.progressBarService.teleports.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(driverTeleportEvents);
+        else newValue[companyName] = [driverTeleportEvents];
+        return newValue;
+      });
     }
     ////////////
     // handle Error events
@@ -252,161 +266,106 @@ export class AdvancedScanService {
         name: driverDailyLog.driverFullName,
         events: errorEvents,
       };
-      if (
-        this.progressBarService.advancedResaults.eventErrors[
-          driverDailyLog.companyName
-        ]
-      ) {
-        this.progressBarService.advancedResaults.eventErrors[
-          driverDailyLog.companyName
-        ].push(driverErrorEvents);
-      } else {
-        this.progressBarService.advancedResaults.eventErrors[
-          driverDailyLog.companyName
-        ] = [driverErrorEvents];
-      }
+      this.progressBarService.eventErrors.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(driverErrorEvents);
+        else newValue[companyName] = [driverErrorEvents];
+        return newValue;
+      });
     }
 
-    for (let i = 0; i < driverEvents.length; i++) {
-      //
-      // high elapsed Engine Hours
-      if (driverEvents[i].elapsedEngineHours >= this.engineHoursDuration()) {
-        const highEngineHoursDriver = {
-          driverName: driverDailyLog.driverFullName,
-          id: driverEvents[i].eventSequenceNumber,
-          duration: driverEvents[i].elapsedEngineHours,
-        };
-        if (
-          this.progressBarService.advancedResaults.highEngineHours[
-            driverDailyLog.companyName
-          ] &&
-          this.progressBarService.advancedResaults.highEngineHours[
-            driverDailyLog.companyName
-          ].find(
-            (driver) => driver.driverName === driverDailyLog.driverFullName
-          ) === undefined
-        ) {
-          this.progressBarService.advancedResaults.highEngineHours[
-            driverDailyLog.companyName
-          ].push(highEngineHoursDriver);
-        } else {
-          this.progressBarService.advancedResaults.highEngineHours[
-            driverDailyLog.companyName
-          ] = [highEngineHoursDriver];
-        }
-      }
+    //
+    // high elapsed Engine Hours
+    if (highEngineHourEvents.length > 0) {
+      const driverHighEngineHourEvents = {
+        driverName: driverDailyLog.driverFullName,
+        events: highEngineHourEvents,
+      };
+      this.progressBarService.highEngineHours.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(driverHighEngineHourEvents);
+        else newValue[companyName] = [driverHighEngineHourEvents];
+        return newValue;
+      });
+    }
 
-      //
-      // missing Engine On
-      if (driverEvents[i].isEventMissingPowerUp) {
-        if (
-          this.progressBarService.advancedResaults.missingEngineOn[
-            driverDailyLog.companyName
-          ] &&
-          !this.progressBarService.advancedResaults.missingEngineOn[
-            driverDailyLog.companyName
-          ].includes(driverDailyLog.driverFullName)
-        ) {
-          this.progressBarService.advancedResaults.missingEngineOn[
-            driverDailyLog.companyName
-          ].push(driverDailyLog.driverFullName);
-        } else {
-          this.progressBarService.advancedResaults.missingEngineOn[
-            driverDailyLog.companyName
-          ] = [driverDailyLog.driverFullName];
-        }
-      }
+    //
+    // missing Engine On
+    if (missingEngineOnEvents.length > 0) {
+      const driverMissingEngineOn = {
+        driverName: driverDailyLog.driverFullName,
+        events: missingEngineOnEvents,
+      };
+      this.progressBarService.missingEngineOn.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(driverMissingEngineOn);
+        else newValue[companyName] = [driverMissingEngineOn];
+        return newValue;
+      });
+    }
 
-      //
-      // low total Engine Hours
-      if (driverEvents[i].engineMinutes < this.lowTotalEngineHoursCount()) {
-        if (
-          this.progressBarService.advancedResaults.lowTotalEngineHours[
-            driverDailyLog.companyName
-          ] &&
-          !this.progressBarService.advancedResaults.lowTotalEngineHours[
-            driverDailyLog.companyName
-          ].includes(driverDailyLog.driverFullName)
-        ) {
-          this.progressBarService.advancedResaults.lowTotalEngineHours[
-            driverDailyLog.companyName
-          ].push(driverDailyLog.driverFullName);
-        } else {
-          this.progressBarService.advancedResaults.lowTotalEngineHours[
-            driverDailyLog.companyName
-          ] = [driverDailyLog.driverFullName];
-        }
-      }
+    //
+    // low total Engine Hours
+    if (lowTotalEHEvents.length > 0) {
+      const driverLowTotalEH = {
+        name: driverDailyLog.driverFullName,
+        events: lowTotalEHEvents,
+      };
+      this.progressBarService.lowTotalEngineHours.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName]) newValue[companyName].push(driverLowTotalEH);
+        else newValue[companyName] = [driverLowTotalEH];
+        return newValue;
+      });
+    }
 
-      //
-      // Malfunction or Data Diagnostic Detection
-      if (
-        driverEvents[i].eventType ===
-        'MalfunctionOrDataDiagnosticDetectionOccurrence'
-      ) {
-        if (
-          this.progressBarService.advancedResaults.malfOrDataDiagDetection[
-            driverDailyLog.companyName
-          ] &&
-          !this.progressBarService.advancedResaults.malfOrDataDiagDetection[
-            driverDailyLog.companyName
-          ].includes(driverDailyLog.driverFullName)
-        ) {
-          this.progressBarService.advancedResaults.malfOrDataDiagDetection[
-            driverDailyLog.companyName
-          ].push(driverDailyLog.driverFullName);
-        } else {
-          this.progressBarService.advancedResaults.malfOrDataDiagDetection[
-            driverDailyLog.companyName
-          ] = [driverDailyLog.driverFullName];
-        }
-      }
+    //
+    // Malfunction or Data Diagnostic Detection
+    if (malfEvents.length > 0) {
+      const driverMalf = {
+        name: driverDailyLog.driverFullName,
+        events: malfEvents,
+      };
+      this.progressBarService.malfOrDataDiag.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName]) newValue[companyName].push(driverMalf);
+        else newValue[companyName] = [driverMalf];
+        return newValue;
+      });
+    }
 
-      //////////////
-      // Manual Driving Detection
-      if (manualDrivings.length > 0) {
-        const driverManualDrivings: IDriverErrorEvents = {
-          name: driverDailyLog.driverFullName,
-          events: manualDrivings,
-        };
-        if (
-          this.progressBarService.advancedResaults.manualDrivingDetection[
-            driverDailyLog.companyName
-          ]
-        ) {
-          this.progressBarService.advancedResaults.manualDrivingDetection[
-            driverDailyLog.companyName
-          ].push(driverManualDrivings);
-        } else {
-          this.progressBarService.advancedResaults.manualDrivingDetection[
-            driverDailyLog.companyName
-          ] = [driverManualDrivings];
-        }
-      }
+    //////////////
+    // Manual Driving Detection
+    if (manualDrivingEvents.length > 0) {
+      const driverManualDriving = {
+        name: driverDailyLog.driverFullName,
+        events: manualDrivingEvents,
+      };
+      this.progressBarService.manualDriving.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(driverManualDriving);
+        else newValue[companyName] = [driverManualDriving];
+        return newValue;
+      });
+    }
 
-      //
-      // PC/YM detection
-      if (
-        driverEvents[i].eventType ===
-        'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
-      ) {
-        if (
-          this.progressBarService.advancedResaults.pcYm[
-            driverDailyLog.companyName
-          ] &&
-          !this.progressBarService.advancedResaults.pcYm[
-            driverDailyLog.companyName
-          ].includes(driverDailyLog.driverFullName)
-        ) {
-          this.progressBarService.advancedResaults.pcYm[
-            driverDailyLog.companyName
-          ].push(driverDailyLog.driverFullName);
-        } else {
-          this.progressBarService.advancedResaults.pcYm[
-            driverDailyLog.companyName
-          ] = [driverDailyLog.driverFullName];
-        }
-      }
+    //////////////
+    // PC/YM detection
+    if (pcYmEvents.length > 0) {
+      const driverPcYm = {
+        name: driverDailyLog.driverFullName,
+        events: pcYmEvents,
+      };
+      this.progressBarService.pcYm.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName]) newValue[companyName].push(driverPcYm);
+        else newValue[companyName] = [driverPcYm];
+        return newValue;
+      });
     }
   }
 }

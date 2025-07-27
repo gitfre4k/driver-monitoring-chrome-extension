@@ -185,13 +185,30 @@ export interface IDetectedResults {
   [company: string]: string[];
 }
 
+export interface IHighEngineHour {
+  driverName: string;
+  events: ICEvent[];
+}
+export interface IHighEngineHourResults {
+  [company: string]: IHighEngineHour[];
+}
+
+export interface IMissingEngineOn {
+  driverName: string;
+  events: ICEvent[];
+}
+
+export interface IMissingEngineOnResults {
+  [company: string]: IMissingEngineOn[];
+}
+
 export interface IAdvancedResaults {
   prolengedOnDuties: IDetectedOnDuties;
   malfOrDataDiagDetection: IDetectedResults;
-  pcYm: IDetectedResults;
+  pcYm: IEventErrors;
   missingEngineOn: IDetectedResults;
-  highEngineHours: IDetectedResultsWithDuration;
-  lowTotalEngineHours: IDetectedResults;
+  highEngineHours: IHighEngineHourResults;
+  lowTotalEngineHours: IEventErrors;
   teleports: ITeleportsEvents;
   eventErrors: IEventErrors;
   manualDrivingDetection: IEventErrors;

@@ -8,6 +8,8 @@ import {
   IDetectedResults,
   IDetectedResultsWithDuration,
   IEventErrors,
+  IHighEngineHourResults,
+  IMissingEngineOnResults,
   IScanDOTInspections,
   IScanErrors,
   IScanViolations,
@@ -36,43 +38,19 @@ export class ProgressBarService {
   inspections = signal<IScanDOTInspections[]>([]);
   totalDCount = signal(0);
 
-  initialAdvancedScanResults: IAdvancedResaults = {
-    prolengedOnDuties: {},
-    malfOrDataDiagDetection: {},
-    pcYm: {},
-    missingEngineOn: {},
-    highEngineHours: {},
-    lowTotalEngineHours: {},
-    teleports: {},
-    eventErrors: {},
-    manualDrivingDetection: {},
-  };
-
   teleports = signal<ITeleportsEvents>({});
   eventErrors = signal<IEventErrors>({});
   prolengedOnDuty = signal<IDetectedOnDuties>({});
-  malfOrDataDiag = signal<IDetectedResults>({});
-  pcYm = signal<IDetectedResults>({});
-  missingEngineOn = signal<IDetectedResults>({});
+  malfOrDataDiag = signal<IEventErrors>({});
+  pcYm = signal<IEventErrors>({});
+  missingEngineOn = signal<IMissingEngineOnResults>({});
   manualDriving = signal<IEventErrors>({});
-  highEngineHours = signal<IDetectedResultsWithDuration>({});
-  lowTotalEngineHours = signal<IDetectedResults>({});
-
-  advancedResaults: IAdvancedResaults = JSON.parse(
-    JSON.stringify(this.initialAdvancedScanResults)
-  );
+  highEngineHours = signal<IHighEngineHourResults>({});
+  lowTotalEngineHours = signal<IEventErrors>({});
 
   errors: IScanErrors[] = [];
 
-  removeItem(company: string, driverName: string, eventId: number) {
-    const driver = this.advancedResaults.eventErrors[company].find(
-      (d) => d.name === driverName
-    );
-    const evId = driver?.events.findIndex((ev) => ev.id === eventId);
-
-    if (evId && evId > -1)
-      this.advancedResaults.eventErrors[company].slice(evId);
-  }
+  removeItem(company: string, driverName: string, eventId: number) {}
 
   constructor() {}
 
@@ -97,9 +75,15 @@ export class ProgressBarService {
         break;
       case 'advanced':
         this.activeDriversCount.set(0);
-        this.advancedResaults = JSON.parse(
-          JSON.stringify(this.initialAdvancedScanResults)
-        );
+        this.teleports.set({});
+        this.eventErrors.set({});
+        this.prolengedOnDuty.set({});
+        this.malfOrDataDiag.set({});
+        this.pcYm.set({});
+        this.missingEngineOn.set({});
+        this.manualDriving.set({});
+        this.highEngineHours.set({});
+        this.lowTotalEngineHours.set({});
         break;
       default:
         return;

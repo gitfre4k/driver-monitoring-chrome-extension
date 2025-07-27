@@ -156,7 +156,6 @@ export class ScanComponent {
   handleAdvancedScanComplete() {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
-    instance.advancedScanResults = this.progressBarService.advancedResaults;
 
     dialogRef
       .afterClosed()

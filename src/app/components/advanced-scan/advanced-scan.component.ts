@@ -35,9 +35,4 @@ export class AdvancedScanComponent {
 
   readonly currentCompany = this.progressBarService.currentCompany;
   readonly progress = this.progressBarService.progressValue;
-
-  readonly detectedOnDuties =
-    this.progressBarService.advancedResaults.prolengedOnDuties;
-  readonly malfOrDataDiagDetection =
-    this.progressBarService.advancedResaults.malfOrDataDiagDetection;
 }

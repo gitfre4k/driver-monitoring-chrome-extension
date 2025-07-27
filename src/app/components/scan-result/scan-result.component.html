@@ -113,14 +113,14 @@
           ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.advancedResaults.teleports)) {
+          @if (isEmpty(progressBarService.teleports())) {
           <div class="scan-results__content__result__empty">
             No teleports detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.advancedResaults.teleports |
-            keyvalue; track company.key) {
+            @for (company of progressBarService.teleports() | keyvalue; track
+            company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -189,14 +189,14 @@
           <mat-panel-title>event Errors</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.advancedResaults.eventErrors)) {
+          @if (isEmpty(progressBarService.eventErrors())) {
           <div class="scan-results__content__result__empty">
             No event errors.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.advancedResaults.eventErrors |
-            keyvalue; track company.key) {
+            @for (company of progressBarService.eventErrors() | keyvalue; track
+            company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.name) {
@@ -263,14 +263,13 @@
           <mat-panel-title>{{ prolongedOnDutiesTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.advancedResaults.prolengedOnDuties)) {
+          @if (isEmpty(progressBarService.prolengedOnDuty())) {
           <div class="scan-results__content__result__empty">
             No prolonged On Duties detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of
-            progressBarService.advancedResaults.prolengedOnDuties | keyvalue;
+            @for (company of progressBarService.prolengedOnDuty() | keyvalue;
             track company.key) {
             <li class="company">
               <h3 class="company-name">{{ company.key }}</h3>
@@ -337,36 +336,69 @@
           <mat-panel-title>{{ malfTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if
-          (isEmpty(progressBarService.advancedResaults.malfOrDataDiagDetection))
-          {
-          <span>No malfunctions or data diagnostics detected.</span>
-          <mat-divider></mat-divider>
+          @if (isEmpty(progressBarService.malfOrDataDiag())) {
+          <div class="scan-results__content__result__empty">
+            No Malfunction / DataDiagnostic events.
+          </div>
           } @else {
-
-          <ul>
-            @for (detection of
-            progressBarService.advancedResaults.malfOrDataDiagDetection |
-            keyvalue; track detection.key) {
-            <li>
-              <h3>{{ detection.key }}</h3>
-              @for (driver of detection.value; track driver) {
+          <ul class="list-of-tenants">
+            @for (company of progressBarService.malfOrDataDiag() | keyvalue;
+            track company.key) {
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
+              @for (driver of company.value; track driver.name) {
               <div class="driver">
-                <a
-                  mat-icon-button
-                  (click)="copyDriverName(driver)"
-                  matTooltip="Copy to clipboard"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </a>
-                <span class="bold">{{ driver }}</span>
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.events[0].driver.id,
+                        driver.events[0].date,
+                        driver.events[0].tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.name)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
+
+                <span class="bold">{{ driver.name }}</span>
               </div>
-              <span>- malfunction or data diagnostic detected</span>
+              <ul class="inner-ul">
+                @for (event of driver.events; track event.id) {
+                <li class="event-error">
+                  <span class="view-id">#{{ event.viewId }}</span>
+
+                  <span [ngClass]="'status ' + event.dutyStatus">{{
+                    event.statusName
+                  }}</span>
+
+                  <span class="error-msg">
+                    <!-- @for(message of event.errorMessages; track $index) {
+                    {{ message }}
+                    } -->
+                  </span>
+
+                  <a mat-icon-button matTooltip="Done" class="on-hover"
+                    ><span class="material-icons"> clear </span></a
+                  >
+                </li>
+                }
+              </ul>
               }
             </li>
+            <hr />
             }
           </ul>
-          <mat-divider></mat-divider>
           }
         </div>
       </mat-expansion-panel>
@@ -375,36 +407,68 @@
       <!-- PC/YM  -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title> PC / YM </mat-panel-title>
+          <mat-panel-title>PC/YM</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.advancedResaults.pcYm)) {
-          <span>No PC/YM events detected.</span>
-          <mat-divider></mat-divider>
+          @if (isEmpty(progressBarService.pcYm())) {
+          <div class="scan-results__content__result__empty">
+            No PC/YM errors.
+          </div>
           } @else {
-
-          <ul>
-            @for (detection of progressBarService.advancedResaults.pcYm |
-            keyvalue; track detection.key) {
-            <li>
-              <h3>{{ detection.key }}</h3>
-              @for (driver of detection.value; track driver) {
+          <ul class="list-of-tenants">
+            @for (company of progressBarService.pcYm() | keyvalue; track
+            company.key) {
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
+              @for (driver of company.value; track driver.name) {
               <div class="driver">
-                <a
-                  mat-icon-button
-                  (click)="copyDriverName(driver)"
-                  matTooltip="Copy to clipboard"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </a>
-                <span class="bold">{{ driver }}</span>
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.events[0].driver.id,
+                        driver.events[0].date,
+                        driver.events[0].tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.name)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
+
+                <span class="bold">{{ driver.name }}</span>
               </div>
-              <span>- PC/YM event detected</span>
+              <ul class="inner-ul">
+                @for (event of driver.events; track event.id) {
+                <li class="event-error">
+                  <span class="view-id">#{{ event.viewId }}</span>
+
+                  <span [ngClass]="'status ' + event.dutyStatus">{{
+                    event.statusName
+                  }}</span>
+
+                  <span class="error-msg"> PC or YM detected </span>
+
+                  <a mat-icon-button matTooltip="Done" class="on-hover"
+                    ><span class="material-icons"> clear </span></a
+                  >
+                </li>
+                }
+              </ul>
               }
             </li>
+            <hr />
             }
           </ul>
-          <mat-divider></mat-divider>
           }
         </div>
       </mat-expansion-panel>
@@ -413,37 +477,68 @@
       <!-- missing Engine On events -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title> missing Engine On </mat-panel-title>
+          <mat-panel-title>missing Engine On</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.advancedResaults.missingEngineOn)) {
-          <span>No missing Engine On events detected.</span>
-          <mat-divider></mat-divider>
+          @if (isEmpty(progressBarService.missingEngineOn())) {
+          <div class="scan-results__content__result__empty">
+            No missing Engine On events.
+          </div>
           } @else {
-
-          <ul>
-            @for (detection of
-            progressBarService.advancedResaults.missingEngineOn | keyvalue;
-            track detection.key) {
-            <li>
-              <h3>{{ detection.key }}</h3>
-              @for (driver of detection.value; track driver) {
+          <ul class="list-of-tenants">
+            @for (company of progressBarService.missingEngineOn() | keyvalue;
+            track company.key) {
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
+              @for (driver of company.value; track driver.driverName) {
               <div class="driver">
-                <a
-                  mat-icon-button
-                  (click)="copyDriverName(driver)"
-                  matTooltip="Copy to clipboard"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </a>
-                <span class="bold">{{ driver }}</span>
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.events[0].driver.id,
+                        driver.events[0].date,
+                        driver.events[0].tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.driverName)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
+
+                <span class="bold">{{ driver.driverName }}</span>
               </div>
-              <span>- missing Engine On detected</span>
+              <ul class="inner-ul">
+                @for (event of driver.events; track event.id) {
+                <li class="event-error">
+                  <span class="view-id">#{{ event.viewId }}</span>
+
+                  <span [ngClass]="'status ' + event.dutyStatus">{{
+                    event.statusName
+                  }}</span>
+
+                  <span class="error-msg"> missing Engine On </span>
+
+                  <a mat-icon-button matTooltip="Done" class="on-hover"
+                    ><span class="material-icons"> clear </span></a
+                  >
+                </li>
+                }
+              </ul>
               }
             </li>
+            <hr />
             }
           </ul>
-          <mat-divider></mat-divider>
           }
         </div>
       </mat-expansion-panel>
@@ -455,36 +550,67 @@
           <mat-panel-title>{{ elapsedEHTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.advancedResaults.highEngineHours)) {
-          <span>No high elapsed Engine Hours events.</span>
-          <mat-divider></mat-divider>
+          @if (isEmpty(progressBarService.highEngineHours())) {
+          <div class="scan-results__content__result__empty">
+            No high elapsed Engine Hours events.
+          </div>
           } @else {
-          <ul>
-            @for (highEngineHoursEvent of
-            progressBarService.advancedResaults.highEngineHours | keyvalue;
-            track highEngineHoursEvent.key) {
-            <li>
-              <h3>{{ highEngineHoursEvent.key }}</h3>
-              @for (driver of highEngineHoursEvent.value; track driver.id) {
+          <ul class="list-of-tenants">
+            @for (company of progressBarService.highEngineHours() | keyvalue;
+            track company.key) {
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
+              @for (driver of company.value; track driver.driverName) {
               <div class="driver">
-                <a
-                  mat-icon-button
-                  (click)="copyDriverName(driver.driverName)"
-                  matTooltip="Copy to clipboard"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </a>
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.events[0].driver.id,
+                        driver.events[0].date,
+                        driver.events[0].tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.driverName)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
+
                 <span class="bold">{{ driver.driverName }}</span>
               </div>
-              <span>
-                - high elapsed Engine Hours event detected, count:
-                {{ driver.duration }}
-              </span>
+              <ul class="inner-ul">
+                @for (event of driver.events; track event.id) {
+                <li class="event-error">
+                  <span class="view-id">#{{ event.viewId }}</span>
+
+                  <span [ngClass]="'status ' + event.dutyStatus">{{
+                    event.statusName
+                  }}</span>
+
+                  <span class="error-msg">
+                    elapsed Engine Hours: {{ event.elapsedEngineHours }}
+                  </span>
+
+                  <a mat-icon-button matTooltip="Done" class="on-hover"
+                    ><span class="material-icons"> clear </span></a
+                  >
+                </li>
+                }
+              </ul>
               }
             </li>
+            <hr />
             }
           </ul>
-          <mat-divider></mat-divider>
           }
         </div>
       </mat-expansion-panel>
@@ -496,17 +622,14 @@
           <mat-panel-title>manual Drivings</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if
-          (isEmpty(progressBarService.advancedResaults.manualDrivingDetection))
-          {
+          @if (isEmpty(progressBarService.manualDriving())) {
           <div class="scan-results__content__result__empty">
             No manual Driving events detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of
-            progressBarService.advancedResaults.manualDrivingDetection |
-            keyvalue; track company.key) {
+            @for (company of progressBarService.manualDriving() | keyvalue;
+            track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.name) {
@@ -569,37 +692,68 @@
           <mat-panel-title>{{ lowTotalEHTitle }}</mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.advancedResaults.lowTotalEngineHours))
-          {
-          <span>No low total Engine Hours events.</span>
-          <mat-divider></mat-divider>
+          @if (isEmpty(progressBarService.lowTotalEngineHours())) {
+          <div class="scan-results__content__result__empty">
+            No event with low total Engine Hours detected.
+          </div>
           } @else {
-
-          <ul>
-            @for (detection of
-            progressBarService.advancedResaults.lowTotalEngineHours | keyvalue;
-            track detection.key) {
-            <li>
-              <h3>{{ detection.key }}</h3>
-              @for (driver of detection.value; track driver) {
+          <ul class="list-of-tenants">
+            @for (company of progressBarService.lowTotalEngineHours() |
+            keyvalue; track company.key) {
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
+              @for (driver of company.value; track driver.name) {
               <div class="driver">
-                <a
-                  mat-icon-button
-                  (click)="copyDriverName(driver)"
-                  matTooltip="Copy to clipboard"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </a>
-                <span class="bold">{{ driver }}</span>
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.events[0].driver.id,
+                        driver.events[0].date,
+                        driver.events[0].tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.name)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
+
+                <span class="bold">{{ driver.name }}</span>
               </div>
-              <span
-                >- event(s) with low total Engine Hours events detected</span
-              >
+              <ul class="inner-ul">
+                @for (event of driver.events; track event.id) {
+                <li class="event-error">
+                  <span class="view-id">#{{ event.viewId }}</span>
+
+                  <span [ngClass]="'status ' + event.dutyStatus">{{
+                    event.statusName
+                  }}</span>
+
+                  <span class="error-msg">
+                    total Engine Hours:
+                    {{ event.engineMinutes }}
+                  </span>
+
+                  <a mat-icon-button matTooltip="Done" class="on-hover"
+                    ><span class="material-icons"> clear </span></a
+                  >
+                </li>
+                }
+              </ul>
               }
             </li>
+            <hr />
             }
           </ul>
-          <mat-divider></mat-divider>
           }
         </div>
       </mat-expansion-panel>

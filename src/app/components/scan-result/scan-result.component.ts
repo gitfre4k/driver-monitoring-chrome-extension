@@ -2,7 +2,6 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatDivider, MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -24,12 +23,10 @@ import { ExtensionTabNavigationService } from '../../@services/extension-tab-nav
     CommonModule,
     MatExpansionModule,
     FormsModule,
-    MatDivider,
     MatIconModule,
     MatButtonModule,
     MatBadgeModule,
     MatTooltipModule,
-    MatDividerModule,
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',
