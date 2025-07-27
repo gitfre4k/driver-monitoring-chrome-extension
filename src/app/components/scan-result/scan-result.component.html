@@ -163,7 +163,10 @@
                   <span class="error-msg">
                     {{
                       event.isTeleport > 0
-                        ? "teleport [ " + event.isTeleport + " miles ]"
+                        ? "teleport [ " +
+                          event.isTeleport +
+                          "
+              miles ]"
                         : "odometer decreased"
                     }}
                   </span>
@@ -272,7 +275,7 @@
 
       <!--  -->
       <!-- prolonged OnDutuis -->
-      @if (progressBarService.prolengedOnDuty(); as prolongedOnDuty) {
+      @if (progressBarService.prolongedOnDuty(); as prolongedOnDuty) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title
@@ -289,14 +292,13 @@
           ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.prolengedOnDuty())) {
+          @if (isEmpty(prolongedOnDuty)) {
           <div class="scan-results__content__result__empty">
             No prolonged On Duties detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.prolengedOnDuty() | keyvalue;
-            track company.key) {
+            @for (company of prolongedOnDuty | keyvalue; track company.key) {
             <li class="company">
               <h3 class="company-name">{{ company.key }}</h3>
               @for (driver of company.value; track driver.driverName) {
@@ -608,6 +610,7 @@
 
       <!--  -->
       <!-- high elapsed Engine Hours -->
+
       @if (progressBarService.highEngineHours(); as highEngineHours) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -660,6 +663,20 @@
                 </div>
 
                 <span class="bold">{{ driver.driverName }}</span>
+
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="on-hover"
+                  (click)="
+                    progressBarService.removeItem(
+                      'highEngineHours',
+                      company.key,
+                      driver.driverName
+                    )
+                  "
+                  ><span class="material-icons"> clear </span></a
+                >
               </div>
               <ul class="inner-ul">
                 @for (event of driver.events; track event.id) {
@@ -673,10 +690,6 @@
                   <span class="error-msg">
                     elapsed Engine Hours: {{ event.elapsedEngineHours }}
                   </span>
-
-                  <a mat-icon-button matTooltip="Done" class="on-hover"
-                    ><span class="material-icons"> clear </span></a
-                  >
                 </li>
                 }
               </ul>
@@ -838,8 +851,7 @@
                   }}</span>
 
                   <span class="error-msg">
-                    total Engine Hours:
-                    {{ event.engineMinutes }}
+                    total Engine Hours: {{ event.engineMinutes }}
                   </span>
 
                   <a mat-icon-button matTooltip="Done" class="on-hover"

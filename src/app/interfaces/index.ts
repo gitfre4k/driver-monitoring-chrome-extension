@@ -74,46 +74,6 @@ export interface ITenantLocalStorage {
   };
 }
 
-export interface IEvent {
-  id: number;
-  dutyStatus: string;
-  startTime: string;
-  realStartTime?: string;
-  endTime: string;
-  durationInSeconds: number;
-  realDurationInSeconds?: number;
-  locationDisplayName?: string;
-  notes?: string;
-  engineMinutes?: number;
-  odometer?: number;
-  origin?: string;
-  isBasic: boolean;
-  vehicleName?: string;
-  vehicleVin?: string;
-  vehicleId: number;
-  eventType: string;
-  eventCode: number;
-  attachedTrailers?: string;
-  shippingDocuments?: string;
-  realEndTime?: string;
-  eventSequenceNumber?: string;
-  elapsedEngineHours?: number;
-  accumulatedVehicleMiles?: number;
-  isEventMissingPowerUp: boolean;
-  averageSpeed?: number;
-  coDriverDisplayName: string;
-  coDriverId: string;
-  // custom
-  statusName: string;
-  isTeleport: number;
-  occurredDuringDriving: boolean;
-  truckChange: boolean;
-  viewId: number;
-  error: boolean;
-  errorMessages: string[];
-  computeIndex: number;
-}
-
 export interface IDriver {
   companyId: number;
   driverId: string;
@@ -122,7 +82,7 @@ export interface IDriver {
   hasViolations: boolean;
   homeTerminalTimeZone: string;
   id: number;
-  lastSync: string; //  Date.toISOString()
+  lastSync: string;
   mobileAppType: string;
   mobileAppVersion: string;
 }

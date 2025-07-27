@@ -230,7 +230,7 @@ export class AdvancedScanService {
         driverName: driverDailyLog.driverFullName,
         events: prolongedOnDutyEvents,
       };
-      this.progressBarService.prolengedOnDuty.update((prev) => {
+      this.progressBarService.prolongedOnDuty.update((prev) => {
         const newValue = { ...prev };
         if (newValue[companyName])
           newValue[companyName].push(driverProlongedOnDuties);

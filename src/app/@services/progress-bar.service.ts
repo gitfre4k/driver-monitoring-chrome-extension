@@ -8,7 +8,7 @@ import {
   IScanResult,
   IScanViolations,
 } from '../interfaces';
-import { TScanMode } from '../types';
+import { TScanMode, TScanResult } from '../types';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +33,7 @@ export class ProgressBarService {
 
   teleports = signal<IScanResult>({});
   eventErrors = signal<IScanResult>({});
-  prolengedOnDuty = signal<IScanResult>({});
+  prolongedOnDuty = signal<IScanResult>({});
   malfOrDataDiag = signal<IScanResult>({});
   pcYm = signal<IScanResult>({});
   missingEngineOn = signal<IScanResult>({});
@@ -43,7 +43,18 @@ export class ProgressBarService {
 
   errors: IScanErrors[] = [];
 
-  removeItem(company: string, driverName: string, eventId: number) {}
+  removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
+    const index = this[scanResult]()[companyName].findIndex(
+      (driver) => driver.driverName === driverName
+    );
+
+    this[scanResult].update((prev) => {
+      const newValue = { ...prev };
+      newValue[companyName].splice(index, 1);
+
+      return newValue;
+    });
+  }
 
   constructor() {}
 
@@ -70,7 +81,7 @@ export class ProgressBarService {
         this.activeDriversCount.set(0);
         this.teleports.set({});
         this.eventErrors.set({});
-        this.prolengedOnDuty.set({});
+        this.prolongedOnDuty.set({});
         this.malfOrDataDiag.set({});
         this.pcYm.set({});
         this.missingEngineOn.set({});
