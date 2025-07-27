@@ -60,22 +60,6 @@ export class ScanResultComponent {
   inspections = this.progressBarService.inspections;
   inspectionsCount = this.progressBarService.totalDCount;
 
-  results = {
-    teleports: this.progressBarService.teleports,
-  };
-
-  scanResultSignals = [
-    this.progressBarService.teleports,
-    this.progressBarService.eventErrors,
-    this.progressBarService.prolongedOnDuty,
-    this.progressBarService.malfOrDataDiag,
-    this.progressBarService.pcYm,
-    this.progressBarService.missingEngineOn,
-    this.progressBarService.manualDriving,
-    this.progressBarService.highEngineHours,
-    this.progressBarService.lowTotalEngineHours,
-  ];
-
   constructor() {}
 
   resultCount(result: IScanResult) {
@@ -130,8 +114,6 @@ export class ScanResultComponent {
     return window.innerWidth > 303 ? 'low total Engine Hours' : 'low total EH';
   }
   get prolongedOnDutiesTitle(): string {
-    return window.innerWidth > 286
-      ? 'prolenged On Duties'
-      : 'prolenged OnDuties';
+    return window.innerWidth > 286 ? 'prolonged On Duty' : 'prolonged OnDuty';
   }
 }

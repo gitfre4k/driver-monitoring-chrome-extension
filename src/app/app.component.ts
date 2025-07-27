@@ -18,7 +18,6 @@ import { ScanService } from './@services/scan.service';
 import { IViolations } from './interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateService } from './@services/date.service';
-import { AppSingletonService } from './@services/app-singleton.service';
 
 @Component({
   selector: 'app-root',
@@ -50,7 +49,6 @@ export class AppComponent {
   private scanService = inject(ScanService);
   private _snackBar = inject(MatSnackBar);
   private dateService = inject(DateService);
-  private appSingletonService = inject(AppSingletonService);
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
@@ -101,25 +99,10 @@ export class AppComponent {
           );
       },
     });
-
-    this.subscriptions.add(
-      this.appSingletonService.counter$.subscribe((count) => {
-        this.currentCounter = count;
-      })
-    );
-    this.subscriptions.add(
-      this.appSingletonService.operationStatus$.subscribe((status) => {
-        this.currentOperationStatus = status;
-      })
-    );
   }
 
   ngAfterViewInit() {
     if (this.isPopup) {
-      console.log('[App Component] before startOperation ');
-      this.startOperation();
-      console.log('[App Component] after startOperation ');
-
       this.popUp();
     }
   }
@@ -155,14 +138,6 @@ export class AppComponent {
 
   changeSelectedIndex(i: number) {
     this.extensionTabNavigationService.selectedTabIndex.set(i);
-  }
-
-  increment(): void {
-    this.appSingletonService.incrementCounter();
-  }
-
-  startOperation(): void {
-    this.appSingletonService.startUniqueOperation();
   }
 
   popUp() {

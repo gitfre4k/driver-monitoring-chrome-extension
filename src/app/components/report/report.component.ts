@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Input, input } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 
 import { CommonModule } from '@angular/common';
+import { IScanErrors } from '../../interfaces';
 
 @Component({
   selector: 'app-report',
@@ -13,5 +14,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './report.component.scss',
 })
 export class ReportComponent {
+  @Input() analyzeError: IScanErrors[] | null = null;
   constructor() {}
 }

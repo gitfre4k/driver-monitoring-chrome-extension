@@ -42,6 +42,7 @@ export class ProgressBarService {
   lowTotalEngineHours = signal<IScanResult>({});
 
   errors: IScanErrors[] = [];
+  scanPreformedOnce = false;
 
   removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
     const index = this[scanResult]()[companyName].findIndex(
@@ -51,7 +52,7 @@ export class ProgressBarService {
     this[scanResult].update((prev) => {
       const newValue = { ...prev };
       newValue[companyName].splice(index, 1);
-
+      if (newValue[companyName].length === 0) delete newValue[companyName];
       return newValue;
     });
   }
@@ -59,6 +60,7 @@ export class ProgressBarService {
   constructor() {}
 
   initializeProgressBar() {
+    this.scanPreformedOnce = true;
     this.scanning.set(false);
     this.progressValue.set(0);
     this.bufferValue.set(0);

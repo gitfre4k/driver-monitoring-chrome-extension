@@ -75,6 +75,8 @@ export class ScanComponent {
   // Analyze Date
   date = new FormControl<Date>(DateTime.now().toJSDate());
   analyzeDate = signal(this.dateService.today);
+
+  // DOT Date
   date2 = new FormControl<Date>(DateTime.now().startOf('day').toJSDate());
   dotDate = signal(
     this.dateService.getQueryDate(DateTime.now().startOf('day').toJSDate())
@@ -137,7 +139,7 @@ export class ScanComponent {
     this.analyzeDate.set(this.dateService.getAnalyzeQueryDate(ev.value!)!);
   }
   changeDOTDate(ev: MatDatepickerInputEvent<Date>) {
-    this.dotDate.set(this.dateService.getQueryDate(ev.value!));
+    this.dotDate.set(this.dateService.getDOTQueryDate(ev.value!));
   }
   updateRange() {
     this.updateRangeTrigger.update((prev) => prev + 1);
@@ -156,6 +158,7 @@ export class ScanComponent {
   handleAdvancedScanComplete() {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
+    instance.analyzeError = this.progressBarService.errors;
 
     dialogRef
       .afterClosed()
@@ -200,6 +203,7 @@ export class ScanComponent {
         this.disableScan = false;
         return;
       }
+
       this.scanSubscribtion = (
         this.scanMode.value === 'violations'
           ? this.scanService.getAllViolations({ dateFrom, dateTo })

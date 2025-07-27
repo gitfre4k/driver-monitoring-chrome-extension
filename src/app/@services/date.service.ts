@@ -19,6 +19,11 @@ export class DateService {
     return this.queryDate;
   }
 
+  getDOTQueryDate(date: Date) {
+    this.requestDate = date;
+    return this.dotQueryDate;
+  }
+
   getAnalyzeQueryDate(date: Date) {
     this.requestDate = date;
     return this.analyzeQueryDate;
@@ -77,6 +82,20 @@ export class DateService {
       .setZone('utc')
       .endOf('day')
       .minus({ minutes: DateTime.local().offset })
+      .toJSDate();
+  }
+
+  get dotQueryDate() {
+    if (!this.requestDate) {
+      console.error('[Date Service] Invalid request date');
+      return;
+    }
+
+    return DateTime.fromJSDate(this.requestDate)
+      .setZone('utc')
+      .endOf('day')
+      .minus({ minutes: DateTime.local().offset })
+      .plus({ milliseconds: 1 })
       .toJSDate();
   }
 

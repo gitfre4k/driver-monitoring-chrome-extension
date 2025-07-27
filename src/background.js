@@ -103,7 +103,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const { tabId, key, value } = message.payload;
 
     if (tabId === undefined || key === undefined || value === undefined) {
-      console.error(">> [background.js] Invalid payload for updateLocalStorage:", message.payload);
+      console.error(
+        ">> [background.js] Invalid payload for updateLocalStorage:",
+        message.payload
+      );
       sendResponse({ success: false, error: "Missing tabId, key, or value" });
       return true; // Indicate that sendResponse will be called asynchronously
     }
@@ -111,7 +114,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Check if the tab exists and is accessible
     chrome.tabs.get(tabId, (tab) => {
       if (chrome.runtime.lastError) {
-        console.error(">> [background.js] Error getting tab:", chrome.runtime.lastError.message);
+        console.error(
+          ">> [background.js] Error getting tab:",
+          chrome.runtime.lastError.message
+        );
         sendResponse({
           success: false,
           error: "Tab not found or inaccessible.",
@@ -168,49 +174,53 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-
-
 ///////////////////
 // Shared state: A global counter and a flag for a unique operation
 let globalCounter = 0;
 let isUniqueOperationInProgress = false;
 
-console.log(">> [background.js] Background script loaded. Initial counter:", globalCounter);
+console.log(
+  ">> [background.js] Background script loaded. Initial counter:",
+  globalCounter
+);
 
 // Listen for messages from other parts of the extension (e.g., Angular popup)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("Message received in background:", message);
+  console.log("Message received in background:", message);
 
-    if (message.action === "incrementCounter") {
-        globalCounter++;
-        console.log("Counter incremented to:", globalCounter);
-        sendResponse({ type: "counterUpdate", newCount: globalCounter });
-        return true; // Indicate that sendResponse will be called asynchronously
-    } else if (message.action === "startUniqueOperation") {
-        if (isUniqueOperationInProgress) {
-            console.log("Unique operation already in progress. Ignoring request.");
-            sendResponse({ type: "operationStatus", status: "already_running" });
-        } else {
-            isUniqueOperationInProgress = true;
-            console.log("Starting unique operation...");
+  if (message.action === "incrementCounter") {
+    globalCounter++;
+    console.log("Counter incremented to:", globalCounter);
+    sendResponse({ type: "counterUpdate", newCount: globalCounter });
+    return true; // Indicate that sendResponse will be called asynchronously
+  } else if (message.action === "startUniqueOperation") {
+    if (isUniqueOperationInProgress) {
+      console.log("Unique operation already in progress. Ignoring request.");
+      sendResponse({ type: "operationStatus", status: "already_running" });
+    } else {
+      isUniqueOperationInProgress = true;
+      console.log("Starting unique operation...");
 
-            // Simulate a long-running, unique task
-            setTimeout(() => {
-                console.log("Unique operation finished.");
-                isUniqueOperationInProgress = false;
-                // Optionally, send a message back to all active contexts or a specific one
-                chrome.runtime.sendMessage({ type: "operationStatus", status: "finished" });
-            }, 3000); // Simulate a 3-second operation
-
-            sendResponse({ type: "operationStatus", status: "started" });
-        }
-        return true; // Indicate that sendResponse will be called asynchronously
-    } else if (message.action === "getInitialState") {
-        sendResponse({
-            type: "initialState",
-            initialCount: globalCounter,
-            operationStatus: isUniqueOperationInProgress ? "running" : "idle"
+      // Simulate a long-running, unique task
+      setTimeout(() => {
+        console.log("Unique operation finished.");
+        isUniqueOperationInProgress = false;
+        // Optionally, send a message back to all active contexts or a specific one
+        chrome.runtime.sendMessage({
+          type: "operationStatus",
+          status: "finished",
         });
-        return true;
+      }, 3000); // Simulate a 3-second operation
+
+      sendResponse({ type: "operationStatus", status: "started" });
     }
+    return true; // Indicate that sendResponse will be called asynchronously
+  } else if (message.action === "getInitialState") {
+    sendResponse({
+      type: "initialState",
+      initialCount: globalCounter,
+      operationStatus: isUniqueOperationInProgress ? "running" : "idle",
+    });
+    return true;
+  }
 });

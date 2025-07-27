@@ -70,6 +70,7 @@ export class ApiService {
     tenant: ITenant,
     range: IRange
   ): Observable<IDOTInspections> {
+    console.log(JSON.stringify(this.filterRule(range)));
     return from(
       this.http.post<IDOTInspections>(
         'https://app.monitoringdriver.com/api/FmcsaInspections/GetList',
