@@ -94,10 +94,10 @@ export class ScanComponent {
     switch (this.scanService.selectedRange()) {
       case 'custom':
         dateFrom = this.range.value.start
-          ? getQueryDate(this.range.value.start)
+          ? getQueryDate(this.range.value.start)!
           : sevenDaysAgo;
         dateTo = this.range.value.end
-          ? getQueryDate(this.range.value.end)
+          ? getQueryDate(this.range.value.end)!
           : today;
         break;
       case 'month':
@@ -134,7 +134,7 @@ export class ScanComponent {
   }
 
   changeDate(ev: MatDatepickerInputEvent<Date>) {
-    this.analyzeDate.set(this.dateService.getAnalyzeQueryDate(ev.value!));
+    this.analyzeDate.set(this.dateService.getAnalyzeQueryDate(ev.value!)!);
   }
   changeDOTDate(ev: MatDatepickerInputEvent<Date>) {
     this.dotDate.set(this.dateService.getQueryDate(ev.value!));

@@ -5,37 +5,23 @@ import { DateTime } from 'luxon';
   providedIn: 'root',
 })
 export class DateService {
+  requestDate!: Date;
+
   constructor() {}
 
   getDailyLogsDate(date: Date) {
-    const utcHour = DateTime.utc().hour;
-    const days = utcHour >= 0 && utcHour < 6 ? 2 : 1; // 2: 1
-
-    const logsDate = DateTime.fromJSDate(date)
-      .setZone('utc')
-      .minus({ days })
-      .plus({ milliseconds: 1 })
-      .toJSDate();
-
-    console.log('## getDailyLogsDate ~~~~~~~~~~~~~~', logsDate, utcHour);
-    console.log('D A Y S ', days);
-    console.log('logsDate ', logsDate);
-    console.log('utcHour ', utcHour);
-    console.log('realUtcHour ', DateTime.utc().hour);
-
-    return logsDate;
+    this.requestDate = date;
+    return this.dailyLogsDate;
   }
 
   getQueryDate(date: Date) {
-    return DateTime.fromJSDate(date)
-      .setZone('utc')
-      .endOf('day')
-      .minus({ minutes: DateTime.local().offset })
-      .toJSDate();
+    this.requestDate = date;
+    return this.queryDate;
   }
 
   getAnalyzeQueryDate(date: Date) {
-    return DateTime.fromJSDate(date).endOf('day').setZone('utc').toJSDate();
+    this.requestDate = date;
+    return this.analyzeQueryDate;
   }
 
   get offSet() {
@@ -60,6 +46,49 @@ export class DateService {
       .setZone('utc')
       .endOf('day')
       .minus({ minutes: this.offSet, months: 1 })
+      .toJSDate();
+  }
+
+  get dailyLogsDate() {
+    if (!this.requestDate) {
+      console.error('[Date Service] Invalid request date');
+      return;
+    }
+
+    const utcHour = DateTime.utc().hour;
+    const days = utcHour >= 0 && utcHour < 6 ? 2 : 1; // 2: 1
+
+    const logsDate = DateTime.fromJSDate(this.requestDate)
+      .setZone('utc')
+      .minus({ days })
+      .plus({ milliseconds: 1 })
+      .toJSDate();
+
+    return logsDate;
+  }
+
+  get queryDate() {
+    if (!this.requestDate) {
+      console.error('[Date Service] Invalid request date');
+      return;
+    }
+
+    return DateTime.fromJSDate(this.requestDate)
+      .setZone('utc')
+      .endOf('day')
+      .minus({ minutes: DateTime.local().offset })
+      .toJSDate();
+  }
+
+  get analyzeQueryDate() {
+    if (!this.requestDate) {
+      console.error('[Date Service] Invalid request date');
+      return;
+    }
+
+    return DateTime.fromJSDate(this.requestDate)
+      .endOf('day')
+      .setZone('utc')
       .toJSDate();
   }
 

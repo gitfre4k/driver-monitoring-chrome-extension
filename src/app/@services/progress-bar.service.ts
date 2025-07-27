@@ -4,9 +4,14 @@ import { AppService } from './app.service';
 
 import {
   IAdvancedResaults,
+  IDetectedOnDuties,
+  IDetectedResults,
+  IDetectedResultsWithDuration,
+  IEventErrors,
   IScanDOTInspections,
   IScanErrors,
   IScanViolations,
+  ITeleportsEvents,
 } from '../interfaces';
 import { TScanMode } from '../types';
 
@@ -42,6 +47,16 @@ export class ProgressBarService {
     eventErrors: {},
     manualDrivingDetection: {},
   };
+
+  teleports = signal<ITeleportsEvents>({});
+  eventErrors = signal<IEventErrors>({});
+  prolengedOnDuty = signal<IDetectedOnDuties>({});
+  malfOrDataDiag = signal<IDetectedResults>({});
+  pcYm = signal<IDetectedResults>({});
+  missingEngineOn = signal<IDetectedResults>({});
+  manualDriving = signal<IEventErrors>({});
+  highEngineHours = signal<IDetectedResultsWithDuration>({});
+  lowTotalEngineHours = signal<IDetectedResults>({});
 
   advancedResaults: IAdvancedResaults = JSON.parse(
     JSON.stringify(this.initialAdvancedScanResults)
