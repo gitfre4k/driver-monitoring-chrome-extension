@@ -98,6 +98,7 @@
 
       <!--  -->
       <!-- Teleports -->
+      @if (progressBarService.teleports(); as teleports) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -105,7 +106,8 @@
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
-              matBadge="12"
+              matBadge="{{ resultCount(teleports) }}"
+              [matBadgeHidden]="resultCount(teleports) === 0"
               matBadgeColor="primary"
               matBadgePosition="below after"
               matBadgeSize="medium"
@@ -113,14 +115,13 @@
           ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.teleports())) {
+          @if (isEmpty(teleports)) {
           <div class="scan-results__content__result__empty">
             No teleports detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.teleports() | keyvalue; track
-            company.key) {
+            @for (company of teleports | keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -181,22 +182,34 @@
           }
         </div>
       </mat-expansion-panel>
+      }
 
       <!--  -->
       <!-- event Errors -->
+      @if (progressBarService.eventErrors(); as eventErrors) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>event Errors</mat-panel-title>
+          <mat-panel-title
+            >event Errors
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ resultCount(eventErrors) }}"
+              [matBadgeHidden]="resultCount(eventErrors) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div
+          ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.eventErrors())) {
+          @if (isEmpty(eventErrors)) {
           <div class="scan-results__content__result__empty">
             No event errors.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.eventErrors() | keyvalue; track
-            company.key) {
+            @for (company of eventErrors | keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -255,12 +268,25 @@
           }
         </div>
       </mat-expansion-panel>
+      }
 
       <!--  -->
       <!-- prolonged OnDutuis -->
+      @if (progressBarService.prolengedOnDuty(); as prolongedOnDuty) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>{{ prolongedOnDutiesTitle }}</mat-panel-title>
+          <mat-panel-title
+            >{{ prolongedOnDutiesTitle }}
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ resultCount(prolongedOnDuty) }}"
+              [matBadgeHidden]="resultCount(prolongedOnDuty) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div
+          ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
           @if (isEmpty(progressBarService.prolengedOnDuty())) {
@@ -328,22 +354,34 @@
           }
         </div>
       </mat-expansion-panel>
+      }
 
       <!--  -->
       <!-- Malfunction / DataDiagnostic -->
+      @if (progressBarService.malfOrDataDiag(); as malfOrDataDiag) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>{{ malfTitle }}</mat-panel-title>
+          <mat-panel-title
+            >{{ malfTitle }}
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ resultCount(malfOrDataDiag) }}"
+              [matBadgeHidden]="resultCount(malfOrDataDiag) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div
+          ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.malfOrDataDiag())) {
+          @if (isEmpty(malfOrDataDiag)) {
           <div class="scan-results__content__result__empty">
             No Malfunction / DataDiagnostic events.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.malfOrDataDiag() | keyvalue;
-            track company.key) {
+            @for (company of malfOrDataDiag | keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -402,22 +440,34 @@
           }
         </div>
       </mat-expansion-panel>
+      }
 
       <!--  -->
       <!-- PC/YM  -->
+      @if (progressBarService.pcYm(); as pcYm) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>PC/YM</mat-panel-title>
+          <mat-panel-title
+            >PC/YM
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ resultCount(pcYm) }}"
+              [matBadgeHidden]="resultCount(pcYm) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div
+          ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.pcYm())) {
+          @if (isEmpty(pcYm)) {
           <div class="scan-results__content__result__empty">
             No PC/YM events.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.pcYm() | keyvalue; track
-            company.key) {
+            @for (company of pcYm | keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -472,22 +522,34 @@
           }
         </div>
       </mat-expansion-panel>
+      }
 
       <!--  -->
       <!-- missing Engine On events -->
+      @if (progressBarService.missingEngineOn(); as missingEngineOn) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>missing Engine On</mat-panel-title>
+          <mat-panel-title
+            >missing Engine On
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ resultCount(missingEngineOn) }}"
+              [matBadgeHidden]="resultCount(missingEngineOn) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div
+          ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.missingEngineOn())) {
+          @if (isEmpty(missingEngineOn)) {
           <div class="scan-results__content__result__empty">
             No missing Engine On events.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.missingEngineOn() | keyvalue;
-            track company.key) {
+            @for (company of missingEngineOn | keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -542,22 +604,34 @@
           }
         </div>
       </mat-expansion-panel>
+      }
 
       <!--  -->
       <!-- high elapsed Engine Hours -->
+      @if (progressBarService.highEngineHours(); as highEngineHours) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>{{ elapsedEHTitle }}</mat-panel-title>
+          <mat-panel-title
+            >{{ elapsedEHTitle }}
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ resultCount(highEngineHours) }}"
+              [matBadgeHidden]="resultCount(highEngineHours) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div
+          ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.highEngineHours())) {
+          @if (isEmpty(highEngineHours)) {
           <div class="scan-results__content__result__empty">
             No high elapsed Engine Hours events.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.highEngineHours() | keyvalue;
-            track company.key) {
+            @for (company of highEngineHours | keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -615,21 +689,33 @@
         </div>
       </mat-expansion-panel>
 
+      }
       <!--  -->
       <!-- Manual Drivings -->
+      @if (progressBarService.manualDriving(); as manualDriving) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>manual Drivings</mat-panel-title>
+          <mat-panel-title
+            >manual Drivings
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ resultCount(manualDriving) }}"
+              [matBadgeHidden]="resultCount(manualDriving) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div
+          ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.manualDriving())) {
+          @if (isEmpty(manualDriving)) {
           <div class="scan-results__content__result__empty">
             No manual Driving events detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.manualDriving() | keyvalue;
-            track company.key) {
+            @for (company of manualDriving | keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -684,22 +770,35 @@
           }
         </div>
       </mat-expansion-panel>
+      }
 
       <!--  -->
       <!-- low total Engine Hours events style="display: none" -->
+      @if (progressBarService.lowTotalEngineHours(); as lowTotalEngineHours) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>{{ lowTotalEHTitle }}</mat-panel-title>
+          <mat-panel-title
+            >{{ lowTotalEHTitle }}
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ resultCount(lowTotalEngineHours) }}"
+              [matBadgeHidden]="resultCount(lowTotalEngineHours) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div
+          ></mat-panel-title>
         </mat-expansion-panel-header>
         <div class="scan-results__content__result">
-          @if (isEmpty(progressBarService.lowTotalEngineHours())) {
+          @if (isEmpty(lowTotalEngineHours)) {
           <div class="scan-results__content__result__empty">
             No event with low total Engine Hours detected.
           </div>
           } @else {
           <ul class="list-of-tenants">
-            @for (company of progressBarService.lowTotalEngineHours() |
-            keyvalue; track company.key) {
+            @for (company of lowTotalEngineHours | keyvalue; track company.key)
+            {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
               @for (driver of company.value; track driver.driverName) {
@@ -757,6 +856,7 @@
           }
         </div>
       </mat-expansion-panel>
+      }
 
       <!-- //////////////////////////////////  -->
       <!-- DOT Inspections -->

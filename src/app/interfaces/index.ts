@@ -150,9 +150,9 @@ export interface ITenant extends ICompany {
 }
 
 export interface IScanResult {
-  [company: string]: IScanResultTenant[];
+  [company: string]: IScanResultDriver[];
 }
-export interface IScanResultTenant {
+export interface IScanResultDriver {
   driverName: string;
   events: ICEvent[];
 }

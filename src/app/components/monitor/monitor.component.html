@@ -6,16 +6,28 @@
 
   <div class="info">
     <h2 class="info__company">## {{ ddle.companyName }}</h2>
+
+    <h3
+      [class]="
+        !['Batbayar Enkhbat', 'Nedeljko Arezina'].includes(ddle.driverFullName)
+          ? 'info__driver-name'
+          : 'info__driver-x'
+      "
+    >
+      {{ ddle.driverFullName }}
+    </h3>
+
     @if (monitorService.isUpdating()) {
     <mat-spinner [diameter]="16"></mat-spinner>
     } @else {
-    <p class="info__date">{{ date | date : "mediumDate"  }}</p>
+    <p class="info__date">{{ date | date : "mediumDate" }}</p>
     }
   </div>
 
   <div class="event-list">
     <ul>
-      @for (event of monitorService.computedDailyLogEvents(); track event.id) { @if (event.shift) {
+      @for (event of monitorService.computedDailyLogEvents(); track event.id) {
+      @if (event.shift) {
       <p>{{ event.driver.name }}</p>
       <hr />
       }

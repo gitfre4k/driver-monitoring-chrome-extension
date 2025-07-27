@@ -10,7 +10,7 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { IDriver, IScanResultTenant, ITenant } from '../interfaces';
+import { IDriver, IScanResultDriver, ITenant } from '../interfaces';
 import {
   IDailyLogs,
   IEvent,
@@ -226,7 +226,7 @@ export class AdvancedScanService {
     ////////////
     // handle Prolonged On Duty events
     if (prolongedOnDutyEvents.length > 0) {
-      const driverProlongedOnDuties: IScanResultTenant = {
+      const driverProlongedOnDuties: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: prolongedOnDutyEvents,
       };
@@ -242,7 +242,7 @@ export class AdvancedScanService {
     ////////////
     // handle Teleport events
     if (detectedTeleportEvents.length > 0) {
-      const driverTeleportEvents = {
+      const driverTeleportEvents: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: detectedTeleportEvents,
       };
@@ -257,7 +257,7 @@ export class AdvancedScanService {
     ////////////
     // handle Error events
     if (errorEvents.length > 0) {
-      const driverErrorEvents: IScanResultTenant = {
+      const driverErrorEvents: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: errorEvents,
       };
@@ -273,7 +273,7 @@ export class AdvancedScanService {
     //
     // high elapsed Engine Hours
     if (highEngineHourEvents.length > 0) {
-      const driverHighEngineHourEvents = {
+      const driverHighEngineHourEvents: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: highEngineHourEvents,
       };
@@ -289,7 +289,7 @@ export class AdvancedScanService {
     //
     // missing Engine On
     if (missingEngineOnEvents.length > 0) {
-      const driverMissingEngineOn = {
+      const driverMissingEngineOn: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: missingEngineOnEvents,
       };
@@ -305,7 +305,7 @@ export class AdvancedScanService {
     //
     // low total Engine Hours
     if (lowTotalEHEvents.length > 0) {
-      const driverLowTotalEH = {
+      const driverLowTotalEH: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: lowTotalEHEvents,
       };
@@ -320,7 +320,7 @@ export class AdvancedScanService {
     //
     // Malfunction or Data Diagnostic Detection
     if (malfEvents.length > 0) {
-      const driverMalf = {
+      const driverMalf: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: malfEvents,
       };
@@ -335,7 +335,7 @@ export class AdvancedScanService {
     //////////////
     // Manual Driving Detection
     if (manualDrivingEvents.length > 0) {
-      const driverManualDriving = {
+      const driverManualDriving: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: manualDrivingEvents,
       };
@@ -351,7 +351,7 @@ export class AdvancedScanService {
     //////////////
     // PC/YM detection
     if (pcYmEvents.length > 0) {
-      const driverPcYm = {
+      const driverPcYm: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: pcYmEvents,
       };

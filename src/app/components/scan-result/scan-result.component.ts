@@ -14,7 +14,7 @@ import {
 
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { UrlService } from '../../@services/url.service';
-import { ITenant } from '../../interfaces';
+import { IScanResult, ITenant } from '../../interfaces';
 import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
 
 @Component({
@@ -62,7 +62,13 @@ export class ScanResultComponent {
 
   constructor() {}
 
-  resultCount() {}
+  resultCount(result: IScanResult) {
+    let count = 0;
+    for (let company in result) {
+      result[company].forEach((driver) => (count += driver.events.length));
+    }
+    return count;
+  }
 
   isEmpty(obj: any): boolean {
     return Object.keys(obj).length === 0;

@@ -43,9 +43,16 @@
       margin: 3px;
       padding: 0 40px;
     }
-    &__driver-name {
-      font-size: 16px;
-      margin: 12px 0px;
+    &__driver {
+      &-name {
+        font-size: 15px;
+        margin: 3px 0px;
+      }
+      &-x {
+        font-size: 20px;
+        color: red;
+        margin: 3px 0px;
+      }
     }
     &__date {
       margin: 1px;
