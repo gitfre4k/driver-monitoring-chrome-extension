@@ -3,17 +3,10 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { AppService } from './app.service';
 
 import {
-  IAdvancedResaults,
-  IDetectedOnDuties,
-  IDetectedResults,
-  IDetectedResultsWithDuration,
-  IEventErrors,
-  IHighEngineHourResults,
-  IMissingEngineOnResults,
   IScanDOTInspections,
   IScanErrors,
+  IScanResult,
   IScanViolations,
-  ITeleportsEvents,
 } from '../interfaces';
 import { TScanMode } from '../types';
 
@@ -38,15 +31,15 @@ export class ProgressBarService {
   inspections = signal<IScanDOTInspections[]>([]);
   totalDCount = signal(0);
 
-  teleports = signal<ITeleportsEvents>({});
-  eventErrors = signal<IEventErrors>({});
-  prolengedOnDuty = signal<IDetectedOnDuties>({});
-  malfOrDataDiag = signal<IEventErrors>({});
-  pcYm = signal<IEventErrors>({});
-  missingEngineOn = signal<IMissingEngineOnResults>({});
-  manualDriving = signal<IEventErrors>({});
-  highEngineHours = signal<IHighEngineHourResults>({});
-  lowTotalEngineHours = signal<IEventErrors>({});
+  teleports = signal<IScanResult>({});
+  eventErrors = signal<IScanResult>({});
+  prolengedOnDuty = signal<IScanResult>({});
+  malfOrDataDiag = signal<IScanResult>({});
+  pcYm = signal<IScanResult>({});
+  missingEngineOn = signal<IScanResult>({});
+  manualDriving = signal<IScanResult>({});
+  highEngineHours = signal<IScanResult>({});
+  lowTotalEngineHours = signal<IScanResult>({});
 
   errors: IScanErrors[] = [];
 

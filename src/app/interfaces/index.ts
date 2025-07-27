@@ -149,69 +149,12 @@ export interface ITenant extends ICompany {
   webApiUrl?: string;
 }
 
-export interface IDetectedResultsWithDuration {
-  [company: string]: {
-    driverName: string;
-    id: string;
-    duration: number;
-  }[];
+export interface IScanResult {
+  [company: string]: IScanResultTenant[];
 }
-
-export interface IProlongedOnDutyEvents {
+export interface IScanResultTenant {
   driverName: string;
   events: ICEvent[];
-}
-export interface IDetectedOnDuties {
-  [company: string]: IProlongedOnDutyEvents[];
-}
-export interface ITeleportsEvents {
-  [company: string]: IDriverTeleportEvents[];
-}
-export interface IDriverTeleportEvents {
-  driverName: string;
-  events: ICEvent[];
-}
-
-export interface IEventErrors {
-  [company: string]: IDriverErrorEvents[];
-}
-
-export interface IDriverErrorEvents {
-  name: string;
-  events: ICEvent[];
-}
-
-export interface IDetectedResults {
-  [company: string]: string[];
-}
-
-export interface IHighEngineHour {
-  driverName: string;
-  events: ICEvent[];
-}
-export interface IHighEngineHourResults {
-  [company: string]: IHighEngineHour[];
-}
-
-export interface IMissingEngineOn {
-  driverName: string;
-  events: ICEvent[];
-}
-
-export interface IMissingEngineOnResults {
-  [company: string]: IMissingEngineOn[];
-}
-
-export interface IAdvancedResaults {
-  prolengedOnDuties: IDetectedOnDuties;
-  malfOrDataDiagDetection: IDetectedResults;
-  pcYm: IEventErrors;
-  missingEngineOn: IDetectedResults;
-  highEngineHours: IHighEngineHourResults;
-  lowTotalEngineHours: IEventErrors;
-  teleports: ITeleportsEvents;
-  eventErrors: IEventErrors;
-  manualDrivingDetection: IEventErrors;
 }
 
 export interface IEventDetails {
@@ -230,7 +173,7 @@ export interface IEventDetails {
   longitude: string;
   note: string;
   shippingDocumentNumber: string;
-  startTime: string; // This is a date-time string, consider using Date type if parsing it
+  startTime: string;
   stateId: number;
   totalEngineHours: number;
   totalVehicleMiles: number;

@@ -10,12 +10,7 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import {
-  IDriver,
-  IDriverErrorEvents,
-  IProlongedOnDutyEvents,
-  ITenant,
-} from '../interfaces';
+import { IDriver, IScanResultTenant, ITenant } from '../interfaces';
 import {
   IDailyLogs,
   IEvent,
@@ -231,7 +226,7 @@ export class AdvancedScanService {
     ////////////
     // handle Prolonged On Duty events
     if (prolongedOnDutyEvents.length > 0) {
-      const driverProlongedOnDuties: IProlongedOnDutyEvents = {
+      const driverProlongedOnDuties: IScanResultTenant = {
         driverName: driverDailyLog.driverFullName,
         events: prolongedOnDutyEvents,
       };
@@ -262,8 +257,8 @@ export class AdvancedScanService {
     ////////////
     // handle Error events
     if (errorEvents.length > 0) {
-      const driverErrorEvents: IDriverErrorEvents = {
-        name: driverDailyLog.driverFullName,
+      const driverErrorEvents: IScanResultTenant = {
+        driverName: driverDailyLog.driverFullName,
         events: errorEvents,
       };
       this.progressBarService.eventErrors.update((prev) => {
@@ -311,7 +306,7 @@ export class AdvancedScanService {
     // low total Engine Hours
     if (lowTotalEHEvents.length > 0) {
       const driverLowTotalEH = {
-        name: driverDailyLog.driverFullName,
+        driverName: driverDailyLog.driverFullName,
         events: lowTotalEHEvents,
       };
       this.progressBarService.lowTotalEngineHours.update((prev) => {
@@ -326,7 +321,7 @@ export class AdvancedScanService {
     // Malfunction or Data Diagnostic Detection
     if (malfEvents.length > 0) {
       const driverMalf = {
-        name: driverDailyLog.driverFullName,
+        driverName: driverDailyLog.driverFullName,
         events: malfEvents,
       };
       this.progressBarService.malfOrDataDiag.update((prev) => {
@@ -341,7 +336,7 @@ export class AdvancedScanService {
     // Manual Driving Detection
     if (manualDrivingEvents.length > 0) {
       const driverManualDriving = {
-        name: driverDailyLog.driverFullName,
+        driverName: driverDailyLog.driverFullName,
         events: manualDrivingEvents,
       };
       this.progressBarService.manualDriving.update((prev) => {
@@ -357,7 +352,7 @@ export class AdvancedScanService {
     // PC/YM detection
     if (pcYmEvents.length > 0) {
       const driverPcYm = {
-        name: driverDailyLog.driverFullName,
+        driverName: driverDailyLog.driverFullName,
         events: pcYmEvents,
       };
       this.progressBarService.pcYm.update((prev) => {

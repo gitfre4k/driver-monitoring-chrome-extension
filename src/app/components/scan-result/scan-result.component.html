@@ -199,7 +199,7 @@
             company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.name) {
+              @for (driver of company.value; track driver.driverName) {
               <div class="driver">
                 <div class="btns">
                   <a
@@ -217,14 +217,14 @@
                   </a>
                   <a
                     mat-icon-button
-                    (click)="copyDriverName(driver.name)"
+                    (click)="copyDriverName(driver.driverName)"
                     matTooltip="Copy to clipboard"
                   >
                     <mat-icon>content_copy</mat-icon>
                   </a>
                 </div>
 
-                <span class="bold">{{ driver.name }}</span>
+                <span class="bold">{{ driver.driverName }}</span>
               </div>
               <ul class="inner-ul">
                 @for (event of driver.events; track event.id) {
@@ -346,7 +346,7 @@
             track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.name) {
+              @for (driver of company.value; track driver.driverName) {
               <div class="driver">
                 <div class="btns">
                   <a
@@ -364,14 +364,14 @@
                   </a>
                   <a
                     mat-icon-button
-                    (click)="copyDriverName(driver.name)"
+                    (click)="copyDriverName(driver.driverName)"
                     matTooltip="Copy to clipboard"
                   >
                     <mat-icon>content_copy</mat-icon>
                   </a>
                 </div>
 
-                <span class="bold">{{ driver.name }}</span>
+                <span class="bold">{{ driver.driverName }}</span>
               </div>
               <ul class="inner-ul">
                 @for (event of driver.events; track event.id) {
@@ -412,7 +412,7 @@
         <div class="scan-results__content__result">
           @if (isEmpty(progressBarService.pcYm())) {
           <div class="scan-results__content__result__empty">
-            No PC/YM errors.
+            No PC/YM events.
           </div>
           } @else {
           <ul class="list-of-tenants">
@@ -420,7 +420,7 @@
             company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.name) {
+              @for (driver of company.value; track driver.driverName) {
               <div class="driver">
                 <div class="btns">
                   <a
@@ -438,14 +438,14 @@
                   </a>
                   <a
                     mat-icon-button
-                    (click)="copyDriverName(driver.name)"
+                    (click)="copyDriverName(driver.driverName)"
                     matTooltip="Copy to clipboard"
                   >
                     <mat-icon>content_copy</mat-icon>
                   </a>
                 </div>
 
-                <span class="bold">{{ driver.name }}</span>
+                <span class="bold">{{ driver.driverName }}</span>
               </div>
               <ul class="inner-ul">
                 @for (event of driver.events; track event.id) {
@@ -632,7 +632,7 @@
             track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.name) {
+              @for (driver of company.value; track driver.driverName) {
               <div class="driver">
                 <div class="btns">
                   <a
@@ -650,14 +650,14 @@
                   </a>
                   <a
                     mat-icon-button
-                    (click)="copyDriverName(driver.name)"
+                    (click)="copyDriverName(driver.driverName)"
                     matTooltip="Copy to clipboard"
                   >
                     <mat-icon>content_copy</mat-icon>
                   </a>
                 </div>
 
-                <span class="bold">{{ driver.name }}</span>
+                <span class="bold">{{ driver.driverName }}</span>
               </div>
               <ul class="inner-ul">
                 @for (event of driver.events; track event.id) {
@@ -702,7 +702,7 @@
             keyvalue; track company.key) {
             <li class="company">
               <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.name) {
+              @for (driver of company.value; track driver.driverName) {
               <div class="driver">
                 <div class="btns">
                   <a
@@ -720,14 +720,14 @@
                   </a>
                   <a
                     mat-icon-button
-                    (click)="copyDriverName(driver.name)"
+                    (click)="copyDriverName(driver.driverName)"
                     matTooltip="Copy to clipboard"
                   >
                     <mat-icon>content_copy</mat-icon>
                   </a>
                 </div>
 
-                <span class="bold">{{ driver.name }}</span>
+                <span class="bold">{{ driver.driverName }}</span>
               </div>
               <ul class="inner-ul">
                 @for (event of driver.events; track event.id) {
