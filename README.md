@@ -1,3 +1,3 @@
 ## Driver Monitoring Chrome Extension
 
-**Version 0.0.3.1 (Beta)** - 07/28/2025
+**Version 0.0.3.2 (Beta)** - 07/30/2025

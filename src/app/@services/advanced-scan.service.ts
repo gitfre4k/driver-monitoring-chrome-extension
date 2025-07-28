@@ -184,13 +184,14 @@ export class AdvancedScanService {
     const lowTotalEHEvents: IEvent[] = [];
     const malfEvents: IEvent[] = [];
     const pcYmEvents: IEvent[] = [];
+    const newDriver: IEvent[] = [];
 
     computedEvents.forEach((event) => {
       if (event.driver.id === driverDailyLog.driverId) {
         if (event.isTeleport) {
           detectedTeleportEvents.push(event);
         }
-        if (event.errorMessages.length > 0) {
+        if (event.errorMessages.length) {
           errorEvents.push(event);
         }
         if (event.onDutyDuration) {
@@ -219,13 +220,17 @@ export class AdvancedScanService {
         ) {
           pcYmEvents.push(event);
         }
+        if (event.isFirstEvent || newDriver.length) {
+          event.timeZone = driverDailyLog.homeTerminalTimeZone;
+          newDriver.push(event);
+        }
       }
     });
 
     const { companyName } = driverDailyLog;
     ////////////
     // handle Prolonged On Duty events
-    if (prolongedOnDutyEvents.length > 0) {
+    if (prolongedOnDutyEvents.length) {
       const driverProlongedOnDuties: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: prolongedOnDutyEvents,
@@ -241,7 +246,7 @@ export class AdvancedScanService {
 
     ////////////
     // handle Teleport events
-    if (detectedTeleportEvents.length > 0) {
+    if (detectedTeleportEvents.length) {
       const driverTeleportEvents: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: detectedTeleportEvents,
@@ -256,7 +261,7 @@ export class AdvancedScanService {
     }
     ////////////
     // handle Error events
-    if (errorEvents.length > 0) {
+    if (errorEvents.length) {
       const driverErrorEvents: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: errorEvents,
@@ -272,7 +277,7 @@ export class AdvancedScanService {
 
     //
     // high elapsed Engine Hours
-    if (highEngineHourEvents.length > 0) {
+    if (highEngineHourEvents.length) {
       const driverHighEngineHourEvents: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: highEngineHourEvents,
@@ -288,7 +293,7 @@ export class AdvancedScanService {
 
     //
     // missing Engine On
-    if (missingEngineOnEvents.length > 0) {
+    if (missingEngineOnEvents.length) {
       const driverMissingEngineOn: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: missingEngineOnEvents,
@@ -304,7 +309,7 @@ export class AdvancedScanService {
 
     //
     // low total Engine Hours
-    if (lowTotalEHEvents.length > 0) {
+    if (lowTotalEHEvents.length) {
       const driverLowTotalEH: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: lowTotalEHEvents,
@@ -319,7 +324,7 @@ export class AdvancedScanService {
 
     //
     // Malfunction or Data Diagnostic Detection
-    if (malfEvents.length > 0) {
+    if (malfEvents.length) {
       const driverMalf: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: malfEvents,
@@ -334,7 +339,7 @@ export class AdvancedScanService {
 
     //////////////
     // Manual Driving Detection
-    if (manualDrivingEvents.length > 0) {
+    if (manualDrivingEvents.length) {
       const driverManualDriving: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: manualDrivingEvents,
@@ -350,7 +355,7 @@ export class AdvancedScanService {
 
     //////////////
     // PC/YM detection
-    if (pcYmEvents.length > 0) {
+    if (pcYmEvents.length) {
       const driverPcYm: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,
         events: pcYmEvents,
@@ -359,6 +364,18 @@ export class AdvancedScanService {
         const newValue = { ...prev };
         if (newValue[companyName]) newValue[companyName].push(driverPcYm);
         else newValue[companyName] = [driverPcYm];
+        return newValue;
+      });
+    }
+    if (newDriver.length) {
+      const newDriverEvent: IScanResultDriver = {
+        driverName: driverDailyLog.driverFullName,
+        events: newDriver,
+      };
+      this.progressBarService.newDrivers.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName]) newValue[companyName].push(newDriverEvent);
+        else newValue[companyName] = [newDriverEvent];
         return newValue;
       });
     }

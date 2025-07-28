@@ -8,4 +8,5 @@ export type TScanResult =
   | 'missingEngineOn'
   | 'manualDriving'
   | 'highEngineHours'
-  | 'lowTotalEngineHours';
+  | 'lowTotalEngineHours'
+  | 'newDrivers';

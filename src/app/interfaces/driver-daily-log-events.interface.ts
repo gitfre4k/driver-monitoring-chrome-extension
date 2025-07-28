@@ -45,6 +45,7 @@ export interface IEvent {
   tenant: ITenant;
   onDutyDuration: number;
   manualDriving: boolean;
+  timeZone: string;
 }
 
 export interface IDriverIdAndName {
