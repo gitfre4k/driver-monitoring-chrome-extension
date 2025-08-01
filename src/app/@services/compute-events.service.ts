@@ -18,7 +18,6 @@ import {
 } from '../interfaces/driver-daily-log-events.interface';
 import { ITenant } from '../interfaces';
 import { ApiService } from './api.service';
-import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -86,14 +85,13 @@ export class ComputeEventsService {
       ? bindEventViewId(coDriverDailyLog.events)
       : null;
 
-    driverEvents.forEach(
-      (e) =>
-        (e.driver = {
-          id: driverDailyLog.driverId,
-          viewId: driverDailyLog.driverId,
-          name: driverDailyLog.driverFullName,
-        })
-    );
+    driverEvents.forEach((e) => {
+      e.driver = {
+        id: driverDailyLog.driverId,
+        viewId: driverDailyLog.driverId,
+        name: driverDailyLog.driverFullName,
+      };
+    });
     if (coDriverDailyLog && coDriverEvents && coDriverEvents?.length > 0) {
       coDriverEvents.forEach(
         (e) =>
@@ -122,7 +120,50 @@ export class ComputeEventsService {
     );
     events = this.detectAndBindTeleport(events);
 
-    return events;
+    driverEvents.forEach((e) => {
+      // PC/YM DriverIndicationClear
+      if (e.dutyStatus === 'DriverIndicationClear') {
+        e.pcYmCLR = true;
+        e.statusName = 'PC/YM CLR';
+
+        e.date = driverDailyLog.date;
+        tenant && (e.tenant = tenant);
+        events.push(e);
+      }
+      // 2nd PC/YM event
+      if (
+        e.eventType ===
+        'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
+      ) {
+        if (e.dutyStatus === 'DriverIndicationAuthorizedPersonalUseCmv') {
+          e.statusName = 'PC (2nd)';
+          e.date = driverDailyLog.date;
+          tenant && (e.tenant = tenant);
+          events.push(e);
+        }
+        if (e.dutyStatus === 'DriverIndicationYardMoves') {
+          e.statusName = 'YM (2nd)';
+          e.date = driverDailyLog.date;
+          tenant && (e.tenant = tenant);
+          events.push(e);
+        }
+      }
+      // malf or data diag
+      if (e.eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence') {
+        e.malf = true;
+        e.date = driverDailyLog.date;
+        tenant && (e.tenant = tenant);
+        e.dutyStatus === 'DataDiagnostic' && (e.statusName = 'Diagnostic');
+        e.dutyStatus === 'DataDiagnosticClear' && (e.statusName = 'Diag. CLR');
+        events.push(e);
+      }
+    });
+
+    return events.sort(
+      (a, b) =>
+        new Date(a.realStartTime).getTime() -
+        new Date(b.realStartTime).getTime()
+    );
   };
 
   computeEvents = (
@@ -153,6 +194,9 @@ export class ComputeEventsService {
       events[i].computeIndex = i;
       events[i].errorMessages = [];
       events[i].statusName = getStatusName(events[i].dutyStatus);
+      events[i].origin ===
+        'EditRequestedByAnAuthenticatedUserOtherThanTheDriver' &&
+        (events[i].statusName = 'Fleet manager');
       events[i].occurredDuringDriving = occurredDuringDriving;
       date && (events[i].date = date);
       tenant && (events[i].tenant = tenant);

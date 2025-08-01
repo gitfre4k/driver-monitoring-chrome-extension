@@ -50,10 +50,6 @@ export class MonitorService {
       return;
     }
 
-    // const timestampWithOffSet = new Date(
-    //   new Date(new Date(timestamp).setHours(19, 0, 0, 0))
-    // );
-
     const date = DateTime.fromISO(timestamp).toUTC().toJSDate();
 
     this.apiService

@@ -41,6 +41,7 @@ export class ProgressBarService {
   highEngineHours = signal<IScanResult>({});
   lowTotalEngineHours = signal<IScanResult>({});
   newDrivers = signal<IScanResult>({});
+  fleetManager = signal<IScanResult>({});
 
   errors: IScanErrors[] = [];
   scanPreformedOnce = false;

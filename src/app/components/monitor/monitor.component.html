@@ -37,8 +37,14 @@
           <span
             [ngClass]="
               'view-id ' +
-              (event.errorMessages.length ? ' error' : '') +
-              (event.manualDriving ? ' warn' : '')
+              (event.errorMessages && event.errorMessages.length
+                ? ' error'
+                : '') +
+              (event.manualDriving ||
+              event.malf ||
+              event.statusName === 'Fleet manager'
+                ? ' warn'
+                : '')
             "
             >{{ event.viewId }}.</span
           >
@@ -65,8 +71,8 @@
               : ""
           }}</span>
 
-          @if(event.isTeleport || event.errorMessages.length > 0 ||
-          event.manualDriving) {
+          @if(event.isTeleport || (event.errorMessages &&
+          event.errorMessages.length > 0) || event.manualDriving) {
           <span class="note" style="color: red">
             <!-- [teleport] message-->
             {{
@@ -76,13 +82,18 @@
                   : "odometer decreased"
                 : ""
             }}
-            @if(event.isTeleport && (event.errorMessages.length > 0 )) { <br />
+            @if(event.isTeleport && (event.errorMessages &&
+            event.errorMessages.length > 0 )) { <br />
             }
             <!-- [eventErrors] message-->
-            {{ event.errorMessages.length > 0 ? event.errorMessages[0] : "" }}
+            {{
+              event.errorMessages && event.errorMessages.length > 0
+                ? event.errorMessages[0]
+                : ""
+            }}
             <!-- warnings -->
             @if (event.manualDriving) { @if(event.isTeleport ||
-            (event.errorMessages.length > 0 )) { <br />
+            (event.errorMessages && event.errorMessages.length > 0)) { <br />
             }
             <span class="note" style="color: yellow"> manual origin </span>
             }

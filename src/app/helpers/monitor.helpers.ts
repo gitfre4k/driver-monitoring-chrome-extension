@@ -23,8 +23,10 @@ export const getStatusName = (dutyStatus: string): string => {
     case 'ChangeToSleeperBerthStatus':
       return 'Sleeper Berth';
     case 'ChangeToDrivingStatus':
+    case 'ChangeToDrivingStatus-E':
       return 'Driving';
     case 'ChangeToOnDutyNotDrivingStatus':
+    case 'ChangeToOnDutyNotDrivingStatus-E':
       return 'On Duty';
     case 'IntermediateLogConventionalLocationPrecision':
     case 'IntermediateLogReducedLocationPrecision':
@@ -45,7 +47,7 @@ export const getStatusName = (dutyStatus: string): string => {
 };
 
 export const isPcOrYm = (ev: IEvent) => {
-  return ['PC', 'YM'].includes(ev.statusName);
+  return ['PC', 'YM', 'PC (2nd)', 'YM (2nd)'].includes(ev.statusName);
 };
 
 export const isDriving = (ev: IEvent) => {

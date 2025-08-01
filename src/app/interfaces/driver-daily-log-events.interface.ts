@@ -46,6 +46,9 @@ export interface IEvent {
   onDutyDuration: number;
   manualDriving: boolean;
   timeZone: string;
+  fleetManager: boolean;
+  pcYmCLR: boolean;
+  malf: boolean;
 }
 
 export interface IDriverIdAndName {

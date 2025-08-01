@@ -9,4 +9,5 @@ export type TScanResult =
   | 'manualDriving'
   | 'highEngineHours'
   | 'lowTotalEngineHours'
-  | 'newDrivers';
+  | 'newDrivers'
+  | 'fleetManager';

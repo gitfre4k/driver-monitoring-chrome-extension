@@ -46,7 +46,7 @@ export class ScanResultComponent {
   progressBarService = inject(ProgressBarService);
   extensionNavigation = inject(ExtensionTabNavigationService);
 
-  driverCount = this.progressBarService.activeDriversCount;
+  activeDriverCount = this.progressBarService.activeDriversCount;
 
   violations = this.progressBarService.violations;
   violationsCount = computed(() => {
@@ -66,6 +66,14 @@ export class ScanResultComponent {
     let count = 0;
     for (let company in result) {
       result[company].forEach((driver) => (count += driver.events.length));
+    }
+    return count;
+  }
+
+  driverCount(result: IScanResult) {
+    let count = 0;
+    for (let company in result) {
+      count += result[company].length;
     }
     return count;
   }

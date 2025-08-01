@@ -19,6 +19,7 @@ import { ProgressBarService } from './progress-bar.service';
 import { AppService } from './app.service';
 import { ComputeEventsService } from './compute-events.service';
 import { DateService } from './date.service';
+import { isPcOrYm } from '../helpers/monitor.helpers';
 
 @Injectable({
   providedIn: 'root',
@@ -185,13 +186,14 @@ export class AdvancedScanService {
     const malfEvents: IEvent[] = [];
     const pcYmEvents: IEvent[] = [];
     const newDriver: IEvent[] = [];
+    const fleetManagerEvents: IEvent[] = [];
 
     computedEvents.forEach((event) => {
       if (event.driver.id === driverDailyLog.driverId) {
         if (event.isTeleport) {
           detectedTeleportEvents.push(event);
         }
-        if (event.errorMessages.length) {
+        if (event.errorMessages?.length) {
           errorEvents.push(event);
         }
         if (event.onDutyDuration) {
@@ -209,15 +211,16 @@ export class AdvancedScanService {
         if (event.engineMinutes < this.lowTotalEngineHoursCount()) {
           lowTotalEHEvents.push(event);
         }
-        if (
-          event.eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence'
-        ) {
+        if (event.malf) {
           malfEvents.push(event);
         }
         if (
-          event.eventType ===
-          'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
+          event.origin ===
+          'EditRequestedByAnAuthenticatedUserOtherThanTheDriver'
         ) {
+          fleetManagerEvents.push(event);
+        }
+        if (isPcOrYm(event) || event.pcYmCLR) {
           pcYmEvents.push(event);
         }
         if (event.isFirstEvent || newDriver.length) {
@@ -275,7 +278,7 @@ export class AdvancedScanService {
       });
     }
 
-    //
+    ///////////
     // high elapsed Engine Hours
     if (highEngineHourEvents.length) {
       const driverHighEngineHourEvents: IScanResultDriver = {
@@ -291,7 +294,7 @@ export class AdvancedScanService {
       });
     }
 
-    //
+    ////////////////
     // missing Engine On
     if (missingEngineOnEvents.length) {
       const driverMissingEngineOn: IScanResultDriver = {
@@ -307,7 +310,7 @@ export class AdvancedScanService {
       });
     }
 
-    //
+    ///////////////
     // low total Engine Hours
     if (lowTotalEHEvents.length) {
       const driverLowTotalEH: IScanResultDriver = {
@@ -322,7 +325,7 @@ export class AdvancedScanService {
       });
     }
 
-    //
+    //////////////
     // Malfunction or Data Diagnostic Detection
     if (malfEvents.length) {
       const driverMalf: IScanResultDriver = {
@@ -367,6 +370,24 @@ export class AdvancedScanService {
         return newValue;
       });
     }
+
+    //////////////
+    // fleetManager
+    if (fleetManagerEvents.length) {
+      const fleetManager: IScanResultDriver = {
+        driverName: driverDailyLog.driverFullName,
+        events: fleetManagerEvents,
+      };
+      this.progressBarService.fleetManager.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName]) newValue[companyName].push(fleetManager);
+        else newValue[companyName] = [fleetManager];
+        return newValue;
+      });
+    }
+
+    //////////////
+    // New Driver
     if (newDriver.length) {
       const newDriverEvent: IScanResultDriver = {
         driverName: driverDailyLog.driverFullName,

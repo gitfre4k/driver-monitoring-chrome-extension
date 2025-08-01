@@ -18,7 +18,7 @@
   </a>
   } @else {
   <h3 class="scan-results__title">Report</h3>
-  @if (driverCount(); as driverCount) {
+  @if (activeDriverCount(); as driverCount) {
   <span class="scan-results__driver-count"
     >Active Driver count: {{ driverCount }}</span
   >
@@ -183,7 +183,14 @@
                 >
               </div>
               <ul class="inner-ul">
-                @for (event of driver.events; track event.id) {
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
                 <li class="event-error">
                   <span class="view-id">#{{ event.viewId }}</span>
 
@@ -199,7 +206,7 @@
                     }}
                   </span>
                 </li>
-                }
+                } }
               </ul>
               }
               <hr />
@@ -212,12 +219,12 @@
       }
 
       <!--  -->
-      <!-- error events -->
+      <!-- event errors  -->
       @if (progressBarService.eventErrors(); as eventErrors) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            event Errors
+            event errors
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
@@ -281,7 +288,14 @@
                 >
               </div>
               <ul class="inner-ul">
-                @for (event of driver.events; track event.id) {
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
                 <li class="event-error">
                   <span class="view-id">#{{ event.viewId }}</span>
 
@@ -294,7 +308,7 @@
                     {{ message }} }
                   </span>
                 </li>
-                }
+                } }
               </ul>
               }
               <hr />
@@ -307,7 +321,7 @@
       }
 
       <!--  -->
-      <!-- prolonged OnDuty -->
+      <!-- prolonged On Duty  -->
       @if (progressBarService.prolongedOnDuty(); as prolongedOnDuty) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -376,7 +390,14 @@
                 >
               </div>
               <ul class="inner-ul">
-                @for (event of driver.events; track event.id) {
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
                 <li class="event-error">
                   <span class="view-id">#{{ event.viewId }}</span>
 
@@ -389,7 +410,7 @@
                     {{ event.onDutyDuration * 1000 | date : "H:mm" : "UTC" }}
                   </span>
                 </li>
-                }
+                } }
               </ul>
               }
               <hr />
@@ -402,7 +423,7 @@
       }
 
       <!--  -->
-      <!-- malf or data diag -->
+      <!-- malf or data diag  -->
       @if (progressBarService.malfOrDataDiag(); as malfOrDataDiag) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -411,8 +432,8 @@
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
-              matBadge="{{ resultCount(malfOrDataDiag) }}"
-              [matBadgeHidden]="resultCount(malfOrDataDiag) === 0"
+              matBadge="{{ driverCount(malfOrDataDiag) }}"
+              [matBadgeHidden]="driverCount(malfOrDataDiag) === 0"
               matBadgeColor="primary"
               matBadgePosition="below after"
               matBadgeSize="medium"
@@ -471,7 +492,14 @@
                 >
               </div>
               <ul class="inner-ul">
-                @for (event of driver.events; track event.id) {
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
                 <li class="event-error">
                   <span class="view-id">#{{ event.viewId }}</span>
 
@@ -484,7 +512,7 @@
                     {{ message }} }
                   </span>
                 </li>
-                }
+                } }
               </ul>
               }
               <hr />
@@ -497,7 +525,7 @@
       }
 
       <!--  -->
-      <!-- PC / YM -->
+      <!-- PC/YM  -->
       @if (progressBarService.pcYm(); as pcYm) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -506,8 +534,8 @@
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
-              matBadge="{{ resultCount(pcYm) }}"
-              [matBadgeHidden]="resultCount(pcYm) === 0"
+              matBadge="{{ driverCount(pcYm) }}"
+              [matBadgeHidden]="driverCount(pcYm) === 0"
               matBadgeColor="primary"
               matBadgePosition="below after"
               matBadgeSize="medium"
@@ -566,7 +594,14 @@
                 >
               </div>
               <ul class="inner-ul">
-                @for (event of driver.events; track event.id) {
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
                 <li class="event-error">
                   <span class="view-id">#{{ event.viewId }}</span>
 
@@ -574,9 +609,9 @@
                     event.statusName
                   }}</span>
 
-                  <span class="error-msg"> PC or YM detected </span>
+                  <span class="error-msg"></span>
                 </li>
-                }
+                } }
               </ul>
               }
               <hr />
@@ -589,7 +624,7 @@
       }
 
       <!--  -->
-      <!-- missing Engine On -->
+      <!-- missing Engine On  -->
       @if (progressBarService.missingEngineOn(); as missingEngineOn) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -598,8 +633,8 @@
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
-              matBadge="{{ resultCount(missingEngineOn) }}"
-              [matBadgeHidden]="resultCount(missingEngineOn) === 0"
+              matBadge="{{ driverCount(missingEngineOn) }}"
+              [matBadgeHidden]="driverCount(missingEngineOn) === 0"
               matBadgeColor="primary"
               matBadgePosition="below after"
               matBadgeSize="medium"
@@ -658,7 +693,14 @@
                 >
               </div>
               <ul class="inner-ul">
-                @for (event of driver.events; track event.id) {
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
                 <li class="event-error">
                   <span class="view-id">#{{ event.viewId }}</span>
 
@@ -668,7 +710,7 @@
 
                   <span class="error-msg"> missing Engine On </span>
                 </li>
-                }
+                } }
               </ul>
               }
               <hr />
@@ -679,9 +721,8 @@
         </div>
       </mat-expansion-panel>
       }
-
       <!--  -->
-      <!-- hight Engine Hours -->
+      <!-- high elapsed EH  -->
       @if (progressBarService.highEngineHours(); as highEngineHours) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -690,8 +731,8 @@
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
-              matBadge="{{ resultCount(highEngineHours) }}"
-              [matBadgeHidden]="resultCount(highEngineHours) === 0"
+              matBadge="{{ driverCount(highEngineHours) }}"
+              [matBadgeHidden]="driverCount(highEngineHours) === 0"
               matBadgeColor="primary"
               matBadgePosition="below after"
               matBadgeSize="medium"
@@ -750,7 +791,14 @@
                 >
               </div>
               <ul class="inner-ul">
-                @for (event of driver.events; track event.id) {
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
                 <li class="event-error">
                   <span class="view-id">#{{ event.viewId }}</span>
 
@@ -762,7 +810,7 @@
                     elapsed Engine Hours: {{ event.elapsedEngineHours }}
                   </span>
                 </li>
-                }
+                } }
               </ul>
               }
               <hr />
@@ -775,17 +823,17 @@
       }
 
       <!--  -->
-      <!-- manual Driving -->
+      <!-- manuel Driving  -->
       @if (progressBarService.manualDriving(); as manualDriving) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            manual Drivings
+            manuel Driving
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
-              matBadge="{{ resultCount(manualDriving) }}"
-              [matBadgeHidden]="resultCount(manualDriving) === 0"
+              matBadge="{{ driverCount(manualDriving) }}"
+              [matBadgeHidden]="driverCount(manualDriving) === 0"
               matBadgeColor="primary"
               matBadgePosition="below after"
               matBadgeSize="medium"
@@ -844,7 +892,14 @@
                 >
               </div>
               <ul class="inner-ul">
-                @for (event of driver.events; track event.id) {
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
                 <li class="event-error">
                   <span class="view-id">#{{ event.viewId }}</span>
 
@@ -854,7 +909,7 @@
 
                   <span class="error-msg"> manual origin </span>
                 </li>
-                }
+                } }
               </ul>
               }
               <hr />
@@ -867,9 +922,8 @@
       }
 
       <!--  -->
-      <!-- low total Engine Hours -->
+      <!-- low total EH  -->
       @if (progressBarService.lowTotalEngineHours(); as lowTotalEngineHours) {
-
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -877,8 +931,8 @@
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
-              matBadge="{{ resultCount(lowTotalEngineHours) }}"
-              [matBadgeHidden]="resultCount(lowTotalEngineHours) === 0"
+              matBadge="{{ driverCount(lowTotalEngineHours) }}"
+              [matBadgeHidden]="driverCount(lowTotalEngineHours) === 0"
               matBadgeColor="primary"
               matBadgePosition="below after"
               matBadgeSize="medium"
@@ -938,7 +992,14 @@
                 >
               </div>
               <ul class="inner-ul">
-                @for (event of driver.events; track event.id) {
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
                 <li class="event-error">
                   <span class="view-id">#{{ event.viewId }}</span>
 
@@ -950,7 +1011,110 @@
                     total Engine Hours: {{ event.engineMinutes }}
                   </span>
                 </li>
-                }
+                } }
+              </ul>
+              }
+              <hr />
+            </li>
+            }
+          </ul>
+          }
+        </div>
+      </mat-expansion-panel>
+      }
+
+      <!--  -->
+      <!-- Fleet Manager Events  -->
+      @if (progressBarService.fleetManager(); as fleetManager) {
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Fleet manager events
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ resultCount(fleetManager) }}"
+              [matBadgeHidden]="resultCount(fleetManager) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(fleetManager)) {
+          <div class="scan-results__content__result__empty">
+            No fleet manager events detected.
+          </div>
+          } @else {
+          <ul class="list-of-tenants">
+            @for (company of fleetManager | keyvalue; track company.key) {
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
+              @for (driver of company.value; track driver.driverName) {
+              <div class="driver">
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.events[0].driver.id,
+                        driver.events[0].date,
+                        driver.events[0].tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.driverName)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
+
+                <span class="bold">{{ driver.driverName }}</span>
+
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="on-hover"
+                  (click)="
+                    progressBarService.removeItem(
+                      'fleetManager',
+                      company.key,
+                      driver.driverName
+                    )
+                  "
+                  ><span class="material-icons"> clear </span></a
+                >
+              </div>
+              <ul class="inner-ul">
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
+                <li class="event-error">
+                  <span class="view-id">#{{ event.viewId }}</span>
+
+                  <span [ngClass]="'status ' + event.dutyStatus">{{
+                    event.statusName
+                  }}</span>
+
+                  <span class="error-msg">
+                    total Engine Hours: {{ event.engineMinutes }}
+                  </span>
+                </li>
+
+                } }
               </ul>
               }
               <hr />
@@ -973,8 +1137,8 @@
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
-              matBadge="{{ resultCount(newDrivers) }}"
-              [matBadgeHidden]="resultCount(newDrivers) === 0"
+              matBadge="{{ driverCount(newDrivers) }}"
+              [matBadgeHidden]="driverCount(newDrivers) === 0"
               matBadgeColor="primary"
               matBadgePosition="below after"
               matBadgeSize="medium"
