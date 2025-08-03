@@ -9,6 +9,7 @@ import {
   IScanViolations,
 } from '../interfaces';
 import { TScanMode, TScanResult } from '../types';
+import { IScanPreViolations } from '../interfaces/drivers.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +24,9 @@ export class ProgressBarService {
   currentDriver = signal('');
   currentCompany = signal('Dex Solutions');
   activeDriversCount = signal(0);
+
+  preViolations = signal<IScanPreViolations>({});
+  preViolationsSlider = signal(20);
 
   violations = signal<IScanViolations[]>([]);
   totalVCount = signal(0);
@@ -44,7 +48,7 @@ export class ProgressBarService {
   fleetManager = signal<IScanResult>({});
 
   errors: IScanErrors[] = [];
-  scanPreformedOnce = false;
+  scanPreformedOnce = true; // testing...
 
   removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
     const index = this[scanResult]()[companyName].findIndex(

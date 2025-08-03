@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { from, Observable, tap } from 'rxjs';
 
+import { DateTime } from 'luxon';
+
 import {
   IViolations,
   IRange,
@@ -12,7 +14,7 @@ import {
 } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { IAppMasterData } from '../interfaces/app-master-data.interface';
-import { DateTime } from 'luxon';
+import { IDrivers } from '../interfaces/drivers.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +42,46 @@ export class ApiService {
 
   constructor() {}
 
+  ///////////////////
+  // get Drivers
+  getDrivers(tenant: ITenant) {
+    const filterRule = {
+      condition: 'AND',
+      filterRules: [
+        {
+          field: 'driverStatus',
+          operator: 'equals',
+          value: 'Active',
+        },
+      ],
+    };
+    const searchRule = {
+      columns: ['driverId', 'driverDisplayName', 'vehicleNumber'],
+      text: '',
+    };
+    return from(
+      this.http.post<IDrivers>(
+        `https://app.monitoringdriver.com/api/Drivers/GetDrivers`,
+        {
+          filterRule,
+          searchRule,
+          sorting: 'driverDisplayName asc',
+          skipCount: 0,
+          maxResultCount: 1000,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        }
+      )
+    );
+  }
+
+  ///////////////////
+  // get Event (not used)
   getEvent(id: number) {
     console.log('[API Service]: getEvent() called');
     return this.http.get<IEventDetails>(
@@ -48,6 +90,8 @@ export class ApiService {
     );
   }
 
+  ///////////////////
+  // get Accessible Tenants
   getAccessibleTenants() {
     return from(
       this.http
@@ -66,6 +110,8 @@ export class ApiService {
     );
   }
 
+  ///////////////////
+  // get DOT Inspections
   getDOTInspectionList(
     tenant: ITenant,
     range: IRange
@@ -95,6 +141,8 @@ export class ApiService {
     );
   }
 
+  ///////////////////
+  // get Violations
   getViolations(tenant: ITenant, range: IRange): Observable<IViolations> {
     return from(
       this.http.post<IViolations>(
@@ -117,6 +165,8 @@ export class ApiService {
     );
   }
 
+  ///////////////////
+  // get Driver Daily Log
   getDriverDailyLogEvents(driverId: number, date: Date, tenantId: string) {
     const body = {
       driverId,
@@ -136,6 +186,8 @@ export class ApiService {
     );
   }
 
+  ///////////////////
+  // get Logs of Company Drivers
   getLogs(tenant: ITenant, date: Date) {
     const d = DateTime.fromJSDate(date);
     const selectedDate = d.toUTC().toISO();
@@ -182,6 +234,8 @@ export class ApiService {
     });
   }
 
+  ///////////////////
+  // get Master App Data
   getMasterAppData(tenant: ITenant) {
     const url = 'https://app.monitoringdriver.com/api/Util/GetMasterAppData';
 
@@ -189,59 +243,6 @@ export class ApiService {
       withCredentials: true,
       headers: {
         'X-Tenant-Id': tenant.id,
-      },
-    });
-  }
-
-  getMadaFakinDriverDailyLogEvents(
-    driverId: number,
-    logDate: string,
-    tenantId: string
-  ) {
-    const body = { driverId, logDate };
-    return this.http.post<IDriverDailyLogEvents>(
-      'https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog',
-      body,
-      {
-        withCredentials: true,
-        headers: {
-          'X-Tenant-Id': `${tenantId}`,
-        },
-      }
-    );
-  }
-
-  getMadaFakinLogs(tenantId: string, dateRange: DateTime[]) {
-    const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
-    const body = {
-      filterRule: {
-        condition: 'AND',
-        filterRules: [
-          {
-            field: 'lastSync',
-            operator: 'gte',
-            value: dateRange[0].toUTC().toISO(),
-          },
-          {
-            field: 'lastSync',
-            operator: 'lte',
-            value: dateRange[dateRange.length - 1].toUTC().toISO(),
-          },
-        ],
-      },
-      searchRule: {
-        columns: ['driverId', 'fullName'],
-        text: '',
-      },
-      sorting: 'fullName asc',
-      skipCount: 0,
-      maxResultCount: 1000,
-    };
-
-    return this.http.post<ILog>(url, body, {
-      withCredentials: true,
-      headers: {
-        'X-Tenant-Id': tenantId,
       },
     });
   }

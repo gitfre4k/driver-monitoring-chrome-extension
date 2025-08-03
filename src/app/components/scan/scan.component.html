@@ -131,6 +131,34 @@
       </div>
     </fieldset>
 
+    <!--///////////////////  -->
+    <!-- pre Violation alert -->
+    <fieldset class="scan__dot">
+      <legend>pre Violation alert</legend>
+
+      <div class="scan__log-analysis__form">
+        <mat-label style="text-align: center"
+          >< {{ progressBarService.preViolationsSlider() }}min <br />
+          alert</mat-label
+        >
+        <mat-slider class="slider" [max]="60" [min]="10" [step]="1">
+          <input
+            matSliderThumb
+            [(ngModel)]="progressBarService.preViolationsSlider"
+          />
+        </mat-slider>
+        <div class="scan__log-analysis__form-submit">
+          <button
+            [disabled]="disableScan"
+            matButton="tonal"
+            (click)="getPreViolationAlert()"
+          >
+            Scan
+          </button>
+        </div>
+      </div>
+    </fieldset>
+
     <!--////////////////////  -->
     <!-- DOT Inspections -->
     <fieldset class="scan__dot">

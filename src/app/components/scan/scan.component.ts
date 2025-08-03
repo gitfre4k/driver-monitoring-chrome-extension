@@ -37,6 +37,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DateService } from '../../@services/date.service';
 import { DateTime } from 'luxon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { IDriverItem, IDrivers } from '../../interfaces/drivers.interface';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
   selector: 'app-scan',
@@ -57,6 +59,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatRadioModule,
     MatSlideToggleModule,
     MatCheckboxModule,
+    MatSliderModule,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
@@ -65,10 +68,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 export class ScanComponent {
   scanService: ScanService = inject(ScanService);
   dateService = inject(DateService);
+  progressBarService = inject(ProgressBarService);
 
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
-  private progressBarService = inject(ProgressBarService);
 
   readonly dialog = inject(MatDialog);
 
@@ -133,6 +136,51 @@ export class ScanComponent {
 
   ngOnInit() {
     this.destroyRef.onDestroy(() => this.scanSubscribtion.unsubscribe());
+  }
+
+  getPreViolationAlert() {
+    this.disableScan = true;
+    setTimeout(() => (this.disableScan = false), 2000);
+    this.scanService.getPreViolationAlert().subscribe({
+      next: (company) => {
+        company.forEach((driver) => {
+          const items: IDriverItem[] = [];
+          driver.items.forEach((item) => {
+            const hos = item.hosTimers;
+            if (['D', 'ON'].includes(item.driverDutyStatus)) {
+              hos.shiftWork < this.progressBarService.preViolationsSlider() &&
+                hos.shiftWork !== 0 &&
+                (item.preViolationShiftWork = hos.shiftWork);
+              hos.shiftDrive < this.progressBarService.preViolationsSlider() &&
+                hos.shiftDrive !== 0 &&
+                hos.shiftDrive !== hos.shiftWork &&
+                (item.preViolationShiftDrive = hos.shiftDrive);
+              hos.break < this.progressBarService.preViolationsSlider() &&
+                hos.break !== 0 &&
+                hos.break !== hos.shiftWork &&
+                hos.break !== hos.shiftDrive &&
+                (item.preViolationBreak = hos.break);
+              (item.preViolationShiftDrive ||
+                item.preViolationShiftWork ||
+                item.preViolationBreak) &&
+                items.push(item);
+            }
+          });
+          const data: IDrivers = {
+            tenant: driver.tenant,
+            date: DateTime.fromJSDate(this.dateService.today).toUTC().toISO()!,
+            totalCount: driver.totalCount,
+            items,
+          };
+          items.length &&
+            this.progressBarService.preViolations.update((prev) => {
+              const newValue = { ...prev, [driver.tenant.name]: data };
+              ///////////
+              return newValue;
+            });
+        });
+      },
+    });
   }
 
   changeDate(ev: MatDatepickerInputEvent<Date>) {

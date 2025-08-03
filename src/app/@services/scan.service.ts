@@ -19,6 +19,7 @@ import { IDOTInspections, IRange, IViolations } from '../interfaces';
 import { TScanMode } from '../types';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { DateTime } from 'luxon';
+import { DateService } from './date.service';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +28,7 @@ export class ScanService {
   private apiService: ApiService = inject(ApiService);
   private progressBarService = inject(ProgressBarService);
   private extensionTabNavService = inject(ExtensionTabNavigationService);
+  private dateService = inject(DateService);
   private _snackBar = inject(MatSnackBar);
 
   readonly dialog = inject(MatDialog);
@@ -103,7 +105,6 @@ export class ScanService {
             duration: 3000,
           });
       this.progressBarService.violationsLastSync.set(DateTime.now().toISO());
-      this.progressBarService.initializeProgressBar();
     } else {
       const dot = this.progressBarService.totalDCount();
       dot > 0
@@ -115,9 +116,30 @@ export class ScanService {
               duration: 3000,
             }
           );
-      this.progressBarService.violationsLastSync.set(DateTime.now().toISO());
-      this.progressBarService.initializeProgressBar();
     }
+    this.progressBarService.initializeProgressBar();
+  }
+
+  //////////////////////
+  // Pre Violation Alert
+  getPreViolationAlert() {
+    return this.apiService
+      .getAccessibleTenants()
+      .pipe(switchMap((tenants) => from(tenants)))
+      .pipe(
+        mergeMap((tenant) => {
+          return this.apiService.getDrivers(tenant).pipe(
+            map((drivers) => {
+              drivers.tenant = tenant;
+              drivers.date = DateTime.fromJSDate(this.dateService.today)
+                .toUTC()
+                .toISO()!;
+              return drivers;
+            })
+          );
+        }, 10),
+        toArray()
+      );
   }
 
   getAllViolations(range: IRange) {
