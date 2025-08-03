@@ -117,15 +117,19 @@
       <!-- Pre Violation Alert  -->
       @if (progressBarService.preViolations(); as preViolations) { @if
       (!isEmpty(preViolations)) {
-      <mat-expansion-panel>
+      <mat-expansion-panel
+        [expanded]="extensionNavigation.prePanelIsOpened()"
+        (opened)="extensionNavigation.prePanelIsOpened.set(true)"
+        (closed)="extensionNavigation.prePanelIsOpened.set(false)"
+      >
         <mat-expansion-panel-header>
           <mat-panel-title>
             Pre Violation Alert
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
-              matBadge="0"
-              [matBadgeHidden]="0"
+              matBadge="{{ progressBarService.preViolationsCount() }}"
+              [matBadgeHidden]="progressBarService.preViolationsCount() === 0"
               matBadgeColor="primary"
               matBadgePosition="below after"
               matBadgeSize="medium"
@@ -170,7 +174,17 @@
 
                 <span class="bold">{{ driver.driverDisplayName }}</span>
 
-                <a mat-icon-button matTooltip="Done" class="on-hover"
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="on-hover"
+                  (click)="
+                    progressBarService.removeItem(
+                      'preViolations',
+                      company.key,
+                      driver.driverDisplayName
+                    )
+                  "
                   ><span class="material-icons"> clear </span></a
                 >
               </div>

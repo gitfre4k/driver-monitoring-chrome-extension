@@ -5,8 +5,9 @@
       <h2>Driver Log Analysis in progress...</h2>
       } @else {
       <h2>
-        Scanning for
-        {{ scanMode === "violations" ? " Violations" : " FMCSA inspections" }}
+        Scanning for @switch (scanMode) { @case ("violations") {
+        {{ " " }} Violations} @case ("dot") { {{ " " }} FMCSA inspections} @case
+        ("pre") { {{ " " }} pre Violation alerts} }
       </h2>
       }
 
@@ -28,7 +29,7 @@
       {{
         scanMode === "advanced"
           ? "Active drivers: " + activeDriversCount()
-          : "Total count: " + totalCount()
+          : "Total count: " + (scanMode === "pre" ? preVCount() : totalCount())
       }}
     </p>
   </mat-card>

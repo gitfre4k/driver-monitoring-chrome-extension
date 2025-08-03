@@ -1,4 +1,4 @@
-export type TScanMode = 'violations' | 'dot' | 'advanced';
+export type TScanMode = 'violations' | 'dot' | 'advanced' | 'pre';
 export type TScanResult =
   | 'teleports'
   | 'eventErrors'
@@ -10,4 +10,5 @@ export type TScanResult =
   | 'highEngineHours'
   | 'lowTotalEngineHours'
   | 'newDrivers'
-  | 'fleetManager';
+  | 'fleetManager'
+  | 'preViolations';

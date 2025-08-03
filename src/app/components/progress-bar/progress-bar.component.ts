@@ -32,6 +32,7 @@ export class ProgressBarComponent {
       this.scanMode === 'violations' ? 'totalVCount' : 'totalDCount'
     ]()
   );
+  preVCount = this.progressBarService.preViolationsCount;
 
   activeDriversCount = this.progressBarService.activeDriversCount;
 

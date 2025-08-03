@@ -27,6 +27,14 @@ export class ProgressBarService {
 
   preViolations = signal<IScanPreViolations>({});
   preViolationsSlider = signal(20);
+  preViolationsCount = computed(() => {
+    const preViolations = this.preViolations();
+    let count = 0;
+    for (const company in preViolations) {
+      count = count + preViolations[company].items.length;
+    }
+    return count;
+  });
 
   violations = signal<IScanViolations[]>([]);
   totalVCount = signal(0);
@@ -51,16 +59,29 @@ export class ProgressBarService {
   scanPreformedOnce = true; // testing...
 
   removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
-    const index = this[scanResult]()[companyName].findIndex(
-      (driver) => driver.driverName === driverName
-    );
+    if (scanResult === 'preViolations') {
+      const index = this.preViolations()[companyName].items.findIndex(
+        (driver) => driver.driverDisplayName === driverName
+      );
+      this.preViolations.update((prev) => {
+        const newValue = { ...prev };
+        newValue[companyName].items.splice(index, 1);
+        if (newValue[companyName].items.length === 0)
+          delete newValue[companyName];
+        return newValue;
+      });
+    } else {
+      const index = this[scanResult]()[companyName].findIndex(
+        (driver) => driver.driverName === driverName
+      );
 
-    this[scanResult].update((prev) => {
-      const newValue = { ...prev };
-      newValue[companyName].splice(index, 1);
-      if (newValue[companyName].length === 0) delete newValue[companyName];
-      return newValue;
-    });
+      this[scanResult].update((prev) => {
+        const newValue = { ...prev };
+        newValue[companyName].splice(index, 1);
+        if (newValue[companyName].length === 0) delete newValue[companyName];
+        return newValue;
+      });
+    }
   }
 
   constructor() {}
@@ -96,6 +117,9 @@ export class ProgressBarService {
         this.manualDriving.set({});
         this.highEngineHours.set({});
         this.lowTotalEngineHours.set({});
+        break;
+      case 'pre':
+        this.preViolations.set({});
         break;
       default:
         return;

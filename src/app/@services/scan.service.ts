@@ -20,6 +20,7 @@ import { TScanMode } from '../types';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { DateTime } from 'luxon';
 import { DateService } from './date.service';
+import { IDriverItem, IDrivers } from '../interfaces/drivers.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +41,45 @@ export class ScanService {
   constructor() {}
 
   ngOnInit() {}
+
+  handlePreScanData(company: IDrivers[]) {
+    company.forEach((driver) => {
+      const items: IDriverItem[] = [];
+      driver.items.forEach((item) => {
+        const hos = item.hosTimers;
+        if (['D', 'ON'].includes(item.driverDutyStatus)) {
+          hos.shiftWork < this.progressBarService.preViolationsSlider() &&
+            hos.shiftWork !== 0 &&
+            (item.preViolationShiftWork = hos.shiftWork);
+          hos.shiftDrive < this.progressBarService.preViolationsSlider() &&
+            hos.shiftDrive !== 0 &&
+            hos.shiftDrive !== hos.shiftWork &&
+            (item.preViolationShiftDrive = hos.shiftDrive);
+          hos.break < this.progressBarService.preViolationsSlider() &&
+            hos.break !== 0 &&
+            hos.break !== hos.shiftWork &&
+            hos.break !== hos.shiftDrive &&
+            (item.preViolationBreak = hos.break);
+          (item.preViolationShiftDrive ||
+            item.preViolationShiftWork ||
+            item.preViolationBreak) &&
+            items.push(item);
+        }
+      });
+      const data: IDrivers = {
+        tenant: driver.tenant,
+        date: DateTime.fromJSDate(this.dateService.today).toUTC().toISO()!,
+        totalCount: driver.totalCount,
+        items,
+      };
+      items.length &&
+        this.progressBarService.preViolations.update((prev) => {
+          const newValue = { ...prev, [driver.tenant.name]: data };
+          ///////////
+          return newValue;
+        });
+    });
+  }
 
   handleScanData(data: IViolations[] | IDOTInspections[], scanMode: TScanMode) {
     data.forEach((result) => {
@@ -97,25 +137,64 @@ export class ScanService {
   };
 
   handleScanComplete(scanMode: TScanMode) {
-    if (scanMode === 'violations') {
-      const v = this.progressBarService.totalVCount();
-      v > 0
-        ? this.violationsDetected(v)
-        : this._snackBar.open(`Scan complete: no violations detected`, 'OK', {
-            duration: 3000,
-          });
-      this.progressBarService.violationsLastSync.set(DateTime.now().toISO());
-    } else {
-      const dot = this.progressBarService.totalDCount();
-      dot > 0
-        ? this.dotInspectionsDetected(dot)
-        : this._snackBar.open(
-            `Scan complete: no DOT Inspections detected`,
+    switch (scanMode) {
+      case 'violations':
+        {
+          const v = this.progressBarService.totalVCount();
+          v > 0
+            ? this.violationsDetected(v)
+            : this._snackBar.open(
+                `Scan complete: no violations detected`,
+                'OK',
+                {
+                  duration: 3000,
+                }
+              );
+          this.progressBarService.violationsLastSync.set(
+            DateTime.now().toISO()
+          );
+        }
+        break;
+      case 'pre':
+        {
+          const count = this.progressBarService.preViolationsCount();
+          this._snackBar.open(
+            `Scan complete: ${
+              count > 0
+                ? count +
+                  ' pre violation alert' +
+                  (count > 1 ? 's' : '') +
+                  ' detected'
+                : 'no pre violation alert detected'
+            }`,
             'OK',
             {
               duration: 3000,
             }
           );
+          count > 0 &&
+            (() => {
+              this.extensionTabNavService.selectedTabIndex.set(1);
+              this.extensionTabNavService.prePanelIsOpened.set(true);
+            })();
+        }
+        break;
+      case 'dot':
+        {
+          const dot = this.progressBarService.totalDCount();
+          dot > 0
+            ? this.dotInspectionsDetected(dot)
+            : this._snackBar.open(
+                `Scan complete: no DOT Inspections detected`,
+                'OK',
+                {
+                  duration: 3000,
+                }
+              );
+        }
+        break;
+      default:
+        return;
     }
     this.progressBarService.initializeProgressBar();
   }
@@ -123,17 +202,35 @@ export class ScanService {
   //////////////////////
   // Pre Violation Alert
   getPreViolationAlert() {
+    this.progressBarService.initializeState('pre');
+    this.progressBarService.scanning.set(true);
     return this.apiService
       .getAccessibleTenants()
       .pipe(switchMap((tenants) => from(tenants)))
       .pipe(
         mergeMap((tenant) => {
+          this.progressBarService.currentCompany.set(tenant.name);
+          this.progressBarService.progressValue.update(
+            (value) => value + this.progressBarService.constant()
+          );
           return this.apiService.getDrivers(tenant).pipe(
+            tap({
+              error: (error) => {
+                this.progressBarService.progressValue.update(
+                  (value) => value + this.progressBarService.constant()
+                );
+                this.progressBarService.errors.push({
+                  error,
+                  company: tenant,
+                });
+              },
+            }),
             map((drivers) => {
               drivers.tenant = tenant;
               drivers.date = DateTime.fromJSDate(this.dateService.today)
                 .toUTC()
                 .toISO()!;
+
               return drivers;
             })
           );
