@@ -128,7 +128,7 @@ export class ApiService {
           },
           sorting: 'driverFullName asc',
           skipCount: 0,
-          maxResultCount: 25,
+          maxResultCount: 1000,
         },
         {
           withCredentials: true,
@@ -152,7 +152,7 @@ export class ApiService {
           searchRule: { columns: ['driverName'], text: '' },
           sorting: 'driverName asc',
           skipCount: 0,
-          maxResultCount: 25,
+          maxResultCount: 1000,
         },
         {
           withCredentials: true,

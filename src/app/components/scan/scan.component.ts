@@ -125,7 +125,9 @@ export class ScanComponent {
   scanning = this.progressBarService.scanning;
   vLastSync = this.progressBarService.violationsLastSync;
 
-  constructor() {}
+  constructor() {
+    console.log();
+  }
 
   ngOnInit() {
     this.destroyRef.onDestroy(() => this.scanSubscribtion.unsubscribe());
@@ -183,22 +185,21 @@ export class ScanComponent {
 
   startScan = () => {
     this.disableScan = true;
+    setTimeout(() => (this.disableScan = false), 2000);
     //////////////////////
     // Analyze Driver Logs
     if (this.scanMode.value === 'advanced') {
       const date = this.analyzeDate();
       if (!date) {
-        this.disableScan = false;
         return;
       }
       this.scanSubscribtion = this.advancedScanService.getLogs(date).subscribe({
         complete: () => this.handleAdvancedScanComplete(),
       });
+      return;
     }
-    // pre violation alert
+    // pre-violation alert
     if (this.scanMode.value === 'pre') {
-      this.disableScan = true;
-      setTimeout(() => (this.disableScan = false), 2000);
       this.scanSubscribtion = this.scanService
         .getPreViolationAlert()
         .subscribe({
@@ -207,6 +208,7 @@ export class ScanComponent {
           complete: () =>
             this.scanService.handleScanComplete(this.scanMode.value),
         });
+      return;
     }
     //////////////////////
     // Scan for Violations / DOT Inspections
@@ -214,7 +216,6 @@ export class ScanComponent {
       const { dateFrom, dateTo } = this.dateRange();
       const dotDate = this.dotDate();
       if (!dateFrom || !dateTo || !dotDate) {
-        this.disableScan = false;
         return;
       }
 
@@ -233,6 +234,5 @@ export class ScanComponent {
           this.scanService.handleScanComplete(this.scanMode.value),
       });
     }
-    setTimeout(() => (this.disableScan = false), 2000);
   };
 }

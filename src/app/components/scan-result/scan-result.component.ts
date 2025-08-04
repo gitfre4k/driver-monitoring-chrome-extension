@@ -49,14 +49,8 @@ export class ScanResultComponent {
   activeDriverCount = this.progressBarService.activeDriversCount;
 
   violations = this.progressBarService.violations;
-  violationsCount = computed(() => {
-    let totalVCount = 0;
-    this.violations().forEach(
-      (v) => (totalVCount = totalVCount + v.violations.items.length)
-    );
+  vCount = this.progressBarService.totalVCount;
 
-    return totalVCount;
-  });
   inspections = this.progressBarService.inspections;
   inspectionsCount = this.progressBarService.totalDCount;
 
@@ -92,20 +86,6 @@ export class ScanResultComponent {
       `https://app.monitoringdriver.com/logs/${id}/${date}/`,
       tenant
     );
-  }
-
-  deleteViolation(id: number) {
-    this.violations.update((prevValue) => {
-      let violations = prevValue;
-      violations.forEach((v) => {
-        v.violations.items = v.violations.items.filter(
-          (driver) => driver.id !== id
-        );
-      });
-      violations.filter((v) => v.violations.items.length === 0);
-      console.log(violations);
-      return violations;
-    });
   }
 
   get malfTitle(): string {

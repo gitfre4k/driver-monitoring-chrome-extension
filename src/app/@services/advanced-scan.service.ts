@@ -83,7 +83,7 @@ export class AdvancedScanService {
             concatMap((log) => from(log.items)),
             mergeMap((driver) => {
               this.progressBarService.activeDriversCount.update((i) => i + 1);
-              return this.dailyLogEvents$(driver, tenant, date);
+              return this.dailyLogEvents$(driver, tenant, date).pipe();
             }, 10),
             toArray()
           );
@@ -163,8 +163,6 @@ export class AdvancedScanService {
   ) {
     if (!driverDailyLog) return;
     this.progressBarService.currentDriver.set(driverDailyLog.driverFullName);
-
-    const driverEvents = driverDailyLog.events;
 
     let computedEvents = this.computeEventsService.getComputedEvents(
       {

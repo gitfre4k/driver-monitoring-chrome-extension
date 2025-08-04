@@ -13,17 +13,14 @@ export class DateService {
     this.requestDate = date;
     return this.dailyLogsDate;
   }
-
   getQueryDate(date: Date) {
     this.requestDate = date;
     return this.queryDate;
   }
-
   getDOTQueryDate(date: Date) {
     this.requestDate = date;
     return this.dotQueryDate;
   }
-
   getAnalyzeQueryDate(date: Date) {
     this.requestDate = date;
     return this.analyzeQueryDate;
@@ -32,6 +29,7 @@ export class DateService {
   get offSet() {
     return DateTime.local().offset;
   }
+  ///////////
   get today() {
     return DateTime.now()
       .setZone('utc')
@@ -61,7 +59,7 @@ export class DateService {
     }
 
     const utcHour = DateTime.utc().hour;
-    const days = utcHour >= 0 && utcHour < 6 ? 2 : 1; // 2: 1
+    const days = utcHour >= 0 && utcHour < 12 + this.offSet / 60 ? 2 : 1;
 
     const logsDate = DateTime.fromJSDate(this.requestDate)
       .setZone('utc')

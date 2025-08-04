@@ -38,7 +38,8 @@
             >Violations
             <div
               style="margin-left: auto"
-              matBadge="{{ violationsCount() ? violationsCount() : null }}"
+              matBadge="{{ vCount() }}"
+              [matBadgeHidden]="vCount() === 0"
               matBadgePosition="below after"
               matBadgeSize="medium"
             ></div
@@ -85,7 +86,7 @@
                   mat-icon-button
                   matTooltip="Done"
                   class="on-hover"
-                  (click)="deleteViolation(item.id)"
+                  (click)="progressBarService.deleteViolation(item.id)"
                   ><span class="material-icons"> clear </span></a
                 >
               </div>
@@ -114,7 +115,7 @@
       }
 
       <!--  -->
-      <!-- Pre Violation Alert  -->
+      <!-- Pre-Violation Alert  -->
       @if (progressBarService.preViolations(); as preViolations) { @if
       (!isEmpty(preViolations)) {
       <mat-expansion-panel
@@ -124,7 +125,7 @@
       >
         <mat-expansion-panel-header>
           <mat-panel-title>
-            Pre Violation Alert
+            pre-Violation alert
             <div
               class="mat-badge-custom"
               style="margin-left: auto"
@@ -139,7 +140,7 @@
         <div class="scan-results__content__result">
           @if (isEmpty(preViolations)) {
           <div class="scan-results__content__result__empty">
-            No pre violation alert detected.
+            No pre-violation alert detected.
           </div>
           } @else {
           <ul class="list-of-tenants">

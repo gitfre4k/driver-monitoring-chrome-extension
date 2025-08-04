@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Subscription } from 'rxjs';
 import { TScanMode } from '../../types';
 import { ProgressBarService } from '../../@services/progress-bar.service';
+import { AdvancedScanService } from '../../@services/advanced-scan.service';
 
 @Component({
   selector: 'app-progress-bar',
@@ -19,6 +20,7 @@ export class ProgressBarComponent {
   @Input({ required: true }) scanMode!: TScanMode;
 
   private progressBarService = inject(ProgressBarService);
+  private advancedScanService = inject(AdvancedScanService);
 
   scanning = this.progressBarService.scanning;
   errors = this.progressBarService.errors;

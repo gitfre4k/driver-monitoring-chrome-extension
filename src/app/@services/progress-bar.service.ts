@@ -7,6 +7,8 @@ import {
   IScanErrors,
   IScanResult,
   IScanViolations,
+  ITenant,
+  IViolations,
 } from '../interfaces';
 import { TScanMode, TScanResult } from '../types';
 import { IScanPreViolations } from '../interfaces/drivers.interface';
@@ -37,7 +39,14 @@ export class ProgressBarService {
   });
 
   violations = signal<IScanViolations[]>([]);
-  totalVCount = signal(0);
+  totalVCount = computed(() => {
+    let totalVCount = 0;
+    this.violations().forEach(
+      (v) => (totalVCount = totalVCount + v.violations.items?.length)
+    );
+
+    return totalVCount;
+  });
   violationsLastSync = signal('');
 
   inspections = signal<IScanDOTInspections[]>([]);
@@ -57,6 +66,22 @@ export class ProgressBarService {
 
   errors: IScanErrors[] = [];
   scanPreformedOnce = true; // testing...
+
+  deleteViolation(id: number) {
+    this.violations.update((prevValue) => {
+      let violations = [...prevValue];
+      violations.forEach((v) => {
+        v.violations.items = v.violations.items.filter(
+          (driver) => driver.id !== id
+        );
+      });
+      const index = violations.findIndex(
+        (v) => v.violations.items?.length === 0
+      );
+      violations.splice(index, 1);
+      return violations;
+    });
+  }
 
   removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
     if (scanResult === 'preViolations') {
@@ -99,7 +124,6 @@ export class ProgressBarService {
     this.initializeProgressBar();
     switch (scanMode) {
       case 'violations':
-        this.totalVCount.set(0);
         this.violations.set([]);
         break;
       case 'dot':

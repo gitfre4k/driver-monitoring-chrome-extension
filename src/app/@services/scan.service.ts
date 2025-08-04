@@ -230,7 +230,6 @@ export class ScanService {
               drivers.date = DateTime.fromJSDate(this.dateService.today)
                 .toUTC()
                 .toISO()!;
-
               return drivers;
             })
           );
@@ -277,13 +276,6 @@ export class ScanService {
               catchError(() => of())
             )
             .pipe(
-              tap(
-                (v) =>
-                  v.totalCount &&
-                  this.progressBarService.totalVCount.update(
-                    (prev) => prev + v.totalCount
-                  )
-              ),
               map((v) => {
                 v.company = tenant;
                 return v;

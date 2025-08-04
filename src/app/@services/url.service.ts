@@ -2,11 +2,13 @@ import { Injectable, signal, NgZone, inject } from '@angular/core';
 import { LocalStorageService } from './local-storage.service';
 import { ICompany } from '../interfaces';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UrlService {
+  private _snackBar = inject(MatSnackBar);
   localStorageService = inject(LocalStorageService);
   extensionTabNavService = inject(ExtensionTabNavigationService);
 
@@ -97,7 +99,15 @@ export class UrlService {
 
   navigateChromeActiveTab = (url: string, tenant: ICompany) => {
     const tabId = this.tabId();
-    if (!tabId) return console.log('URL Service - no tabId');
+    if (!tabId)
+      return this._snackBar.open(
+        `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
+        'OK',
+        {
+          duration: 3000,
+        }
+      );
+    //  console.log('URL Service - no tabId');
 
     const key = 'MASTER_TOOLS_PROVIDER_TENANT';
     const value = JSON.stringify({
@@ -107,7 +117,7 @@ export class UrlService {
       },
     });
 
-    this.localStorageService
+    return this.localStorageService
       .updateTabLocalStorage(tabId, key, value)
       .subscribe({
         next: () => {
