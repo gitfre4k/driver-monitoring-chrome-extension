@@ -19,6 +19,24 @@
       [selectedIndex]="selectedTabIndex()"
       (selectedIndexChange)="changeSelectedIndex($event)"
     >
+      @if (errCount() > 0 && !scanning()) {
+      <mat-tab label="errors">
+        <ng-template mat-tab-label>
+          <mat-icon>sync_problem</mat-icon>
+          <div
+            class="mat-badge-custom"
+            style="margin-bottom: auto"
+            matBadge="{{ errCount() }}"
+            matBadgeColor="primary"
+            matBadgePosition="above after"
+            matBadgeSize="medium"
+          ></div>
+
+          <span class="hide">err</span>
+        </ng-template>
+        <app-errors></app-errors>
+      </mat-tab>
+      } @else {
       <mat-tab label="Scan">
         <ng-template mat-tab-label>
           <mat-icon id="radar-icon">radar</mat-icon>
@@ -27,6 +45,7 @@
 
         <app-scan></app-scan>
       </mat-tab>
+      }
 
       <mat-tab label="Report">
         <ng-template mat-tab-label>
@@ -55,6 +74,16 @@
         <app-monitor></app-monitor>
       </mat-tab>
 
+      <mat-tab label="Templates">
+        <ng-template mat-tab-label>
+          <mat-icon>message</mat-icon>
+
+          <span class="hide">Templates</span>
+        </ng-template>
+
+        <app-templates></app-templates>
+      </mat-tab>
+
       <mat-tab label="About">
         <ng-template mat-tab-label>
           <mat-icon>info</mat-icon>
@@ -69,3 +98,4 @@
     </mat-tab-group>
   </mat-card>
 </div>
+<!-- message -->

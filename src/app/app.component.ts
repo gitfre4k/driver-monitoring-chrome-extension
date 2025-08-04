@@ -18,6 +18,8 @@ import { ScanService } from './@services/scan.service';
 import { IViolations } from './interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateService } from './@services/date.service';
+import { ErrorsComponent } from './components/errors/errors.component';
+import { TemplatesComponent } from './components/templates/templates.component';
 
 @Component({
   selector: 'app-root',
@@ -30,11 +32,13 @@ import { DateService } from './@services/date.service';
     MatTabsModule,
     MatIconModule,
     MatTooltipModule,
+    MatBadgeModule,
     ScanComponent,
     MonitorComponent,
+    ErrorsComponent,
     InfoComponent,
     ScanResultComponent,
-    MatBadgeModule,
+    TemplatesComponent,
   ],
 })
 export class AppComponent {
@@ -53,6 +57,8 @@ export class AppComponent {
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
   violationsCount = this.progressBarService.totalVCount;
+
+  errCount = this.progressBarService.errorCount;
 
   isPopup = false;
   currentCounter: number = 0;

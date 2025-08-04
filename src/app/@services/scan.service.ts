@@ -68,7 +68,7 @@ export class ScanService {
       });
       const data: IDrivers = {
         tenant: driver.tenant,
-        date: DateTime.fromJSDate(this.dateService.today).toUTC().toISO()!,
+        date: this.dateService.getDailyLogsDate(this.dateService.today)!,
         totalCount: driver.totalCount,
         items,
       };
@@ -219,17 +219,18 @@ export class ScanService {
                 this.progressBarService.progressValue.update(
                   (value) => value + this.progressBarService.constant()
                 );
-                this.progressBarService.errors.push({
-                  error,
-                  company: tenant,
-                });
+                this.progressBarService.pErrors.update((prev) => [
+                  ...prev,
+                  {
+                    error,
+                    company: tenant,
+                  },
+                ]);
               },
             }),
             map((drivers) => {
               drivers.tenant = tenant;
-              drivers.date = DateTime.fromJSDate(this.dateService.today)
-                .toUTC()
-                .toISO()!;
+              drivers.date = this.dateService.today;
               return drivers;
             })
           );
@@ -267,10 +268,13 @@ export class ScanService {
                   this.progressBarService.progressValue.update(
                     (value) => value + this.progressBarService.constant()
                   );
-                  this.progressBarService.errors.push({
-                    error,
-                    company: tenant,
-                  });
+                  this.progressBarService.vErrors.update((prev) => [
+                    ...prev,
+                    {
+                      error,
+                      company: tenant,
+                    },
+                  ]);
                 },
               }),
               catchError(() => of())
@@ -315,10 +319,13 @@ export class ScanService {
                   this.progressBarService.progressValue.update(
                     (value) => value + this.progressBarService.constant()
                   );
-                  this.progressBarService.errors.push({
-                    error,
-                    company: tenant,
-                  });
+                  this.progressBarService.dErrors.update((prev) => [
+                    ...prev,
+                    {
+                      error,
+                      company: tenant,
+                    },
+                  ]);
                 },
               }),
               catchError(() => of())

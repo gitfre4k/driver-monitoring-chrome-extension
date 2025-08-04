@@ -7,8 +7,6 @@ import {
   IScanErrors,
   IScanResult,
   IScanViolations,
-  ITenant,
-  IViolations,
 } from '../interfaces';
 import { TScanMode, TScanResult } from '../types';
 import { IScanPreViolations } from '../interfaces/drivers.interface';
@@ -64,8 +62,21 @@ export class ProgressBarService {
   newDrivers = signal<IScanResult>({});
   fleetManager = signal<IScanResult>({});
 
-  errors: IScanErrors[] = [];
+  vErrors = signal([] as IScanErrors[]);
+  pErrors = signal([] as IScanErrors[]);
+  dErrors = signal([] as IScanErrors[]);
+  aErrors = signal([] as IScanErrors[]);
+  errorCount = computed(
+    () =>
+      this.vErrors().length +
+      this.pErrors().length +
+      this.dErrors().length +
+      this.aErrors().length
+  );
+
   scanPreformedOnce = true; // testing...
+
+  constructor() {}
 
   deleteViolation(id: number) {
     this.violations.update((prevValue) => {
@@ -109,7 +120,12 @@ export class ProgressBarService {
     }
   }
 
-  constructor() {}
+  clearErrors() {
+    this.vErrors.set([]);
+    this.pErrors.set([]);
+    this.dErrors.set([]);
+    this.aErrors.set([]);
+  }
 
   initializeProgressBar() {
     this.scanPreformedOnce = true;
@@ -117,7 +133,6 @@ export class ProgressBarService {
     this.progressValue.set(0);
     this.bufferValue.set(0);
     this.currentCompany.set('');
-    this.errors = [];
   }
 
   initializeState(scanMode: TScanMode) {
@@ -125,10 +140,12 @@ export class ProgressBarService {
     switch (scanMode) {
       case 'violations':
         this.violations.set([]);
+        this.vErrors.set([]);
         break;
       case 'dot':
         this.totalDCount.set(0);
         this.inspections.set([]);
+        this.dErrors.set([]);
         break;
       case 'advanced':
         this.activeDriversCount.set(0);
@@ -141,9 +158,11 @@ export class ProgressBarService {
         this.manualDriving.set({});
         this.highEngineHours.set({});
         this.lowTotalEngineHours.set({});
+        this.aErrors.set([]);
         break;
       case 'pre':
         this.preViolations.set({});
+        this.pErrors.set([]);
         break;
       default:
         return;

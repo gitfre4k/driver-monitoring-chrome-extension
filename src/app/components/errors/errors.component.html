@@ -1,0 +1,51 @@
+<div class="container" style="text-align: left">
+  <h2>errors</h2>
+  @if (errCount() > 0) {
+  <div class="errors">
+    @if (vErrors().length) {
+    <h3>Violation scan errors</h3>
+    @for (err of vErrors(); track (err.driverName ? err.driverName :
+    err.company.id)) {
+    <span class="errors-company"
+      >[{{ err.error.name }}] {{ err.company.name }}
+      {{ err.driverName ? " - " + err.driverName : "" }}</span
+    >
+    <span style="font-size: 10px">- {{ err.error.message }}</span>
+    <br />
+    } } @if (pErrors().length) {
+    <h3>pre-Violation scan errors</h3>
+    @for (err of pErrors(); track (err.driverName ? err.driverName :
+    err.company.id)) {
+    <span class="errors-company"
+      >[{{ err.error.name }}] {{ err.company.name }}
+      {{ err.driverName ? " - " + err.driverName : "" }}</span
+    >
+    <span style="font-size: 10px">- {{ err.error.message }}</span>
+    <br />
+    } } @if (dErrors().length) {
+    <h3>DOT Inspection scan errors</h3>
+    @for (err of dErrors(); track (err.driverName ? err.driverName :
+    err.company.id)) {
+    <span class="errors-company"
+      >[{{ err.error.name }}] {{ err.company.name }}
+      {{ err.driverName ? " - " + err.driverName : "" }}</span
+    >
+    <span style="font-size: 10px">- {{ err.error.message }}</span>
+    <br />
+    } } @if (aErrors().length) {
+    <h3>Driver Log Analysis errors</h3>
+    @for (err of aErrors(); track (err.driverName ? err.driverName :
+    err.company.id)) {
+    <span class="errors-company"
+      >[{{ err.error.name }}] {{ err.company.name }}
+      {{ err.driverName ? " - " + err.driverName : "" }}</span
+    >
+    <span style="font-size: 10px">- {{ err.error.message }}</span>
+    <br />
+    } }
+  </div>
+  <button matButton="tonal" (click)="dismiss()">Dismiss</button>
+  }@else {
+  <p style="text-align: center">...no errors</p>
+  }
+</div>

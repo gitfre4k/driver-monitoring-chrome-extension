@@ -16,6 +16,7 @@ import { ProgressBarService } from '../../@services/progress-bar.service';
 import { UrlService } from '../../@services/url.service';
 import { IScanResult, ITenant } from '../../interfaces';
 import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
+import { DateService } from '../../@services/date.service';
 
 @Component({
   selector: 'app-scan-result',
@@ -45,6 +46,7 @@ export class ScanResultComponent {
   private urlService = inject(UrlService);
   progressBarService = inject(ProgressBarService);
   extensionNavigation = inject(ExtensionTabNavigationService);
+  dateService = inject(DateService);
 
   activeDriverCount = this.progressBarService.activeDriversCount;
 

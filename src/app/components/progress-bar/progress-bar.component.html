@@ -35,8 +35,8 @@
   </mat-card>
 
   <div class="errors" style="text-align: left">
-    @for (err of this.errors; track (err.driverName ? err.driverName :
-    err.company.id)) {
+    @if (scanMode === 'violations') { } @for (err of errors(); track
+    (err.driverName ? err.driverName : err.company.id)) {
     <span class="errors-company"
       >[{{ err.error.name }}] {{ err.company.name }}
       {{ err.driverName ? " - " + err.driverName : "" }}</span

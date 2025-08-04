@@ -101,8 +101,12 @@
                 <li class="event-violation">
                   <span style="color: rgb(236, 103, 55)"
                     >[{{ v.logDate | date : "MMM d" : v.homeTerminalTimeZone }}]
-                    {{ v.type }}</span
-                  >
+                    @switch (v.type) { @case ('FourteenHoursViolation') {14-hour
+                    violation} @case ('ThirtyMinutesBreakViolation') {30-min
+                    break violation} @case ('ElevenHoursViolation') { 11-hour
+                    violation} @case ('ThirtyFourHoursResetViolation') {34-hour
+                    reset violation} @default {'unknon violation'} }
+                  </span>
                 </li>
                 } }
               </ul>
@@ -157,7 +161,7 @@
                     (click)="
                       openLogs(
                         driver.driverIntId,
-                        company.value.date,
+                        company.value.date.toISOString(),
                         company.value.tenant
                       )
                     "

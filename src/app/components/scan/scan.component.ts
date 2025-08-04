@@ -161,7 +161,7 @@ export class ScanComponent {
   handleAdvancedScanComplete() {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
-    instance.analyzeError = this.progressBarService.errors;
+    instance.analyzeError = this.progressBarService.aErrors();
 
     dialogRef
       .afterClosed()

@@ -81,3 +81,9 @@ span {
 ::ng-deep .mat-mdc-tab-body-content {
   overflow: hidden !important;
 }
+.mat-badge-custom {
+  .mat-badge-content {
+    background: #343effcc;
+    color: white;
+  }
+}

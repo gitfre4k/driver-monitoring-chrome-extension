@@ -1,13 +1,20 @@
-import { Component, computed, inject, Input } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  Input,
+  signal,
+  WritableSignal,
+} from '@angular/core';
+import { Subscription } from 'rxjs';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 
-import { Subscription } from 'rxjs';
-import { TScanMode } from '../../types';
 import { ProgressBarService } from '../../@services/progress-bar.service';
-import { AdvancedScanService } from '../../@services/advanced-scan.service';
+import { TScanMode } from '../../types';
+import { IScanErrors } from '../../interfaces';
 
 @Component({
   selector: 'app-progress-bar',
@@ -20,10 +27,11 @@ export class ProgressBarComponent {
   @Input({ required: true }) scanMode!: TScanMode;
 
   private progressBarService = inject(ProgressBarService);
-  private advancedScanService = inject(AdvancedScanService);
 
   scanning = this.progressBarService.scanning;
-  errors = this.progressBarService.errors;
+
+  errors!: WritableSignal<IScanErrors[]>;
+
   value = this.progressBarService.progressValue;
   bufferValue = this.progressBarService.bufferValue;
   constant = this.progressBarService.constant;
@@ -37,6 +45,25 @@ export class ProgressBarComponent {
   preVCount = this.progressBarService.preViolationsCount;
 
   activeDriversCount = this.progressBarService.activeDriversCount;
+
+  constructor() {}
+
+  ngOnInit() {
+    switch (this.scanMode) {
+      case 'violations':
+        this.errors = this.progressBarService.vErrors;
+        break;
+      case 'pre':
+        this.errors = this.progressBarService.pErrors;
+        break;
+      case 'dot':
+        this.errors = this.progressBarService.dErrors;
+        break;
+      case 'advanced':
+        this.errors = this.progressBarService.aErrors;
+        break;
+    }
+  }
 
   stopScan() {
     this.progressBarService.initializeProgressBar();

@@ -60,10 +60,13 @@ export class AdvancedScanService {
                 this.progressBarService.progressValue.update(
                   (value) => value + this.progressBarService.constant()
                 );
-                this.progressBarService.errors.push({
-                  error,
-                  company: tenant,
-                });
+                this.progressBarService.aErrors.update((prev) => [
+                  ...prev,
+                  {
+                    error,
+                    company: tenant,
+                  },
+                ]);
               },
             }),
             catchError(() => of()),
@@ -109,11 +112,14 @@ export class AdvancedScanService {
       .pipe(
         tap({
           error: (error) => {
-            this.progressBarService.errors.push({
-              error,
-              company: tenant,
-              driverName: driver.fullName,
-            });
+            this.progressBarService.aErrors.update((prev) => [
+              ...prev,
+              {
+                error,
+                company: tenant,
+                driverName: driver.fullName,
+              },
+            ]);
           },
         }),
         catchError(() => of()),
@@ -126,11 +132,14 @@ export class AdvancedScanService {
               .pipe(
                 tap({
                   error: (error) => {
-                    this.progressBarService.errors.push({
-                      error,
-                      company: tenant,
-                      driverName: driver.fullName,
-                    });
+                    this.progressBarService.aErrors.update((prev) => [
+                      ...prev,
+                      {
+                        error,
+                        company: tenant,
+                        driverName: driver.fullName,
+                      },
+                    ]);
                   },
                 }),
                 catchError(() => of())
