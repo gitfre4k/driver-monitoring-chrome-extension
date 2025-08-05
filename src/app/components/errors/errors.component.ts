@@ -15,5 +15,11 @@ export class ErrorsComponent {
   dErrors = this.progressBarService.dErrors;
   pErrors = this.progressBarService.pErrors;
   aErrors = this.progressBarService.aErrors;
-  dismiss = this.progressBarService.clearErrors;
+
+  constructor() {}
+
+  dismiss() {
+    this.progressBarService.showErrors.set(false);
+    this.progressBarService.clearErrors();
+  }
 }

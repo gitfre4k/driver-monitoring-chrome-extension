@@ -57,6 +57,7 @@ export class AppComponent {
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
   violationsCount = this.progressBarService.totalVCount;
+  showErrors = this.progressBarService.showErrors;
 
   errCount = this.progressBarService.errorCount;
 

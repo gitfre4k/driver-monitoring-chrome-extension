@@ -2,6 +2,23 @@
   @if (!scanning()) {
 
   <div class="scan_">
+    <div
+      class="scan__errors mat-badge-custom"
+      matBadge="{{ progressBarService.errorCount() }}"
+      [matBadgeHidden]="!progressBarService.errorCount()"
+      matBadgeColor="primary"
+      matBadgePosition="above after"
+      matBadgeSize="medium"
+    >
+      <span>scan errors</span>
+      <a
+        mat-icon-button
+        (click)="progressBarService.showErrors.set(true)"
+        matTooltip="Check scan errors"
+      >
+        <mat-icon class="icon-display">sync_problem</mat-icon>
+      </a>
+    </div>
     <!--////////////////////  -->
     <!-- Violations -->
     <fieldset class="scan__violations">
@@ -31,6 +48,7 @@
               <mat-icon class="icon-display">sync</mat-icon></a
             >
           </div>
+
           } @else {
           <div class="scan__violations__sync-stats__manual-scan">
             <button

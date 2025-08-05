@@ -38,6 +38,7 @@ import { DateService } from '../../@services/date.service';
 import { DateTime } from 'luxon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-scan',
@@ -59,6 +60,7 @@ import { MatSliderModule } from '@angular/material/slider';
     MatSlideToggleModule,
     MatCheckboxModule,
     MatSliderModule,
+    MatBadgeModule,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],

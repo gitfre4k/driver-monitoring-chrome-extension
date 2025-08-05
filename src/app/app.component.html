@@ -19,7 +19,7 @@
       [selectedIndex]="selectedTabIndex()"
       (selectedIndexChange)="changeSelectedIndex($event)"
     >
-      @if (errCount() > 0 && !scanning()) {
+      @if (showErrors() && !scanning()) {
       <mat-tab label="errors">
         <ng-template mat-tab-label>
           <mat-icon>sync_problem</mat-icon>

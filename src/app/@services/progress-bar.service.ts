@@ -62,6 +62,7 @@ export class ProgressBarService {
   newDrivers = signal<IScanResult>({});
   fleetManager = signal<IScanResult>({});
 
+  showErrors = signal(false);
   vErrors = signal([] as IScanErrors[]);
   pErrors = signal([] as IScanErrors[]);
   dErrors = signal([] as IScanErrors[]);
