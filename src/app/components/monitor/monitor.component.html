@@ -72,8 +72,10 @@
           }}</span>
 
           @if(event.isTeleport || (event.errorMessages &&
-          event.errorMessages.length > 0) || event.manualDriving) {
+          event.errorMessages.length > 0) || event.manualDriving ||
+          event.refuel) {
           <span class="note" style="color: red">
+            @if (event.refuel) { refuel marker detected after Driving } @else {
             <!-- [teleport] message-->
             {{
               event.isTeleport
@@ -96,7 +98,7 @@
             (event.errorMessages && event.errorMessages.length > 0)) { <br />
             }
             <span class="note" style="color: yellow"> manual origin </span>
-            }
+            } }
           </span>
           }
 

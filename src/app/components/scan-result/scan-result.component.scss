@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 16px 8px 0;
+  margin: 0px 8px 0;
   width: calc(100% - 16px);
   padding-right: 10px;
 
@@ -24,9 +24,23 @@
     font-size: 20px;
     text-align: center;
   }
+  &__count-n-errors {
+    margin: 3px 0;
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
 
-  &__driver-count {
-    margin-bottom: 12px;
+    &__driver-count {
+      padding-top: 14px;
+      font-size: 12px;
+      font-weight: 700px;
+    }
+    &__scan-errors {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 
   &__content {
@@ -216,7 +230,13 @@
 
 .mat-badge-custom {
   .mat-badge-content {
+    z-index: 1000000000;
     background: #343eff54;
     color: white;
   }
+}
+
+.err-custom {
+  margin-bottom: auto;
+  margin-top: 6px;
 }

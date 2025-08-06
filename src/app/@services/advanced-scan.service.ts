@@ -194,10 +194,11 @@ export class AdvancedScanService {
     const pcYmEvents: IEvent[] = [];
     const newDriver: IEvent[] = [];
     const fleetManagerEvents: IEvent[] = [];
+    const refuelWarning: IEvent[] = [];
 
     computedEvents.forEach((event) => {
       if (event.driver.id === driverDailyLog.driverId) {
-        if (event.isTeleport) {
+        if (event.isTeleport || event.dutyStatus === 'refuel') {
           detectedTeleportEvents.push(event);
         }
         if (event.errorMessages?.length) {
@@ -233,6 +234,9 @@ export class AdvancedScanService {
         if (event.isFirstEvent || newDriver.length) {
           event.timeZone = driverDailyLog.homeTerminalTimeZone;
           newDriver.push(event);
+        }
+        if (event.refuel) {
+          refuelWarning.push(event);
         }
       }
     });
@@ -343,6 +347,22 @@ export class AdvancedScanService {
         const newValue = { ...prev };
         if (newValue[companyName]) newValue[companyName].push(driverMalf);
         else newValue[companyName] = [driverMalf];
+        return newValue;
+      });
+    }
+
+    //////////////
+    // Refuel Warning Events
+    if (refuelWarning.length) {
+      const refuelWarningDriver: IScanResultDriver = {
+        driverName: driverDailyLog.driverFullName,
+        events: refuelWarning,
+      };
+      this.progressBarService.refuelWarning.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(refuelWarningDriver);
+        else newValue[companyName] = [refuelWarningDriver];
         return newValue;
       });
     }

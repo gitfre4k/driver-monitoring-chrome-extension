@@ -11,4 +11,5 @@ export type TScanResult =
   | 'lowTotalEngineHours'
   | 'newDrivers'
   | 'fleetManager'
-  | 'preViolations';
+  | 'preViolations'
+  | 'refuelWarning';

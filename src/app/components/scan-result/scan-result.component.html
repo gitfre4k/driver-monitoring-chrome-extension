@@ -1,5 +1,6 @@
 <div class="scan-results">
-  @if (!progressBarService.scanPreformedOnce) {
+  @if (!progressBarService.resultsAreReady() && !violations().length &&
+  !inspections().length && isEmpty(progressBarService.preViolations())) {
   <span
     class="scan-results__driver-count"
     style="text-align: center; margin-top: 32px"
@@ -18,10 +19,33 @@
   </a>
   } @else {
   <!-- <h3 class="scan-results__title">Report</h3> -->
-  @if (activeDriverCount(); as driverCount) {
-  <span class="scan-results__driver-count"
-    >Active Driver count: {{ driverCount }}</span
-  >
+  @if (activeDriverCount() || progressBarService.errorCount()) {
+  <div class="scan-results__count-n-errors">
+    <span class="scan-results__count-n-errors__driver-count"
+      >Active Driver count: {{ activeDriverCount() }}</span
+    >
+    <div class="scan-results__count-n-errors__scan-errors">
+      <span style="font-size: 12px">scan errors</span>
+      <a
+        mat-icon-button
+        (click)="progressBarService.showErrors.set(true)"
+        matTooltip="Check scan errors"
+      >
+        <mat-icon class="icon-display">sync_problem</mat-icon>
+      </a>
+      <div
+        class="mat-badge-custom err-custom"
+        matBadge="{{ progressBarService.errorCount() }}"
+        [matBadgeHidden]="!progressBarService.errorCount()"
+        matBadgeColor="primary"
+        matBadgePosition="above after"
+        matBadgeSize="medium"
+      ></div>
+    </div>
+  </div>
+
+  } @else {
+  <div style="margin-top: 12px"></div>
   }
   <div class="scan-results__content">
     <mat-accordion MatAccordionDisplayMode="flat">
@@ -247,7 +271,8 @@
 
       <!--  -->
       <!-- Teleports -->
-      @if (progressBarService.teleports(); as teleports) {
+      @if (progressBarService.teleports(); as teleports) { @if
+      (!isEmpty(teleports)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -331,11 +356,14 @@
                   }}</span>
 
                   <span class="error-msg">
+                    @if (event.dutyStatus === 'refuel') { disconnected Refueling
+                    detected } @else {
                     {{
                       event.isTeleport > 0
                         ? "teleport [ " + event.isTeleport + " miles ]"
                         : "odometer decreased"
                     }}
+                    }
                   </span>
                 </li>
                 } }
@@ -348,11 +376,12 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
 
       <!--  -->
       <!-- event errors  -->
-      @if (progressBarService.eventErrors(); as eventErrors) {
+      @if (progressBarService.eventErrors(); as eventErrors) { @if
+      (!isEmpty(eventErrors)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -450,11 +479,12 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
 
       <!--  -->
       <!-- prolonged On Duty  -->
-      @if (progressBarService.prolongedOnDuty(); as prolongedOnDuty) {
+      @if (progressBarService.prolongedOnDuty(); as prolongedOnDuty) { @if
+      (!isEmpty(prolongedOnDuty)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -552,11 +582,112 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
+
+      <!--  -->
+      <!-- Refuel Marker Warning  -->
+      @if (progressBarService.refuelWarning(); as refuelWarning) { @if
+      (!isEmpty(refuelWarning)) {
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Refuel Marker Warning
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ driverCount(refuelWarning) }}"
+              [matBadgeHidden]="driverCount(refuelWarning) === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(refuelWarning)) {
+          <div class="scan-results__content__result__empty">
+            No Fueling Marker warning detected
+          </div>
+          } @else {
+          <ul class="list-of-tenants">
+            @for (company of refuelWarning | keyvalue; track company.key) {
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
+              @for (driver of company.value; track driver.driverName) {
+              <div class="driver">
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.events[0].driver.id,
+                        driver.events[0].date,
+                        driver.events[0].tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.driverName)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
+
+                <span class="bold">{{ driver.driverName }}</span>
+
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="on-hover"
+                  (click)="
+                    progressBarService.removeItem(
+                      'refuelWarning',
+                      company.key,
+                      driver.driverName
+                    )
+                  "
+                  ><span class="material-icons"> clear </span></a
+                >
+              </div>
+              <ul class="inner-ul">
+                @for (event of driver.events | slice:0:3; track event.id; let i
+                = $index) { @if(i === 2 && driver.events.length > 3) {
+                <li class="event-error">
+                  <span></span>
+                  <span></span>
+                  <span>...and {{ driver.events.length - 3 }} more</span>
+                </li>
+                } @else {
+                <li class="event-error">
+                  <span class="view-id">#{{ event.viewId }}</span>
+
+                  <span [ngClass]="'status ' + event.dutyStatus">{{
+                    event.statusName
+                  }}</span>
+
+                  <span class="error-msg"> potential unrecorded driving </span>
+                </li>
+                } }
+              </ul>
+              }
+              <hr />
+            </li>
+            }
+          </ul>
+          }
+        </div>
+      </mat-expansion-panel>
+      }}
 
       <!--  -->
       <!-- malf or data diag  -->
-      @if (progressBarService.malfOrDataDiag(); as malfOrDataDiag) {
+      @if (progressBarService.malfOrDataDiag(); as malfOrDataDiag) { @if
+      (!isEmpty(malfOrDataDiag)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -654,11 +785,11 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
 
       <!--  -->
       <!-- PC/YM  -->
-      @if (progressBarService.pcYm(); as pcYm) {
+      @if (progressBarService.pcYm(); as pcYm) { @if (!isEmpty(pcYm)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -753,11 +884,12 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
 
       <!--  -->
       <!-- missing Engine On  -->
-      @if (progressBarService.missingEngineOn(); as missingEngineOn) {
+      @if (progressBarService.missingEngineOn(); as missingEngineOn) { @if
+      (!isEmpty(missingEngineOn)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -852,10 +984,12 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
+
       <!--  -->
       <!-- high elapsed EH  -->
-      @if (progressBarService.highEngineHours(); as highEngineHours) {
+      @if (progressBarService.highEngineHours(); as highEngineHours) { @if
+      (!isEmpty(highEngineHours)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -952,11 +1086,12 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
 
       <!--  -->
       <!-- manuel Driving  -->
-      @if (progressBarService.manualDriving(); as manualDriving) {
+      @if (progressBarService.manualDriving(); as manualDriving) { @if
+      (!isEmpty(manualDriving)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -1051,11 +1186,12 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      } }
 
       <!--  -->
       <!-- low total EH  -->
       @if (progressBarService.lowTotalEngineHours(); as lowTotalEngineHours) {
+      @if (!isEmpty(lowTotalEngineHours)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -1153,12 +1289,12 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
 
       <!--  -->
       <!-- Fleet Manager Events  -->
-      @if (progressBarService.fleetManager(); as fleetManager) {
-
+      @if (progressBarService.fleetManager(); as fleetManager) { @if
+      (!isEmpty(fleetManager)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -1256,12 +1392,12 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
 
       <!--  -->
       <!-- new Drivers -->
-      @if (progressBarService.newDrivers(); as newDrivers) {
-
+      @if (progressBarService.newDrivers(); as newDrivers) { @if
+      (!isEmpty(newDrivers)) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -1375,7 +1511,7 @@
           }
         </div>
       </mat-expansion-panel>
-      }
+      }}
 
       <!-- //////////////////////////////////  -->
       <!-- DOT Inspections -->

@@ -41,6 +41,8 @@ export const getStatusName = (dutyStatus: string): string => {
       return 'PC';
     case 'DriverIndicationYardMoves':
       return 'YM';
+    case 'refuel':
+      return '[ Refuel ]';
     default:
       return '?';
   }

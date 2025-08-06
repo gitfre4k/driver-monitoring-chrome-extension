@@ -49,6 +49,7 @@ export interface IEvent {
   fleetManager: boolean;
   pcYmCLR: boolean;
   malf: boolean;
+  refuel: boolean;
 }
 
 export interface IDriverIdAndName {

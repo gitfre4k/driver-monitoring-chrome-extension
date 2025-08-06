@@ -61,6 +61,7 @@ export class ProgressBarService {
   lowTotalEngineHours = signal<IScanResult>({});
   newDrivers = signal<IScanResult>({});
   fleetManager = signal<IScanResult>({});
+  refuelWarning = signal<IScanResult>({});
 
   showErrors = signal(false);
   vErrors = signal([] as IScanErrors[]);
@@ -74,10 +75,25 @@ export class ProgressBarService {
       this.dErrors().length +
       this.aErrors().length
   );
-
-  scanPreformedOnce = true; // testing...
+  resultsAreReady = computed(
+    () =>
+      !this.isEmpty(this.teleports()) ||
+      !this.isEmpty(this.eventErrors()) ||
+      !this.isEmpty(this.prolongedOnDuty()) ||
+      !this.isEmpty(this.malfOrDataDiag()) ||
+      !this.isEmpty(this.pcYm()) ||
+      !this.isEmpty(this.missingEngineOn()) ||
+      !this.isEmpty(this.manualDriving()) ||
+      !this.isEmpty(this.highEngineHours()) ||
+      !this.isEmpty(this.lowTotalEngineHours()) ||
+      !this.isEmpty(this.refuelWarning())
+  );
 
   constructor() {}
+
+  isEmpty(obj: any): boolean {
+    return Object.keys(obj).length === 0;
+  }
 
   deleteViolation(id: number) {
     this.violations.update((prevValue) => {
@@ -129,7 +145,6 @@ export class ProgressBarService {
   }
 
   initializeProgressBar() {
-    this.scanPreformedOnce = true;
     this.scanning.set(false);
     this.progressValue.set(0);
     this.bufferValue.set(0);
@@ -159,6 +174,7 @@ export class ProgressBarService {
         this.manualDriving.set({});
         this.highEngineHours.set({});
         this.lowTotalEngineHours.set({});
+        this.refuelWarning.set({});
         this.aErrors.set([]);
         break;
       case 'pre':

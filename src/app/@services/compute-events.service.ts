@@ -15,9 +15,11 @@ import {
   IDriverIdAndName,
   IDriverState,
   IEvent,
+  IRefuels,
 } from '../interfaces/driver-daily-log-events.interface';
 import { ITenant } from '../interfaces';
 import { ApiService } from './api.service';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +40,7 @@ export class ComputeEventsService {
   };
   driverState = signal(this.initialDriverState);
   coDriverState = signal(this.initialDriverState);
+  refuelMarker = signal<IRefuels | null>(null);
 
   constructor() {}
 
@@ -53,6 +56,7 @@ export class ComputeEventsService {
     //////////////////////////
     // initialize state
     ////// driver
+    this.refuelMarker.set(null);
     this.driverState.set(this.initialDriverState);
     driverDailyLog.shiftBreak &&
       this.driverState.update((prev) => ({
@@ -109,6 +113,15 @@ export class ComputeEventsService {
     } else events = [...driverEvents];
 
     events = events.filter((event) => filterEvents(event));
+
+    //
+    // add latest Refuel
+    if (driverDailyLog.refuels.length) {
+      const refuel = driverDailyLog.refuels.reduce((latest, current) => {
+        return latest.time > current.time ? latest : current;
+      });
+      this.refuelMarker.set(refuel);
+    }
 
     events = this.computeEvents(
       events,
@@ -167,27 +180,6 @@ export class ComputeEventsService {
         events.push(e);
       }
     });
-
-    if (driverDailyLog.refuels.length) {
-      const refuel = driverDailyLog.refuels.reduce((latest, current) => {
-        return latest.time > current.time ? latest : current;
-      });
-      const refuelEvent = {
-        date: refuel.time,
-        realStartTime: refuel.time,
-        id: Math.random(),
-        statusName: '[ Refuel ]',
-        tenant,
-        locationDisplayName: refuel.location,
-        driver: {
-          id: driverDailyLog.driverId,
-          viewId: driverDailyLog.driverId,
-          name: driverDailyLog.driverFullName,
-        },
-      } as IEvent;
-
-      events.push(refuelEvent);
-    }
 
     return events.sort(
       (a, b) =>
@@ -448,6 +440,25 @@ export class ComputeEventsService {
         intermediateCount = 0;
       }
 
+      //////////////
+      // disconnected refuel
+      const refuelTime = this.refuelMarker()?.time;
+      if (
+        refuelTime &&
+        !events[i].occurredDuringDriving &&
+        DateTime.fromISO(refuelTime).toUTC().toMillis() <
+          DateTime.fromISO(events[i].realStartTime).toUTC().toMillis()
+      ) {
+        this.refuelMarker.set(null);
+      }
+
+      if (i === events.length - 1 && this.refuelMarker()) {
+        events[currentDutyStatus.computeIndex].refuel = true;
+        this.refuelMarker.set(null);
+      }
+
+      ///////////////////
+      // update driver state
       (events[i].driver.viewId === events[i].driver.id
         ? this.driverState
         : this.coDriverState
@@ -461,6 +472,7 @@ export class ComputeEventsService {
         break: { ...prev.break, shift, cycle },
       }));
     }
+
     return events;
   };
 

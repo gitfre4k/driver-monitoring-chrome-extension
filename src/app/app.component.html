@@ -19,7 +19,16 @@
       [selectedIndex]="selectedTabIndex()"
       (selectedIndexChange)="changeSelectedIndex($event)"
     >
-      @if (showErrors() && !scanning()) {
+      <mat-tab label="Scan">
+        <ng-template mat-tab-label>
+          <mat-icon id="radar-icon">radar</mat-icon>
+          <span class="hide">Scan</span>
+        </ng-template>
+
+        <app-scan></app-scan>
+      </mat-tab>
+
+      @if (showErrors()) {
       <mat-tab label="errors">
         <ng-template mat-tab-label>
           <mat-icon>sync_problem</mat-icon>
@@ -37,16 +46,6 @@
         <app-errors></app-errors>
       </mat-tab>
       } @else {
-      <mat-tab label="Scan">
-        <ng-template mat-tab-label>
-          <mat-icon id="radar-icon">radar</mat-icon>
-          <span class="hide">Scan</span>
-        </ng-template>
-
-        <app-scan></app-scan>
-      </mat-tab>
-      }
-
       <mat-tab label="Report">
         <ng-template mat-tab-label>
           <mat-icon
@@ -60,6 +59,8 @@
 
         <app-scan-result></app-scan-result>
       </mat-tab>
+
+      }
 
       <mat-tab label="Monitor">
         <ng-template mat-tab-label>

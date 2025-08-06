@@ -126,7 +126,9 @@
         </span>
       </div>
       <div class="scan__violations__autofocus">
-        <mat-checkbox [(ngModel)]="scanService.autofocus"
+        <mat-checkbox
+          style="transform: scale(0.9)"
+          [(ngModel)]="scanService.autofocus"
           >Autofocus results on detection</mat-checkbox
         >
       </div>
@@ -236,23 +238,6 @@
         </div>
       </div>
     </fieldset>
-    <div
-      class="scan__errors mat-badge-custom"
-      matBadge="{{ progressBarService.errorCount() }}"
-      [matBadgeHidden]="!progressBarService.errorCount()"
-      matBadgeColor="primary"
-      matBadgePosition="above after"
-      matBadgeSize="medium"
-    >
-      <span>scan errors</span>
-      <a
-        mat-icon-button
-        (click)="progressBarService.showErrors.set(true)"
-        matTooltip="Check scan errors"
-      >
-        <mat-icon class="icon-display">sync_problem</mat-icon>
-      </a>
-    </div>
   </div>
   } @else {
   <app-progress-bar
