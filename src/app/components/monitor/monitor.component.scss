@@ -184,7 +184,8 @@
 .DataDiagnosticClear,
 .DriverIndicationAuthorizedPersonalUseCmv,
 .DriverIndicationYardMoves,
-.DriverIndicationClear {
+.DriverIndicationClear,
+.VehicleStartOfDay {
   border: solid 1px rgb(107 114 128);
   padding: 1px;
 }

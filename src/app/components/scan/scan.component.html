@@ -2,23 +2,6 @@
   @if (!scanning()) {
 
   <div class="scan_">
-    <div
-      class="scan__errors mat-badge-custom"
-      matBadge="{{ progressBarService.errorCount() }}"
-      [matBadgeHidden]="!progressBarService.errorCount()"
-      matBadgeColor="primary"
-      matBadgePosition="above after"
-      matBadgeSize="medium"
-    >
-      <span>scan errors</span>
-      <a
-        mat-icon-button
-        (click)="progressBarService.showErrors.set(true)"
-        matTooltip="Check scan errors"
-      >
-        <mat-icon class="icon-display">sync_problem</mat-icon>
-      </a>
-    </div>
     <!--////////////////////  -->
     <!-- Violations -->
     <fieldset class="scan__violations">
@@ -215,44 +198,62 @@
 
   <!--////////////////////  -->
   <!-- Druver Log Analysis -->
-  <fieldset class="scan__log-analysis">
-    <legend>Driver Log Analysis</legend>
+  <div class="scan_">
+    <fieldset class="scan__log-analysis">
+      <legend>Driver Log Analysis</legend>
 
-    <div class="scan__log-analysis__options">
-      <span class="scan__log-analysis__options-title">include:</span>
-      <app-advanced-scan></app-advanced-scan>
-    </div>
-
-    <mat-form-field style="display: none">
-      <input
-        matInput
-        [matDatepicker]="picker"
-        [formControl]="date"
-        (dateChange)="changeDate($event)"
-      />
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
-
-    <div class="scan__log-analysis__form">
-      <div class="scan__log-analysis__form-date">
-        <mat-datepicker-toggle
-          matIconSuffix
-          [for]="picker"
-        ></mat-datepicker-toggle>
-        <span>{{ date.value | date : "mediumDate" }}</span>
+      <div class="scan__log-analysis__options">
+        <span class="scan__log-analysis__options-title">include:</span>
+        <app-advanced-scan></app-advanced-scan>
       </div>
-      <div class="scan__log-analysis__form-submit">
-        <button
-          [disabled]="disableScan"
-          matButton="tonal"
-          (click)="analyzeDriverLogs()"
-        >
-          Analyze
-        </button>
-      </div>
-    </div>
-  </fieldset>
 
+      <mat-form-field style="display: none">
+        <input
+          matInput
+          [matDatepicker]="picker"
+          [formControl]="date"
+          (dateChange)="changeDate($event)"
+        />
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <div class="scan__log-analysis__form">
+        <div class="scan__log-analysis__form-date">
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <span>{{ date.value | date : "mediumDate" }}</span>
+        </div>
+        <div class="scan__log-analysis__form-submit">
+          <button
+            [disabled]="disableScan"
+            matButton="tonal"
+            (click)="analyzeDriverLogs()"
+          >
+            Analyze
+          </button>
+        </div>
+      </div>
+    </fieldset>
+    <div
+      class="scan__errors mat-badge-custom"
+      matBadge="{{ progressBarService.errorCount() }}"
+      [matBadgeHidden]="!progressBarService.errorCount()"
+      matBadgeColor="primary"
+      matBadgePosition="above after"
+      matBadgeSize="medium"
+    >
+      <span>scan errors</span>
+      <a
+        mat-icon-button
+        (click)="progressBarService.showErrors.set(true)"
+        matTooltip="Check scan errors"
+      >
+        <mat-icon class="icon-display">sync_problem</mat-icon>
+      </a>
+    </div>
+  </div>
   } @else {
   <app-progress-bar
     [scanSubscription]="scanSubscribtion"

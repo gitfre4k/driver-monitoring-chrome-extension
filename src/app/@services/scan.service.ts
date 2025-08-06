@@ -137,6 +137,7 @@ export class ScanService {
   };
 
   handleScanComplete(scanMode: TScanMode) {
+    this.progressBarService.initializeProgressBar();
     switch (scanMode) {
       case 'violations':
         {
@@ -196,7 +197,6 @@ export class ScanService {
       default:
         return;
     }
-    this.progressBarService.initializeProgressBar();
   }
 
   //////////////////////

@@ -120,6 +120,8 @@ export class ComputeEventsService {
     );
     events = this.detectAndBindTeleport(events);
 
+    //////////////
+    // Custom events
     driverEvents.forEach((e) => {
       // PC/YM DriverIndicationClear
       if (e.dutyStatus === 'DriverIndicationClear') {
@@ -157,7 +159,35 @@ export class ComputeEventsService {
         e.dutyStatus === 'DataDiagnosticClear' && (e.statusName = 'Diag. CLR');
         events.push(e);
       }
+      // start day
+      if (e.dutyStatus === 'VehicleStartOfDay') {
+        e.statusName = 'Start Day';
+        e.date = driverDailyLog.date;
+        tenant && (e.tenant = tenant);
+        events.push(e);
+      }
     });
+
+    if (driverDailyLog.refuels.length) {
+      const refuel = driverDailyLog.refuels.reduce((latest, current) => {
+        return latest.time > current.time ? latest : current;
+      });
+      const refuelEvent = {
+        date: refuel.time,
+        realStartTime: refuel.time,
+        id: Math.random(),
+        statusName: '[ Refuel ]',
+        tenant,
+        locationDisplayName: refuel.location,
+        driver: {
+          id: driverDailyLog.driverId,
+          viewId: driverDailyLog.driverId,
+          name: driverDailyLog.driverFullName,
+        },
+      } as IEvent;
+
+      events.push(refuelEvent);
+    }
 
     return events.sort(
       (a, b) =>
