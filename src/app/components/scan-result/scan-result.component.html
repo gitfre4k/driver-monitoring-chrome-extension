@@ -1,29 +1,10 @@
 <div class="scan-results">
-  @if (!progressBarService.resultsAreReady() && !violations().length &&
-  !inspections().length && isEmpty(progressBarService.preViolations())) {
-  <span
-    class="scan-results__driver-count"
-    style="text-align: center; margin-top: 32px"
-  >
-    Scan results will appear here.
-    <br />
-    Get started by performing a scan.
-  </span>
-
-  <a
-    mat-icon-button
-    matTooltip="Perform a scan"
-    (click)="extensionNavigation.selectedTabIndex.set(0)"
-  >
-    <mat-icon>radar</mat-icon>
-  </a>
-  } @else {
-  <!-- <h3 class="scan-results__title">Report</h3> -->
-  @if (activeDriverCount() || progressBarService.errorCount()) {
   <div class="scan-results__count-n-errors">
-    <span class="scan-results__count-n-errors__driver-count"
-      >Active Driver count: {{ activeDriverCount() }}</span
-    >
+    <span class="scan-results__count-n-errors__driver-count">
+      @if (activeDriverCount(); as activeDriverCount) { Active Driver count:
+      {{ activeDriverCount }}
+      }
+    </span>
     <div class="scan-results__count-n-errors__scan-errors">
       <span style="font-size: 12px">scan errors</span>
       <a
@@ -43,8 +24,26 @@
       ></div>
     </div>
   </div>
+  @if (!progressBarService.resultsAreReady() && !violations().length &&
+  !inspections().length && isEmpty(progressBarService.preViolations())) {
+  <span
+    class="scan-results__driver-count"
+    style="text-align: center; margin-top: 32px"
+  >
+    Scan results will appear here.
+    <br />
+    Get started by performing a scan.
+  </span>
 
+  <a
+    mat-icon-button
+    matTooltip="Perform a scan"
+    (click)="extensionNavigation.selectedTabIndex.set(0)"
+  >
+    <mat-icon>radar</mat-icon>
+  </a>
   } @else {
+
   <div style="margin-top: 12px"></div>
   }
   <div class="scan-results__content">
@@ -1595,5 +1594,4 @@
       }
     </mat-accordion>
   </div>
-  }
 </div>
