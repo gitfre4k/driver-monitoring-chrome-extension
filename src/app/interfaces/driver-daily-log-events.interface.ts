@@ -166,6 +166,7 @@ export interface IDriverBreaks {
 
 export interface IDriverState {
   currentDriving: IEvent | null;
+  currentDrivingIntermediates: IEvent[];
   intermediateCount: number;
   currentDutyStatus: IEvent;
   occurredDuringDriving: boolean;

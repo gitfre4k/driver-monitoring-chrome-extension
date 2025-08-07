@@ -29,6 +29,7 @@ export class ComputeEventsService {
 
   initialDriverState: IDriverState = {
     currentDriving: null,
+    currentDrivingIntermediates: [],
     intermediateCount: 0,
     currentDutyStatus: {} as IEvent,
     occurredDuringDriving: false,
@@ -205,6 +206,7 @@ export class ComputeEventsService {
     for (let i = 0; i < events.length; i++) {
       let {
         currentDriving,
+        currentDrivingIntermediates,
         intermediateCount,
         currentDutyStatus,
         occurredDuringDriving,
@@ -358,6 +360,35 @@ export class ComputeEventsService {
         if (!currentDriving) {
           events[i].errorMessages.push('outside driving scope');
         } else {
+          //////////////
+          // inter array
+          currentDrivingIntermediates.push(events[i]);
+          if (currentDrivingIntermediates.length > 1) {
+            const inter1 =
+              currentDrivingIntermediates[
+                currentDrivingIntermediates.length - 1
+              ];
+            const inter2 =
+              currentDrivingIntermediates[
+                currentDrivingIntermediates.length - 2
+              ];
+            if (
+              inter1.odometer === inter2.odometer &&
+              inter1.locationDisplayName === inter2.locationDisplayName
+            )
+              events[i].errorMessages.push(
+                'unchanged location and odometer value'
+              );
+            else {
+              inter1.odometer === inter2.odometer &&
+                events[i].errorMessages.push('unchanged odometer value');
+              inter1.locationDisplayName === inter2.locationDisplayName &&
+                events[i].errorMessages.push('unchanged location');
+            }
+
+            ////////////////////////////////////////////////////////-
+          }
+
           let diff =
             +new Date(events[i].realStartTime) -
             +new Date(currentDriving.realStartTime);
@@ -466,6 +497,7 @@ export class ComputeEventsService {
         ...prev,
         currentDriving,
         intermediateCount,
+        currentDrivingIntermediates,
         currentDutyStatus,
         occurredDuringDriving,
         shiftIsReadyToStart,
