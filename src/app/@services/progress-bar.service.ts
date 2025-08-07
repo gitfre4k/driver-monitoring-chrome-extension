@@ -86,6 +86,8 @@ export class ProgressBarService {
       !this.isEmpty(this.manualDriving()) ||
       !this.isEmpty(this.highEngineHours()) ||
       !this.isEmpty(this.lowTotalEngineHours()) ||
+      !this.isEmpty(this.newDrivers()) ||
+      !this.isEmpty(this.fleetManager()) ||
       !this.isEmpty(this.refuelWarning())
   );
 
@@ -164,7 +166,6 @@ export class ProgressBarService {
         this.dErrors.set([]);
         break;
       case 'advanced':
-        this.activeDriversCount.set(0);
         this.teleports.set({});
         this.eventErrors.set({});
         this.prolongedOnDuty.set({});
@@ -174,7 +175,10 @@ export class ProgressBarService {
         this.manualDriving.set({});
         this.highEngineHours.set({});
         this.lowTotalEngineHours.set({});
+        this.newDrivers.set({});
+        this.fleetManager.set({});
         this.refuelWarning.set({});
+        this.activeDriversCount.set(0);
         this.aErrors.set([]);
         break;
       case 'pre':

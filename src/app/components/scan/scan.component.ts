@@ -77,7 +77,9 @@ export class ScanComponent {
   readonly dialog = inject(MatDialog);
 
   // Analyze Date
-  date = new FormControl<Date>(DateTime.now().toJSDate());
+  date = new FormControl<Date>(
+    DateTime.now().setZone('America/New_York').toJSDate()
+  );
   analyzeDate = signal(this.dateService.today);
 
   // DOT Date

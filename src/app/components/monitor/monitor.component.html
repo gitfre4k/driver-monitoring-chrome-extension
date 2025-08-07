@@ -42,7 +42,8 @@
                 : '') +
               (event.manualDriving ||
               event.malf ||
-              event.statusName === 'Fleet manager'
+              event.statusName === 'Fleet manager' ||
+              event.refuel
                 ? ' warn'
                 : '')
             "
@@ -75,7 +76,6 @@
           event.errorMessages.length > 0) || event.manualDriving ||
           event.refuel) {
           <span class="note" style="color: red">
-            @if (event.refuel) { refuel marker detected after Driving } @else {
             <!-- [teleport] message-->
             {{
               event.isTeleport
@@ -94,11 +94,14 @@
                 : ""
             }}
             <!-- warnings -->
-            @if (event.manualDriving) { @if(event.isTeleport ||
+            @if (event.refuel) {<span class="note" style="color: yellow"
+              >potential unrecorded driving</span
+            >
+            } @if (event.manualDriving) { @if(event.isTeleport ||
             (event.errorMessages && event.errorMessages.length > 0)) { <br />
             }
             <span class="note" style="color: yellow"> manual origin </span>
-            } }
+            }
           </span>
           }
 

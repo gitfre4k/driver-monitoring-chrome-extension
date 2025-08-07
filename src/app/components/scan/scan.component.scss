@@ -171,6 +171,9 @@
           margin: 0;
           align-items: flex-start;
           margin-left: 15px;
+          &-button {
+            transform: scale(0.9);
+          }
         }
         &-daterange {
           align-self: flex-end;

@@ -26,10 +26,7 @@
   </div>
   @if (!progressBarService.resultsAreReady() && !violations().length &&
   !inspections().length && isEmpty(progressBarService.preViolations())) {
-  <span
-    class="scan-results__driver-count"
-    style="text-align: center; margin-top: 32px"
-  >
+  <span style="text-align: center; margin-top: 16px">
     Scan results will appear here.
     <br />
     Get started by performing a scan.
@@ -39,15 +36,13 @@
     mat-icon-button
     matTooltip="Perform a scan"
     (click)="extensionNavigation.selectedTabIndex.set(0)"
+    style="margin-top: 6px"
   >
     <mat-icon>radar</mat-icon>
   </a>
-  } @else {
-
-  <div style="margin-top: 12px"></div>
   }
   <div class="scan-results__content">
-    <mat-accordion MatAccordionDisplayMode="flat">
+    <mat-accordion>
       <!-- //////////////////////////////////  -->
       <!-- Violations -->
       @if (violations().length) {
@@ -122,13 +117,15 @@
                 </li>
                 } @else {
                 <li class="event-violation">
-                  <span style="color: rgb(236, 103, 55)"
+                  <span
                     >[{{ v.logDate | date : "MMM d" : v.homeTerminalTimeZone }}]
-                    @switch (v.type) { @case ('FourteenHoursViolation') {14-hour
-                    violation} @case ('ThirtyMinutesBreakViolation') {30-min
-                    break violation} @case ('ElevenHoursViolation') { 11-hour
-                    violation} @case ('ThirtyFourHoursResetViolation') {34-hour
-                    reset violation} @default {'unknon violation'} }
+                    <span style="color: rgb(236, 103, 55)">
+                      @switch (v.type) { @case ('FourteenHoursViolation')
+                      {14-hour violation} @case ('ThirtyMinutesBreakViolation')
+                      {30-min break violation} @case ('ElevenHoursViolation') {
+                      11-hour violation} @case ('ThirtyFourHoursResetViolation')
+                      {34-hour reset violation} @default {'unknon violation'} }
+                    </span>
                   </span>
                 </li>
                 } }
@@ -1484,18 +1481,18 @@
                   >
                 </li>
 
-                <li>
+                <li style="font-size: 12px">
                   - @if (driver.events[driver.events.length - 1].vehicleName; as
                   truckID) { <span> truck ID [{{ truckID }}] selected </span> }
                   @else { <span> truck not selected </span> }
                 </li>
-                <li>
+                <li style="font-size: 12px">
                   - @if (driver.events[driver.events.length - 1].odometer; as
                   odometer) {
-                  <span> current odometar value: [{{ odometer }}] mi </span> }
-                  @else {<span> undifined odometar value </span>}
+                  <span> last recorded odometar value: [{{ odometer }}] </span>
+                  } @else {<span> undifined odometar value </span>}
                 </li>
-                <li>
+                <li style="font-size: 12px">
                   - @if (driver.events[driver.events.length - 1].engineMinutes;
                   as engineHours) {
                   <span> engine hours count: {{ engineHours }} </span> } @else {

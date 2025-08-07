@@ -150,8 +150,8 @@
 .ChangeToOnDutyNotDrivingStatus {
   background-color: rgb(59, 130, 246);
 }
-
-.ChangeToOnDutyNotDrivingStatus-E {
+.ChangeToOnDutyNotDrivingStatus-E,
+.ChangeToOnDutyNotDrivingStatus-CR {
   border: solid 1px rgb(59, 130, 246);
 }
 
@@ -159,7 +159,8 @@
   background-color: rgb(34, 197, 94);
   color: black;
 }
-.ChangeToDrivingStatus-E {
+.ChangeToDrivingStatus-E,
+.ChangeToDrivingStatus-CR {
   border: solid 1px rgb(34, 197, 94);
 }
 

@@ -59,7 +59,7 @@ export class DateService {
     }
 
     const utcHour = DateTime.utc().hour;
-    const days = utcHour >= 0 && utcHour < 12 + this.offSet / 60 ? 2 : 1;
+    const days = utcHour >= 0 && utcHour < 12 ? 2 : 1;
 
     const logsDate = DateTime.fromJSDate(this.requestDate)
       .setZone('utc')

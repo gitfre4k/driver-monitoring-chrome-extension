@@ -9,11 +9,13 @@ export const bindEventViewId = (importedEvents: IEvent[]) => {
 };
 
 export const filterEvents = (event: IEvent): boolean => {
-  return [
-    'ChangeInDriversDutyStatus',
-    'IntermediateLog',
-    'CmvEnginePowerUpOrShutDownActivity',
-  ].includes(event.eventType);
+  return (
+    [
+      'ChangeInDriversDutyStatus',
+      'IntermediateLog',
+      'CmvEnginePowerUpOrShutDownActivity',
+    ].includes(event.eventType) || event.dutyStatus === 'VehicleStartOfDay'
+  );
 };
 
 export const getStatusName = (dutyStatus: string): string => {
@@ -41,8 +43,8 @@ export const getStatusName = (dutyStatus: string): string => {
       return 'PC';
     case 'DriverIndicationYardMoves':
       return 'YM';
-    case 'refuel':
-      return '[ Refuel ]';
+    case 'VehicleStartOfDay':
+      return 'Start Day';
     default:
       return '?';
   }

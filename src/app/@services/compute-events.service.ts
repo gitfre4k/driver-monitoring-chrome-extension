@@ -173,12 +173,12 @@ export class ComputeEventsService {
         events.push(e);
       }
       // start day
-      if (e.dutyStatus === 'VehicleStartOfDay') {
-        e.statusName = 'Start Day';
-        e.date = driverDailyLog.date;
-        tenant && (e.tenant = tenant);
-        events.push(e);
-      }
+      // if (e.dutyStatus === 'VehicleStartOfDay') { // check for teleport
+      //   e.statusName = 'Start Day';
+      //   e.date = driverDailyLog.date;
+      //   tenant && (e.tenant = tenant);
+      //   events.push(e);
+      // }
     });
 
     return events.sort(
@@ -445,9 +445,9 @@ export class ComputeEventsService {
       const refuelTime = this.refuelMarker()?.time;
       if (
         refuelTime &&
-        !events[i].occurredDuringDriving &&
+        isDriving(events[i]) &&
         DateTime.fromISO(refuelTime).toUTC().toMillis() <
-          DateTime.fromISO(events[i].realStartTime).toUTC().toMillis()
+          DateTime.fromISO(events[i].endTime).toUTC().toMillis()
       ) {
         this.refuelMarker.set(null);
       }
