@@ -65,9 +65,11 @@ export interface IDriverItem {
   mustEndCycleBy?: string; // Optional, only present in one example
   mustEndCycleWorkBy?: string; // Optional, only present in one example
   //
-  preViolationShiftDrive: number;
+  preViolationCycleWork: number;
   preViolationShiftWork: number;
+  preViolationShiftDrive: number;
   preViolationBreak: number;
+  lowCycleHours: number;
 }
 
 export interface IDrivers {

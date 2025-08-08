@@ -171,15 +171,9 @@ export class ComputeEventsService {
         tenant && (e.tenant = tenant);
         e.dutyStatus === 'DataDiagnostic' && (e.statusName = 'Diagnostic');
         e.dutyStatus === 'DataDiagnosticClear' && (e.statusName = 'Diag. CLR');
+        e.dutyStatus === 'DataDiagnostic-E' && (e.statusName = 'Diag. CLR (E)');
         events.push(e);
       }
-      // start day
-      // if (e.dutyStatus === 'VehicleStartOfDay') { // check for teleport
-      //   e.statusName = 'Start Day';
-      //   e.date = driverDailyLog.date;
-      //   tenant && (e.tenant = tenant);
-      //   events.push(e);
-      // }
     });
 
     return events.sort(
@@ -218,18 +212,35 @@ export class ComputeEventsService {
       events[i].computeIndex = i;
       events[i].errorMessages = [];
       events[i].statusName = getStatusName(events[i].dutyStatus);
-      events[i].origin ===
-        'EditRequestedByAnAuthenticatedUserOtherThanTheDriver' &&
-        (events[i].statusName = 'Fleet manager');
       events[i].occurredDuringDriving = occurredDuringDriving;
       date && (events[i].date = date);
       tenant && (events[i].tenant = tenant);
+
+      // fleet manager
+      events[i].origin ===
+        'EditRequestedByAnAuthenticatedUserOtherThanTheDriver' &&
+        (events[i].statusName = 'Fleet manager');
+
+      // auto-assumed events
+      events[i].origin === 'AssumedFromUnidentifiedDriverProfile' &&
+        events[i].errorMessages.push('origin: Auto-assumed');
 
       // assign end of shift for current driver
       if (events[i].driver?.id !== currentDriver.id) {
         currentDriver = events[i].driver;
         events[i].shift = true;
       }
+
+      // onDuty, origin: Auto
+      if (
+        events[i].statusName === 'On Duty' &&
+        events[i].origin === 'AutomaticallyRecordedByEld' &&
+        !isDriving(currentDutyStatus)
+      )
+        currentDutyStatus.statusName &&
+          events[i].errorMessages.push(
+            `[origin: Auto] after ${currentDutyStatus.statusName}`
+          );
 
       // assign duty status and double duty check
       if (isDutyStatus(events[i])) {
@@ -372,14 +383,12 @@ export class ComputeEventsService {
               prevInter.odometer === events[i].odometer &&
               prevInter.locationDisplayName === events[i].locationDisplayName
             )
-              events[i].errorMessages.push(
-                'unchanged location and odometer value'
-              );
+              events[i].errorMessages.push('location and odometer unchanged');
             else {
               prevInter.odometer === events[i].odometer &&
-                events[i].errorMessages.push('unchanged odometer value');
+                events[i].errorMessages.push('odometer unchanged');
               prevInter.locationDisplayName === events[i].locationDisplayName &&
-                events[i].errorMessages.push('unchanged location');
+                events[i].errorMessages.push('location unchanged');
             }
 
             ////////////////////////////////////////////////////////-

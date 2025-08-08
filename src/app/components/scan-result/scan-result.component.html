@@ -25,7 +25,8 @@
     </div>
   </div>
   @if (!progressBarService.resultsAreReady() && !violations().length &&
-  !inspections().length && isEmpty(progressBarService.preViolations())) {
+  !inspections().length && isEmpty(progressBarService.preViolations()) &&
+  isEmpty(progressBarService.cycleHours()) ) {
   <span style="text-align: center; margin-top: 16px">
     Scan results will appear here.
     <br />
@@ -252,6 +253,125 @@
                     >{{ driver.preViolationBreak | number : "1.0-0" }}min
                   </span>
                   <span> until 30-min break violation </span>
+                </li>
+                } @if (driver.preViolationCycleWork) {
+                <li class="event-error">
+                  <span></span>
+                  <span
+                    style="
+                      text-align: right;
+                      font-weight: 600;
+                      padding-right: 4px;
+                    "
+                    >{{ driver.preViolationCycleWork | number : "1.0-0" }}min
+                  </span>
+                  <span> until 34-hour break violation </span>
+                </li>
+                }
+              </ul>
+              }
+              <hr />
+            </li>
+            }
+          </ul>
+          }
+        </div>
+      </mat-expansion-panel>
+      } }
+
+      <!--  -->
+      <!-- low Cycle hours alert  -->
+      @if (progressBarService.cycleHours(); as cycleHours) { @if
+      (!isEmpty(cycleHours)) {
+      <mat-expansion-panel
+        [expanded]="extensionNavigation.cyclePanelIsOpened()"
+        (opened)="extensionNavigation.cyclePanelIsOpened.set(true)"
+        (closed)="extensionNavigation.cyclePanelIsOpened.set(false)"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            low Cycle hours
+            <div
+              class="mat-badge-custom"
+              style="margin-left: auto"
+              matBadge="{{ progressBarService.cycleHoursCount() }}"
+              [matBadgeHidden]="progressBarService.cycleHoursCount() === 0"
+              matBadgeColor="primary"
+              matBadgePosition="below after"
+              matBadgeSize="medium"
+            ></div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="scan-results__content__result">
+          @if (isEmpty(cycleHours)) {
+          <div class="scan-results__content__result__empty">
+            No pre-violation alert detected.
+          </div>
+          } @else {
+          <ul class="list-of-tenants">
+            @for (company of cycleHours | keyvalue; track company.key) {
+            <li class="company">
+              <span class="company-name">{{ company.key }}</span>
+              @for (driver of company.value.items; track
+              driver.driverDisplayName) {
+              <div class="driver">
+                <div class="btns">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.driverIntId,
+                        company.value.date.toISOString(),
+                        company.value.tenant
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon>
+                  </a>
+                  <a
+                    mat-icon-button
+                    (click)="copyDriverName(driver.driverDisplayName)"
+                    matTooltip="Copy to clipboard"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </a>
+                </div>
+
+                <span class="bold">{{ driver.driverDisplayName }}</span>
+
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="on-hover"
+                  (click)="
+                    progressBarService.removeItem(
+                      'cycleHours',
+                      company.key,
+                      driver.driverDisplayName
+                    )
+                  "
+                  ><span class="material-icons"> clear </span></a
+                >
+              </div>
+              <ul class="inner-ul">
+                @if (driver.lowCycleHours) {
+                <li class="event-error">
+                  <span></span>
+                  <span
+                    style="
+                      text-align: right;
+                      font-weight: 600;
+                      padding-right: 4px;
+                    "
+                    >~ {{ driver.lowCycleHours / 60 | number : "1.0-0" }}
+                    {{
+                      +(driver.lowCycleHours / 60 | number : "1.0-0")! === 1
+                        ? "hour"
+                        : "hours"
+                    }}
+                  </span>
+                  <span> remaining in cycle </span>
                 </li>
                 }
               </ul>

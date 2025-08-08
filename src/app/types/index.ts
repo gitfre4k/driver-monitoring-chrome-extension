@@ -12,4 +12,5 @@ export type TScanResult =
   | 'newDrivers'
   | 'fleetManager'
   | 'preViolations'
+  | 'cycleHours'
   | 'refuelWarning';

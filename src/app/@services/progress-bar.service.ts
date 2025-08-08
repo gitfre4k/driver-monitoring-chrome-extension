@@ -25,17 +25,6 @@ export class ProgressBarService {
   currentCompany = signal('Dex Solutions');
   activeDriversCount = signal(0);
 
-  preViolations = signal<IScanPreViolations>({});
-  preViolationsSlider = signal(20);
-  preViolationsCount = computed(() => {
-    const preViolations = this.preViolations();
-    let count = 0;
-    for (const company in preViolations) {
-      count = count + preViolations[company].items.length;
-    }
-    return count;
-  });
-
   violations = signal<IScanViolations[]>([]);
   totalVCount = computed(() => {
     let totalVCount = 0;
@@ -46,6 +35,27 @@ export class ProgressBarService {
     return totalVCount;
   });
   violationsLastSync = signal('');
+
+  preViolations = signal<IScanPreViolations>({});
+  preViolationsSlider = signal(20);
+  preViolationsCount = computed(() => {
+    const preViolations = this.preViolations();
+    let count = 0;
+    for (const company in preViolations) {
+      count = count + preViolations[company].items.length;
+    }
+    return count;
+  });
+  cycleHours = signal<IScanPreViolations>({});
+  cycleHoursSlider = signal(20);
+  cycleHoursCount = computed(() => {
+    const cycleHours = this.cycleHours();
+    let count = 0;
+    for (const company in cycleHours) {
+      count = count + cycleHours[company].items.length;
+    }
+    return count;
+  });
 
   inspections = signal<IScanDOTInspections[]>([]);
   totalDCount = signal(0);
@@ -114,7 +124,7 @@ export class ProgressBarService {
   }
 
   removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
-    if (scanResult === 'preViolations') {
+    if (scanResult === 'preViolations' || scanResult === 'cycleHours') {
       const index = this.preViolations()[companyName].items.findIndex(
         (driver) => driver.driverDisplayName === driverName
       );
@@ -183,6 +193,7 @@ export class ProgressBarService {
         break;
       case 'pre':
         this.preViolations.set({});
+        this.cycleHours.set({});
         this.pErrors.set([]);
         break;
       default:

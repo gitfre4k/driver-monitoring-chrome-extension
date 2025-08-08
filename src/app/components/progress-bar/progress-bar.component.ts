@@ -47,6 +47,7 @@ export class ProgressBarComponent {
     ]()
   );
   preVCount = this.progressBarService.preViolationsCount;
+  lowCCount = this.progressBarService.cycleHoursCount;
 
   activeDriversCount = this.progressBarService.activeDriversCount;
 

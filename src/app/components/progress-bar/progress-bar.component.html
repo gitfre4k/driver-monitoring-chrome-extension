@@ -7,7 +7,7 @@
       <h2>
         Scanning for @switch (scanMode) { @case ("violations") {
         {{ " " }} Violations} @case ("dot") { {{ " " }} FMCSA inspections} @case
-        ("pre") { {{ " " }} pre-Violation alerts} }
+        ("pre") { {{ " " }} alerts } }
       </h2>
       }
 
@@ -29,7 +29,8 @@
       {{
         scanMode === "advanced"
           ? "Active drivers: " + activeDriversCount()
-          : "Total count: " + (scanMode === "pre" ? preVCount() : totalCount())
+          : "Total count: " +
+            (scanMode === "pre" ? preVCount() + lowCCount() : totalCount())
       }}
     </p>
   </mat-card>

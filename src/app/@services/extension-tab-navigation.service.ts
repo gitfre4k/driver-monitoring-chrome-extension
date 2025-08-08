@@ -9,5 +9,6 @@ export class ExtensionTabNavigationService {
   violationPanelIsOpened = signal(false);
   dotPanelIsOpened = signal(false);
   prePanelIsOpened = signal(false);
+  cyclePanelIsOpened = signal(false);
   constructor() {}
 }

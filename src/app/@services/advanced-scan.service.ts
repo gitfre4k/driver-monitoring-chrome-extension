@@ -183,6 +183,7 @@ export class AdvancedScanService {
       this.prolongedOnDutiesDuration(),
       this.sleeperDuration()
     );
+
     const errorEvents: IEvent[] = [];
     const detectedTeleportEvents: IEvent[] = [];
     const prolongedOnDutyEvents: IEvent[] = [];

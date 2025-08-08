@@ -43,39 +43,66 @@ export class ScanService {
   ngOnInit() {}
 
   handlePreScanData(company: IDrivers) {
-    // company.forEach((driver) => {
-    const items: IDriverItem[] = [];
+    const preViolations: IDriverItem[] = [];
+    const cycleHours: IDriverItem[] = [];
+
     company.items.forEach((item) => {
       const hos = item.hosTimers;
+
+      // low cycle
+      hos.cycleWork / 60 < this.progressBarService.cycleHoursSlider() &&
+        hos.cycleWork !== 0 &&
+        (item.lowCycleHours = hos.cycleWork);
+
+      //pre-violations
       if (['D', 'ON'].includes(item.driverDutyStatus)) {
+        // cycle
+        hos.cycleWork < this.progressBarService.preViolationsSlider() &&
+          hos.cycleWork !== 0 &&
+          (item.preViolationCycleWork = hos.cycleWork);
+        // shift
         hos.shiftWork < this.progressBarService.preViolationsSlider() &&
           hos.shiftWork !== 0 &&
+          hos.shiftWork !== hos.cycleWork &&
           (item.preViolationShiftWork = hos.shiftWork);
+        // drive
         hos.shiftDrive < this.progressBarService.preViolationsSlider() &&
           hos.shiftDrive !== 0 &&
           hos.shiftDrive !== hos.shiftWork &&
+          hos.shiftDrive !== hos.cycleWork &&
           (item.preViolationShiftDrive = hos.shiftDrive);
+        // 30-min break
         hos.break < this.progressBarService.preViolationsSlider() &&
           hos.break !== 0 &&
           hos.break !== hos.shiftWork &&
           hos.break !== hos.shiftDrive &&
+          hos.break !== hos.cycleWork &&
           (item.preViolationBreak = hos.break);
-        (item.preViolationShiftDrive ||
-          item.preViolationShiftWork ||
-          item.preViolationBreak) &&
-          items.push(item);
       }
+      //
+      (item.preViolationCycleWork ||
+        item.preViolationShiftDrive ||
+        item.preViolationShiftWork ||
+        item.preViolationBreak) &&
+        preViolations.push(item);
+
+      item.lowCycleHours && cycleHours.push(item);
     });
-    const data: IDrivers = {
+    const data = (items: IDriverItem[]) => ({
       tenant: company.tenant,
       date: this.dateService.getDailyLogsDate(this.dateService.today)!,
       totalCount: company.totalCount,
       items,
-    };
-    items.length &&
+    });
+    preViolations.length &&
       this.progressBarService.preViolations.update((prev) => ({
         ...prev,
-        [company.tenant.name]: data,
+        [company.tenant.name]: data(preViolations),
+      }));
+    cycleHours.length &&
+      this.progressBarService.cycleHours.update((prev) => ({
+        ...prev,
+        [company.tenant.name]: data(cycleHours),
       }));
   }
 

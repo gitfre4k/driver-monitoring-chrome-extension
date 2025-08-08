@@ -89,12 +89,7 @@ export class DateService {
       return;
     }
 
-    return DateTime.fromJSDate(this.requestDate)
-      .setZone('utc')
-      .endOf('day')
-      .minus({ minutes: DateTime.local().offset })
-      .plus({ milliseconds: 1 })
-      .toJSDate();
+    return DateTime.fromJSDate(this.requestDate).setZone('utc').toJSDate();
   }
 
   get analyzeQueryDate() {
@@ -104,8 +99,8 @@ export class DateService {
     }
 
     return DateTime.fromJSDate(this.requestDate)
-      .endOf('day')
       .setZone('utc')
+      .plus({ days: 1 })
       .toJSDate();
   }
 

@@ -135,31 +135,43 @@
     </fieldset>
 
     <!--///////////////////  -->
-    <!-- pre-Violation alert -->
-    <fieldset class="scan__dot">
-      <legend>pre-Violation alert</legend>
+    <!-- Alerts -->
+    <fieldset class="scan__alerts">
+      <legend>Alerts</legend>
 
-      <div class="scan__log-analysis__form">
-        <mat-label style="text-align: center"
-          >< {{ progressBarService.preViolationsSlider() }}min <br />
-          alert</mat-label
-        >
-        <mat-slider class="slider" [max]="60" [min]="10" [step]="1">
-          <input
-            matSliderThumb
-            [(ngModel)]="progressBarService.preViolationsSlider"
-          />
-        </mat-slider>
-        <div class="scan__log-analysis__form-submit">
-          <button
-            [disabled]="disableScan"
-            matButton="tonal"
-            (click)="getPreViolationAlert()"
-          >
-            Scan
-          </button>
+      <div class="scan__alerts__form">
+        <div class="scan__alerts__form-group">
+          <mat-label>pre-Violation</mat-label>
+          <mat-slider class="slider" [max]="60" [min]="10" [step]="1">
+            <input
+              matSliderThumb
+              [(ngModel)]="progressBarService.preViolationsSlider"
+            />
+          </mat-slider>
+          <mat-label>
+            < {{ progressBarService.preViolationsSlider() }}min
+          </mat-label>
+        </div>
+        <div class="scan__alerts__form-group">
+          <mat-label>low Cycle hours</mat-label>
+          <mat-slider class="slider" [max]="25" [min]="1" [step]="1">
+            <input
+              matSliderThumb
+              [(ngModel)]="progressBarService.cycleHoursSlider"
+            />
+          </mat-slider>
+          <mat-label>
+            < {{ progressBarService.cycleHoursSlider() }} hours
+          </mat-label>
         </div>
       </div>
+      <button
+        [disabled]="disableScan"
+        matButton="tonal"
+        (click)="getPreViolationAlert()"
+      >
+        Scan
+      </button>
     </fieldset>
 
     <!--////////////////////  -->
@@ -205,7 +217,7 @@
       <legend>Driver Log Analysis</legend>
 
       <div class="scan__log-analysis__options">
-        <span class="scan__log-analysis__options-title">include:</span>
+        <span class="scan__log-analysis__options-title"></span>
         <app-advanced-scan></app-advanced-scan>
       </div>
 
