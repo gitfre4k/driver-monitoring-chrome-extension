@@ -1,3 +1,20 @@
+::ng-deep {
+  mat-expansion-panel {
+    .mat-expansion-panel-body {
+      padding: 0px;
+      margin: 0;
+    }
+  }
+}
+
+.mat-accordion .mat-expansion-panel.mat-expanded {
+  margin: 6px 0;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
 .templates {
   width: calc(100vw - 42px);
   height: calc(100vh - 55px);
@@ -6,4 +23,64 @@
   align-items: center;
   justify-content: flex-start;
   padding: 0px 18px;
+
+  &__title {
+    margin: 12px 0;
+  }
+
+  &__container {
+    overflow-y: hidden;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 100px);
+
+    &__result {
+      overflow: auto;
+      width: 100%;
+      max-height: 42.5vh;
+      background-color: rgb(39 39 42);
+
+      .list {
+        list-style: none;
+        padding: 0px;
+        margin: 0px;
+        margin-bottom: 8px;
+
+        &__item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding-right: 10px;
+          margin-bottom: 2px;
+
+          &__title {
+            text-align: left;
+            font-weight: 600;
+            font-size: 15px;
+          }
+          &__content {
+            &-copy {
+              display: flex;
+              align-items: center;
+              justify-content: start;
+              padding: 6px;
+            }
+            &-text {
+              font-size: 12px;
+            }
+          }
+
+          .list__item:hover .on-hover {
+            display: block;
+          }
+          .list__item:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            background-color: rgb(53, 53, 58);
+          }
+        }
+      }
+    }
+  }
 }
