@@ -364,25 +364,21 @@ export class ComputeEventsService {
           // inter array
           currentDrivingIntermediates.push(events[i]);
           if (currentDrivingIntermediates.length > 1) {
-            const inter1 =
-              currentDrivingIntermediates[
-                currentDrivingIntermediates.length - 1
-              ];
-            const inter2 =
+            const prevInter =
               currentDrivingIntermediates[
                 currentDrivingIntermediates.length - 2
               ];
             if (
-              inter1.odometer === inter2.odometer &&
-              inter1.locationDisplayName === inter2.locationDisplayName
+              prevInter.odometer === events[i].odometer &&
+              prevInter.locationDisplayName === events[i].locationDisplayName
             )
               events[i].errorMessages.push(
                 'unchanged location and odometer value'
               );
             else {
-              inter1.odometer === inter2.odometer &&
+              prevInter.odometer === events[i].odometer &&
                 events[i].errorMessages.push('unchanged odometer value');
-              inter1.locationDisplayName === inter2.locationDisplayName &&
+              prevInter.locationDisplayName === events[i].locationDisplayName &&
                 events[i].errorMessages.push('unchanged location');
             }
 
@@ -469,6 +465,7 @@ export class ComputeEventsService {
         events[i].occurredDuringDriving = false;
         currentDriving = null;
         intermediateCount = 0;
+        currentDrivingIntermediates = [];
       }
 
       //////////////
