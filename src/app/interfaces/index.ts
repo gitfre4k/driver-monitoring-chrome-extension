@@ -85,11 +85,13 @@ export interface IDriver {
   lastSync: string;
   mobileAppType: string;
   mobileAppVersion: string;
+  tenant?: ITenant;
 }
 
 export interface ILog {
   totalCount: number;
   items: IDriver[];
+  tenant?: ITenant;
 }
 
 export interface ICompany {

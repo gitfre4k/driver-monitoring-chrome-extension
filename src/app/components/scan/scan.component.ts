@@ -1,7 +1,18 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { Observable, Subscription } from 'rxjs';
+import {
+  concatMap,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  Subscription,
+  switchMap,
+  tap,
+  toArray,
+} from 'rxjs';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,7 +36,7 @@ import {
   FormsModule,
   FormGroup,
 } from '@angular/forms';
-import { IDOTInspections, IViolations } from '../../interfaces';
+import { IDOTInspections, ITenant, IViolations } from '../../interfaces';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
@@ -39,6 +50,9 @@ import { DateTime } from 'luxon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatBadgeModule } from '@angular/material/badge';
+import { ApiService } from '../../@services/api.service';
+import { AppService } from '../../@services/app.service';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-scan',
@@ -70,6 +84,8 @@ export class ScanComponent {
   scanService: ScanService = inject(ScanService);
   dateService = inject(DateService);
   progressBarService = inject(ProgressBarService);
+  apiService = inject(ApiService);
+  appService = inject(AppService);
 
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
@@ -186,6 +202,34 @@ export class ScanComponent {
     this.scanMode.setValue('advanced');
     this.startScan();
   };
+
+  scanCert() {
+    const tenants = this.appService.tenantsSignal();
+
+    const logs$ = from(tenants).pipe(
+      mergeMap(
+        (tenant) =>
+          this.apiService.getLogs(tenant, this.dateService.today).pipe(
+            map((logs) => {
+              logs.items.forEach((driver) => (driver.tenant = tenant));
+              return logs.items;
+            })
+          ),
+        10
+      ),
+      toArray()
+    );
+
+    logs$.subscribe({ next: (q) => console.log(q) });
+
+    // .subscribe({
+    //   next: (q) => {
+    //     console.log(
+    //       `[${q.tenant.name}] ${q.driverName}: certified ${q.certified}`
+    //     );
+    //   },
+    // });
+  }
 
   startScan = () => {
     this.disableScan = true;

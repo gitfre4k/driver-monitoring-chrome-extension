@@ -15,6 +15,7 @@ import {
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { IAppMasterData } from '../interfaces/app-master-data.interface';
 import { IDrivers } from '../interfaces/drivers.interface';
+import { IDailyLog } from '../interfaces/daily-log.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -41,6 +42,37 @@ export class ApiService {
   };
 
   constructor() {}
+
+  ///////////////////
+  // getDriverLogs
+  getDriverLogs(tenant: ITenant, driverID: number) {
+    const url = 'https://app.monitoringdriver.com/api/Logs/GetDriverLogs';
+    const body = {
+      filterRule: {
+        condition: 'AND',
+        filterRules: [
+          {
+            field: 'driverId',
+            operator: 'equals',
+            value: `${driverID}`,
+          },
+        ],
+      },
+      sorting: 'id desc',
+      skipCount: 0,
+      maxResultCount: 8,
+    };
+
+    return from(
+      this.http.post<IDailyLog[]>(url, body, {
+        withCredentials: true,
+        headers: {
+          'X-Tenant-Id': `${tenant.id}`,
+          'x-client-timezone': `${DateTime.local().zoneName}`,
+        },
+      })
+    );
+  }
 
   ///////////////////
   // get Drivers
