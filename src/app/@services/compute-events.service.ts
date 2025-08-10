@@ -368,12 +368,13 @@ export class ComputeEventsService {
       }
       if (isIntermediate(events[i])) {
         intermediateCount++;
+        currentDrivingIntermediates.push(events[i]);
         if (!currentDriving) {
           events[i].errorMessages.push('outside driving scope');
         } else {
           //////////////
-          // inter array
-          currentDrivingIntermediates.push(events[i]);
+          // intermediate location and odometer check
+          console.log(currentDrivingIntermediates);
           if (currentDrivingIntermediates.length > 1) {
             const prevInter =
               currentDrivingIntermediates[
@@ -391,7 +392,7 @@ export class ComputeEventsService {
                 events[i].errorMessages.push('location unchanged');
             }
 
-            ////////////////////////////////////////////////////////-
+            ////////////////////////////////////////////////////////
           }
 
           let diff =
@@ -416,7 +417,7 @@ export class ComputeEventsService {
             currentDriving.realStartTime === currentDriving.startTime &&
             currentDriving
           ) {
-            Math.floor((currentDriving.durationInSeconds - 1) / 3600) !== // -1
+            Math.floor((currentDriving.durationInSeconds - 1) / 3600) !== // -1sec
               intermediateCount &&
               events[currentDriving.computeIndex].errorMessages.push(
                 'incorrect intermediate count'
@@ -430,7 +431,7 @@ export class ComputeEventsService {
             currentDriving.realStartTime !== currentDriving.startTime
           ) {
             let totalIntermediateCount = Math.floor(
-              (currentDriving.realDurationInSeconds - 1) / 3600 // -1
+              (currentDriving.realDurationInSeconds - 1) / 3600 // -1sec
             );
             let previousDayIntermediateCount = Math.floor(
               (currentDriving.realDurationInSeconds -
@@ -503,7 +504,9 @@ export class ComputeEventsService {
         ...prev,
         currentDriving,
         intermediateCount,
-        currentDrivingIntermediates,
+        currentDrivingIntermediates: currentDrivingIntermediates.length
+          ? currentDrivingIntermediates
+          : [],
         currentDutyStatus,
         occurredDuringDriving,
         shiftIsReadyToStart,
@@ -547,8 +550,10 @@ export class ComputeEventsService {
 
   isTeleport = (ev1: IEvent, ev2: IEvent) => {
     const mileageDifference = Math.abs(ev1.odometer - ev2.odometer);
+    // truck change
     if (ev1.vehicleId && ev2.vehicleId && ev1.vehicleId !== ev2.vehicleId) {
       ev2.truckChange = true;
+      ev2.truckChangeFrom = ev1.vehicleName;
       return 0;
     }
     if (mileageDifference > 2) {

@@ -35,6 +35,7 @@ export interface IEvent {
   isTeleport: number;
   occurredDuringDriving: boolean;
   truckChange: boolean;
+  truckChangeFrom: string;
   viewId: number;
   error: boolean;
   errorMessages: string[];

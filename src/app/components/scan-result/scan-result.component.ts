@@ -36,7 +36,7 @@ import { DateService } from '../../@services/date.service';
       provide: MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
       useValue: {
         collapsedHeight: '28px',
-        expandedHeight: '40px',
+        expandedHeight: '36px',
       },
     },
   ],

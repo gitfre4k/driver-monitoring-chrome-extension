@@ -196,6 +196,7 @@ export class AdvancedScanService {
     const newDriver: IEvent[] = [];
     const fleetManagerEvents: IEvent[] = [];
     const refuelWarning: IEvent[] = [];
+    const truckChange: IEvent[] = [];
 
     computedEvents.forEach((event) => {
       if (event.driver.id === driverDailyLog.driverId) {
@@ -238,6 +239,9 @@ export class AdvancedScanService {
         }
         if (event.refuel) {
           refuelWarning.push(event);
+        }
+        if (event.truckChange) {
+          truckChange.push(event);
         }
       }
     });
@@ -425,6 +429,22 @@ export class AdvancedScanService {
         const newValue = { ...prev };
         if (newValue[companyName]) newValue[companyName].push(newDriverEvent);
         else newValue[companyName] = [newDriverEvent];
+        return newValue;
+      });
+    }
+
+    //////////////
+    // truck change
+    if (truckChange.length) {
+      const truckChangeDrivers: IScanResultDriver = {
+        driverName: driverDailyLog.driverFullName,
+        events: truckChange,
+      };
+      this.progressBarService.truckChange.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(truckChangeDrivers);
+        else newValue[companyName] = [truckChangeDrivers];
         return newValue;
       });
     }

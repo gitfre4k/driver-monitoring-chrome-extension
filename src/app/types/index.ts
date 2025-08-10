@@ -13,4 +13,5 @@ export type TScanResult =
   | 'fleetManager'
   | 'preViolations'
   | 'cycleHours'
-  | 'refuelWarning';
+  | 'refuelWarning'
+  | 'truckChange';

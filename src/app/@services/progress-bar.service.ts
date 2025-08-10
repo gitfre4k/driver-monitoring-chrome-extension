@@ -71,6 +71,7 @@ export class ProgressBarService {
   lowTotalEngineHours = signal<IScanResult>({});
   newDrivers = signal<IScanResult>({});
   fleetManager = signal<IScanResult>({});
+  truckChange = signal<IScanResult>({});
   refuelWarning = signal<IScanResult>({});
 
   showErrors = signal(false);
@@ -186,6 +187,7 @@ export class ProgressBarService {
         this.highEngineHours.set({});
         this.lowTotalEngineHours.set({});
         this.newDrivers.set({});
+        this.truckChange.set({});
         this.fleetManager.set({});
         this.refuelWarning.set({});
         this.activeDriversCount.set(0);
