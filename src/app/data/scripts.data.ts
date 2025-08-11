@@ -79,4 +79,42 @@ If you are ever in need of assistance feel free to either call or text us. Our o
 
 We look forward to working with you and helping you get to where you need to go on time and stress-free.`,
   },
+
+  {
+    id: 4,
+    name: 'Your logs are locked',
+    content: `Sir, you were recently stopped by the DOT, and they took a copy of your logs. When this happens, your logs are automatically locked, and we cannot edit any status from before the inspection. For example, if you were stopped today at 5 PM, anything before 5 PM cannot be changed.
+
+This means we can’t "make" you any time right now, as we can only adjust statuses after the inspection time. Smaller edits may be possible depending on the situation, but they usually only result in a few minutes or a few hours at most, nothing major. Typically, it takes about seven days of legal driving to build enough spare time we can work with again, so please try to drive a bit less over the next week.`,
+  },
+
+  {
+    id: 5,
+    name: 'Your logs are locked (short)',
+    content: `Sir, DOT stopped you and your logs are now locked. We can only change events after the inspection, so we can’t make you more time. Please drive legally for about a week so we can get enough time to work with again.`,
+  },
+
+  {
+    id: 6,
+    name: 'ELD disconnected - Bluetooth',
+    content: `What to do if you cannot connect to your ELD device:
+(for example, if the app says “Connecting,” “Searching,” or asks for your location/odometer)
+
+#1 Check if Bluetooth is enabled. If it is, move on to Step 2.
+#2 Try signing out of the app and signing back in. If the situation remains the same, proceed to Step 3.
+#3 Sign out of the app, turn the engine off, and physically unplug the ELD device from your vehicle.
+#4 Wait about 10 to 15 seconds, then turn the engine on and plug the ELD device back into the truck.
+#5 Sign back into the ProLogs app. If the problem still persists, give us a call.`,
+  },
+  {
+    id: 7,
+    name: 'ELD disconnected - Bluetooth (short)',
+    content: `ELD Not Connecting? Try these steps:
+
+#1 Make sure Bluetooth is ON.
+#2 Sign out of the app, then sign back in.
+#3 If still not working, sign out, turn off the engine, unplug the ELD.
+#4 Wait 10-15 sec, start engine, plug ELD back in.
+#5 Sign in again. If it still won’t connect, call us.`,
+  },
 ];
