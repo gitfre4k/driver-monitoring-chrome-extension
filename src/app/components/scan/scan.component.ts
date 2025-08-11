@@ -46,6 +46,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 
 import { IDriverLogs } from '../../interfaces/daily-log.interface';
 import { CertificationsScanService } from '../../@services/certifications-scan.service';
+import { FindEventService } from '../../@services/find-event.service';
 
 @Component({
   selector: 'app-scan',
@@ -78,6 +79,7 @@ export class ScanComponent {
   dateService = inject(DateService);
   progressBarService = inject(ProgressBarService);
   certScanService = inject(CertificationsScanService);
+  findEventService = inject(FindEventService);
 
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
@@ -235,6 +237,10 @@ export class ScanComponent {
   getPreViolationAlert() {
     this.scanMode.setValue('pre');
     this.startScan();
+  }
+
+  getShomiLatLong() {
+    this.findEventService.getLataLonga();
   }
 
   startScan = () => {
