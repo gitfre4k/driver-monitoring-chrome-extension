@@ -6,6 +6,7 @@ import {
 } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { scripts } from '../../data/scripts.data';
 
 @Component({
   selector: 'app-templates',
@@ -24,6 +25,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class TemplatesComponent {
   private _snackBar = inject(MatSnackBar);
+
+  scripts = scripts;
+
   copyText(name: string) {
     navigator.clipboard.writeText(name);
     this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });

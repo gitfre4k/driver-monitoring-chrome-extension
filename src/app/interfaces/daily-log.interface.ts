@@ -1,5 +1,13 @@
 import { ITenant } from '.';
 
+export interface IDriverLogs {
+  items: IDailyLog[];
+  totalCount: number;
+  // custom
+  driverName: string;
+  tenant: ITenant;
+}
+
 export interface IDailyLog {
   id: string;
   distanceInMiles: number;

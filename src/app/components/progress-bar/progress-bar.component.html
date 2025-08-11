@@ -5,9 +5,11 @@
       <h2>Driver Log Analysis in progress...</h2>
       } @else {
       <h2>
-        Scanning for @switch (scanMode) { @case ("violations") {
-        {{ " " }} Violations} @case ("dot") { {{ " " }} FMCSA inspections} @case
-        ("pre") { {{ " " }} alerts } }
+        Scanning for {{ " " }}
+
+        @switch (scanMode) { @case ("cert") { driver certifications } @case
+        ("violations") { Violations } @case ("dot") { FMCSA inspections } @case
+        ("pre") { alerts } }
       </h2>
       }
 
@@ -17,7 +19,7 @@
       }
       <section>
         <mat-progress-bar
-          [mode]="'determinate'"
+          [mode]="progressMode()"
           [value]="value()"
           [bufferValue]="bufferValue"
         >
@@ -27,7 +29,7 @@
     </mat-card-content>
     <p class="total-count">
       {{
-        scanMode === "advanced"
+        scanMode === "advanced" || scanMode === "cert"
           ? "Active drivers: " + activeDriversCount()
           : "Total count: " +
             (scanMode === "pre" ? preVCount() + lowCCount() : totalCount())

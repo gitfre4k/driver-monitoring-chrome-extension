@@ -1,4 +1,5 @@
-export type TScanMode = 'violations' | 'dot' | 'advanced' | 'pre';
+export type TScanMode = 'violations' | 'dot' | 'advanced' | 'pre' | 'cert';
+
 export type TScanResult =
   | 'teleports'
   | 'eventErrors'
@@ -15,3 +16,9 @@ export type TScanResult =
   | 'cycleHours'
   | 'refuelWarning'
   | 'truckChange';
+
+export type TProgressMode =
+  | 'determinate'
+  | 'indeterminate'
+  | 'buffer'
+  | 'query';

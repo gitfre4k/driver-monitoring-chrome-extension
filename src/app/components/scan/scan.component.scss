@@ -64,6 +64,7 @@
     button {
       width: 100px;
       height: 32px;
+      margin: 4px 0;
     }
   }
 
@@ -234,11 +235,31 @@
       }
     }
 
-    &_dot {
-      margin-top: 4px;
+    &_group {
+      display: flex;
       width: 100%;
       max-width: 432px;
-      border-radius: 12px;
+      margin-top: 4px;
+      padding: 0 18px;
+      gap: 4px;
+      &__dot {
+        min-width: 55%;
+        border-radius: 12px;
+        align-self: flex-start;
+        margin-left: -9px;
+      }
+      &__cert {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        border-radius: 12px;
+        margin-right: -9px;
+        button {
+          width: 100px;
+          height: 32px;
+        }
+      }
     }
   }
 

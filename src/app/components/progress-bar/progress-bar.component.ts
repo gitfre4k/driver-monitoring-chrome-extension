@@ -34,6 +34,7 @@ export class ProgressBarComponent {
 
   value = this.progressBarService.progressValue;
   bufferValue = this.progressBarService.bufferValue;
+  progressMode = this.progressBarService.progressMode;
   constant = this.progressBarService.constant;
   currentCompany = this.progressBarService.currentCompany;
   currentDriver = this.progressBarService.currentDriver;
@@ -65,6 +66,9 @@ export class ProgressBarComponent {
         this.errors = this.progressBarService.dErrors;
         break;
       case 'advanced':
+        this.errors = this.progressBarService.aErrors;
+        break;
+      default:
         this.errors = this.progressBarService.aErrors;
         break;
     }

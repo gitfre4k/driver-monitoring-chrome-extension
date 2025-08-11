@@ -9,9 +9,11 @@
       <div class="scan__violations__sync">
         <mat-slide-toggle
           [(ngModel)]="scanService.autoScan"
-          style="transform: scale(0.85)"
+          style="transform: scale(0.75)"
         >
-          Enable Auto-Scan
+          <span style="font-size: 16px; padding-left: 6px"
+            >Enable Auto-Scan</span
+          >
         </mat-slide-toggle>
         <div class="scan__violations__sync-stats">
           @if (scanService.autoScan()) {
@@ -176,38 +178,53 @@
 
     <!--////////////////////  -->
     <!-- DOT Inspections -->
-    <fieldset class="scan__dot">
-      <legend>FMCSA Inpsections</legend>
+    <div class="scan__group">
+      <fieldset class="scan__group__dot">
+        <legend>FMCSA Inpsections</legend>
 
-      <mat-form-field style="display: none">
-        <input
-          matInput
-          [matDatepicker]="pickerDOT"
-          [formControl]="date2"
-          (dateChange)="changeDOTDate($event)"
-        />
-        <mat-datepicker #pickerDOT></mat-datepicker>
-      </mat-form-field>
+        <mat-form-field style="display: none">
+          <input
+            matInput
+            [matDatepicker]="pickerDOT"
+            [formControl]="date2"
+            (dateChange)="changeDOTDate($event)"
+          />
+          <mat-datepicker #pickerDOT></mat-datepicker>
+        </mat-form-field>
 
-      <div class="scan__log-analysis__form">
-        <div class="scan__log-analysis__form-date">
-          <mat-datepicker-toggle
-            matIconSuffix
-            [for]="pickerDOT"
-          ></mat-datepicker-toggle>
-          <span>{{ date2.value | date : "mediumDate" }}</span>
+        <div class="scan__log-analysis__form">
+          <div class="scan__log-analysis__form-date">
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="pickerDOT"
+            ></mat-datepicker-toggle>
+            <span>{{ date2.value | date : "mediumDate" }}</span>
+          </div>
+          <div class="scan__log-analysis__form-submit">
+            <button
+              [disabled]="disableScan"
+              matButton="tonal"
+              (click)="startDOTScan()"
+            >
+              Scan
+            </button>
+          </div>
         </div>
-        <div class="scan__log-analysis__form-submit">
-          <button
-            [disabled]="disableScan"
-            matButton="tonal"
-            (click)="startDOTScan()"
-          >
-            Scan
-          </button>
-        </div>
-      </div>
-    </fieldset>
+      </fieldset>
+      <!--////////////////////  -->
+      <!--Driver Certifications -->
+      <fieldset class="scan__group__cert">
+        <legend>Driver Certifications</legend>
+        <button
+          class="scan__log-analysis__form-submit"
+          matButton="tonal"
+          [disabled]="disableScan"
+          (click)="startCertScan()"
+        >
+          Scan
+        </button>
+      </fieldset>
+    </div>
   </div>
 
   <!--////////////////////  -->
@@ -251,7 +268,7 @@
       </div>
     </fieldset>
   </div>
-  <button (click)="scanCert()">ScanCert</button>
+
   } @else {
   <app-progress-bar
     [scanSubscription]="scanSubscribtion"

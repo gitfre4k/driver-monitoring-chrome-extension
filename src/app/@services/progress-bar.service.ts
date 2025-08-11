@@ -8,7 +8,7 @@ import {
   IScanResult,
   IScanViolations,
 } from '../interfaces';
-import { TScanMode, TScanResult } from '../types';
+import { TProgressMode, TScanMode, TScanResult } from '../types';
 import { IScanPreViolations } from '../interfaces/drivers.interface';
 
 @Injectable({
@@ -18,9 +18,10 @@ export class ProgressBarService {
   private appService = inject(AppService);
 
   scanning = signal(false);
-  progressValue = signal(0);
   bufferValue = signal(0);
+  progressMode = signal<TProgressMode>('determinate');
   constant = computed(() => 100 / this.appService.tenantsSignal().length);
+  progressValue = signal(0);
   currentDriver = signal('');
   currentCompany = signal('Dex Solutions');
   activeDriversCount = signal(0);
@@ -47,7 +48,7 @@ export class ProgressBarService {
     return count;
   });
   cycleHours = signal<IScanPreViolations>({});
-  cycleHoursSlider = signal(20);
+  cycleHoursSlider = signal(10);
   cycleHoursCount = computed(() => {
     const cycleHours = this.cycleHours();
     let count = 0;
@@ -166,6 +167,7 @@ export class ProgressBarService {
 
   initializeState(scanMode: TScanMode) {
     this.initializeProgressBar();
+
     switch (scanMode) {
       case 'violations':
         this.violations.set([]);
@@ -197,6 +199,9 @@ export class ProgressBarService {
         this.preViolations.set({});
         this.cycleHours.set({});
         this.pErrors.set([]);
+        break;
+      case 'cert':
+        this.progressMode.set('indeterminate');
         break;
       default:
         return;

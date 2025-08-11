@@ -1,18 +1,7 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import {
-  concatMap,
-  from,
-  map,
-  mergeMap,
-  Observable,
-  of,
-  Subscription,
-  switchMap,
-  tap,
-  toArray,
-} from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,7 +25,7 @@ import {
   FormsModule,
   FormGroup,
 } from '@angular/forms';
-import { IDOTInspections, ITenant, IViolations } from '../../interfaces';
+import { IDOTInspections, IViolations } from '../../interfaces';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
@@ -50,9 +39,9 @@ import { DateTime } from 'luxon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatBadgeModule } from '@angular/material/badge';
-import { ApiService } from '../../@services/api.service';
-import { AppService } from '../../@services/app.service';
-import { toObservable } from '@angular/core/rxjs-interop';
+
+import { IDriverLogs } from '../../interfaces/daily-log.interface';
+import { CertificationsScanService } from '../../@services/certifications-scan.service';
 
 @Component({
   selector: 'app-scan',
@@ -84,8 +73,7 @@ export class ScanComponent {
   scanService: ScanService = inject(ScanService);
   dateService = inject(DateService);
   progressBarService = inject(ProgressBarService);
-  apiService = inject(ApiService);
-  appService = inject(AppService);
+  certScanService = inject(CertificationsScanService);
 
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
@@ -153,11 +141,6 @@ export class ScanComponent {
     this.destroyRef.onDestroy(() => this.scanSubscribtion.unsubscribe());
   }
 
-  getPreViolationAlert() {
-    this.scanMode.setValue('pre');
-    this.startScan();
-  }
-
   changeDate(ev: MatDatepickerInputEvent<Date>) {
     this.analyzeDate.set(this.dateService.getAnalyzeQueryDate(ev.value!)!);
   }
@@ -188,99 +171,101 @@ export class ScanComponent {
       .subscribe(() => this.progressBarService.initializeProgressBar());
   }
 
+  handleDriverLogs(driverLogs: IDriverLogs) {
+    let certifiedLogsCount = 0;
+    const logs = driverLogs.items;
+    const driverName = driverLogs.driverName;
+    const company = driverLogs.tenant.name;
+    console.log('logs ', logs);
+    logs.forEach((log) => log.certified && certifiedLogsCount++);
+    console.log(`## [${company}] ${driverName}`);
+    console.log(`certified Logs Count: ${certifiedLogsCount}`);
+    console.log('`````````````````````````````````````````````````````');
+  }
+
+  startCertScan() {
+    this.scanMode.setValue('cert');
+    this.startScan();
+  }
   startViolationsScan = () => {
     this.scanMode.setValue('violations');
     this.startScan();
   };
-
   startDOTScan = () => {
     this.scanMode.setValue('dot');
     this.startScan();
   };
-
   analyzeDriverLogs = () => {
     this.scanMode.setValue('advanced');
     this.startScan();
   };
-
-  scanCert() {
-    const tenants = this.appService.tenantsSignal();
-
-    const logs$ = from(tenants).pipe(
-      mergeMap(
-        (tenant) =>
-          this.apiService.getLogs(tenant, this.dateService.today).pipe(
-            map((logs) => {
-              logs.items.forEach((driver) => (driver.tenant = tenant));
-              return logs.items;
-            })
-          ),
-        10
-      ),
-      toArray()
-    );
-
-    logs$.subscribe({ next: (q) => console.log(q) });
-
-    // .subscribe({
-    //   next: (q) => {
-    //     console.log(
-    //       `[${q.tenant.name}] ${q.driverName}: certified ${q.certified}`
-    //     );
-    //   },
-    // });
+  getPreViolationAlert() {
+    this.scanMode.setValue('pre');
+    this.startScan();
   }
 
   startScan = () => {
     this.disableScan = true;
     setTimeout(() => (this.disableScan = false), 2000);
-    //////////////////////
-    // Analyze Driver Logs
-    if (this.scanMode.value === 'advanced') {
-      const date = this.analyzeDate();
-      if (!date) {
+
+    switch (this.scanMode.value) {
+      // Analyze Driver Logs
+      case 'advanced':
+        const date = this.analyzeDate();
+        if (!date) {
+          return;
+        }
+        this.scanSubscribtion = this.advancedScanService
+          .getLogs(date)
+          .subscribe({
+            complete: () => this.handleAdvancedScanComplete(),
+          });
         return;
-      }
-      this.scanSubscribtion = this.advancedScanService.getLogs(date).subscribe({
-        complete: () => this.handleAdvancedScanComplete(),
-      });
-      return;
-    }
-    // pre-violation alert
-    if (this.scanMode.value === 'pre') {
-      this.scanSubscribtion = this.scanService
-        .getPreViolationAlert()
-        .subscribe({
-          next: (company) => this.scanService.handlePreScanData(company),
+
+      // pre-Violation || low Cycle alert
+      case 'pre':
+        this.scanSubscribtion = this.scanService
+          .getPreViolationAlert()
+          .subscribe({
+            next: (company) => this.scanService.handlePreScanData(company),
+            error: (err) => this.scanService.handleError(err),
+            complete: () =>
+              this.scanService.handleScanComplete(this.scanMode.value),
+          });
+        return;
+
+      // Driver Certifications
+      case 'cert':
+        this.scanSubscribtion = this.certScanService.driverLogs$.subscribe({
+          next: (driverLogs) => this.handleDriverLogs(driverLogs),
+        });
+        return;
+
+      // Violations || DOT Inspections
+      case 'dot':
+      case 'violations':
+        const { dateFrom, dateTo } = this.dateRange();
+        const dotDate = this.dotDate();
+        if (!dateFrom || !dateTo || !dotDate) {
+          return;
+        }
+        this.scanSubscribtion = (
+          this.scanMode.value === 'violations'
+            ? this.scanService.getAllViolations({ dateFrom, dateTo })
+            : (this.scanService.getAllDOTInspections({
+                dateFrom: dotDate,
+                dateTo: dotDate,
+              }) as Observable<any>)
+        ).subscribe({
+          next: (data: IViolations[] | IDOTInspections[]) =>
+            this.scanService.handleScanData(data, this.scanMode.value),
           error: (err) => this.scanService.handleError(err),
           complete: () =>
             this.scanService.handleScanComplete(this.scanMode.value),
         });
-      return;
-    }
-    //////////////////////
-    // Scan for Violations / DOT Inspections
-    else {
-      const { dateFrom, dateTo } = this.dateRange();
-      const dotDate = this.dotDate();
-      if (!dateFrom || !dateTo || !dotDate) {
         return;
-      }
-
-      this.scanSubscribtion = (
-        this.scanMode.value === 'violations'
-          ? this.scanService.getAllViolations({ dateFrom, dateTo })
-          : (this.scanService.getAllDOTInspections({
-              dateFrom: dotDate,
-              dateTo: dotDate,
-            }) as Observable<any>)
-      ).subscribe({
-        next: (data: IViolations[] | IDOTInspections[]) =>
-          this.scanService.handleScanData(data, this.scanMode.value),
-        error: (err) => this.scanService.handleError(err),
-        complete: () =>
-          this.scanService.handleScanComplete(this.scanMode.value),
-      });
+      default:
+        return;
     }
   };
 }

@@ -15,7 +15,7 @@ import {
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { IAppMasterData } from '../interfaces/app-master-data.interface';
 import { IDrivers } from '../interfaces/drivers.interface';
-import { IDailyLog } from '../interfaces/daily-log.interface';
+import { IDailyLog, IDriverLogs } from '../interfaces/daily-log.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -63,15 +63,13 @@ export class ApiService {
       maxResultCount: 8,
     };
 
-    return from(
-      this.http.post<IDailyLog[]>(url, body, {
-        withCredentials: true,
-        headers: {
-          'X-Tenant-Id': `${tenant.id}`,
-          'x-client-timezone': `${DateTime.local().zoneName}`,
-        },
-      })
-    );
+    return this.http.post<IDriverLogs>(url, body, {
+      withCredentials: true,
+      headers: {
+        'X-Tenant-Id': `${tenant.id}`,
+        'x-client-timezone': `${DateTime.local().zoneName}`,
+      },
+    });
   }
 
   ///////////////////

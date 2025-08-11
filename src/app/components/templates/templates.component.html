@@ -3,103 +3,17 @@
 
   <div class="templates__container">
     <mat-accordion>
+      @for(script of scripts; track script.id) {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>It's done! </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="templates__container__result">## c o n t e n t</div>
-      </mat-expansion-panel>
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>Violations </mat-panel-title>
+          <mat-panel-title>{{ script.name }} </mat-panel-title>
         </mat-expansion-panel-header>
         <div class="templates__container__result">
-          <!--  -->
-          <ul class="list">
-            <li class="list__item">
-              <span class="list__item__title"> 11-hours violation </span>
-              <div class="list__item__content">
-                <div class="list__item__content-copy">
-                  <a
-                    class="on-hover"
-                    mat-icon-button
-                    (click)="copyText('qwe')"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
-                </div>
-                <span class="list__item__content-text">
-                  <a
-                    class="on-hover"
-                    mat-icon-button
-                    (click)="copyText('qwe')"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Pariatur ipsam qui quisquam reprehenderit, hic enim quis
-                  distinctio atque in! Perspiciatis saepe libero, eius
-                  recusandae laudantium nostrum. Quas consequuntur numquam
-                  dolore.
-                </span>
-              </div>
-            </li>
-            <li class="list__item">
-              <span class="list__item__title"> 14-hours violation </span>
-              <div class="list__item__content">
-                <div class="list__item__content-copy">
-                  <a
-                    class="on-hover"
-                    mat-icon-button
-                    (click)="copyText('qwe')"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
-                </div>
-                <span class="list__item__content-text">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Pariatur ipsam qui quisquam reprehenderit, hic enim quis
-                  distinctio atque in! Perspiciatis saepe libero, eius
-                  recusandae laudantium nostrum. Quas consequuntur numquam
-                  dolore.
-                </span>
-              </div>
-            </li>
-            <li class="list__item">
-              <span class="list__item__title"> 34-hours violation </span>
-              <div class="list__item__content">
-                <div class="list__item__content-copy">
-                  <a
-                    class="on-hover"
-                    mat-icon-button
-                    (click)="copyText('qwe')"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
-                </div>
-                <span class="list__item__content-text">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Pariatur ipsam qui quisquam reprehenderit, hic enim quis
-                  distinctio atque in! Perspiciatis saepe libero, eius
-                  recusandae laudantium nostrum. Quas consequuntur numquam
-                  dolore.
-                </span>
-              </div>
-            </li>
-          </ul>
+          <pre>{{ script.content }}</pre>
         </div>
         <!--  -->
       </mat-expansion-panel>
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>Support </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="templates__container__result">## c o n t e n t</div>
-      </mat-expansion-panel>
+      }
     </mat-accordion>
   </div>
 </div>

@@ -229,42 +229,40 @@ export class ScanService {
   getPreViolationAlert() {
     this.progressBarService.initializeState('pre');
     this.progressBarService.scanning.set(true);
-    return this.apiService
-      .getAccessibleTenants()
-      .pipe(switchMap((tenants) => from(tenants)))
-      .pipe(
-        mergeMap((tenant) => {
-          this.progressBarService.currentCompany.set(tenant.name);
-          this.progressBarService.progressValue.update(
-            (value) => value + this.progressBarService.constant()
+    return this.apiService.getAccessibleTenants().pipe(
+      switchMap((tenants) => from(tenants)),
+      mergeMap((tenant) => {
+        this.progressBarService.currentCompany.set(tenant.name);
+        this.progressBarService.progressValue.update(
+          (value) => value + this.progressBarService.constant()
+        );
+        return this.apiService
+          .getDrivers(tenant)
+          .pipe(
+            tap({
+              error: (error) => {
+                this.progressBarService.progressValue.update(
+                  (value) => value + this.progressBarService.constant()
+                );
+                this.progressBarService.pErrors.update((prev) => [
+                  ...prev,
+                  {
+                    error,
+                    company: tenant,
+                  },
+                ]);
+              },
+            })
+          )
+          .pipe(
+            map((drivers) => {
+              drivers.tenant = tenant;
+              drivers.date = this.dateService.today;
+              return drivers;
+            })
           );
-          return this.apiService
-            .getDrivers(tenant)
-            .pipe(
-              tap({
-                error: (error) => {
-                  this.progressBarService.progressValue.update(
-                    (value) => value + this.progressBarService.constant()
-                  );
-                  this.progressBarService.pErrors.update((prev) => [
-                    ...prev,
-                    {
-                      error,
-                      company: tenant,
-                    },
-                  ]);
-                },
-              })
-            )
-            .pipe(
-              map((drivers) => {
-                drivers.tenant = tenant;
-                drivers.date = this.dateService.today;
-                return drivers;
-              })
-            );
-        }, 10)
-      );
+      }, 10)
+    );
   }
 
   getAllViolations(range: IRange) {
