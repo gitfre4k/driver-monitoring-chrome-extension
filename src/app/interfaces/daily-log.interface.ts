@@ -5,7 +5,9 @@ export interface IDriverLogs {
   totalCount: number;
   // custom
   driverName: string;
+  driverId: number;
   tenant: ITenant;
+  zone: string;
 }
 
 export interface IDailyLog {
@@ -20,5 +22,6 @@ export interface IDailyLog {
   violations: any[];
   // custom
   driverName: string;
+  driverId: number;
   tenant: ITenant;
 }

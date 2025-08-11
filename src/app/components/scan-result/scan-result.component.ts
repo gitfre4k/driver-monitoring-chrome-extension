@@ -14,9 +14,10 @@ import {
 
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { UrlService } from '../../@services/url.service';
-import { IScanResult, ITenant } from '../../interfaces';
+import { ICertStatus, IScanResult, ITenant } from '../../interfaces';
 import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
 import { DateService } from '../../@services/date.service';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-scan-result',
@@ -66,7 +67,7 @@ export class ScanResultComponent {
     return count;
   }
 
-  driverCount(result: IScanResult) {
+  driverCount(result: IScanResult | ICertStatus) {
     let count = 0;
     for (let company in result) {
       count += result[company].length;
@@ -83,11 +84,20 @@ export class ScanResultComponent {
     this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
   }
 
-  openLogs(id: number, date: string, tenant: ITenant) {
-    this.urlService.navigateChromeActiveTab(
-      `https://app.monitoringdriver.com/logs/${id}/${date}/`,
-      tenant
-    );
+  openLogs(id: number, date: string, tenant: ITenant, openLogs?: boolean) {
+    openLogs
+      ? this.urlService.navigateChromeActiveTab(
+          `https://app.monitoringdriver.com/logs/${id}/`,
+          tenant
+        )
+      : this.urlService.navigateChromeActiveTab(
+          `https://app.monitoringdriver.com/logs/${id}/${date}/`,
+          tenant
+        );
+  }
+
+  getDate(date: string, zone: string) {
+    return DateTime.fromISO(date).setZone('America/New_York').toISO();
   }
 
   get malfTitle(): string {

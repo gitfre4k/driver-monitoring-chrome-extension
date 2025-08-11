@@ -3,6 +3,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { AppService } from './app.service';
 
 import {
+  ICertStatus,
   IScanDOTInspections,
   IScanErrors,
   IScanResult,
@@ -57,6 +58,8 @@ export class ProgressBarService {
     }
     return count;
   });
+
+  certStatus = signal<ICertStatus>({});
 
   inspections = signal<IScanDOTInspections[]>([]);
   totalDCount = signal(0);
@@ -126,6 +129,8 @@ export class ProgressBarService {
   }
 
   removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
+    if (scanResult === 'certStatus') return;
+
     if (scanResult === 'preViolations' || scanResult === 'cycleHours') {
       const index = this.preViolations()[companyName].items.findIndex(
         (driver) => driver.driverDisplayName === driverName

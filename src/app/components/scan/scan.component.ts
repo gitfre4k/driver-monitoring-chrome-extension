@@ -25,7 +25,11 @@ import {
   FormsModule,
   FormGroup,
 } from '@angular/forms';
-import { IDOTInspections, IViolations } from '../../interfaces';
+import {
+  ICertStatusDriver,
+  IDOTInspections,
+  IViolations,
+} from '../../interfaces';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
@@ -181,6 +185,35 @@ export class ScanComponent {
     console.log(`## [${company}] ${driverName}`);
     console.log(`certified Logs Count: ${certifiedLogsCount}`);
     console.log('`````````````````````````````````````````````````````');
+
+    this.progressBarService.certStatus.update((prev) => {
+      const newValue = { ...prev };
+      let uncertifiedDays = [...driverLogs.items];
+
+      uncertifiedDays.sort((a, b) => {
+        const dateA = new Date(a.id);
+        const dateB = new Date(b.id);
+        return dateB.getTime() - dateA.getTime();
+      });
+      uncertifiedDays.shift();
+      uncertifiedDays = uncertifiedDays.filter((day) => !day.certified);
+
+      const certStatusDriver: ICertStatusDriver = {
+        driverName: driverLogs.driverName,
+        driverId: driverLogs.driverId,
+        uncertifiedDays,
+        zone: driverLogs.zone,
+        tenant: driverLogs.tenant,
+      };
+
+      if (uncertifiedDays.length) {
+        if (newValue[driverLogs.tenant.name])
+          newValue[driverLogs.tenant.name].push(certStatusDriver);
+        else newValue[driverLogs.tenant.name] = [certStatusDriver];
+      }
+
+      return newValue;
+    });
   }
 
   startCertScan() {
@@ -238,6 +271,9 @@ export class ScanComponent {
       case 'cert':
         this.scanSubscribtion = this.certScanService.driverLogs$.subscribe({
           next: (driverLogs) => this.handleDriverLogs(driverLogs),
+          error: (err) => this.scanService.handleError(err),
+          complete: () =>
+            this.scanService.handleScanComplete(this.scanMode.value),
         });
         return;
 

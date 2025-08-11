@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { AppService } from './app.service';
-import { from, mergeMap, of, switchMap, tap } from 'rxjs';
+import { from, map, mergeMap, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { ProgressBarService } from './progress-bar.service';
@@ -38,11 +38,13 @@ export class CertificationsScanService {
         this.progressBarService.currentCompany.set(driver.tenant!.name);
         this.progressBarService.activeDriversCount.update((prev) => prev + 1);
         return this.apiService.getDriverLogs(driver.tenant!, driver.id).pipe(
-          switchMap((driverLogs) => {
-            let newLogs = driverLogs;
+          map((driverLogs) => {
+            let newLogs = { ...driverLogs };
             newLogs.tenant = driver.tenant!;
             newLogs.driverName = driver.fullName;
-            return of(newLogs);
+            newLogs.driverId = driver.id;
+            newLogs.zone = driver.homeTerminalTimeZone;
+            return newLogs;
           })
         );
       }, 10)

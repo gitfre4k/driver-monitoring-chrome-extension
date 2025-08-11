@@ -15,7 +15,8 @@ export type TScanResult =
   | 'preViolations'
   | 'cycleHours'
   | 'refuelWarning'
-  | 'truckChange';
+  | 'truckChange'
+  | 'certStatus';
 
 export type TProgressMode =
   | 'determinate'

@@ -165,59 +165,53 @@ export class ScanService {
     this.progressBarService.initializeProgressBar();
     switch (scanMode) {
       case 'violations':
-        {
-          const v = this.progressBarService.totalVCount();
-          v > 0
-            ? this.violationsDetected(v)
-            : this._snackBar.open(
-                `Scan complete: no violations detected`,
-                'OK',
-                {
-                  duration: 3000,
-                }
-              );
-          this.progressBarService.violationsLastSync.set(
-            DateTime.now().toISO()
-          );
-        }
-        break;
-      case 'pre':
-        {
-          const count = this.progressBarService.preViolationsCount();
-          this._snackBar.open(
-            `Scan complete: ${
-              count > 0
-                ? count +
-                  ' pre violation alert' +
-                  (count > 1 ? 's' : '') +
-                  ' detected'
-                : 'no pre violation alert detected'
-            }`,
-            'OK',
-            {
+        const v = this.progressBarService.totalVCount();
+        v > 0
+          ? this.violationsDetected(v)
+          : this._snackBar.open(`Scan complete: no violations detected`, 'OK', {
               duration: 3000,
-            }
-          );
-          count > 0 &&
-            (() => {
-              this.extensionTabNavService.selectedTabIndex.set(1);
-              this.extensionTabNavService.prePanelIsOpened.set(true);
-            })();
-        }
+            });
+        this.progressBarService.violationsLastSync.set(DateTime.now().toISO());
+        break;
+
+      case 'pre':
+        const count = this.progressBarService.preViolationsCount();
+        this._snackBar.open(
+          `Scan complete: ${
+            count > 0
+              ? count +
+                ' pre violation alert' +
+                (count > 1 ? 's' : '') +
+                ' detected'
+              : 'no pre violation alert detected'
+          }`,
+          'OK',
+          {
+            duration: 3000,
+          }
+        );
+        count > 0 &&
+          (() => {
+            this.extensionTabNavService.selectedTabIndex.set(1);
+            this.extensionTabNavService.prePanelIsOpened.set(true);
+          })();
         break;
       case 'dot':
-        {
-          const dot = this.progressBarService.totalDCount();
-          dot > 0
-            ? this.dotInspectionsDetected(dot)
-            : this._snackBar.open(
-                `Scan complete: no DOT Inspections detected`,
-                'OK',
-                {
-                  duration: 3000,
-                }
-              );
-        }
+        const dot = this.progressBarService.totalDCount();
+        dot > 0
+          ? this.dotInspectionsDetected(dot)
+          : this._snackBar.open(
+              `Scan complete: no DOT Inspections detected`,
+              'OK',
+              {
+                duration: 3000,
+              }
+            );
+        break;
+      case 'cert':
+        this._snackBar.open(`Scan complete`, 'OK', {
+          duration: 3000,
+        });
         break;
       default:
         return;

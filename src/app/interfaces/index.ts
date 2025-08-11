@@ -1,5 +1,6 @@
 import { ProgressBarMode } from '@angular/material/progress-bar';
 import { IEvent as ICEvent } from '../interfaces/driver-daily-log-events.interface';
+import { IDailyLog } from './daily-log.interface';
 
 export interface IViolations {
   company: ITenant;
@@ -141,4 +142,15 @@ export interface IEventDetails {
   totalVehicleMiles: number;
   trailerNumbers: string;
   vehicleId: number;
+}
+
+export interface ICertStatus {
+  [company: string]: ICertStatusDriver[];
+}
+export interface ICertStatusDriver {
+  driverName: string;
+  driverId: number;
+  uncertifiedDays: IDailyLog[];
+  zone: string;
+  tenant: ITenant;
 }
