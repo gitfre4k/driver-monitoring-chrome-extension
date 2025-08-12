@@ -156,7 +156,7 @@
         </div>
         <div class="scan__alerts__form-group">
           <mat-label>low Cycle hours</mat-label>
-          <mat-slider class="slider" [max]="25" [min]="1" [step]="1">
+          <mat-slider class="slider" [max]="20" [min]="1" [step]="1">
             <input
               matSliderThumb
               [(ngModel)]="progressBarService.cycleHoursSlider"
@@ -192,7 +192,7 @@
           <mat-datepicker #pickerDOT></mat-datepicker>
         </mat-form-field>
 
-        <div class="scan__log-analysis__form">
+        <div class="scan__group__dot__form">
           <div class="scan__log-analysis__form-date">
             <mat-datepicker-toggle
               matIconSuffix
@@ -215,6 +215,13 @@
       <!--Driver Certifications -->
       <fieldset class="scan__group__cert">
         <legend>Driver Certifications</legend>
+        <mat-checkbox
+          style="transform: scale(0.9)"
+          [(ngModel)]="certScanService.excludeNonWorkDays"
+          ><span scan__group__cert-checkbox
+            >Exclude non-working days</span
+          ></mat-checkbox
+        >
         <button
           class="scan__log-analysis__form-submit"
           matButton="tonal"

@@ -83,12 +83,14 @@ export class ProgressBarService {
   pErrors = signal([] as IScanErrors[]);
   dErrors = signal([] as IScanErrors[]);
   aErrors = signal([] as IScanErrors[]);
+  cErrors = signal([] as IScanErrors[]);
   errorCount = computed(
     () =>
       this.vErrors().length +
       this.pErrors().length +
       this.dErrors().length +
-      this.aErrors().length
+      this.aErrors().length +
+      this.cErrors().length
   );
   resultsAreReady = computed(
     () =>
@@ -161,6 +163,7 @@ export class ProgressBarService {
     this.pErrors.set([]);
     this.dErrors.set([]);
     this.aErrors.set([]);
+    this.cErrors.set([]);
   }
 
   initializeProgressBar() {
@@ -177,13 +180,16 @@ export class ProgressBarService {
       case 'violations':
         this.violations.set([]);
         this.vErrors.set([]);
+        this.progressMode.set('determinate');
         break;
       case 'dot':
         this.totalDCount.set(0);
         this.inspections.set([]);
         this.dErrors.set([]);
+        this.progressMode.set('determinate');
         break;
       case 'advanced':
+        this.activeDriversCount.set(0);
         this.teleports.set({});
         this.eventErrors.set({});
         this.prolongedOnDuty.set({});
@@ -197,15 +203,19 @@ export class ProgressBarService {
         this.truckChange.set({});
         this.fleetManager.set({});
         this.refuelWarning.set({});
-        this.activeDriversCount.set(0);
         this.aErrors.set([]);
+        this.progressMode.set('determinate');
         break;
       case 'pre':
         this.preViolations.set({});
         this.cycleHours.set({});
         this.pErrors.set([]);
+        this.progressMode.set('determinate');
         break;
       case 'cert':
+        this.activeDriversCount.set(0);
+        this.certStatus.set({});
+        this.cErrors.set([]);
         this.progressMode.set('indeterminate');
         break;
       default:

@@ -42,11 +42,21 @@
     >
     <span style="font-size: 10px">- {{ err.error.message }}</span>
     <br />
+    } }@if (cErrors().length) {
+    <h3>Driver Certifications scan errors</h3>
+    @for (err of cErrors(); track (err.driverName ? err.driverName :
+    err.company.id)) {
+    <span class="errors-company"
+      >[{{ err.error.name }}] {{ err.company.name }}
+      {{ err.driverName ? " - " + err.driverName : "" }}</span
+    >
+    <span style="font-size: 10px">- {{ err.error.message }}</span>
+    <br />
     } }
   </div>
 
   }@else {
-  <p style="text-align: center">...no errors</p>
+  <p style="text-align: center">no errors</p>
   }
 
   <button matButton="tonal" (click)="dismiss()">Dismiss</button>

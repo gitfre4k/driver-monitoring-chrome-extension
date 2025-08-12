@@ -97,7 +97,11 @@ export class UrlService {
     });
   }
 
-  navigateChromeActiveTab = (url: string, tenant: ICompany) => {
+  navigateChromeActiveTab = (
+    url: string,
+    tenant: ICompany,
+    stayOnTab?: boolean
+  ) => {
     const tabId = this.tabId();
     if (!tabId)
       return this._snackBar.open(
@@ -121,7 +125,7 @@ export class UrlService {
       .updateTabLocalStorage(tabId, key, value)
       .subscribe({
         next: () => {
-          this.extensionTabNavService.selectedTabIndex.set(2);
+          !stayOnTab && this.extensionTabNavService.selectedTabIndex.set(2);
           chrome.tabs.update(tabId, { url });
         },
       });

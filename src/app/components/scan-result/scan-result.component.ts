@@ -88,7 +88,8 @@ export class ScanResultComponent {
     openLogs
       ? this.urlService.navigateChromeActiveTab(
           `https://app.monitoringdriver.com/logs/${id}/`,
-          tenant
+          tenant,
+          true
         )
       : this.urlService.navigateChromeActiveTab(
           `https://app.monitoringdriver.com/logs/${id}/${date}/`,

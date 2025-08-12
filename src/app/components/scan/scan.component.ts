@@ -190,25 +190,16 @@ export class ScanComponent {
 
     this.progressBarService.certStatus.update((prev) => {
       const newValue = { ...prev };
-      let uncertifiedDays = [...driverLogs.items];
-
-      uncertifiedDays.sort((a, b) => {
-        const dateA = new Date(a.id);
-        const dateB = new Date(b.id);
-        return dateB.getTime() - dateA.getTime();
-      });
-      uncertifiedDays.shift();
-      uncertifiedDays = uncertifiedDays.filter((day) => !day.certified);
 
       const certStatusDriver: ICertStatusDriver = {
         driverName: driverLogs.driverName,
         driverId: driverLogs.driverId,
-        uncertifiedDays,
+        uncertifiedDays: driverLogs.items,
         zone: driverLogs.zone,
         tenant: driverLogs.tenant,
       };
 
-      if (uncertifiedDays.length) {
+      if (driverLogs.items.length) {
         if (newValue[driverLogs.tenant.name])
           newValue[driverLogs.tenant.name].push(certStatusDriver);
         else newValue[driverLogs.tenant.name] = [certStatusDriver];

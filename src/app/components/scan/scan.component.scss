@@ -243,15 +243,23 @@
       padding: 0 18px;
       gap: 4px;
       &__dot {
-        min-width: 55%;
+        min-width: 33%;
         border-radius: 12px;
         align-self: flex-start;
         margin-left: -9px;
+        &__form {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
       }
       &__cert {
         display: flex;
+        flex-direction: column;
+        gap: 16px;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-end;
         width: 100%;
         border-radius: 12px;
         margin-right: -9px;
