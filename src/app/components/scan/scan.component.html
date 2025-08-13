@@ -167,13 +167,24 @@
           </mat-label>
         </div>
       </div>
-      <button
-        [disabled]="disableScan"
-        matButton="tonal"
-        (click)="getPreViolationAlert()"
-      >
-        Scan
-      </button>
+
+      <div class="scan__alerts__submit">
+        <mat-checkbox
+          style="transform: scale(0.9)"
+          [(ngModel)]="scanService.cycleAlertExcludeNonWorking"
+          ><span scan__group__cert-checkbox
+            >show low Cycle only for <br />
+            currently working drivers</span
+          ></mat-checkbox
+        >
+        <button
+          [disabled]="disableScan"
+          matButton="tonal"
+          (click)="getPreViolationAlert()"
+        >
+          Scan
+        </button>
+      </div>
     </fieldset>
 
     <!--////////////////////  -->
@@ -219,7 +230,8 @@
           style="transform: scale(0.9)"
           [(ngModel)]="certScanService.excludeNonWorkDays"
           ><span scan__group__cert-checkbox
-            >Exclude non-working days</span
+            >exclude driver's <br />
+            non-working days</span
           ></mat-checkbox
         >
         <button

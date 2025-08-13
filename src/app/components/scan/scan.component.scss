@@ -61,10 +61,21 @@
         }
       }
     }
-    button {
-      width: 100px;
-      height: 32px;
-      margin: 4px 0;
+
+    &__submit {
+      display: flex;
+      justify-content: space-between;
+      // span {
+      //   margin-right: auto;
+      // }
+
+      width: 100%;
+
+      button {
+        width: 100px;
+        height: 32px;
+        margin: 4px 6px 4px 0;
+      }
     }
   }
 
@@ -263,6 +274,9 @@
         width: 100%;
         border-radius: 12px;
         margin-right: -9px;
+        :first-child {
+          margin-right: 16px;
+        }
         button {
           width: 100px;
           height: 32px;

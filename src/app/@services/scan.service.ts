@@ -37,6 +37,7 @@ export class ScanService {
   autoScan = signal(true);
   autofocus = signal(true);
   selectedRange = signal<'week' | 'month' | 'custom'>('week');
+  cycleAlertExcludeNonWorking = signal(true);
 
   constructor() {}
 
@@ -44,7 +45,7 @@ export class ScanService {
 
   handlePreScanData(company: IDrivers) {
     const preViolations: IDriverItem[] = [];
-    const cycleHours: IDriverItem[] = [];
+    let cycleHours: IDriverItem[] = [];
 
     company.items.forEach((item) => {
       const hos = item.hosTimers;
@@ -88,17 +89,24 @@ export class ScanService {
 
       item.lowCycleHours && cycleHours.push(item);
     });
+
     const data = (items: IDriverItem[]) => ({
       tenant: company.tenant,
       date: this.dateService.getDailyLogsDate(this.dateService.today)!,
       totalCount: company.totalCount,
       items,
     });
+
     preViolations.length &&
       this.progressBarService.preViolations.update((prev) => ({
         ...prev,
         [company.tenant.name]: data(preViolations),
       }));
+
+    this.cycleAlertExcludeNonWorking() &&
+      (cycleHours = cycleHours.filter(
+        (driver) => !['OFF', 'SB'].includes(driver.driverDutyStatus)
+      ));
     cycleHours.length &&
       this.progressBarService.cycleHours.update((prev) => ({
         ...prev,
