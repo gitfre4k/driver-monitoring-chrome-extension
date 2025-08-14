@@ -1,4 +1,10 @@
-export type TScanMode = 'violations' | 'dot' | 'advanced' | 'pre' | 'cert';
+export type TScanMode =
+  | 'violations'
+  | 'dot'
+  | 'advanced'
+  | 'pre'
+  | 'cert'
+  | 'all';
 
 export type TScanResult =
   | 'teleports'

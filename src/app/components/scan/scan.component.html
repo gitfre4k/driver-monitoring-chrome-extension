@@ -286,8 +286,16 @@
         </div>
       </div>
     </fieldset>
-    <button (click)="getShomiLatLong()">GET LAT LONG EVENT</button>
   </div>
+
+  <button
+    class="all-in-one"
+    [disabled]="disableScan"
+    matButton="tonal"
+    (click)="startAllScan()"
+  >
+    All-in-One scan
+  </button>
 
   } @else {
   <app-progress-bar

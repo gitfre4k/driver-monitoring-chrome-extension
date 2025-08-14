@@ -229,10 +229,11 @@ export class ScanComponent {
     this.scanMode.setValue('pre');
     this.startScan();
   }
+  startAllScan() {}
 
-  getShomiLatLong() {
-    this.findEventService.getLataLonga();
-  }
+  // getShomiLatLong() {
+  //   this.findEventService.getLataLonga();
+  // }
 
   startScan = () => {
     this.disableScan = true;

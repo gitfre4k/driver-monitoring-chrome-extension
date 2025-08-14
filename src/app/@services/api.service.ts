@@ -15,7 +15,7 @@ import {
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { IAppMasterData } from '../interfaces/app-master-data.interface';
 import { IDrivers } from '../interfaces/drivers.interface';
-import { IDailyLog, IDriverLogs } from '../interfaces/daily-log.interface';
+import { IDriverLogs } from '../interfaces/daily-log.interface';
 
 @Injectable({
   providedIn: 'root',
