@@ -469,6 +469,32 @@ export class ComputeEventsService {
                 'incorrect intermediate count'
               );
           }
+
+          //
+          // speeding
+          const arr = [currentDriving, ...currentDrivingIntermediates];
+          for (let index = 0; index < arr.length - 1; index++) {
+            if (arr[index].computeIndex === 0) continue;
+
+            const speed = +(
+              arr[index + 1].odometer - arr[index].odometer
+            ).toFixed(2);
+            speed > 74.99 &&
+              events[arr[index + 1].computeIndex].errorMessages.push(
+                `speeding [${speed} mph]`
+              );
+          }
+          // last inter to sleep/off
+          const distance = events[i].odometer - arr.at(-1)!.odometer;
+          const minutes =
+            (new Date(events[i].startTime).getTime() -
+              new Date(arr.at(-1)!.realEndTime).getTime()) /
+            1000 /
+            60; // minutes
+          const speed = +((distance / minutes) * 60).toFixed(2);
+          speed > 74.9 &&
+            currentDrivingIntermediates.length > 0 &&
+            events[i].errorMessages.push(`speeding [${speed} mph]`);
         }
 
         occurredDuringDriving = false;
