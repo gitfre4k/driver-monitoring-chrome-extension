@@ -590,9 +590,82 @@ export class ComputeEventsService {
       // [[ teleport detected ]]
       if (ev1.odometer > ev2.odometer) return -mileageDifference;
       if (!isDriving(ev1) && !isPcOrYm(ev1) && !ev1.occurredDuringDriving) {
+        //pcYm => pc
         return mileageDifference;
       }
+    } else {
+      // location mismatch
+      if (!ev1.locationDisplayName || !ev2.locationDisplayName) return 0;
+      // ...
+      if (!isDriving(ev1) && !isPcOrYm(ev1) && !ev1.occurredDuringDriving)
+        //pcYm => pc
+        this.locationMismatch(
+          ev1.locationDisplayName,
+          ev2.locationDisplayName
+        ) && ev2.errorMessages.push('location mismatch');
     }
     return 0;
   };
+
+  parseLocation(location: string): {
+    miles: number;
+    direction: string | null;
+    baseName: string;
+  } {
+    // get miles? (1-9999), direction? and the base location name
+    const regex = /^(\d{1,4})?mi\s*([NESW]{1,3})?\s*(.*)$/i;
+    const match = regex ? location.match(regex) : null;
+
+    if (!match) {
+      return { miles: 0, direction: null, baseName: location.trim() };
+    }
+
+    const milesStr = match[1];
+    const direction = match[2] ? match[2].toUpperCase() : null;
+    const baseName = match[3].trim();
+
+    const miles = milesStr ? parseInt(milesStr, 10) : 0;
+
+    return { miles, direction, baseName };
+  }
+
+  locationMismatch(location1: string, location2: string) {
+    const opposites: { [key: string]: string } = {
+      N: 'S',
+      S: 'N',
+      E: 'W',
+      W: 'E',
+      NE: 'SW',
+      SW: 'NE',
+      NW: 'SE',
+      SE: 'NW',
+      NNE: 'SSW',
+      SSW: 'NNE',
+      NNW: 'SSE',
+      SSE: 'NNW',
+      ENE: 'WSW',
+      WSW: 'ENE',
+      ESE: 'WNW',
+      WNW: 'ESE',
+    };
+
+    const loc1 = this.parseLocation(location1);
+    const loc2 = this.parseLocation(location2);
+
+    if (loc1.baseName !== loc2.baseName) {
+      return true;
+    }
+
+    if (
+      loc1.direction &&
+      loc2.direction &&
+      opposites[loc1.direction] === loc2.direction
+    ) {
+      const distanceDifference = loc1.miles + loc2.miles;
+      return distanceDifference > 2;
+    }
+
+    const distanceDifference = Math.abs(loc1.miles - loc2.miles);
+    return distanceDifference > 2;
+  }
 }
