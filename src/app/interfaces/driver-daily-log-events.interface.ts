@@ -33,6 +33,7 @@ export interface IEvent {
   // custom
   statusName: string;
   isTeleport: number;
+  locationMismatch: boolean;
   occurredDuringDriving: boolean;
   truckChange: boolean;
   truckChangeFrom: string;

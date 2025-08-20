@@ -77,8 +77,8 @@
           }}</span>
 
           @if(event.isTeleport || (event.errorMessages &&
-          event.errorMessages.length > 0) || event.manualDriving ||
-          event.refuel) {
+          event.errorMessages.length > 0) || event.manualDriving || event.refuel
+          || event.locationMismatch) {
           <span class="note" style="color: red">
             <!-- [teleport] message-->
             {{
@@ -88,8 +88,10 @@
                   : "odometer decreased"
                 : ""
             }}
-            @if(event.isTeleport && (event.errorMessages &&
-            event.errorMessages.length > 0 )) { <br />
+            @if(event.locationMismatch) { @if (event.isTeleport) { <br />}
+            location mismatch } @if((event.isTeleport || event.locationMismatch)
+            && (event.errorMessages && event.errorMessages.length > 0 )) {
+            <br />
             }
             <!-- [eventErrors] message-->
             {{
@@ -98,7 +100,9 @@
                 : ""
             }}
             <!-- warnings -->
-            @if (event.refuel) {<span class="note" style="color: yellow"
+            @if (event.refuel) { @if (event.isTeleport || event.locationMismatch
+            || (event.errorMessages && event.errorMessages.length > 0)) {<br />}
+            <span class="note" style="color: yellow"
               >potential unrecorded driving</span
             >
             } @if (event.manualDriving) { @if(event.isTeleport ||

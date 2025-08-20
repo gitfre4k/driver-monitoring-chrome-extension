@@ -8,6 +8,7 @@ export type TScanMode =
 
 export type TScanResult =
   | 'teleports'
+  | 'locationMismatch'
   | 'eventErrors'
   | 'prolongedOnDuty'
   | 'malfOrDataDiag'

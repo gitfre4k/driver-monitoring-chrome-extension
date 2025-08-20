@@ -18,7 +18,11 @@
       Inspection length</mat-label
     >
     <mat-slider class="slider" [max]="901" [min]="781" [step]="1">
-      <input matSliderThumb [(ngModel)]="ptiDurationSliderValue" />
+      <input
+        matSliderThumb
+        class="thumb"
+        [(ngModel)]="ptiDurationSliderValue"
+      />
     </mat-slider>
     <mat-label class="label-right">
       <

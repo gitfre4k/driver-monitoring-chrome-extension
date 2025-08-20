@@ -186,6 +186,7 @@ export class AdvancedScanService {
 
     const errorEvents: IEvent[] = [];
     const detectedTeleportEvents: IEvent[] = [];
+    const locationMismatchEvents: IEvent[] = [];
     const prolongedOnDutyEvents: IEvent[] = [];
     const manualDrivingEvents: IEvent[] = [];
     const highEngineHourEvents: IEvent[] = [];
@@ -202,6 +203,9 @@ export class AdvancedScanService {
       if (event.driver.id === driverDailyLog.driverId) {
         if (event.isTeleport || event.dutyStatus === 'refuel') {
           detectedTeleportEvents.push(event);
+        }
+        if (event.locationMismatch) {
+          locationMismatchEvents.push(event);
         }
         if (event.errorMessages?.length) {
           errorEvents.push(event);
@@ -275,6 +279,20 @@ export class AdvancedScanService {
         if (newValue[companyName])
           newValue[companyName].push(driverTeleportEvents);
         else newValue[companyName] = [driverTeleportEvents];
+        return newValue;
+      });
+    }
+    ////////////
+    // handle Location Mismatch events
+    if (locationMismatchEvents.length) {
+      const locationMismatch: IScanResultDriver = {
+        driverName: driverDailyLog.driverFullName,
+        events: locationMismatchEvents,
+      };
+      this.progressBarService.locationMismatch.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName]) newValue[companyName].push(locationMismatch);
+        else newValue[companyName] = [locationMismatch];
         return newValue;
       });
     }

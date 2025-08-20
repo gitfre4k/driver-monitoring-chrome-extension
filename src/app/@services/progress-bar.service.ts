@@ -65,6 +65,7 @@ export class ProgressBarService {
   totalDCount = signal(0);
 
   teleports = signal<IScanResult>({});
+  locationMismatch = signal<IScanResult>({});
   eventErrors = signal<IScanResult>({});
   prolongedOnDuty = signal<IScanResult>({});
   malfOrDataDiag = signal<IScanResult>({});
@@ -95,6 +96,7 @@ export class ProgressBarService {
   resultsAreReady = computed(
     () =>
       !this.isEmpty(this.teleports()) ||
+      !this.isEmpty(this.locationMismatch()) ||
       !this.isEmpty(this.eventErrors()) ||
       !this.isEmpty(this.prolongedOnDuty()) ||
       !this.isEmpty(this.malfOrDataDiag()) ||
@@ -191,6 +193,7 @@ export class ProgressBarService {
       case 'advanced':
         this.activeDriversCount.set(0);
         this.teleports.set({});
+        this.locationMismatch.set({});
         this.eventErrors.set({});
         this.prolongedOnDuty.set({});
         this.malfOrDataDiag.set({});
