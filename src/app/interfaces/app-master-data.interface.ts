@@ -52,6 +52,10 @@ interface UserPermissions {
 }
 
 export interface IAppMasterData {
+  [companyName: string]: ITenantAppMasterData;
+}
+
+export interface ITenantAppMasterData {
   ablyChannelPrefix: string;
   ablyTokenRequest: AblyTokenRequest;
   companies: Company[];

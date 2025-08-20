@@ -47,6 +47,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { IDriverLogs } from '../../interfaces/daily-log.interface';
 import { CertificationsScanService } from '../../@services/certifications-scan.service';
 import { FindEventService } from '../../@services/find-event.service';
+import { AppService } from '../../@services/app.service';
 
 @Component({
   selector: 'app-scan',
@@ -80,6 +81,7 @@ export class ScanComponent {
   progressBarService = inject(ProgressBarService);
   certScanService = inject(CertificationsScanService);
   findEventService = inject(FindEventService);
+  appService = inject(AppService);
 
   private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
@@ -229,11 +231,23 @@ export class ScanComponent {
     this.scanMode.setValue('pre');
     this.startScan();
   }
-  startAllScan() {}
+  startAllScan() {
+    this.appService
+      .getAppData$()
+      .subscribe((data) =>
+        console.log(
+          `[${data.companies[0].name}] ${data.currentCompanyTimeZone.ianaTimeZone}; ${data.currentCompanyTimeZone.utcOffset}`
+        )
+      );
+  }
 
   // getShomiLatLong() {
   //   this.findEventService.getLataLonga();
   // }
+
+  show = () => {
+    console.log(this.appService.appDataSignal());
+  };
 
   startScan = () => {
     this.disableScan = true;

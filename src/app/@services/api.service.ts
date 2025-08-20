@@ -13,7 +13,10 @@ import {
   IEventDetails,
 } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
-import { IAppMasterData } from '../interfaces/app-master-data.interface';
+import {
+  IAppMasterData,
+  ITenantAppMasterData,
+} from '../interfaces/app-master-data.interface';
 import { IDrivers } from '../interfaces/drivers.interface';
 import { IDriverLogs } from '../interfaces/daily-log.interface';
 
@@ -269,9 +272,10 @@ export class ApiService {
   getMasterAppData(tenant: ITenant) {
     const url = 'https://app.monitoringdriver.com/api/Util/GetMasterAppData';
 
-    return this.http.get<IAppMasterData>(url, {
+    return this.http.get<ITenantAppMasterData>(url, {
       withCredentials: true,
       headers: {
+        'x-client-timezone': `${DateTime.local().zoneName}`,
         'X-Tenant-Id': tenant.id,
       },
     });

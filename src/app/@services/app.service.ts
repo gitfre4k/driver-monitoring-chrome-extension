@@ -1,9 +1,10 @@
-import { computed, inject, Injectable } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
 import { ApiService } from './api.service';
 import { UrlService } from './url.service';
-import { tap } from 'rxjs';
+import { from, mergeMap, switchMap, tap } from 'rxjs';
+import { IAppMasterData } from '../interfaces/app-master-data.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +28,24 @@ export class AppService {
       initialValue: [],
     }
   );
+
+  appDataSignal = signal<IAppMasterData>({});
+
+  getAppData$ = () => {
+    return this.apiService.getAccessibleTenants().pipe(
+      switchMap((tenants) => from(tenants)),
+      mergeMap((tenant) => {
+        return this.apiService.getMasterAppData(tenant).pipe(
+          tap((data) =>
+            this.appDataSignal.update((prevValue) => ({
+              ...prevValue,
+              [tenant.id]: data,
+            }))
+          )
+        );
+      })
+    );
+  };
 
   currentTenant = computed(() => {
     const tenant = this.tenantsSignal().find(

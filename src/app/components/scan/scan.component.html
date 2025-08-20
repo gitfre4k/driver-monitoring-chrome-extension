@@ -294,7 +294,16 @@
     matButton="tonal"
     (click)="startAllScan()"
   >
-    All-in-One scan
+    get app data
+  </button>
+
+  <button
+    class="all-in-one"
+    [disabled]="disableScan"
+    matButton="tonal"
+    (click)="show()"
+  >
+    show app data
   </button>
 
   } @else {
