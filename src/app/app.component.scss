@@ -1,4 +1,4 @@
-@media (max-width: 440px) {
+@media (max-width: 516px) {
   .hide {
     display: none;
   }
@@ -74,7 +74,8 @@ span {
 }
 
 ::ng-deep .mat-mdc-tab.mdc-tab {
-  min-width: 50px !important;
+  min-width: 45px !important;
+  height: 48px;
   padding: 0 13px;
 }
 

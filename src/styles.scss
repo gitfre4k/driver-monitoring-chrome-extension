@@ -1,6 +1,15 @@
 @use "@angular/material" as mat;
 
 :root {
+  @include mat.slider-overrides(
+    (
+      handle-height: 18px,
+      handle-width: 18px,
+    )
+  );
+}
+
+:root {
   @include mat.expansion-overrides(
     (
       container-background-color: rgb(53, 53, 58),

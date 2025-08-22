@@ -4,6 +4,10 @@
   justify-content: start;
   align-items: start;
 
+  :last-child {
+    margin-bottom: 0;
+  }
+
   .group {
     width: 90vw;
     max-width: 300px;
@@ -11,18 +15,12 @@
     align-items: center;
     grid-template-columns: 26fr auto 22fr;
     font-size: 13;
+    margin-bottom: -8px;
     :first-child {
       text-align: left;
     }
-    // :nth-child(2) {
-    //   transform: scale(0.8);
-    // }
     :last-child {
       text-align: right;
     }
   }
-
-  // .slider {
-  //   max-width: 180px;
-  // }
 }

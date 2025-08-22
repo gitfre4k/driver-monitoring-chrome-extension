@@ -47,6 +47,10 @@
       justify-content: start;
       align-items: start;
 
+      :last-child {
+        margin-bottom: 0;
+      }
+
       &-group {
         width: 90vw;
         max-width: 300px;
@@ -54,6 +58,7 @@
         align-items: center;
         grid-template-columns: 26fr auto 22fr;
         font-size: 13;
+        margin-bottom: -10px;
         :first-child {
           text-align: left;
         }
@@ -172,6 +177,10 @@
         align-items: center;
         justify-content: space-between;
 
+        &__auto {
+          margin-left: -12px;
+        }
+
         &-stats {
           height: 40px;
 
@@ -215,13 +224,15 @@
 
       &__options {
         display: flex;
+        margin-bottom: -8px;
         &-radio {
           display: flex;
           min-width: 35%;
           flex-direction: column;
           margin: 0;
           align-items: flex-start;
-          margin-left: 15px;
+          margin-left: 5px;
+
           &-button {
             transform: scale(0.9);
           }
@@ -242,6 +253,7 @@
       &__autofocus {
         width: 100%;
         text-align: center;
+        margin-bottom: -4px;
       }
     }
 
