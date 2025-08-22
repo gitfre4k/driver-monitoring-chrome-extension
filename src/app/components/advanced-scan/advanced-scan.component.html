@@ -1,19 +1,6 @@
 <div class="test">
   <div class="group">
     <mat-label
-      >On Duty <br />
-      status length</mat-label
-    >
-    <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
-      <input matSliderThumb [(ngModel)]="sliderValue" />
-    </mat-slider>
-    <mat-label class="example-value-mat-label"
-      >{{ sliderValue() * 1000 | date : "H:mm" : "UTC" }}h+</mat-label
-    >
-  </div>
-
-  <div class="group">
-    <mat-label
       >Pre-Trip <br />
       Inspection length</mat-label
     >
@@ -30,6 +17,27 @@
         ptiDurationSliderValue() * 1000 | date : "mm:ss" : "UTC"
       }}min</mat-label
     >
+  </div>
+
+  <div class="group">
+    <mat-label
+      >On Duty <br />
+      status length</mat-label
+    >
+    <mat-slider class="slider" [max]="7200" [min]="1800" [step]="1">
+      <input matSliderThumb [(ngModel)]="sliderValue" />
+    </mat-slider>
+    <mat-label class="example-value-mat-label"
+      >{{ sliderValue() * 1000 | date : "H:mm" : "UTC" }}h+</mat-label
+    >
+  </div>
+
+  <div class="group">
+    <mat-label>speeding</mat-label>
+    <mat-slider class="slider" [max]="79.99" [min]="74.99" [step]="0.01">
+      <input matSliderThumb [(ngModel)]="speeding" />
+    </mat-slider>
+    <mat-label class="example-value-mat-label">{{ speeding() }}mph+</mat-label>
   </div>
 
   <div class="group">

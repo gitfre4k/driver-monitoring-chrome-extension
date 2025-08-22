@@ -84,7 +84,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 4px;
     & {
       width: 100%;
       max-width: 432px;
@@ -95,7 +94,6 @@
     }
 
     &__options {
-      margin-top: 8px;
       text-align: center;
       &-title {
         font-size: 13px;

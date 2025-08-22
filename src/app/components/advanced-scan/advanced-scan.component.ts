@@ -8,6 +8,7 @@ import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ComputeEventsService } from '../../@services/compute-events.service';
 
 @Component({
   selector: 'app-advanced-scan',
@@ -25,6 +26,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 export class AdvancedScanComponent {
   private advancedScanService = inject(AdvancedScanService);
   private progressBarService = inject(ProgressBarService);
+  private computedEventsService = inject(ComputeEventsService);
 
   readonly sliderValue = this.advancedScanService.prolongedOnDutiesDuration;
   readonly engineSliderValue = this.advancedScanService.engineHoursDuration;
@@ -32,6 +34,7 @@ export class AdvancedScanComponent {
     this.advancedScanService.lowTotalEngineHoursCount;
   readonly ptiDurationSliderValue = this.advancedScanService.ptiDuration;
   readonly sleeperDuration = this.advancedScanService.sleeperDuration;
+  readonly speeding = this.computedEventsService.speeding;
 
   readonly currentCompany = this.progressBarService.currentCompany;
   readonly progress = this.progressBarService.progressValue;

@@ -20,12 +20,15 @@ import {
 import { ITenant } from '../interfaces';
 import { ApiService } from './api.service';
 import { DateTime } from 'luxon';
+import { AdvancedScanService } from './advanced-scan.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ComputeEventsService {
   apiService = inject(ApiService);
+
+  speeding = signal(79.99);
 
   initialDriverState: IDriverState = {
     currentDriving: null,
@@ -172,6 +175,8 @@ export class ComputeEventsService {
         e.dutyStatus === 'DataDiagnostic' && (e.statusName = 'Diagnostic');
         e.dutyStatus === 'DataDiagnosticClear' && (e.statusName = 'Diag. CLR');
         e.dutyStatus === 'DataDiagnostic-E' && (e.statusName = 'Diag. CLR (E)');
+        e.dutyStatus === 'EldMalfunction' && (e.statusName = 'ELD Malf.');
+        e.dutyStatus === 'EldMalfunctionClear' && (e.statusName = 'Malf. CLR');
         events.push(e);
       }
     });
@@ -479,7 +484,7 @@ export class ComputeEventsService {
             const speed = +(
               arr[index + 1].odometer - arr[index].odometer
             ).toFixed(2);
-            speed > 79.99 &&
+            speed > this.speeding() &&
               events[arr[index + 1].computeIndex].errorMessages.push(
                 `speeding [${speed} mph]`
               );
@@ -492,7 +497,7 @@ export class ComputeEventsService {
             1000 /
             60; // minutes
           const speed = +((distance / minutes) * 60).toFixed(2);
-          speed > 79.9 &&
+          speed > this.speeding() &&
             currentDrivingIntermediates.length > 0 &&
             events[i].errorMessages.push(`speeding [${speed} mph]`);
         }

@@ -136,10 +136,10 @@ export class ProgressBarService {
     if (scanResult === 'certStatus') return;
 
     if (scanResult === 'preViolations' || scanResult === 'cycleHours') {
-      const index = this.preViolations()[companyName].items.findIndex(
+      const index = this[scanResult]()[companyName].items.findIndex(
         (driver) => driver.driverDisplayName === driverName
       );
-      this.preViolations.update((prev) => {
+      this[scanResult].update((prev) => {
         const newValue = { ...prev };
         newValue[companyName].items.splice(index, 1);
         if (newValue[companyName].items.length === 0)

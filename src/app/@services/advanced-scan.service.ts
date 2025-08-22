@@ -31,10 +31,10 @@ export class AdvancedScanService {
   private progressBarService = inject(ProgressBarService);
   private dateService = inject(DateService);
 
-  prolongedOnDutiesDuration = signal(4200); // 1h10min
-  engineHoursDuration = signal(14);
-  lowTotalEngineHoursCount = signal(100);
   ptiDuration = signal(781);
+  prolongedOnDutiesDuration = signal(4200); // 1h10min
+  engineHoursDuration = signal(24);
+  lowTotalEngineHoursCount = signal(100);
   sleeperDuration = signal(30);
 
   constructor() {}
