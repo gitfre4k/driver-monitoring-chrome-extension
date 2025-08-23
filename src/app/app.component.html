@@ -25,6 +25,11 @@
           <span class="hide">Scan</span>
         </ng-template>
 
+        @if (isLoading()) {
+        <mat-progress-bar [mode]="'determinate'" [value]="initProgressValue()">
+        </mat-progress-bar>
+        }
+
         <app-scan></app-scan>
       </mat-tab>
 

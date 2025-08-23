@@ -231,15 +231,7 @@ export class ScanComponent {
     this.scanMode.setValue('pre');
     this.startScan();
   }
-  startAllScan() {
-    this.appService
-      .getAppData$()
-      .subscribe((data) =>
-        console.log(
-          `[${data.companies[0].name}] ${data.currentCompanyTimeZone.ianaTimeZone}; ${data.currentCompanyTimeZone.utcOffset}`
-        )
-      );
-  }
+  startAllScan() {}
 
   // getShomiLatLong() {
   //   this.findEventService.getLataLonga();

@@ -1,4 +1,10 @@
-import { Component, HostListener, inject } from '@angular/core';
+import {
+  Component,
+  computed,
+  HostListener,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -13,13 +19,15 @@ import { ProgressBarService } from './@services/progress-bar.service';
 import { InfoComponent } from './components/info/info.component';
 import { ScanResultComponent } from './components/scan-result/scan-result.component';
 import { ExtensionTabNavigationService } from './@services/extension-tab-navigation.service';
-import { interval, Subscription } from 'rxjs';
+import { finalize, interval, Subscription } from 'rxjs';
 import { ScanService } from './@services/scan.service';
 import { IViolations } from './interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateService } from './@services/date.service';
 import { ErrorsComponent } from './components/errors/errors.component';
 import { TemplatesComponent } from './components/templates/templates.component';
+import { AppService } from './@services/app.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-root',
@@ -39,6 +47,7 @@ import { TemplatesComponent } from './components/templates/templates.component';
     InfoComponent,
     ScanResultComponent,
     TemplatesComponent,
+    MatProgressBarModule,
   ],
 })
 export class AppComponent {
@@ -50,9 +59,11 @@ export class AppComponent {
   }
   private extensionTabNavigationService = inject(ExtensionTabNavigationService);
   private progressBarService = inject(ProgressBarService);
+  private appService = inject(AppService);
   private scanService = inject(ScanService);
   private _snackBar = inject(MatSnackBar);
   private dateService = inject(DateService);
+  private subscriptions: Subscription = new Subscription();
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
@@ -64,9 +75,11 @@ export class AppComponent {
   isPopup = false;
   currentCounter: number = 0;
   currentOperationStatus: string = 'idle';
-  private subscriptions: Subscription = new Subscription();
 
   timerSub!: Subscription;
+
+  isLoading = this.appService.isLoading;
+  initProgressValue = this.appService.initProgressValue;
 
   constructor() {}
 
@@ -75,6 +88,9 @@ export class AppComponent {
       const views = chrome.extension.getViews({ type: 'popup' });
       this.isPopup = views.some((view) => view === window);
     }
+
+    // initialize app
+    this.initializeApp();
 
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({
@@ -153,4 +169,11 @@ export class AppComponent {
     window.open('index.html', '', windowFeatures);
     window.close();
   }
+
+  initializeApp = () => {
+    this.appService
+      .initializeAppData$()
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe();
+  };
 }
