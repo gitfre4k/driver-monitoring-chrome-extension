@@ -92,7 +92,10 @@ export class ScanService {
 
     const data = (items: IDriverItem[]) => ({
       tenant: company.tenant,
-      date: this.dateService.getDailyLogsDate(this.dateService.today)!,
+      date: this.dateService.getDailyLogsDate(
+        this.dateService.today,
+        company.tenant.offSet!
+      )!,
       totalCount: company.totalCount,
       items,
     });

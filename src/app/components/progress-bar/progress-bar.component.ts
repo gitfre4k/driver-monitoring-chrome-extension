@@ -24,7 +24,7 @@ import { IScanErrors } from '../../interfaces';
 })
 export class ProgressBarComponent {
   @Input({ required: true }) scanSubscription!: Subscription;
-  @Input({ required: true }) scanMode!: TScanMode;
+  @Input({ required: true }) scanMode: TScanMode = 'violations';
 
   private progressBarService = inject(ProgressBarService);
 

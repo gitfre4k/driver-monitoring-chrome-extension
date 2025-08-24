@@ -79,6 +79,8 @@ export class AppComponent {
   timerSub!: Subscription;
 
   isLoading = this.appService.isLoading;
+  initMode = this.appService.initMode;
+  initPhase = this.appService.initPhase;
   initProgressValue = this.appService.initProgressValue;
 
   constructor() {}
@@ -90,7 +92,7 @@ export class AppComponent {
     }
 
     // initialize app
-    // this.initializeApp();
+    this.appService.initializeApp$().subscribe();
 
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({
@@ -169,12 +171,4 @@ export class AppComponent {
     window.open('index.html', '', windowFeatures);
     window.close();
   }
-
-  initializeApp = () => {
-    // this.isLoading.set(true);
-    // this.appService
-    //   .initializeAppData$()
-    //   .pipe(finalize(() => this.isLoading.set(false)))
-    //   .subscribe();
-  };
 }

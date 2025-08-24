@@ -74,7 +74,7 @@ export class AdvancedScanService {
   }
 
   dailyLogEvents$(driver: IDriver, tenant: ITenant, d: Date) {
-    const date = this.dateService.getDailyLogsDate(d)!;
+    const date = this.dateService.getDailyLogsDate(d, tenant.offSet!)!;
     return this.apiService
       .getDriverDailyLogEvents(driver.id, date, tenant.id)
       .pipe(

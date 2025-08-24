@@ -86,8 +86,6 @@ export class ScanComponent {
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
 
-  isLoading = this.appService.isLoading;
-
   // Analyze Date
   date = new FormControl<Date>(
     DateTime.now().setZone('America/New_York').toJSDate()
@@ -97,7 +95,7 @@ export class ScanComponent {
   // DOT Date
   date2 = new FormControl<Date>(DateTime.now().startOf('day').toJSDate());
   dotDate = signal(
-    this.dateService.getQueryDate(DateTime.now().startOf('day').toJSDate())
+    this.dateService.getDOTQueryDate(DateTime.now().startOf('day').toJSDate())
   );
 
   // Range Date
@@ -231,15 +229,6 @@ export class ScanComponent {
     this.scanMode.setValue('pre');
     this.startScan();
   }
-  startAllScan() {}
-
-  // getShomiLatLong() {
-  //   this.findEventService.getLataLonga();
-  // }
-
-  show = () => {
-    // console.log(this.appService.appDataSignal());
-  };
 
   startScan = () => {
     this.disableScan = true;

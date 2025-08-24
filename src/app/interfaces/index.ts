@@ -110,6 +110,8 @@ export interface ITenant extends ICompany {
   hasOwnElds?: boolean;
   parentTenantId?: string;
   webApiUrl?: string;
+  // custom
+  offSet?: number;
 }
 
 export interface IScanResult {

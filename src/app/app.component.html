@@ -15,7 +15,11 @@
     <!-- <mat-progress-bar [mode]="'determinate'" [value]="initProgressValue()">
     </mat-progress-bar> -->
     <div class="spinner">
-      <mat-spinner></mat-spinner>
+      <mat-spinner
+        [mode]="initMode()"
+        [value]="initProgressValue()"
+      ></mat-spinner>
+      <span>{{ initPhase() }}</span>
     </div>
     } @else {
     <mat-tab-group

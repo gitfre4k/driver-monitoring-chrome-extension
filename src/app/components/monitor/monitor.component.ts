@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DateTime } from 'luxon';
+import { AppService } from '../../@services/app.service';
 
 @Component({
   selector: 'app-monitor',
@@ -23,6 +24,8 @@ import { DateTime } from 'luxon';
 })
 export class MonitorComponent {
   monitorService = inject(MonitorService);
+
+  driverInfo = this.monitorService.driverInfo;
 
   refresh = () => {
     this.monitorService.refresh.update((value) => value + 1);

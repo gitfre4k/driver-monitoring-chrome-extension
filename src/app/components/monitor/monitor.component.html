@@ -5,33 +5,55 @@
   >
 
   <div class="info">
-    <h2 class="info__company">## {{ ddle.companyName }}</h2>
+    <div class="info__company-and-driver">
+      <div class="info__company-and-driver__1">
+        <span class="info__company-and-driver__1-company">
+          ## {{ ddle.companyName }}
+        </span>
 
-    <h3
-      [class]="
-        ![
-          'Batbayar Enkhbat',
-          'Nedeljko Arezina',
-          'Farhan Abdullahi Hussein'
-        ].includes(ddle.driverFullName)
-          ? 'info__driver-name'
-          : 'info__driver-x'
-      "
-    >
-      {{ ddle.driverFullName }}
-    </h3>
+        <span
+          [class]="
+            ![
+              'Batbayar Enkhbat',
+              'Nedeljko Arezina',
+              'Farhan Abdullahi Hussein'
+            ].includes(ddle.driverFullName)
+              ? 'info__company-and-driver__1-driver-name'
+              : 'info__company-and-driver__1-driver-x'
+          "
+        >
+          {{ ddle.driverFullName }}
+        </span>
+      </div>
+      <div class="info__company-and-driver__2">
+        @if (driverInfo(); as driverInfo) {
+        <span>{{ driverInfo.mobileAppType }}</span>
+        <span>{{ driverInfo.mobileAppVersion }}</span>
+        <span style="margin-top: 6px">{{
+          driverInfo.homeTerminalTimeZone
+        }}</span>
+
+        }
+      </div>
+    </div>
 
     @if (monitorService.isUpdating()) {
-    <mat-spinner [diameter]="16"></mat-spinner>
+    <div class="info__date">
+      <mat-spinner [diameter]="17"></mat-spinner>
+    </div>
     } @else {
-    <p class="info__date">{{ date | date : "mediumDate" }}</p>
+    <div class="info__date">
+      <p class="info__date">{{ date | date : "mediumDate" }}</p>
+    </div>
     }
   </div>
 
   <div class="event-list">
     <ul>
-      @for (event of monitorService.computedDailyLogEvents(); track event.id) {
-      @if (event.shift) {
+      @if (ddle.coDrivers.length === 0) {
+      <hr />
+      } @for (event of monitorService.computedDailyLogEvents(); track event.id)
+      { @if (event.shift && ddle.coDrivers.length !== 0) {
       <p>{{ event.driver.name }}</p>
       <hr />
       }

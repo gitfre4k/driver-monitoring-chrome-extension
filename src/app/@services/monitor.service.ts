@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, effect } from '@angular/core';
+import { Injectable, inject, signal, effect, computed } from '@angular/core';
 import { ApiService } from './api.service';
 
 import {
@@ -10,6 +10,7 @@ import { UrlService } from './url.service';
 import { ComputeEventsService } from './compute-events.service';
 import { tap } from 'rxjs';
 import { DateTime } from 'luxon';
+import { AppService } from './app.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,7 @@ export class MonitorService {
   private apiService = inject(ApiService);
   private urlService = inject(UrlService);
   private computeEventsService = inject(ComputeEventsService);
+  private appService = inject(AppService);
 
   refresh = signal(0);
 
@@ -32,6 +34,20 @@ export class MonitorService {
 
   driverDailyLog = signal<null | IDriverDailyLogEvents>(null);
   computedDailyLogEvents = signal<null | IEvent[]>(null);
+
+  driverInfo = computed(() => {
+    const currentTenant = this.urlService.tenant();
+    const ddle = this.driverDailyLog();
+    const tenantsLog = this.appService.tenantsLogSignal();
+    if (!currentTenant || !ddle || !tenantsLog) return null;
+
+    const driverInfo = tenantsLog[currentTenant.id].items.find(
+      (d) => d.id === ddle.driverId
+    );
+
+    return driverInfo;
+  });
+
   isUpdating = signal(false);
 
   constructor() {}

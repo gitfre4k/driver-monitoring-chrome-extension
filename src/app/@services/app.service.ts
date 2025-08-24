@@ -1,11 +1,13 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import { ApiService } from './api.service';
 import { UrlService } from './url.service';
-import { from, mergeMap, switchMap, tap } from 'rxjs';
-import { IAppMasterData } from '../interfaces/app-master-data.interface';
+import { finalize, from, mergeMap, switchMap, tap } from 'rxjs';
+
 import { ITenant } from '../interfaces';
+
+import { DateService } from './date.service';
+import { ITenantsLog } from '../interfaces/data.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -13,17 +15,16 @@ import { ITenant } from '../interfaces';
 export class AppService {
   private apiService = inject(ApiService);
   private urlService = inject(UrlService);
+  private dateService = inject(DateService);
+
+  tenantsSignal = signal<ITenant[]>([]);
+  tenantsLogSignal = signal<ITenantsLog>({});
 
   isLoading = signal(false);
-
-  tenantsSignal2 = signal<ITenant[]>([]);
-  tenantsSignal = toSignal(this.apiService.getAccessibleTenants(), {
-    initialValue: [],
-  });
+  initPhase = signal('');
+  initMode = signal<'indeterminate' | 'determinate'>('indeterminate');
   initConstant = computed(() => 100 / this.tenantsSignal().length);
   initProgressValue = signal(0);
-
-  // appDataSignal = signal<IAppMasterData>({});
 
   currentTenant = computed(() => {
     const tenant = this.tenantsSignal().find(
@@ -33,34 +34,65 @@ export class AppService {
     return tenant ? tenant : null;
   });
 
-  // initializeAppData$ = () => {
-  //   return this.apiService
-  //     .getAccessibleTenants()
-  //     .pipe(
-  //       tap((tenants) => {
-  //         !tenants.find(
-  //           (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
-  //         ) && window.close();
-  //         this.tenantsSignal2.set(tenants);
-  //       })
-  //     )
-  //     .pipe(
-  //       switchMap((tenants) => from(tenants)),
-  //       mergeMap((tenant) => {
-  //         return this.apiService.getMasterAppData(tenant).pipe(
-  //           tap((data) => {
-  //             this.appDataSignal.update((prevValue) => ({
-  //               ...prevValue,
-  //               [tenant.id]: data,
-  //             }));
-  //             this.initProgressValue.update(
-  //               (prev) => prev + this.initConstant()
-  //             );
-  //           })
-  //         );
-  //       }, 10)
-  //     );
-  // };
-
   constructor() {}
+
+  initializeApp$ = () => {
+    this.isLoading.set(true);
+    this.initMode.set('indeterminate');
+    this.initPhase.set('getting accessible tenants...');
+
+    return this.apiService
+      .getAccessibleTenants()
+      .pipe(
+        tap((tenants) => {
+          !tenants.find(
+            (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
+          ) && window.close();
+          this.tenantsSignal.set(tenants);
+        }),
+        finalize(() => {
+          this.initMode.set('determinate');
+          this.initPhase.set('loading tenants and getting drivers info...');
+        })
+      )
+      .pipe(
+        switchMap((tenants) => from(tenants)),
+        mergeMap((tenant) => {
+          return this.apiService.getLogs(tenant, this.dateService.today).pipe(
+            tap((log) => {
+              this.initProgressValue.update(
+                (prev) => prev + this.initConstant()
+              );
+              this.tenantsSignal.update((prevV) => {
+                let newValue = [...prevV];
+
+                let intex = newValue.findIndex((t) => t.id === tenant.id);
+                if (intex !== -1) {
+                  newValue[intex].offSet = log.items.length
+                    ? this.dateService.getOffsetFromTimeZone(
+                        log.items[0].homeTerminalTimeZone
+                      )
+                    : -300;
+                }
+
+                return newValue;
+              });
+              this.tenantsLogSignal.update((prevV) => {
+                const newValue = { ...prevV };
+
+                newValue[tenant.id] = log;
+
+                return newValue;
+              });
+            })
+          );
+        }, 10)
+      )
+      .pipe(
+        finalize(() => {
+          this.isLoading.set(false);
+          console.log(this.tenantsSignal(), this.tenantsLogSignal());
+        })
+      );
+  };
 }

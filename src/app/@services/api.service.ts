@@ -13,10 +13,7 @@ import {
   IEventDetails,
 } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
-import {
-  IAppMasterData,
-  ITenantAppMasterData,
-} from '../interfaces/app-master-data.interface';
+import { ITenantAppMasterData } from '../interfaces/app-master-data.interface';
 import { IDrivers } from '../interfaces/drivers.interface';
 import { IDriverLogs } from '../interfaces/daily-log.interface';
 
@@ -225,7 +222,7 @@ export class ApiService {
     const d = DateTime.fromJSDate(date);
     const selectedDate = d.toUTC().toISO();
     const sevenDaysAgo = d.minus({ days: 7 }).toUTC().toISO();
-    console.log('[API Service] getLogs => ', selectedDate, sevenDaysAgo);
+    // console.log('[API Service] getLogs => ', selectedDate, sevenDaysAgo);
 
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
     const body = {
