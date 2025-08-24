@@ -101,6 +101,7 @@ export class AppComponent {
           this._snackBar.open(`Initiating violations auto-scan`, 'OK', {
             duration: 3000,
           });
+
           return this.scanService
             .getAllViolations({
               dateFrom:
