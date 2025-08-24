@@ -82,11 +82,11 @@ export class ScanComponent {
   certScanService = inject(CertificationsScanService);
   findEventService = inject(FindEventService);
   appService = inject(AppService);
-
-  private destroyRef = inject(DestroyRef);
   private advancedScanService = inject(AdvancedScanService);
-
+  private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
+
+  isLoading = this.appService.isLoading;
 
   // Analyze Date
   date = new FormControl<Date>(
@@ -238,7 +238,7 @@ export class ScanComponent {
   // }
 
   show = () => {
-    console.log(this.appService.appDataSignal());
+    // console.log(this.appService.appDataSignal());
   };
 
   startScan = () => {

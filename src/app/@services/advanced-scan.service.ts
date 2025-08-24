@@ -1,15 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from './api.service';
-import {
-  catchError,
-  concatMap,
-  finalize,
-  from,
-  mergeMap,
-  of,
-  tap,
-  toArray,
-} from 'rxjs';
+import { catchError, concatMap, from, mergeMap, of, tap, toArray } from 'rxjs';
 import { IDriver, IScanResultDriver, ITenant } from '../interfaces';
 import {
   IDailyLogs,
@@ -39,70 +30,47 @@ export class AdvancedScanService {
 
   constructor() {}
 
-  misovLog: {
-    [companyName: string]: { totalCount: number; drivers: string[] };
-  } = {};
-
   getLogs(date: Date) {
     const tenants = this.appService.tenantsSignal();
     this.progressBarService.initializeState('advanced');
     this.progressBarService.scanning.set(true);
 
-    return from(tenants)
-      .pipe(
-        concatMap((tenant) => {
-          this.progressBarService.currentCompany.set(tenant.name);
+    return from(tenants).pipe(
+      concatMap((tenant) => {
+        this.progressBarService.currentCompany.set(tenant.name);
 
-          return this.apiService.getLogs(tenant, date).pipe(
-            tap(() => console.log('[Advanced Scan Service] ## ', tenant.name)),
-            tap({
-              error: (error) => {
-                this.progressBarService.progressValue.update(
-                  (value) => value + this.progressBarService.constant()
-                );
-                this.progressBarService.aErrors.update((prev) => [
-                  ...prev,
-                  {
-                    error,
-                    company: tenant,
-                  },
-                ]);
-              },
-            }),
-            catchError(() => of()),
-            tap(() =>
+        return this.apiService.getLogs(tenant, date).pipe(
+          tap(() => console.log('[Advanced Scan Service] ## ', tenant.name)),
+          tap({
+            error: (error) => {
               this.progressBarService.progressValue.update(
-                (prevValue) => prevValue + this.progressBarService.constant()
-              )
-            ),
-            tap((log) => {
-              const drivers: string[] = [];
-              log.items.forEach((d) => drivers.push(d.fullName));
-              this.misovLog[tenant.name] = {
-                totalCount: log.totalCount,
-                drivers,
-              };
-            }),
-            concatMap((log) => from(log.items)),
-            mergeMap((driver) => {
-              this.progressBarService.activeDriversCount.update((i) => i + 1);
-              return this.dailyLogEvents$(driver, tenant, date).pipe();
-            }, 10),
-            toArray()
-          );
-        })
-      )
-      .pipe(
-        finalize(() => {
-          for (let company in this.misovLog) {
-            console.log('## ' + company);
-            console.log(`[total count]: ${this.misovLog[company].totalCount}`);
-            this.misovLog[company].drivers.forEach((d) =>
-              console.log(`- ${d}`)
-            );
-          }
-        })
-      );
+                (value) => value + this.progressBarService.constant()
+              );
+              this.progressBarService.aErrors.update((prev) => [
+                ...prev,
+                {
+                  error,
+                  company: tenant,
+                },
+              ]);
+            },
+          }),
+          catchError(() => of()),
+          tap(() =>
+            this.progressBarService.progressValue.update(
+              (prevValue) => prevValue + this.progressBarService.constant()
+            )
+          ),
+
+          concatMap((log) => from(log.items)),
+          mergeMap((driver) => {
+            this.progressBarService.activeDriversCount.update((i) => i + 1);
+            return this.dailyLogEvents$(driver, tenant, date).pipe();
+          }, 10),
+          toArray()
+        );
+      })
+    );
   }
 
   dailyLogEvents$(driver: IDriver, tenant: ITenant, d: Date) {
@@ -216,7 +184,10 @@ export class AdvancedScanService {
         if (event.manualDriving) {
           manualDrivingEvents.push(event);
         }
-        if (event.elapsedEngineHours >= this.engineHoursDuration()) {
+        if (
+          event.elapsedEngineHours >= this.engineHoursDuration() &&
+          event.elapsedEngineHours !== 999
+        ) {
           highEngineHourEvents.push(event);
         }
         if (event.isEventMissingPowerUp) {

@@ -11,6 +11,13 @@
     outlined-outline-width="30"
     id="mat-card-wrapper"
   >
+    @if (isLoading()) {
+    <!-- <mat-progress-bar [mode]="'determinate'" [value]="initProgressValue()">
+    </mat-progress-bar> -->
+    <div class="spinner">
+      <mat-spinner></mat-spinner>
+    </div>
+    } @else {
     <mat-tab-group
       mat-stretch-tabs="true"
       mat-align-tabs="start"
@@ -24,11 +31,6 @@
           <mat-icon id="radar-icon">radar</mat-icon>
           <span class="hide">Scan</span>
         </ng-template>
-
-        @if (isLoading()) {
-        <mat-progress-bar [mode]="'determinate'" [value]="initProgressValue()">
-        </mat-progress-bar>
-        }
 
         <app-scan></app-scan>
       </mat-tab>
@@ -102,6 +104,7 @@
 
       <mat-tab disabled></mat-tab>
     </mat-tab-group>
+    }
   </mat-card>
 </div>
 <!-- message -->

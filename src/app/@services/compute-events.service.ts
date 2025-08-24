@@ -479,7 +479,7 @@ export class ComputeEventsService {
           // speeding
           const arr = [currentDriving, ...currentDrivingIntermediates];
           for (let index = 0; index < arr.length - 1; index++) {
-            if (arr[index].computeIndex === 0) continue;
+            if (arr[index].viewId === 1) continue;
 
             const speed = +(
               arr[index + 1].odometer - arr[index].odometer

@@ -34,4 +34,8 @@ export class MonitorComponent {
 
     return DateTime.fromISO(date).setZone(zone).toISO();
   }
+
+  getNoSpaceNote(note: string) {
+    return note.replace(/\s/g, '');
+  }
 }

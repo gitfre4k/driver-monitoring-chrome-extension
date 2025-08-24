@@ -45,6 +45,14 @@
   background-blend-mode: overlay;
 }
 
+.spinner {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .tab-group {
   padding-top: 32px;
 }

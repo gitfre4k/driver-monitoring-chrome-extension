@@ -27,7 +27,7 @@ import { DateService } from './@services/date.service';
 import { ErrorsComponent } from './components/errors/errors.component';
 import { TemplatesComponent } from './components/templates/templates.component';
 import { AppService } from './@services/app.service';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-root',
@@ -47,7 +47,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     InfoComponent,
     ScanResultComponent,
     TemplatesComponent,
-    MatProgressBarModule,
+    MatProgressSpinnerModule,
   ],
 })
 export class AppComponent {
@@ -90,7 +90,7 @@ export class AppComponent {
     }
 
     // initialize app
-    this.initializeApp();
+    // this.initializeApp();
 
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({
@@ -171,9 +171,10 @@ export class AppComponent {
   }
 
   initializeApp = () => {
-    this.appService
-      .initializeAppData$()
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe();
+    // this.isLoading.set(true);
+    // this.appService
+    //   .initializeAppData$()
+    //   .pipe(finalize(() => this.isLoading.set(false)))
+    //   .subscribe();
   };
 }

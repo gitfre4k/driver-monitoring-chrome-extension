@@ -29,7 +29,7 @@
               mat-icon-button
               (click)="startViolationsScan()"
               matTooltip="Check for violations"
-              [disabled]="disableScan"
+              [disabled]="disableScan || isLoading()"
             >
               <mat-icon class="icon-display">sync</mat-icon></a
             >
@@ -40,7 +40,7 @@
             <button
               matButton="tonal"
               (click)="startViolationsScan()"
-              [disabled]="disableScan"
+              [disabled]="disableScan || isLoading()"
             >
               Scan
             </button>
@@ -179,7 +179,7 @@
           ></mat-checkbox
         >
         <button
-          [disabled]="disableScan"
+          [disabled]="disableScan || isLoading()"
           matButton="tonal"
           (click)="getPreViolationAlert()"
         >
@@ -214,7 +214,7 @@
           </div>
           <div class="scan__log-analysis__form-submit">
             <button
-              [disabled]="disableScan"
+              [disabled]="disableScan || isLoading()"
               matButton="tonal"
               (click)="startDOTScan()"
             >
@@ -238,7 +238,7 @@
         <button
           class="scan__log-analysis__form-submit"
           matButton="tonal"
-          [disabled]="disableScan"
+          [disabled]="disableScan || isLoading()"
           (click)="startCertScan()"
         >
           Scan
@@ -278,7 +278,7 @@
         </div>
         <div class="scan__log-analysis__form-submit">
           <button
-            [disabled]="disableScan"
+            [disabled]="disableScan || isLoading()"
             matButton="tonal"
             (click)="analyzeDriverLogs()"
           >
@@ -291,7 +291,7 @@
 
   <button
     class="all-in-one"
-    [disabled]="disableScan"
+    [disabled]="disableScan || isLoading()"
     matButton="tonal"
     (click)="startAllScan()"
   >
@@ -300,7 +300,7 @@
 
   <button
     class="all-in-one"
-    [disabled]="disableScan"
+    [disabled]="disableScan || isLoading()"
     matButton="tonal"
     (click)="show()"
   >
