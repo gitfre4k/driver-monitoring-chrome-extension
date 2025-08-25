@@ -8,7 +8,7 @@
     <div class="info__company-and-driver">
       <div class="info__company-and-driver__1">
         <span class="info__company-and-driver__1-company">
-          ## {{ ddle.companyName }}
+          ## {{ formatTenantName(ddle.companyName) }}
         </span>
 
         <span
@@ -26,11 +26,25 @@
         </span>
       </div>
       <div class="info__company-and-driver__2">
-        @if (driverInfo(); as driverInfo) {
-        <mat-icon>{{
-          driverInfo.mobileAppType === "Android" ? "android" : "ios"
-        }}</mat-icon>
-        <span>{{ driverInfo.mobileAppVersion }}</span>
+        @if (driverInfo(); as driverInfo) { @if
+        (driverInfo.mobileAppType.toLowerCase().trim() === "android") {
+        <mat-icon>android</mat-icon>
+        } @else {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 -960 960 960"
+          width="24px"
+          fill="#e3e3e3"
+        >
+          <path
+            d="M160-600v-80h80v80h-80Zm0 320v-240h80v240h-80Zm280 0h-80q-33 0-56.5-23.5T280-360v-240q0-33 23.5-56.5T360-680h80q33 0 56.5 23.5T520-600v240q0 33-23.5 56.5T440-280Zm-80-80h80v-240h-80v240Zm200 80v-80h160v-80h-80q-33 0-56.5-23.5T560-520v-80q0-33 23.5-56.5T640-680h160v80H640v80h80q33 0 56.5 23.5T800-440v80q0 33-23.5 56.5T720-280H560Z"
+          />
+        </svg>
+        }
+        <span class="info__company-and-driver__2-version">{{
+          driverInfo.mobileAppVersion
+        }}</span>
         <span style="margin-top: 6px">{{
           driverInfo.homeTerminalTimeZone
         }}</span>
@@ -94,7 +108,9 @@
             [ngClass]="
               'status ' +
               event.dutyStatus +
-              (event.notes && getNoSpaceNote(event.notes) ? ' underline' : '')
+              (event.notes && getNoSpaceNote(event.notes)
+                ? ' underline + shadow'
+                : '')
             "
           >
             {{
@@ -148,12 +164,6 @@
             }
           </span>
           }
-
-          <!-- @else if(event.manualDriving) {
-          <span class="note" style="color: yellow"> manual origin </span>
-          } @else {
-          <span class="note">{{ event.notes }}</span>
-          } -->
         </div>
       </li>
       }
