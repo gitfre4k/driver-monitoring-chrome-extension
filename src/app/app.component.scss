@@ -53,6 +53,12 @@
   gap: 16px;
   align-items: center;
   justify-content: center;
+
+  &__phase {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 .tab-group {

@@ -11,6 +11,7 @@ import { AppService } from './app.service';
 import { ComputeEventsService } from './compute-events.service';
 import { DateService } from './date.service';
 import { isPcOrYm } from '../helpers/monitor.helpers';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -30,7 +31,7 @@ export class AdvancedScanService {
 
   constructor() {}
 
-  getLogs(date: Date) {
+  getDriversDailyLogs(date: string) {
     const tenants = this.appService.tenantsSignal();
     this.progressBarService.initializeState('advanced');
     this.progressBarService.scanning.set(true);
@@ -38,43 +39,49 @@ export class AdvancedScanService {
     return from(tenants).pipe(
       concatMap((tenant) => {
         this.progressBarService.currentCompany.set(tenant.name);
+        const qDate = DateTime.fromISO(date).toJSDate();
 
-        return this.apiService.getLogs(tenant, date).pipe(
-          tap(() => console.log('[Advanced Scan Service] ## ', tenant.name)),
-          tap({
-            error: (error) => {
+        return this.apiService
+          .getLogs(tenant, this.dateService.getLogsCustomDateRange(qDate))
+          .pipe(
+            tap(() => console.log('[Advanced Scan Service] ## ', tenant.name)),
+            tap({
+              error: (error) => {
+                this.progressBarService.progressValue.update(
+                  (value) => value + this.progressBarService.constant()
+                );
+                this.progressBarService.aErrors.update((prev) => [
+                  ...prev,
+                  {
+                    error,
+                    company: tenant,
+                  },
+                ]);
+              },
+            }),
+            catchError(() => of()),
+            tap(() =>
               this.progressBarService.progressValue.update(
-                (value) => value + this.progressBarService.constant()
-              );
-              this.progressBarService.aErrors.update((prev) => [
-                ...prev,
-                {
-                  error,
-                  company: tenant,
-                },
-              ]);
-            },
-          }),
-          catchError(() => of()),
-          tap(() =>
-            this.progressBarService.progressValue.update(
-              (prevValue) => prevValue + this.progressBarService.constant()
-            )
-          ),
+                (prevValue) => prevValue + this.progressBarService.constant()
+              )
+            ),
 
-          concatMap((log) => from(log.items)),
-          mergeMap((driver) => {
-            this.progressBarService.activeDriversCount.update((i) => i + 1);
-            return this.dailyLogEvents$(driver, tenant, date).pipe();
-          }, 10),
-          toArray()
-        );
+            concatMap((log) => from(log.items)), // switchMap??
+            mergeMap((driver) => {
+              this.progressBarService.activeDriversCount.update((i) => i + 1);
+              return this.dailyLogEvents$(
+                driver,
+                tenant,
+                this.dateService.analyzeCustomDate(qDate)
+              ).pipe();
+            }, 10),
+            toArray()
+          );
       })
     );
   }
 
-  dailyLogEvents$(driver: IDriver, tenant: ITenant, d: Date) {
-    const date = this.dateService.getDailyLogsDate(d, tenant.offSet!)!;
+  dailyLogEvents$(driver: IDriver, tenant: ITenant, date: string) {
     return this.apiService
       .getDriverDailyLogEvents(driver.id, date, tenant.id)
       .pipe(

@@ -11,6 +11,7 @@ import {
   ITenant,
   ILog,
   IEventDetails,
+  IISODateRange,
 } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
 import { ITenantAppMasterData } from '../interfaces/app-master-data.interface';
@@ -23,19 +24,19 @@ import { IDriverLogs } from '../interfaces/daily-log.interface';
 export class ApiService {
   private http: HttpClient = inject(HttpClient);
 
-  private filterRule = (range: IRange) => {
+  private filterRule = ({ from, to }: IISODateRange) => {
     return {
       condition: 'AND',
       filterRules: [
         {
           field: 'dateFrom',
           operator: 'equals',
-          value: DateTime.fromJSDate(range.dateFrom).toUTC().toISO(),
+          value: from,
         },
         {
           field: 'dateTo',
           operator: 'equals',
-          value: DateTime.fromJSDate(range.dateTo).toUTC().toISO(),
+          value: to,
         },
       ],
     };
@@ -144,7 +145,7 @@ export class ApiService {
   // get DOT Inspections
   getDOTInspectionList(
     tenant: ITenant,
-    range: IRange
+    range: IISODateRange
   ): Observable<IDOTInspections> {
     console.log(JSON.stringify(this.filterRule(range)));
     return from(
@@ -173,7 +174,10 @@ export class ApiService {
 
   ///////////////////
   // get Violations
-  getViolations(tenant: ITenant, range: IRange): Observable<IViolations> {
+  getViolations(
+    tenant: ITenant,
+    range: IISODateRange
+  ): Observable<IViolations> {
     return from(
       this.http.post<IViolations>(
         'https://app.monitoringdriver.com/api/Violations/GetViolations',
@@ -197,12 +201,12 @@ export class ApiService {
 
   ///////////////////
   // get Driver Daily Log
-  getDriverDailyLogEvents(driverId: number, date: Date, tenantId: string) {
+  getDriverDailyLogEvents(driverId: number, date: string, tenantId: string) {
     const body = {
       driverId,
-      logDate: DateTime.fromJSDate(date).toUTC().toISO(),
+      logDate: date,
     };
-    console.log('[API Service] ## ', body.logDate);
+    console.log('[API Service] getDriverDailyLogEvents > ', body.logDate);
     return this.http.post<IDriverDailyLogEvents>(
       'https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog',
       body,
@@ -218,12 +222,8 @@ export class ApiService {
 
   ///////////////////
   // get Logs of Company Drivers
-  getLogs(tenant: ITenant, date: Date) {
-    const d = DateTime.fromJSDate(date);
-    const selectedDate = d.toUTC().toISO();
-    const sevenDaysAgo = d.minus({ days: 7 }).toUTC().toISO();
-    // console.log('[API Service] getLogs => ', selectedDate, sevenDaysAgo);
-
+  getLogs(tenant: ITenant, { from, to }: IISODateRange) {
+    console.log('[API Service] getLogs > ');
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
     const body = {
       filterRule: {
@@ -232,12 +232,12 @@ export class ApiService {
           {
             field: 'lastSync',
             operator: 'gte',
-            value: sevenDaysAgo,
+            value: from,
           },
           {
             field: 'lastSync',
             operator: 'lte',
-            value: selectedDate,
+            value: to,
           },
           {
             field: 'driverStatus',

@@ -66,10 +66,8 @@ export class MonitorService {
       return;
     }
 
-    const date = DateTime.fromISO(timestamp).toUTC().toJSDate();
-
     this.apiService
-      .getDriverDailyLogEvents(id, date, tenantId)
+      .getDriverDailyLogEvents(id, timestamp, tenantId)
       .pipe(
         tap((driverDailyLog) => {
           this.driverDailyLog.set(driverDailyLog);
@@ -77,7 +75,7 @@ export class MonitorService {
           if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
             const coId = driverDailyLog.coDrivers[0].id;
             this.apiService
-              .getDriverDailyLogEvents(coId, date, tenantId)
+              .getDriverDailyLogEvents(coId, timestamp, tenantId)
               .subscribe({
                 next: (coDriverDailyLog) =>
                   this.handleDriverDailyLogEvents({

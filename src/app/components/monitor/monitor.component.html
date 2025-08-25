@@ -27,7 +27,9 @@
       </div>
       <div class="info__company-and-driver__2">
         @if (driverInfo(); as driverInfo) {
-        <span>{{ driverInfo.mobileAppType }}</span>
+        <mat-icon>{{
+          driverInfo.mobileAppType === "Android" ? "android" : "ios"
+        }}</mat-icon>
         <span>{{ driverInfo.mobileAppVersion }}</span>
         <span style="margin-top: 6px">{{
           driverInfo.homeTerminalTimeZone

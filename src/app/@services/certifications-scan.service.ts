@@ -4,7 +4,6 @@ import { catchError, from, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { ProgressBarService } from './progress-bar.service';
-import { ICertStatusDriver } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -24,28 +23,30 @@ export class CertificationsScanService {
     const tenants = this.appService.tenantsSignal();
     const companyLogs$ = from(tenants).pipe(
       mergeMap((tenant) => {
-        return this.apiService.getLogs(tenant, this.dateService.today).pipe(
-          tap({
-            error: (error) => {
-              this.progressBarService.cErrors.update((prev) => [
-                ...prev,
-                {
-                  error,
-                  company: tenant,
-                },
-              ]);
-            },
-          }),
-          catchError(() => of()),
+        return this.apiService
+          .getLogs(tenant, this.dateService.getLogsDateRange())
+          .pipe(
+            tap({
+              error: (error) => {
+                this.progressBarService.cErrors.update((prev) => [
+                  ...prev,
+                  {
+                    error,
+                    company: tenant,
+                  },
+                ]);
+              },
+            }),
+            catchError(() => of()),
 
-          switchMap((logs) => {
-            let drivers = logs.items;
-            drivers.forEach((driver) => {
-              driver.tenant = tenant;
-            });
-            return drivers;
-          })
-        );
+            switchMap((logs) => {
+              let drivers = logs.items;
+              drivers.forEach((driver) => {
+                driver.tenant = tenant;
+              });
+              return drivers;
+            })
+          );
       }, 10)
     );
 

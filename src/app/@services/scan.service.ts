@@ -15,7 +15,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from './api.service';
 import { ProgressBarService } from './progress-bar.service';
 
-import { IDOTInspections, IRange, IViolations } from '../interfaces';
+import {
+  IDOTInspections,
+  IISODateRange,
+  IRange,
+  IViolations,
+} from '../interfaces';
 import { TScanMode } from '../types';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { DateTime } from 'luxon';
@@ -92,10 +97,7 @@ export class ScanService {
 
     const data = (items: IDriverItem[]) => ({
       tenant: company.tenant,
-      date: this.dateService.getDailyLogsDate(
-        this.dateService.today,
-        company.tenant.offSet!
-      )!,
+      date: this.dateService.analyzeDate,
       totalCount: company.totalCount,
       items,
     });
@@ -262,7 +264,7 @@ export class ScanService {
           .pipe(
             map((drivers) => {
               drivers.tenant = tenant;
-              drivers.date = this.dateService.today;
+              drivers.date = this.dateService.analyzeDate;
               return drivers;
             })
           );
@@ -270,7 +272,7 @@ export class ScanService {
     );
   }
 
-  getAllViolations(range: IRange) {
+  getAllViolations(range: IISODateRange) {
     this.progressBarService.initializeState('violations');
     this.progressBarService.scanning.set(true);
 
@@ -321,7 +323,7 @@ export class ScanService {
       );
   }
 
-  getAllDOTInspections(range: IRange) {
+  getAllDOTInspections(range: IISODateRange) {
     this.progressBarService.initializeState('dot');
     this.progressBarService.scanning.set(true);
 

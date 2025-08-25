@@ -27,7 +27,7 @@ export class FindEventService {
         concatMap((date) =>
           this.apiService.getDriverDailyLogEvents(
             this.DRIVER_ID,
-            DateTime.fromISO(date!).toJSDate(),
+            date!,
             this.KOSTIC_TENANT_ID
           )
         )

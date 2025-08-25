@@ -74,7 +74,7 @@ export interface IDriverItem {
 
 export interface IDrivers {
   tenant: ITenant;
-  date: Date;
+  date: string;
   totalCount: number;
   items: IDriverItem[];
 }

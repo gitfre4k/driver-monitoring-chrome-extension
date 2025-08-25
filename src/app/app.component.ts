@@ -82,6 +82,7 @@ export class AppComponent {
   initMode = this.appService.initMode;
   initPhase = this.appService.initPhase;
   initProgressValue = this.appService.initProgressValue;
+  initCurrentTenant = this.appService.initCurrentTenant;
 
   constructor() {}
 
@@ -104,11 +105,11 @@ export class AppComponent {
 
           return this.scanService
             .getAllViolations({
-              dateFrom:
+              from:
                 this.scanService.selectedRange() === 'week'
-                  ? this.dateService.sevenDaysAgo
-                  : this.dateService.monthAgo,
-              dateTo: this.dateService.today,
+                  ? this.dateService.violationsSevenDaysAgo
+                  : this.dateService.violationsMonthAgo,
+              to: this.dateService.violationsToday,
             })
             .subscribe({
               next: (data: IViolations[]) =>

@@ -156,3 +156,8 @@ export interface ICertStatusDriver {
   zone: string;
   tenant: ITenant;
 }
+
+export interface IISODateRange {
+  from: string;
+  to: string;
+}

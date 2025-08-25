@@ -5,127 +5,67 @@ import { DateTime } from 'luxon';
   providedIn: 'root',
 })
 export class DateService {
-  requestDate!: Date;
+  /////////////////////////////
+  // >> today
+  now = DateTime.now();
+  startOfToday = this.now.startOf('day');
+  endOfToday = this.now.endOf('day');
 
-  constructor() {}
+  // custom format
+  formatedDate = (date: Date) => {
+    const luxDate = DateTime.fromJSDate(date) as DateTime<true>;
+    return {
+      startOfDay: luxDate.startOf('day').toUTC().toISO(),
+      endOfDay: luxDate.endOf('day').toUTC().toISO(),
+    };
+  };
 
-  getDailyLogsDate(date: Date, offSet: number) {
-    this.requestDate = date;
-    return this.dailyLogsDate(offSet);
-  }
-  getQueryDate(date: Date) {
-    this.requestDate = date;
-    return this.queryDate;
-  }
-  getDOTQueryDate(date: Date) {
-    this.requestDate = date;
-    return this.dotQueryDate;
-  }
-  getAnalyzeQueryDate(date: Date) {
-    this.requestDate = date;
-    return this.analyzeQueryDate;
-  }
+  /////////////////////////////
+  // >> Violations (end of day)
+  violationsToday = this.endOfToday.toUTC().toISO();
+  violationsSevenDaysAgo = this.endOfToday.minus({ days: 7 }).toUTC().toISO();
+  violationsMonthAgo = this.endOfToday.minus({ months: 1 }).toUTC().toISO();
+  // custom
+  violationsRange = (from: Date, to: Date) => ({
+    from: this.formatedDate(from).endOfDay,
+    to: this.formatedDate(to).endOfDay,
+  });
+
+  /////////////////////////////
+  // >> FMCSA Ins (end + start)
+  fmcsaRange = () => ({
+    from: this.startOfToday.toUTC().toISO(),
+    to: this.endOfToday.toUTC().toISO(),
+  });
+  //custom
+  fmcsaCustomRange = (date: Date) => ({
+    from: this.formatedDate(date).startOfDay,
+    to: this.formatedDate(date).endOfDay,
+  });
+
+  /////////////////////////////
+  // >> Analyze Logs Date (end)
+  analyzeDate = this.startOfToday.toUTC().toISO();
+  analyzeCustomDate = (date: Date) => this.formatedDate(date).startOfDay;
+
+  /////////////////////////////
+  // >> getLog Date Range (end)
+  getLogsDateRange = () => ({
+    from: this.endOfToday.minus({ days: 7 }).toUTC().toISO(),
+    to: this.endOfToday.toUTC().toISO(),
+  });
+  getLogsCustomDateRange = (date: Date) => ({
+    from: this.formatedDate(
+      DateTime.fromJSDate(date).minus({ days: 7 }).toJSDate()
+    ).endOfDay,
+    to: this.formatedDate(date).endOfDay,
+  });
 
   get offSet() {
     return DateTime.local().offset;
   }
-  ///////////
-  get today() {
-    console.log(
-      'today ',
-      DateTime.now()
-        .setZone('utc')
-        .endOf('day')
-        .minus({ minutes: this.offSet })
-        .toJSDate()
-    );
-    return DateTime.now()
-      .setZone('utc')
-      .endOf('day')
-      .minus({ minutes: this.offSet })
-      .toJSDate();
-  }
-  get sevenDaysAgo() {
-    return DateTime.now()
-      .setZone('utc')
-      .endOf('day')
-      .minus({ minutes: this.offSet, days: 7 })
-      .toJSDate();
-  }
-  get monthAgo() {
-    return DateTime.now()
-      .setZone('utc')
-      .endOf('day')
-      .minus({ minutes: this.offSet, months: 1 })
-      .toJSDate();
-  }
 
-  dailyLogsDate(offSet: number) {
-    const utcHour = DateTime.utc().hour;
-    const days = utcHour >= 0 && utcHour < 12 + offSet / 60 ? 2 : 1;
-
-    console.log('LOLOGOGOGOGOLOG ', offSet, days);
-
-    const logsDate = DateTime.fromJSDate(this.requestDate)
-      .setZone('utc')
-      .minus({ days })
-      .plus({ milliseconds: 1 })
-      .toJSDate();
-
-    return logsDate;
-  }
-
-  get queryDate() {
-    if (!this.requestDate) {
-      console.error('[Date Service] Invalid request date');
-      return;
-    }
-
-    return DateTime.fromJSDate(this.requestDate)
-      .setZone('utc')
-      .endOf('day')
-      .minus({ minutes: DateTime.local().offset })
-      .toJSDate();
-  }
-
-  get dotQueryDate() {
-    if (!this.requestDate) {
-      console.error('[Date Service] Invalid request date');
-      return;
-    }
-
-    return DateTime.fromJSDate(this.requestDate).setZone('utc').toJSDate();
-  }
-
-  get analyzeQueryDate() {
-    if (!this.requestDate) {
-      console.error('[Date Service] Invalid request date');
-      return;
-    }
-
-    console.log(
-      'analyzeQueryDate ',
-      DateTime.fromJSDate(this.requestDate)
-        .setZone('utc')
-        .plus({ days: 1 })
-        .toJSDate()
-    );
-
-    return DateTime.fromJSDate(this.requestDate)
-      .setZone('utc')
-      .plus({ days: 1 })
-      .toJSDate();
-  }
-
-  get todayLocal() {
-    return DateTime.now().startOf('day').toJSDate();
-  }
-  get sevenDaysAgoLocal() {
-    return DateTime.now().startOf('day').minus({ days: 7 }).toJSDate();
-  }
-  get monthAgoLocal() {
-    return DateTime.now().startOf('day').minus({ months: 1 }).toJSDate();
-  }
+  // const utcHour = DateTime.utc().hour;
 
   getOffsetFromTimeZone(timeZone: string) {
     switch (timeZone) {

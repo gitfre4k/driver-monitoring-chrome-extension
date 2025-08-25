@@ -12,14 +12,15 @@
     id="mat-card-wrapper"
   >
     @if (isLoading()) {
-    <!-- <mat-progress-bar [mode]="'determinate'" [value]="initProgressValue()">
-    </mat-progress-bar> -->
     <div class="spinner">
       <mat-spinner
         [mode]="initMode()"
         [value]="initProgressValue()"
       ></mat-spinner>
-      <span>{{ initPhase() }}</span>
+      <div class="spinner__phase">
+        <span>{{ initPhase() }}</span>
+        <span>{{ initCurrentTenant() }}</span>
+      </div>
     </div>
     } @else {
     <mat-tab-group

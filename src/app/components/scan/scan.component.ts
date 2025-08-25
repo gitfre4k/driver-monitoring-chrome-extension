@@ -88,15 +88,19 @@ export class ScanComponent {
 
   // Analyze Date
   date = new FormControl<Date>(
-    DateTime.now().setZone('America/New_York').toJSDate()
+    DateTime.fromISO(this.dateService.analyzeDate).toJSDate()
   );
-  analyzeDate = signal(this.dateService.today);
+  analyzeDate = signal(
+    this.date.value
+      ? this.dateService.analyzeCustomDate(this.date.value)
+      : this.dateService.analyzeDate
+  );
 
   // DOT Date
-  date2 = new FormControl<Date>(DateTime.now().startOf('day').toJSDate());
-  dotDate = signal(
-    this.dateService.getDOTQueryDate(DateTime.now().startOf('day').toJSDate())
+  date2 = new FormControl<Date>(
+    DateTime.fromISO(this.dateService.fmcsaRange().from).toJSDate()
   );
+  dotDate = signal(this.dateService.fmcsaRange());
 
   // Range Date
   range = new FormGroup({
@@ -105,25 +109,30 @@ export class ScanComponent {
   });
   updateRangeTrigger = signal(0);
   dateRange = computed(() => {
-    const { today, sevenDaysAgo, monthAgo, getQueryDate } = this.dateService;
-    let dateFrom: Date;
-    let dateTo = today;
+    const {
+      violationsToday,
+      violationsSevenDaysAgo,
+      violationsMonthAgo,
+      violationsRange,
+    } = this.dateService;
+    let dateFrom: string;
+    let dateTo = violationsToday;
+    const { from, to } = violationsRange(
+      this.range.value.start!,
+      this.range.value.end!
+    );
     this.updateRangeTrigger();
     switch (this.scanService.selectedRange()) {
       case 'custom':
-        dateFrom = this.range.value.start
-          ? getQueryDate(this.range.value.start)!
-          : sevenDaysAgo;
-        dateTo = this.range.value.end
-          ? getQueryDate(this.range.value.end)!
-          : today;
+        dateFrom = this.range.value.start ? from : violationsSevenDaysAgo;
+        dateTo = this.range.value.end ? to : violationsToday;
         break;
       case 'month':
-        dateFrom = monthAgo;
+        dateFrom = violationsMonthAgo;
         break;
       default:
-        dateFrom = sevenDaysAgo;
-        dateTo = today;
+        dateFrom = violationsSevenDaysAgo;
+        dateTo = violationsToday;
     }
 
     return { dateFrom, dateTo };
@@ -148,10 +157,19 @@ export class ScanComponent {
   }
 
   changeDate(ev: MatDatepickerInputEvent<Date>) {
-    this.analyzeDate.set(this.dateService.getAnalyzeQueryDate(ev.value!)!);
+    console.log('change date => ', ev.value);
+    console.log(
+      'change date ISO UTC => ',
+      DateTime.fromJSDate(ev.value!).toUTC().toISO()
+    );
+    console.log(
+      "change now startOf 'day' ISO UTC => ",
+      DateTime.now().startOf('day').toUTC().toISO()
+    );
+    this.analyzeDate.set(this.dateService.analyzeCustomDate(ev.value!));
   }
   changeDOTDate(ev: MatDatepickerInputEvent<Date>) {
-    this.dotDate.set(this.dateService.getDOTQueryDate(ev.value!));
+    this.dotDate.set(this.dateService.fmcsaCustomRange(ev.value!));
   }
   updateRange() {
     this.updateRangeTrigger.update((prev) => prev + 1);
@@ -160,10 +178,14 @@ export class ScanComponent {
     const value = this.scanService.selectedRange();
     if (value === 'custom') return;
 
-    const { todayLocal, sevenDaysAgoLocal, monthAgoLocal } = this.dateService;
+    const { violationsToday, violationsSevenDaysAgo, violationsMonthAgo } =
+      this.dateService;
     this.range.setValue({
-      start: value === 'week' ? sevenDaysAgoLocal : monthAgoLocal,
-      end: todayLocal,
+      start:
+        value === 'week'
+          ? DateTime.now().endOf('day').minus({ days: 7 }).toJSDate()
+          : DateTime.now().endOf('day').minus({ months: 1 }).toJSDate(),
+      end: DateTime.now().endOf('day').toJSDate(),
     });
   }
 
@@ -242,7 +264,7 @@ export class ScanComponent {
           return;
         }
         this.scanSubscribtion = this.advancedScanService
-          .getLogs(date)
+          .getDriversDailyLogs(date)
           .subscribe({
             complete: () => this.handleAdvancedScanComplete(),
           });
@@ -280,11 +302,10 @@ export class ScanComponent {
         }
         this.scanSubscribtion = (
           this.scanMode.value === 'violations'
-            ? this.scanService.getAllViolations({ dateFrom, dateTo })
-            : (this.scanService.getAllDOTInspections({
-                dateFrom: dotDate,
-                dateTo: dotDate,
-              }) as Observable<any>)
+            ? this.scanService.getAllViolations({ from: dateFrom, to: dateTo })
+            : (this.scanService.getAllDOTInspections(
+                dotDate
+              ) as Observable<any>)
         ).subscribe({
           next: (data: IViolations[] | IDOTInspections[]) =>
             this.scanService.handleScanData(data, this.scanMode.value),

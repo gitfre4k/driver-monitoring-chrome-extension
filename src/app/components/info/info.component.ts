@@ -31,7 +31,7 @@ export class InfoComponent {
     const t = this.appService.currentTenant();
     const d = this.monitorService.driverDailyLog();
     if (t && d) {
-      this.apiService.getLogs(t, new Date()).subscribe({
+      this.apiService.getLogs(t, this.dateService.fmcsaRange()).subscribe({
         next: (logs) => {
           const currentDriver = logs.items.find(
             (driver) => driver.id === d.driverId

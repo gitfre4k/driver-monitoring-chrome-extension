@@ -23,6 +23,7 @@ export class AppService {
   isLoading = signal(false);
   initPhase = signal('');
   initMode = signal<'indeterminate' | 'determinate'>('indeterminate');
+  initCurrentTenant = signal('');
   initConstant = computed(() => 100 / this.tenantsSignal().length);
   initProgressValue = signal(0);
 
@@ -58,34 +59,37 @@ export class AppService {
       .pipe(
         switchMap((tenants) => from(tenants)),
         mergeMap((tenant) => {
-          return this.apiService.getLogs(tenant, this.dateService.today).pipe(
-            tap((log) => {
-              this.initProgressValue.update(
-                (prev) => prev + this.initConstant()
-              );
-              this.tenantsSignal.update((prevV) => {
-                let newValue = [...prevV];
+          return this.apiService
+            .getLogs(tenant, this.dateService.getLogsDateRange())
+            .pipe(
+              tap((log) => {
+                this.initCurrentTenant.set(tenant.name);
+                this.initProgressValue.update(
+                  (prev) => prev + this.initConstant()
+                );
+                this.tenantsSignal.update((prevV) => {
+                  let newValue = [...prevV];
 
-                let intex = newValue.findIndex((t) => t.id === tenant.id);
-                if (intex !== -1) {
-                  newValue[intex].offSet = log.items.length
-                    ? this.dateService.getOffsetFromTimeZone(
-                        log.items[0].homeTerminalTimeZone
-                      )
-                    : -300;
-                }
+                  let index = newValue.findIndex((t) => t.id === tenant.id);
+                  if (index !== -1) {
+                    newValue[index].offSet = log.items.length
+                      ? this.dateService.getOffsetFromTimeZone(
+                          log.items[0].homeTerminalTimeZone
+                        )
+                      : -300;
+                  }
 
-                return newValue;
-              });
-              this.tenantsLogSignal.update((prevV) => {
-                const newValue = { ...prevV };
+                  return newValue;
+                });
+                this.tenantsLogSignal.update((prevV) => {
+                  const newValue = { ...prevV };
 
-                newValue[tenant.id] = log;
+                  newValue[tenant.id] = log;
 
-                return newValue;
-              });
-            })
-          );
+                  return newValue;
+                });
+              })
+            );
         }, 10)
       )
       .pipe(
