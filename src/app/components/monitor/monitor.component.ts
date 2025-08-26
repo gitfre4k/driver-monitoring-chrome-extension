@@ -7,7 +7,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DateTime } from 'luxon';
-import { AppService } from '../../@services/app.service';
 
 @Component({
   selector: 'app-monitor',
@@ -47,6 +46,7 @@ export class MonitorComponent {
       'logistics',
       'transport',
       'transportations',
+      'Transportation',
       'express',
       'enterprises',
       'enterprise',
