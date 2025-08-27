@@ -17,12 +17,15 @@ import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.int
 import { ITenantAppMasterData } from '../interfaces/app-master-data.interface';
 import { IDrivers } from '../interfaces/drivers.interface';
 import { IDriverLogs } from '../interfaces/daily-log.interface';
+import { DateService } from './date.service';
+import { IUnidentifiedEventsData } from '../interfaces/unidentified-events.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
   private http: HttpClient = inject(HttpClient);
+  private dateService = inject(DateService);
 
   private filterRule = ({ from, to }: IISODateRange) => {
     return {
@@ -275,6 +278,67 @@ export class ApiService {
         'x-client-timezone': `${DateTime.local().zoneName}`,
         'X-Tenant-Id': tenant.id,
       },
+    });
+  }
+
+  ///////////////////
+  // get unidentified events
+  getUnidentifiedEvents(tenant: ITenant) {
+    const url =
+      'https://app.monitoringdriver.com/api/Logs/GetUnidentifiedEvents';
+
+    const body = {
+      filterRule: {
+        condition: 'AND',
+        filterRules: [
+          {
+            field: 'dateFrom',
+            operator: 'gte',
+            value: this.dateService.endOfToday
+              .minus({ years: 1 })
+              .toUTC()
+              .toISO(),
+          },
+          {
+            field: 'dateTo',
+            operator: 'lte',
+            value: this.dateService.endOfToday.toUTC().toISO(),
+          },
+        ],
+      },
+      searchRule: {
+        columns: ['vehicleName', 'startLocation', 'endLocation'],
+        text: '',
+      },
+      sorting: 'id asc',
+      skipCount: 0,
+      maxResultCount: 1000,
+    };
+
+    return this.http.post<IUnidentifiedEventsData>(url, body, {
+      withCredentials: true,
+      headers: {
+        'x-client-timezone': `${DateTime.local().zoneName}`,
+        'X-Tenant-Id': tenant.id,
+      },
+    });
+  }
+
+  ///////////////////
+  // delete unidentified events
+  deleteUncertifiedEvents(tenant: ITenant, eventsArray: number[]) {
+    const url =
+      'https://app.monitoringdriver.com/api/Logs/BulkDeleteUnidentifiedEvent';
+
+    const body = eventsArray;
+
+    return this.http.delete(url, {
+      withCredentials: true,
+      headers: {
+        'x-client-timezone': `${DateTime.local().zoneName}`,
+        'X-Tenant-Id': tenant.id,
+      },
+      body,
     });
   }
 }

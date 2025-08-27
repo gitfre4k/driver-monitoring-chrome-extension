@@ -48,6 +48,7 @@ import { IDriverLogs } from '../../interfaces/daily-log.interface';
 import { CertificationsScanService } from '../../@services/certifications-scan.service';
 import { FindEventService } from '../../@services/find-event.service';
 import { AppService } from '../../@services/app.service';
+import { UnidentifiedEventsService } from '../../@services/unidentified-events.service';
 
 @Component({
   selector: 'app-scan',
@@ -82,6 +83,7 @@ export class ScanComponent {
   certScanService = inject(CertificationsScanService);
   findEventService = inject(FindEventService);
   appService = inject(AppService);
+  unidentifiedEventsService = inject(UnidentifiedEventsService);
   private advancedScanService = inject(AdvancedScanService);
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
@@ -250,6 +252,13 @@ export class ScanComponent {
   getPreViolationAlert() {
     this.scanMode.setValue('pre');
     this.startScan();
+  }
+
+  deleteUnidentifiedEvents() {
+    this.scanMode.setValue('deleteUE');
+    this.scanSubscribtion = this.unidentifiedEventsService
+      .deleteAllUnidentifiedEvents$()
+      .subscribe({ complete: () => this.scanMode.setValue('violations') });
   }
 
   startScan = () => {

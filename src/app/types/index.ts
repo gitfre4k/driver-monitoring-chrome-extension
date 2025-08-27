@@ -4,7 +4,7 @@ export type TScanMode =
   | 'advanced'
   | 'pre'
   | 'cert'
-  | 'all';
+  | 'deleteUE';
 
 export type TScanResult =
   | 'teleports'

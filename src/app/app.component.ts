@@ -1,10 +1,4 @@
-import {
-  Component,
-  computed,
-  HostListener,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -19,7 +13,7 @@ import { ProgressBarService } from './@services/progress-bar.service';
 import { InfoComponent } from './components/info/info.component';
 import { ScanResultComponent } from './components/scan-result/scan-result.component';
 import { ExtensionTabNavigationService } from './@services/extension-tab-navigation.service';
-import { finalize, interval, Subscription } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
 import { ScanService } from './@services/scan.service';
 import { IViolations } from './interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';

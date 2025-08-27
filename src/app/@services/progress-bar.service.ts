@@ -221,6 +221,9 @@ export class ProgressBarService {
         this.cErrors.set([]);
         this.progressMode.set('indeterminate');
         break;
+      case 'deleteUE':
+        this.progressMode.set('indeterminate');
+        break;
       default:
         return;
     }

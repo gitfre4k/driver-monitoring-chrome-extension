@@ -3,6 +3,8 @@
     <mat-card-content>
       @if (scanMode === "advanced") {
       <h2>Driver Log Analysis in progress...</h2>
+      } @else { @if (scanMode === 'deleteUE') {
+      <h2>Detecting and deleting unidentified events...</h2>
       } @else {
       <h2>
         Scanning for {{ " " }}
@@ -11,7 +13,7 @@
         ("violations") { Violations } @case ("dot") { FMCSA inspections } @case
         ("pre") { alerts } }
       </h2>
-      }
+      } }
 
       <p>{{ currentCompany() }}</p>
       @if (currentDriver()) {
@@ -27,6 +29,7 @@
       </section>
       <button mat-button (click)="stopScan()">Stop</button>
     </mat-card-content>
+    @if (scanMode !== 'deleteUE') {
     <p class="total-count">
       {{
         scanMode === "advanced" || scanMode === "cert"
@@ -35,6 +38,7 @@
             (scanMode === "pre" ? preVCount() + lowCCount() : totalCount())
       }}
     </p>
+    }
   </mat-card>
 
   <div class="errors" style="text-align: left">
