@@ -115,16 +115,6 @@ export class ApiService {
   }
 
   ///////////////////
-  // get Event (not used)
-  getEvent(id: number) {
-    console.log('[API Service]: getEvent() called');
-    return this.http.get<IEventDetails>(
-      `https://app.monitoringdriver.com/api/Logs/GetEvent/${id}`,
-      { withCredentials: true }
-    );
-  }
-
-  ///////////////////
   // get Accessible Tenants
   getAccessibleTenants() {
     return from(
