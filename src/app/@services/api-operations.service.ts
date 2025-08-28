@@ -8,7 +8,7 @@ import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 @Injectable({
   providedIn: 'root',
 })
-export class OperationsApiService {
+export class ApiOperationsService {
   private http: HttpClient = inject(HttpClient);
 
   ///////////////////

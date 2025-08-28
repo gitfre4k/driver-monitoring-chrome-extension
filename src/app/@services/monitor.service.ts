@@ -39,7 +39,8 @@ export class MonitorService {
     const currentTenant = this.urlService.tenant();
     const ddle = this.driverDailyLog();
     const tenantsLog = this.appService.tenantsLogSignal();
-    if (!currentTenant || !ddle || !tenantsLog) return null;
+    if (!currentTenant || !ddle || Object.keys(tenantsLog).length === 0)
+      return null;
 
     const driverInfo = tenantsLog[currentTenant.id].items.find(
       (d) => d.id === ddle.driverId

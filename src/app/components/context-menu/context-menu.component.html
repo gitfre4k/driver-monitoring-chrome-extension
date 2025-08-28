@@ -1,0 +1,12 @@
+<ng-container>
+  <div class="menu-link">
+    @for (menuItem of contextMenuItems; let i = $index; track menuItem) {
+    <li class="menu-link__item">
+      {{ menuItem }}
+    </li>
+
+    @if (i < contextMenuItems.length - 1) {
+    <hr />
+    } }
+  </div>
+</ng-container>

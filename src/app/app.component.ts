@@ -22,6 +22,7 @@ import { ErrorsComponent } from './components/errors/errors.component';
 import { TemplatesComponent } from './components/templates/templates.component';
 import { AppService } from './@services/app.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ContextMenuService } from './@services/context-menu.service';
 
 @Component({
   selector: 'app-root',
@@ -51,13 +52,22 @@ export class AppComponent {
   handleWindowKeyboardEvent(event: KeyboardEvent) {
     this.handleKeyboardEvent(event);
   }
+
+  @HostListener('document:click')
+  documentClick(): void {
+    this.isDisplayContextMenu.set(false);
+  }
+
   private extensionTabNavigationService = inject(ExtensionTabNavigationService);
   private progressBarService = inject(ProgressBarService);
   private appService = inject(AppService);
   private scanService = inject(ScanService);
   private _snackBar = inject(MatSnackBar);
   private dateService = inject(DateService);
+  private contextMenuService = inject(ContextMenuService);
   private subscriptions: Subscription = new Subscription();
+
+  isDisplayContextMenu = this.contextMenuService.isDisplayContextMenu;
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
@@ -87,7 +97,7 @@ export class AppComponent {
     }
 
     // initialize app
-    this.appService.initializeApp$().subscribe();
+    // this.appService.initializeApp$().subscribe();
 
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({

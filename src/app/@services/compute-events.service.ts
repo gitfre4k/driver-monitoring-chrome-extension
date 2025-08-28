@@ -20,7 +20,6 @@ import {
 import { ITenant } from '../interfaces';
 import { ApiService } from './api.service';
 import { DateTime } from 'luxon';
-import { AdvancedScanService } from './advanced-scan.service';
 
 @Injectable({
   providedIn: 'root',

@@ -2,13 +2,16 @@ import { Component, inject } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MonitorService } from '../../@services/monitor.service';
-import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DateTime } from 'luxon';
-import { BackgroundJsService } from '../../@services/background-js.service';
+
 import { UrlService } from '../../@services/url.service';
+import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
+import { ContextMenuService } from '../../@services/context-menu.service';
+import { ContextMenuComponent } from '../context-menu/context-menu.component';
 
 @Component({
   selector: 'app-monitor',
@@ -18,6 +21,7 @@ import { UrlService } from '../../@services/url.service';
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    ContextMenuComponent,
   ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
@@ -26,8 +30,17 @@ import { UrlService } from '../../@services/url.service';
 export class MonitorComponent {
   monitorService = inject(MonitorService);
   urlService = inject(UrlService);
+  contextMenuService = inject(ContextMenuService);
 
   driverInfo = this.monitorService.driverInfo;
+
+  displayContextMenu = this.contextMenuService.displayContextMenu;
+  rightClickMenuItems = this.contextMenuService.rightClickMenuItems;
+  getRightClickMenuStyle = this.contextMenuService.getRightClickMenuStyle;
+  handleMenuItemClick = this.contextMenuService.handleMenuItemClick;
+  isDisplayContextMenu = this.contextMenuService.isDisplayContextMenu;
+
+  constructor() {}
 
   refresh = () => {
     this.monitorService.refresh.update((value) => value + 1);
