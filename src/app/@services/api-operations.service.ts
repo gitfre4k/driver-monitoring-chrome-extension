@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { from, switchMap } from 'rxjs';
+import { from, switchMap, tap } from 'rxjs';
 import { IEventDetails, ITenant } from '../interfaces';
 import { DateTime } from 'luxon';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
@@ -13,11 +13,17 @@ export class ApiOperationsService {
 
   ///////////////////
   // get Event (not used)
-  getEvent(id: number) {
+  getEvent(tenant: ITenant, id: number) {
     console.log('[API Service]: getEvent() called');
     return this.http.get<IEventDetails>(
       `https://app.monitoringdriver.com/api/Logs/GetEvent/${id}`,
-      { withCredentials: true }
+      {
+        withCredentials: true,
+        headers: {
+          'X-Tenant-Id': `${tenant.id}`,
+          'x-client-timezone': `${DateTime.local().zoneName}`,
+        },
+      }
     );
   }
 
@@ -39,11 +45,11 @@ export class ApiOperationsService {
         .toUTC()
         .toISO();
 
-    return this.getEvent(id).pipe(
-      switchMap((event) =>
-        this.http.post<IEventDetails>(
+    return this.getEvent(tenant, id).pipe(
+      switchMap((event) => {
+        return this.http.post<IEventDetails>(
           url,
-          { ...event, startTime: getStartTime(event.startTime) },
+          { ...event, startTime: getStartTime(event.startTime)! },
           {
             withCredentials: true,
             headers: {
@@ -51,8 +57,8 @@ export class ApiOperationsService {
               'x-client-timezone': `${DateTime.local().zoneName}`,
             },
           }
-        )
-      )
+        );
+      })
     );
   };
 

@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { ContextMenuService } from '../../@services/context-menu.service';
-// import { ContextMenuModel } from "../Interfaces/context-menu-model";
+
+import { AppService } from '../../@services/app.service';
 
 @Component({
   selector: 'app-context-menu',
@@ -8,18 +9,15 @@ import { ContextMenuService } from '../../@services/context-menu.service';
   styleUrls: ['./context-menu.component.scss'],
 })
 export class ContextMenuComponent {
-  @Input()
-  contextMenuItems: any;
-
-  @Output()
-  onContextMenuItemClick: EventEmitter<any> = new EventEmitter<any>();
+  @Input() contextMenuItems: any;
+  @Input() eventId!: number;
 
   contextMenuService = inject(ContextMenuService);
+  appService = inject(AppService);
 
-  // onContextMenuClick(event, data): any {
-  //   this.onContextMenuItemClick.emit({
-  //     event,
-  //     data,
-  //   });
-  // }
+  tenant = this.appService.currentTenant;
+
+  handleClick(item: string, eventId: number) {
+    this.contextMenuService.handleMenuItemClick(item, this.tenant()!, eventId);
+  }
 }

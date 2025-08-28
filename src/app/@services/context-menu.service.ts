@@ -1,9 +1,13 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
+import { ApiOperationsService } from './api-operations.service';
+import { ITenant } from '../interfaces';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'any',
 })
 export class ContextMenuService {
+  apiOperationsService = inject(ApiOperationsService);
+
   isDisplayContextMenu = signal(false);
   rightClickMenuItems: string[] = [];
   rightClickMenuPositionX!: number;
@@ -26,14 +30,12 @@ export class ContextMenuService {
     };
   }
 
-  handleMenuItemClick(event: any) {
-    console.log(event.data);
-    switch (event.data) {
-      case 'add Pre-Trip Inspection':
-        console.log('add Pre-Trip Inspection');
-        break;
-      default:
-        return;
-    }
+  handleMenuItemClick(item: string, tenant: ITenant, eventId: number) {
+    console.log('zzzzzzzzzzzzzzzzzzzzzzzzz', eventId);
+
+    console.log('add Pre-Trip Inspection', tenant.id);
+    this.apiOperationsService
+      .updateEvent(tenant, eventId, 10)
+      .subscribe((data) => console.log(data));
   }
 }

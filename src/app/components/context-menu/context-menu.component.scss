@@ -2,5 +2,17 @@
   background-color: rgba(39, 39, 42, 0.666);
   &__item {
     padding: 8px;
+    .on-hover {
+      display: none;
+    }
+  }
+
+  &__item:hover .on-hover {
+    display: block;
+  }
+  &__item:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    background-color: rgba(65, 65, 68, 0.666);
+    cursor: pointer;
   }
 }

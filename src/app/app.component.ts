@@ -97,7 +97,7 @@ export class AppComponent {
     }
 
     // initialize app
-    // this.appService.initializeApp$().subscribe();
+    this.appService.initializeApp$().subscribe();
 
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({

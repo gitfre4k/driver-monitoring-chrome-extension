@@ -72,17 +72,19 @@
       { @if (event.shift && ddle.coDrivers.length !== 0) {
       <p>{{ event.driver.name }}</p>
       <hr />
-      } @if (rightClickMenuItems.length > 0 && isDisplayContextMenu()) {
-      <app-context-menu
-        [ngStyle]="getRightClickMenuStyle()"
-        [contextMenuItems]="rightClickMenuItems"
-        (onContextMenuItemClick)="handleMenuItemClick($event)"
-      ></app-context-menu>
       }
-      <li (contextmenu)="displayContextMenu($event); (false)">
+      <li>
+        @if (rightClickMenuItems.length > 0 && isDisplayContextMenu()) {
+        <app-context-menu
+          [ngStyle]="getRightClickMenuStyle()"
+          [contextMenuItems]="rightClickMenuItems"
+          [eventId]="event.id"
+        ></app-context-menu>
+        }
         <div
           class="event"
           (click)="!isDisplayContextMenu() && focusElement(event.id)"
+          (contextmenu)="displayContextMenu($event); (false)"
         >
           <span
             [ngClass]="
