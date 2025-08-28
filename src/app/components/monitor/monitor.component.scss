@@ -171,6 +171,19 @@
           .note {
             justify-self: start;
           }
+
+          .on-hover {
+            display: none;
+          }
+        }
+
+        .event:hover .on-hover {
+          display: block;
+        }
+        .event:hover {
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+          background-color: rgba(53, 53, 58, 0.288);
+          cursor: pointer;
         }
       }
     }

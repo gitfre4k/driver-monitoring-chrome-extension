@@ -1,11 +1,11 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable, from, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
-export class LocalStorageService {
+export class BackgroundJsService {
   constructor(private ngZone: NgZone) {
     if (typeof chrome === 'undefined' || !chrome.runtime) {
       console.warn(
@@ -54,6 +54,60 @@ export class LocalStorageService {
                 const errorMessage =
                   response?.error || 'Unknown error updating local storage.';
                 console.error('Local storage update failed:', errorMessage);
+                throw new Error(errorMessage);
+              }
+            }),
+            catchError((error) => {
+              const errorMessage =
+                chrome.runtime.lastError?.message ||
+                error.message ||
+                'Error sending message to background.';
+              console.error('Error in sendMessage Observable:', errorMessage);
+              throw new Error(errorMessage);
+            })
+          )
+          .subscribe({
+            next: (success) => observer.next(success),
+            error: (err) => observer.error(err),
+            complete: () => observer.complete(),
+          });
+      });
+    });
+  }
+
+  focusElement(tabId: number, elementId: number): Observable<boolean> {
+    if (
+      typeof chrome === 'undefined' ||
+      !chrome.runtime ||
+      !chrome.runtime.sendMessage
+    ) {
+      return new Observable((observer) => {
+        observer.error(
+          new Error(
+            'Chrome extension APIs not available. Cannot focus element.'
+          )
+        );
+        observer.complete();
+      });
+    }
+
+    const message = {
+      action: 'focusElement',
+      payload: { tabId, elementId },
+    };
+
+    return new Observable<boolean>((observer) => {
+      this.ngZone.run(() => {
+        from(chrome.runtime.sendMessage(message))
+          .pipe(
+            map((response) => {
+              if (response && response.success) {
+                console.log('Element focus successful:', response.message);
+                return true;
+              } else {
+                const errorMessage =
+                  response?.error || 'Unknown error focusing element.';
+                console.error('Element focus failed:', errorMessage);
                 throw new Error(errorMessage);
               }
             }),

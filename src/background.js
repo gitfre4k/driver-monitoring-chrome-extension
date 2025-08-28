@@ -168,4 +168,62 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     return true;
   }
+  /////////////////////////////////////////
+  if (message.action === "focusElement" && message.payload) {
+    const { tabId, elementId } = message.payload;
+
+    // Use chrome.scripting.executeScript to inject and run a function in the target tab.
+    // The target is the specific tab ID provided in the message.
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        function: (id) => {
+          // This function runs in the context of the content script.
+          const element = document.getElementById(`row-${id}`);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+            element.focus();
+            element.style.transition = "background-color 0.2s ease-in-out";
+            element.classList.add("bg-shade-3");
+            element.style.transition = "background-color 0.3s ease-in";
+            setTimeout(() => element.classList.remove("bg-shade-3"), 250);
+
+            return {
+              success: true,
+              message: `Element with ID '${id}' has been focused.`,
+            };
+          } else {
+            return {
+              success: false,
+              error: `Element with ID '${id}' not found.`,
+            };
+          }
+        },
+        args: [elementId], // Pass the elementId as an argument to the injected function.
+      },
+      (injectionResults) => {
+        // Handle the result of the script injection.
+        if (chrome.runtime.lastError) {
+          sendResponse({
+            success: false,
+            error: `Script injection failed: ${chrome.runtime.lastError.message}`,
+          });
+          return;
+        }
+
+        const result = injectionResults[0]?.result;
+        if (result) {
+          // Pass the result from the injected function back to the Angular app.
+          sendResponse(result);
+        } else {
+          sendResponse({
+            success: false,
+            error: "Failed to get result from injected script.",
+          });
+        }
+      }
+    );
+    // Return true to indicate that you will send a response asynchronously.
+    return true;
+  }
 });

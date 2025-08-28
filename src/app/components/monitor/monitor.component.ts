@@ -7,6 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DateTime } from 'luxon';
+import { BackgroundJsService } from '../../@services/background-js.service';
+import { UrlService } from '../../@services/url.service';
 
 @Component({
   selector: 'app-monitor',
@@ -23,6 +25,7 @@ import { DateTime } from 'luxon';
 })
 export class MonitorComponent {
   monitorService = inject(MonitorService);
+  urlService = inject(UrlService);
 
   driverInfo = this.monitorService.driverInfo;
 
@@ -39,6 +42,10 @@ export class MonitorComponent {
 
   getNoSpaceNote(note: string) {
     return note.replace(/\s/g, '');
+  }
+
+  focusElement(id: number) {
+    this.urlService.focusElement(id);
   }
 
   formatTenantName(tenant: string) {

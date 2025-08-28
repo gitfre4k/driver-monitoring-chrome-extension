@@ -1,5 +1,5 @@
 import { Injectable, signal, NgZone, inject } from '@angular/core';
-import { LocalStorageService } from './local-storage.service';
+import { BackgroundJsService } from './background-js.service';
 import { ICompany } from '../interfaces';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class UrlService {
   private _snackBar = inject(MatSnackBar);
-  localStorageService = inject(LocalStorageService);
+  backgroundJsService = inject(BackgroundJsService);
   extensionTabNavService = inject(ExtensionTabNavigationService);
 
   tabId = signal<number | null>(null);
@@ -71,6 +71,22 @@ export class UrlService {
     });
   }
 
+  focusElement = (elementId: number) => {
+    const tabId = this.tabId();
+    if (!tabId)
+      return this._snackBar.open(
+        `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
+        'OK',
+        {
+          duration: 3000,
+        }
+      );
+
+    return this.backgroundJsService
+      .focusElement(tabId, elementId)
+      .subscribe((success) => console.log('[backgroundJsService] ', success));
+  };
+
   navigateChromeActiveTab = (
     url: string,
     tenant: ICompany,
@@ -94,7 +110,7 @@ export class UrlService {
       },
     });
 
-    return this.localStorageService
+    return this.backgroundJsService
       .updateTabLocalStorage(tabId, key, value)
       .subscribe({
         next: () => {
@@ -104,3 +120,5 @@ export class UrlService {
       });
   };
 }
+
+//  text-sm border bg-secondary-0 border-shade-4 hover:bg-shade-3 cursor-pointer transition-colors duration-300 ease-in-out bg-shade-3

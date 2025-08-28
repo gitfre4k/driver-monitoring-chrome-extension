@@ -75,7 +75,7 @@
       }
 
       <li>
-        <div class="event">
+        <div class="event" (click)="focusElement(event.id)">
           <span
             [ngClass]="
               'view-id ' +
