@@ -15,12 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from './api.service';
 import { ProgressBarService } from './progress-bar.service';
 
-import {
-  IDOTInspections,
-  IISODateRange,
-  IRange,
-  IViolations,
-} from '../interfaces';
+import { IDOTInspections, IISODateRange, IViolations } from '../interfaces';
 import { TScanMode } from '../types';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { DateTime } from 'luxon';

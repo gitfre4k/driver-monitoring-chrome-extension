@@ -69,32 +69,6 @@ export class UrlService {
         }
       });
     });
-
-    chrome.tabs.getCurrent((tab) => {
-      if (tab && tab.id) {
-        console.log(tab, tab.id);
-        chrome.runtime.sendMessage(
-          { action: 'contentScriptReady', tabId: tab.id },
-          (response) => {
-            if (chrome.runtime.lastError) {
-              console.error(
-                "UrlService: Error sending 'contentScriptReady' message:",
-                chrome.runtime.lastError.message
-              );
-            } else {
-              console.log(
-                "UrlService: 'contentScriptReady' message sent to background script. Response:",
-                response
-              );
-            }
-          }
-        );
-      } else {
-        console.warn(
-          "UrlService: Could not get current tab ID to send 'contentScriptReady' message."
-        );
-      }
-    });
   }
 
   navigateChromeActiveTab = (
@@ -111,7 +85,6 @@ export class UrlService {
           duration: 3000,
         }
       );
-    //  console.log('URL Service - no tabId');
 
     const key = 'MASTER_TOOLS_PROVIDER_TENANT';
     const value = JSON.stringify({
