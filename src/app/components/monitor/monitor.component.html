@@ -1,4 +1,4 @@
-<div class="content">
+<div class="content" (click)="hideContextMenu()">
   @if (monitorService.driverDailyLog(); as ddle) {
   <a mat-icon-button matTooltip="Refresh" class="refresh" (click)="refresh()"
     ><mat-icon>refresh</mat-icon></a
@@ -73,19 +73,8 @@
       <p>{{ event.driver.name }}</p>
       <hr />
       }
-      <li>
-        @if (rightClickMenuItems.length > 0 && isDisplayContextMenu()) {
-        <app-context-menu
-          [ngStyle]="getRightClickMenuStyle()"
-          [contextMenuItems]="rightClickMenuItems"
-          [eventId]="event.id"
-        ></app-context-menu>
-        }
-        <div
-          class="event"
-          (click)="!isDisplayContextMenu() && focusElement(event.id)"
-          (contextmenu)="displayContextMenu($event); (false)"
-        >
+      <li (contextmenu)="onContextMenu($event, event)">
+        <div class="event" (click)="focusElement(event.id)">
           <span
             [ngClass]="
               'view-id ' +
@@ -178,6 +167,16 @@
       </li>
       }
     </ul>
+
+    @if (contextMenuVisible) {
+    <app-context-menu
+      [x]="contextMenuX"
+      [y]="contextMenuY"
+      [item]="selectedItem"
+      (menuAction)="onMenuAction($event)"
+    >
+    </app-context-menu>
+    }
   </div>
   } @else {
   <div class="info">

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MonitorService } from '../../@services/monitor.service';
@@ -9,9 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DateTime } from 'luxon';
 
 import { UrlService } from '../../@services/url.service';
-import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
-import { ContextMenuService } from '../../@services/context-menu.service';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
+import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 
 @Component({
   selector: 'app-monitor',
@@ -30,17 +29,15 @@ import { ContextMenuComponent } from '../context-menu/context-menu.component';
 export class MonitorComponent {
   monitorService = inject(MonitorService);
   urlService = inject(UrlService);
-  contextMenuService = inject(ContextMenuService);
 
   driverInfo = this.monitorService.driverInfo;
 
-  displayContextMenu = this.contextMenuService.displayContextMenu;
-  rightClickMenuItems = this.contextMenuService.rightClickMenuItems;
-  getRightClickMenuStyle = this.contextMenuService.getRightClickMenuStyle;
-  handleMenuItemClick = this.contextMenuService.handleMenuItemClick;
-  isDisplayContextMenu = this.contextMenuService.isDisplayContextMenu;
+  contextMenuVisible = false;
+  contextMenuX = 0;
+  contextMenuY = 0;
+  selectedItem: any;
 
-  constructor() {}
+  constructor(private elementRef: ElementRef) {}
 
   refresh = () => {
     this.monitorService.refresh.update((value) => value + 1);
@@ -94,5 +91,25 @@ export class MonitorComponent {
     }
 
     return words.join(' ');
+  }
+
+  onContextMenu(event: MouseEvent, item: IEvent) {
+    event.preventDefault();
+    const rect = this.elementRef.nativeElement.getBoundingClientRect();
+    this.contextMenuVisible = true;
+    this.contextMenuX = event.clientX - rect.left;
+    this.contextMenuY = event.clientY - rect.top;
+    this.selectedItem = item;
+  }
+
+  onMenuAction(event: { action: string; item: IEvent }) {
+    console.log(`Action: ${event.action} on Item:`, event.item);
+    // Perform the action (e.g., navigate, delete, etc.)
+    this.contextMenuVisible = false;
+  }
+
+  // To hide the context menu when clicking elsewhere
+  hideContextMenu() {
+    this.contextMenuVisible = false;
   }
 }

@@ -1,18 +1,22 @@
-.menu-link {
+.context-menu {
+  position: absolute;
   background-color: rgba(39, 39, 42, 0.666);
-  &__item {
-    padding: 8px;
-    .on-hover {
-      display: none;
-    }
-  }
+  z-index: 1000;
+  padding: 5px 0;
+  border-radius: 4px;
+}
 
-  &__item:hover .on-hover {
-    display: block;
-  }
-  &__item:hover {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    background-color: rgba(65, 65, 68, 0.666);
-    cursor: pointer;
-  }
+.context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.context-menu li {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.context-menu li:hover {
+  background-color: rgba(97, 97, 104, 0.666);
 }

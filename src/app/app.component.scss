@@ -36,9 +36,9 @@
   flex-grow: 1;
   height: 100%;
   // background-color: rgb(39 39 42);
+  position: relative;
   background-image: url("../../public/buildings.jpg"),
     linear-gradient(to right, rgb(39 39 42 / 0.1));
-
   background-size: cover;
   background-position: 50% 100%;
   background-repeat: no-repeat;

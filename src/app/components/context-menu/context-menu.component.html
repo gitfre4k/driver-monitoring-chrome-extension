@@ -1,12 +1,7 @@
-<ng-container>
-  <div class="menu-link">
-    <ul>
-      <li
-        class="menu-link__item"
-        (click)="handleClick(contextMenuItems.menuItem, eventId)"
-      >
-        {{ contextMenuItems.menuItem }}
-      </li>
-    </ul>
-  </div>
-</ng-container>
+<div class="context-menu" [style.left.px]="x" [style.top.px]="y">
+  <ul>
+    <li (click)="handleAction('edit')">Edit</li>
+    <li (click)="handleAction('delete')">Delete</li>
+    <li (click)="handleAction('view')">View</li>
+  </ul>
+</div>
