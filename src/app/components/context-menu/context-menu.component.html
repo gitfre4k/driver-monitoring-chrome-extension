@@ -1,7 +1,25 @@
+@if (event && (event.pti > 0)) {
 <div class="context-menu" [style.left.px]="x" [style.top.px]="y">
   <ul>
-    <li (click)="handleAction('edit')">Edit</li>
-    <li (click)="handleAction('delete')">Delete</li>
-    <li (click)="handleAction('view')">View</li>
+    <li (click)="handleAction('EXTEND_PTI')" class="context-menu__item">
+      <mat-icon class="context-menu__item__rotate">expand_content</mat-icon>
+      <span class="context-menu__item__name">extend Pre-Trip Inspection</span>
+    </li>
+    <!-- <li (click)="handleAction('add')" class="context-menu__item">
+      <mat-icon>add</mat-icon>
+      <span class="context-menu__item__name">add Pre-Trip Inspection</span>
+    </li>
+    <li (click)="handleAction('add')" class="context-menu__item">
+      <mat-icon>arrow_outward</mat-icon>
+      <span class="context-menu__item__name"
+        >partially transform to Sleeper Berth</span
+      >
+    </li>
+    <li (click)="handleAction('add')" class="context-menu__item">
+      <mat-icon>add</mat-icon>
+      <span class="context-menu__item__name">add Engine Off</span>
+    </li> -->
   </ul>
 </div>
+
+}

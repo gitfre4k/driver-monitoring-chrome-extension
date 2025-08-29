@@ -11,6 +11,7 @@ import { DateTime } from 'luxon';
 import { UrlService } from '../../@services/url.service';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
+import { AppService } from '../../@services/app.service';
 
 @Component({
   selector: 'app-monitor',
@@ -29,13 +30,15 @@ import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 export class MonitorComponent {
   monitorService = inject(MonitorService);
   urlService = inject(UrlService);
+  appService = inject(AppService);
 
   driverInfo = this.monitorService.driverInfo;
 
-  contextMenuVisible = false;
+  statusText = '';
+  contextMenuVisible = this.appService.contextMenuVisible;
   contextMenuX = 0;
   contextMenuY = 0;
-  selectedItem: any;
+  selectedEvent: IEvent | null = null;
 
   constructor(private elementRef: ElementRef) {}
 
@@ -93,23 +96,18 @@ export class MonitorComponent {
     return words.join(' ');
   }
 
-  onContextMenu(event: MouseEvent, item: IEvent) {
-    event.preventDefault();
+  onContextMenu($event: MouseEvent, event: IEvent) {
+    $event.preventDefault();
     const rect = this.elementRef.nativeElement.getBoundingClientRect();
-    this.contextMenuVisible = true;
-    this.contextMenuX = event.clientX - rect.left;
-    this.contextMenuY = event.clientY - rect.top;
-    this.selectedItem = item;
+    this.contextMenuVisible.set(true);
+    this.contextMenuX = $event.clientX - rect.left;
+    this.contextMenuY = $event.clientY - rect.top;
+    this.selectedEvent = event;
   }
 
-  onMenuAction(event: { action: string; item: IEvent }) {
-    console.log(`Action: ${event.action} on Item:`, event.item);
-    // Perform the action (e.g., navigate, delete, etc.)
-    this.contextMenuVisible = false;
-  }
+  onMenuAction($event: { action: string; event: IEvent }) {
+    console.log(`Action: ${$event.action} on Item:`, $event.event);
 
-  // To hide the context menu when clicking elsewhere
-  hideContextMenu() {
-    this.contextMenuVisible = false;
+    $event.event.pti > 0 && this.contextMenuVisible.set(false);
   }
 }

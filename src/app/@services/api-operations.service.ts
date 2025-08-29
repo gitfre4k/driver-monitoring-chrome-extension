@@ -12,11 +12,11 @@ export class ApiOperationsService {
   private http: HttpClient = inject(HttpClient);
 
   ///////////////////
-  // get Event (not used)
-  getEvent(tenant: ITenant, id: number) {
+  // get Event
+  getEvent(tenant: ITenant, eventId: number) {
     console.log('[API Service]: getEvent() called');
     return this.http.get<IEventDetails>(
-      `https://app.monitoringdriver.com/api/Logs/GetEvent/${id}`,
+      `https://app.monitoringdriver.com/api/Logs/GetEvent/${eventId}`,
       {
         withCredentials: true,
         headers: {
@@ -29,7 +29,7 @@ export class ApiOperationsService {
 
   //     "startTime": "2025-06-03T02:04:39Z",
 
-  updateEvent = (tenant: ITenant, id: number, minutes: number) => {
+  extendPTI = (tenant: ITenant, eventId: number, seconds: number) => {
     const url = 'https://app.monitoringdriver.com/api/Logs/UpdateEvent';
 
     const getRandom = (min: number, max: number) => {
@@ -40,12 +40,12 @@ export class ApiOperationsService {
 
     const getStartTime = (date: string) =>
       DateTime.fromISO(date)
-        .minus({ minutes })
-        .minus({ seconds: getRandom(1, 180) })
+        .minus({ seconds })
+        .minus({ seconds: getRandom(1, 180) }) // + random (1sec - 3min)
         .toUTC()
         .toISO();
 
-    return this.getEvent(tenant, id).pipe(
+    return this.getEvent(tenant, eventId).pipe(
       switchMap((event) => {
         return this.http.post<IEventDetails>(
           url,

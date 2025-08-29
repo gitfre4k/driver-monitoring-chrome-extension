@@ -168,4 +168,8 @@ export class AppComponent {
     window.open('index.html', '', windowFeatures);
     window.close();
   }
+
+  hideContextMenu() {
+    this.appService.contextMenuVisible.set(false);
+  }
 }

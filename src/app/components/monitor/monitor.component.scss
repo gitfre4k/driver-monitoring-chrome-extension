@@ -162,10 +162,17 @@
             border-radius: 12px;
             width: 85px;
             text-align: center;
+            align-self: center;
+          }
+
+          .status-note {
+            border-radius: 4px;
+            font-weight: 700;
+            margin: 0 4px;
+            border: 1px solid rgb(158, 158, 158);
           }
 
           .duration {
-            margin: 0px 5px;
             justify-self: start;
           }
 
@@ -183,9 +190,14 @@
         }
         .event:hover {
           box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-          background-color: rgba(53, 53, 58, 0.288);
+          background-color: rgba(53, 53, 58, 0.333);
           cursor: pointer;
         }
+        // .fix:hover {
+        //   box-shadow: 0 8px 16px rgba(251, 255, 0, 0.789);
+        //   background-color: rgba(255, 255, 1, 0.789);
+        //   cursor: pointer;
+        // }
       }
     }
   }

@@ -303,16 +303,22 @@ export class ComputeEventsService {
             // console.log('[Pre-Trip Inspection validity] valid PTI detected');
           } else {
             wannabePTIonDutyId = i;
+
             // console.log('[Pre-Trip Inspection validity] short PTI detected');
           }
         }
         // no PTI
         if (events[i].statusName === 'Driving') {
-          wannabePTIonDutyId
-            ? events[wannabePTIonDutyId].errorMessages.push(
-                'short Pre-Trip Inspection'
-              )
-            : events[i].errorMessages.push('no Pre-Trip Inspection');
+          if (wannabePTIonDutyId) {
+            events[wannabePTIonDutyId].pti =
+              901 - events[wannabePTIonDutyId].realDurationInSeconds;
+            events[wannabePTIonDutyId].errorMessages.push(
+              'short Pre-Trip Inspection'
+            );
+          } else {
+            events[i].pti = 0;
+            events[i].errorMessages.push('no Pre-Trip Inspection');
+          }
 
           timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
           timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');

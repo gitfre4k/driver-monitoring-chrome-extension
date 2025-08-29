@@ -35,6 +35,7 @@ export class AppService {
     return tenant ? tenant : null;
   });
 
+  contextMenuVisible = signal(false);
   constructor() {}
 
   initializeApp$ = () => {

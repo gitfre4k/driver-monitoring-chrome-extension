@@ -1,4 +1,4 @@
-<div class="content" (click)="hideContextMenu()">
+<div class="content">
   @if (monitorService.driverDailyLog(); as ddle) {
   <a mat-icon-button matTooltip="Refresh" class="refresh" (click)="refresh()"
     ><mat-icon>refresh</mat-icon></a
@@ -74,7 +74,10 @@
       <hr />
       }
       <li (contextmenu)="onContextMenu($event, event)">
-        <div class="event" (click)="focusElement(event.id)">
+        <div
+          class="event {{ +(event.pti > 0 ? ' fix' : '') }}"
+          (click)="focusElement(event.id)"
+        >
           <span
             [ngClass]="
               'view-id ' +
@@ -103,13 +106,13 @@
             }}</span
           >
 
+          <!-- (event.notes && getNoSpaceNote(event.notes) ? ' underline + shadow' : '') + -->
+
           <p
             [ngClass]="
               'status ' +
               event.dutyStatus +
-              (event.notes && getNoSpaceNote(event.notes)
-                ? ' underline + shadow'
-                : '')
+               ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '')
             "
           >
             {{
@@ -168,11 +171,11 @@
       }
     </ul>
 
-    @if (contextMenuVisible) {
+    @if (contextMenuVisible()) {
     <app-context-menu
       [x]="contextMenuX"
       [y]="contextMenuY"
-      [item]="selectedItem"
+      [event]="selectedEvent"
       (menuAction)="onMenuAction($event)"
     >
     </app-context-menu>

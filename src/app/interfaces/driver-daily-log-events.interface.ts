@@ -52,6 +52,7 @@ export interface IEvent {
   pcYmCLR: boolean;
   malf: boolean;
   refuel: boolean;
+  pti: number;
 }
 
 export interface IDriverIdAndName {
