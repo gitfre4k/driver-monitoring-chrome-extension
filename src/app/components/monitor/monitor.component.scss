@@ -169,7 +169,7 @@
             border-radius: 4px;
             font-weight: 700;
             margin: 0 4px;
-            border: 1px solid rgb(158, 158, 158);
+            border: 1px solid rgb(234, 234, 234);
           }
 
           .duration {
@@ -184,6 +184,11 @@
             display: none;
           }
         }
+
+        // .selected {
+        //   box-shadow: 0 8px 16px rgba(240, 240, 240, 0.7);
+        //   background-color: rgba(53, 53, 58, 0.8);
+        // }
 
         .event:hover .on-hover {
           display: block;

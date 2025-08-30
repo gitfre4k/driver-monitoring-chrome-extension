@@ -75,7 +75,13 @@
       }
       <li (contextmenu)="onContextMenu($event, event)">
         <div
-          class="event {{ +(event.pti > 0 ? ' fix' : '') }}"
+          [ngClass]="
+            'event' +
+            (event.pti > 0 ? ' fix' : '') +
+            (event.id === selectedEvent?.id && contextMenuVisible()
+              ? ' selected'
+              : '')
+          "
           (click)="focusElement(event.id)"
         >
           <span
