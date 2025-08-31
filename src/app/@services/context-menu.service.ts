@@ -5,6 +5,7 @@ import { MonitorService } from './monitor.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TContextMenuAction } from '../types';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import { UrlService } from './url.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class ContextMenuService {
   apiOperationsService = inject(ApiOperationsService);
   appService = inject(AppService);
   monitorService = inject(MonitorService);
+  urlService = inject(UrlService);
   _snackBar = inject(MatSnackBar);
 
   computedEvents = this.monitorService.computedDailyLogEvents;
@@ -39,12 +41,14 @@ export class ContextMenuService {
           .extendPTI(tenant, event.id, event.pti)
           .subscribe({
             error: (err) => {
+              this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
                 duration: 3000,
               });
             },
             complete: () => {
+              this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               setTimeout(
                 () => this.monitorService.extendPTIBtnDisabled.set(false),
@@ -68,12 +72,14 @@ export class ContextMenuService {
           action === 'ADD_PTI' ? 'addPTI' : 'addEngineOff'
         ](tenant, event.id).subscribe({
           error: (err) => {
+            this.urlService.refreshWebApp();
             this.monitorService.refresh.update((value) => value + 1);
             this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
               duration: 7000,
             });
           },
           complete: () => {
+            this.urlService.refreshWebApp();
             this.monitorService.refresh.update((value) => value + 1);
             action === 'ADD_PTI' &&
               setTimeout(
@@ -111,12 +117,14 @@ export class ContextMenuService {
 
         return this.apiOperationsService.deleteEvents(tenant, ids).subscribe({
           error: (err) => {
+            this.urlService.refreshWebApp();
             this.monitorService.refresh.update((value) => value + 1);
             this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
               duration: 3000,
             });
           },
           complete: () => {
+            this.urlService.refreshWebApp();
             this.monitorService.refresh.update((value) => value + 1);
             this._snackBar.open(
               `${ids.length} engine event${

@@ -178,7 +178,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         function: (id) => {
           const listElement = document.getElementById(`row-${id}`);
           // const graphElement = document.querySelector(
-          //   `g:has(line#hos-event-${id}) > g > rect`
+          //   `g:has(line#hos-event-${id}) > g > rect`
           // );
 
           if (listElement) {
@@ -226,6 +226,54 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             success: false,
             error:
               "[background.js] focusElement: Failed to get result from injected script.",
+          });
+        }
+      }
+    );
+    return true;
+  }
+  //////////////////////////////////
+  // refresh webApp's view on chromeExt click
+  if (message.action === "refresh" && message.payload) {
+    const { tabId } = message.payload;
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        function: () => {
+          const refreshButton = document.querySelector(
+            "#layout > div.w-full.h-screen.flex.overflow-hidden.text-primary-0.bg-buildings.bg-cover > div > header > div.flex.gap-4.items-center.justify-between.border-l.pl-4.h-full > button.flex.rounded-full.p-1.bg-transparent.text-theme-primary.hover\\:bg-shade-4.disabled\\:text-shade-1.disabled\\:bg-transparent.hover\\:bg-theme-primary\\/60.relative.p-2"
+          );
+          if (refreshButton) {
+            refreshButton.click();
+            return {
+              success: true,
+              message: "Refresh button clicked successfully.",
+            };
+          } else {
+            return {
+              success: false,
+              error: "Refresh button not found.",
+            };
+          }
+        },
+      },
+      (injectionResults) => {
+        if (chrome.runtime.lastError) {
+          sendResponse({
+            success: false,
+            error: `[background.js] refresh: Script injection failed: ${chrome.runtime.lastError.message}`,
+          });
+          return;
+        }
+
+        const result = injectionResults[0]?.result;
+        if (result) {
+          sendResponse(result);
+        } else {
+          sendResponse({
+            success: false,
+            error:
+              "[background.js] refresh: Failed to get result from injected script.",
           });
         }
       }

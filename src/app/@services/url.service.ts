@@ -71,6 +71,24 @@ export class UrlService {
     });
   }
 
+  refreshWebApp = () => {
+    const tabId = this.tabId();
+    if (!tabId)
+      return this._snackBar.open(
+        `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
+        'OK',
+        {
+          duration: 3000,
+        }
+      );
+
+    return this.backgroundJsService
+      .refreshWebApp(tabId)
+      .subscribe((success) =>
+        console.log('[backgroundJsService] refresh', success)
+      );
+  };
+
   focusElement = (elementId: number) => {
     const tabId = this.tabId();
     if (!tabId)
@@ -84,7 +102,9 @@ export class UrlService {
 
     return this.backgroundJsService
       .focusElement(tabId, elementId)
-      .subscribe((success) => console.log('[backgroundJsService] ', success));
+      .subscribe((success) =>
+        console.log('[backgroundJsService] focus element', success)
+      );
   };
 
   navigateChromeActiveTab = (

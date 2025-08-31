@@ -384,26 +384,28 @@ export class ComputeEventsService {
         } else {
           //////////////
           // intermediate location and odometer check
-          console.log(currentDrivingIntermediates);
-          if (currentDrivingIntermediates.length > 1) {
-            const prevInter =
-              currentDrivingIntermediates[
-                currentDrivingIntermediates.length - 2
-              ];
-            if (
-              prevInter.odometer === events[i].odometer &&
-              prevInter.locationDisplayName === events[i].locationDisplayName
-            )
-              events[i].errorMessages.push('location and odometer unchanged');
-            else {
-              prevInter.odometer === events[i].odometer &&
-                events[i].errorMessages.push('odometer unchanged');
-              prevInter.locationDisplayName === events[i].locationDisplayName &&
-                events[i].errorMessages.push('location unchanged');
-            }
+          const currentDrivingPlusIntermediates = [
+            currentDriving,
+            ...currentDrivingIntermediates,
+          ];
+          const prevEvent =
+            currentDrivingPlusIntermediates[
+              currentDrivingPlusIntermediates.length - 2
+            ];
 
-            ////////////////////////////////////////////////////////
+          if (
+            prevEvent.odometer === events[i].odometer &&
+            prevEvent.locationDisplayName === events[i].locationDisplayName
+          )
+            events[i].errorMessages.push('location and odometer unchanged');
+          else {
+            prevEvent.odometer === events[i].odometer &&
+              events[i].errorMessages.push('odometer unchanged');
+            prevEvent.locationDisplayName === events[i].locationDisplayName &&
+              events[i].errorMessages.push('location unchanged');
           }
+
+          ////////////////////////////////////////////////////////
 
           let diff =
             +new Date(events[i].realStartTime) -

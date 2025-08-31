@@ -128,4 +128,58 @@ export class BackgroundJsService {
       });
     });
   }
+
+  refreshWebApp(tabId: number): Observable<boolean> {
+    if (
+      typeof chrome === 'undefined' ||
+      !chrome.runtime ||
+      !chrome.runtime.sendMessage
+    ) {
+      return new Observable((observer) => {
+        observer.error(
+          new Error(
+            'Chrome extension APIs not available. Cannot refresh web app.'
+          )
+        );
+        observer.complete();
+      });
+    }
+
+    const message = {
+      action: 'refresh',
+      payload: { tabId },
+    };
+
+    return new Observable<boolean>((observer) => {
+      this.ngZone.run(() => {
+        from(chrome.runtime.sendMessage(message))
+          .pipe(
+            map((response) => {
+              if (response && response.success) {
+                console.log('Refreshing web app successful:', response.message);
+                return true;
+              } else {
+                const errorMessage =
+                  response?.error || 'Unknown error refreshing web app.';
+                console.error('Refreshing web app failed:', errorMessage);
+                throw new Error(errorMessage);
+              }
+            }),
+            catchError((error) => {
+              const errorMessage =
+                chrome.runtime.lastError?.message ||
+                error.message ||
+                'Error sending message to background.';
+              console.error('Error in sendMessage Observable:', errorMessage);
+              throw new Error(errorMessage);
+            })
+          )
+          .subscribe({
+            next: (success) => observer.next(success),
+            error: (err) => observer.error(err),
+            complete: () => observer.complete(),
+          });
+      });
+    });
+  }
 }
