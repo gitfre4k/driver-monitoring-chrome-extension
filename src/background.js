@@ -169,24 +169,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
   /////////////////////////////////////////
+  // focus webApp's event on chromeExt click
   if (message.action === "focusElement" && message.payload) {
     const { tabId, elementId } = message.payload;
-
-    // Use chrome.scripting.executeScript to inject and run a function in the target tab.
-    // The target is the specific tab ID provided in the message.
     chrome.scripting.executeScript(
       {
         target: { tabId: tabId },
         function: (id) => {
-          // This function runs in the context of the content script.
-          const element = document.getElementById(`row-${id}`);
-          if (element) {
-            element.scrollIntoView({ behavior: "smooth", block: "center" });
-            element.focus();
-            element.style.transition = "background-color 0.2s ease-in-out";
-            element.classList.add("bg-shade-3");
-            element.style.transition = "background-color 0.3s ease-in";
-            setTimeout(() => element.classList.remove("bg-shade-3"), 250);
+          const listElement = document.getElementById(`row-${id}`);
+          // const graphElement = document.querySelector(
+          //   `g:has(line#hos-event-${id}) > g > rect`
+          // );
+
+          if (listElement) {
+            const mouseOverEvent = new MouseEvent("mouseover", {
+              bubbles: true,
+              cancelable: true,
+              view: window,
+            });
+
+            listElement.dispatchEvent(mouseOverEvent);
+            listElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            listElement.focus();
+            listElement.style.transition = "background-color 0.3s ease-in-out";
+            listElement.classList.add("bg-shade-3");
+            listElement.style.transition = "background-color 0.5s ease-in";
+            setTimeout(() => listElement.classList.remove("bg-shade-3"), 400);
 
             return {
               success: true,
@@ -199,31 +207,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             };
           }
         },
-        args: [elementId], // Pass the elementId as an argument to the injected function.
+        args: [elementId],
       },
       (injectionResults) => {
-        // Handle the result of the script injection.
         if (chrome.runtime.lastError) {
           sendResponse({
             success: false,
-            error: `Script injection failed: ${chrome.runtime.lastError.message}`,
+            error: `[background.js] focusElement: Script injection failed: ${chrome.runtime.lastError.message}`,
           });
           return;
         }
 
         const result = injectionResults[0]?.result;
         if (result) {
-          // Pass the result from the injected function back to the Angular app.
           sendResponse(result);
         } else {
           sendResponse({
             success: false,
-            error: "Failed to get result from injected script.",
+            error:
+              "[background.js] focusElement: Failed to get result from injected script.",
           });
         }
       }
     );
-    // Return true to indicate that you will send a response asynchronously.
     return true;
   }
 });

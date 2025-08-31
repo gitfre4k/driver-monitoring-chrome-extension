@@ -38,6 +38,20 @@ export class AppService {
   contextMenuVisible = signal(false);
   constructor() {}
 
+  initializeAppDevMode$ = () => {
+    this.isLoading.set(true);
+    this.initMode.set('indeterminate');
+    this.initPhase.set('getting accessible tenants...');
+
+    return this.apiService.getAccessibleTenants().pipe(
+      tap((tenants) => this.tenantsSignal.set(tenants)),
+      finalize(() => {
+        this.isLoading.set(false);
+        console.log(this.tenantsSignal(), this.tenantsLogSignal());
+      })
+    );
+  };
+
   initializeApp$ = () => {
     this.isLoading.set(true);
     this.initMode.set('indeterminate');

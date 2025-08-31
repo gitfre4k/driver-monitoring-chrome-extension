@@ -30,3 +30,8 @@ export type TProgressMode =
   | 'indeterminate'
   | 'buffer'
   | 'query';
+
+export type TContextMenuAction =
+  | 'EXTEND_PTI'
+  | 'ADD_PTI'
+  | 'DELETE_ALL_ENGINES';

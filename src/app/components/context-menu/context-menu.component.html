@@ -1,10 +1,27 @@
-@if (event && (event.pti > 0)) {
+@if (event) {
 <div class="context-menu" [style.left.px]="x" [style.top.px]="y">
   <ul>
+    @if (event.pti > 0) {
     <li (click)="handleAction('EXTEND_PTI')" class="context-menu__item">
       <mat-icon class="context-menu__item__rotate">expand_content</mat-icon>
       <span class="context-menu__item__name">extend Pre-Trip Inspection</span>
     </li>
+    }
+    <!-- playlist_add -->
+    @if (event.pti === 0) {
+    <li (click)="handleAction('ADD_PTI')" class="context-menu__item">
+      <mat-icon>playlist_add</mat-icon>
+      <span class="context-menu__item__name">create Pre-Trip Inspection</span>
+    </li>
+    }
+
+    <li (click)="handleAction('DELETE_ALL_ENGINES')" class="context-menu__item">
+      <mat-icon>delete_sweep</mat-icon>
+      <span class="context-menu__item__name">delete all Engine events</span>
+    </li>
+
+    <!-- developer_board_off  -->
+
     <!-- <li (click)="handleAction('add')" class="context-menu__item">
       <mat-icon>add</mat-icon>
       <span class="context-menu__item__name">add Pre-Trip Inspection</span>

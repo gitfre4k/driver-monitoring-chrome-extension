@@ -5,6 +5,7 @@ import { ApiOperationsService } from '../../@services/api-operations.service';
 import { AppService } from '../../@services/app.service';
 import { MonitorService } from '../../@services/monitor.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TContextMenuAction } from '../../types';
 
 @Component({
   selector: 'app-context-menu',
@@ -24,9 +25,11 @@ export class ContextMenuComponent {
   _snackBar = inject(MatSnackBar);
 
   currentTenant = this.appService.currentTenant;
+  computedEvents = this.monitorService.computedDailyLogEvents;
 
-  handleAction(action: string) {
+  handleAction(action: TContextMenuAction) {
     const tenant = this.currentTenant();
+    const computedEvents = this.computedEvents();
     const event = this.event;
 
     if (!event || !tenant) return;
@@ -45,20 +48,67 @@ export class ContextMenuComponent {
             next: () => {
               this.monitorService.refresh.update((value) => value + 1);
               this._snackBar.open(
-                `fix successfull, Pre-Trip Inspection is now extended.`,
+                'Pre-Trip Inspection is now extended.',
                 'OK',
                 {
-                  duration: 2000,
+                  duration: 3000,
                 }
               );
             },
             error: (err) => {
               this.monitorService.refresh.update((value) => value + 1);
               this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
-                duration: 2000,
+                duration: 3000,
               });
             },
           });
+      }
+      case 'ADD_PTI': {
+        return this.apiOperationsService.addPTI(tenant, event.id).subscribe({
+          next: () => {
+            this.monitorService.refresh.update((value) => value + 1);
+            this._snackBar.open('Pre-Trip Inspection has been added.', 'OK', {
+              duration: 3000,
+            });
+          },
+          error: (err) => {
+            this.monitorService.refresh.update((value) => value + 1);
+            this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+              duration: 3000,
+            });
+          },
+        });
+      }
+      case 'DELETE_ALL_ENGINES': {
+        const ids: number[] = [];
+        computedEvents?.forEach(
+          (e) => e.statusName.includes('Engine') && ids.push(e.id)
+        );
+        if (!ids.length)
+          return this._snackBar.open('No engine status detected.', 'OK', {
+            duration: 3000,
+          });
+
+        return this.apiOperationsService.deleteEvents(tenant, ids).subscribe({
+          error: (err) => {
+            this.monitorService.refresh.update((value) => value + 1);
+            this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+              duration: 3000,
+            });
+          },
+          complete: () => {
+            this.monitorService.refresh.update((value) => value + 1);
+            this._snackBar.open(
+              `${ids.length} engine event${
+                ids.length > 1 ? 's' : ''
+              } have been deleted.`,
+              'OK',
+              {
+                duration: 3000,
+              }
+            );
+          },
+        });
       }
       default:
         return;

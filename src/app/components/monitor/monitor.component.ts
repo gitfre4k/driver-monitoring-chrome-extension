@@ -98,16 +98,40 @@ export class MonitorComponent {
 
   onContextMenu($event: MouseEvent, event: IEvent) {
     $event.preventDefault();
+
     const rect = this.elementRef.nativeElement.getBoundingClientRect();
-    this.contextMenuVisible.set(true);
-    this.contextMenuX = $event.clientX - rect.left;
-    this.contextMenuY = $event.clientY - rect.top;
+    const mouseX = $event.clientX - rect.left;
+    const mouseY = $event.clientY - rect.top;
+
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    // 4. Get menu dimensions
+    const menuWidth = 150;
+    const menuHeight = 77;
+
+    // 5. Calculate position and check boundaries
+    let x = mouseX;
+    let y = mouseY;
+
+    // Adjust horizontal position if too close to the right edge
+    if (mouseX + menuWidth > windowWidth) {
+      x = mouseX - menuWidth;
+    }
+
+    // Adjust vertical position if too close to the bottom edge
+    if (mouseY + menuHeight > windowHeight) {
+      y = mouseY - menuHeight;
+    }
+
+    this.contextMenuX = x;
+    this.contextMenuY = y;
+
     this.selectedEvent = event;
+    this.contextMenuVisible.set(true);
   }
 
   onMenuAction($event: { action: string; event: IEvent }) {
-    console.log(`Action: ${$event.action} on Item:`, $event.event);
-
-    $event.event.pti > 0 && this.contextMenuVisible.set(false);
+    console.log(`Action: ${$event.action} on event:`, $event.event);
   }
 }

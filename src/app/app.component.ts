@@ -86,9 +86,10 @@ export class AppComponent {
       const views = chrome.extension.getViews({ type: 'popup' });
       this.isPopup = views.some((view) => view === window);
     }
-
+    /////////////
     // initialize app
-    this.appService.initializeApp$().subscribe();
+    this.appService.initializeAppDevMode$().subscribe();
+    // this.appService.initializeApp$().subscribe();
 
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({

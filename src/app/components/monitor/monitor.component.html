@@ -77,7 +77,6 @@
         <div
           [ngClass]="
             'event' +
-            (event.pti > 0 ? ' fix' : '') +
             (event.id === selectedEvent?.id && contextMenuVisible()
               ? ' selected'
               : '')
@@ -114,7 +113,7 @@
 
           <!-- (event.notes && getNoSpaceNote(event.notes) ? ' underline + shadow' : '') + -->
 
-          <p
+          <span
             [ngClass]="
               'status ' +
               event.dutyStatus +
@@ -126,7 +125,40 @@
                 ? event.notes.trim()
                 : event.statusName
             }}
-          </p>
+            @if (event.pti > 0 || event.pti === 0) {
+            <div class="status__fix">
+              <mat-icon>build</mat-icon>
+            </div>
+            }
+          </span>
+
+          <!-- <span class="tools">
+            <a
+              mat-icon-button
+              matTooltip="fix"
+              [matTooltipShowDelay]="200"
+              class="tools__scale"
+              (click)="onMenuAction({ action: 'fix', event })"
+            >
+              <mat-icon>build</mat-icon></a
+            >
+            <a
+              mat-icon-button
+              matTooltip="extend Pre-Trip Inspection"
+              [matTooltipShowDelay]="200"
+              (click)="onMenuAction({ action: 'EXTEND_PTI', event })"
+            >
+              <mat-icon class="tools__rotate">expand_content</mat-icon></a
+            >
+            <a
+              mat-icon-button
+              matTooltip="partially transform into Sleeper Berth"
+              [matTooltipShowDelay]="200"
+              (click)="onMenuAction({ action: 'TO_SLEEP', event })"
+            >
+              <mat-icon>arrow_outward</mat-icon></a
+            >
+          </span> -->
 
           <span class="duration">{{
             event.realDurationInSeconds
@@ -135,7 +167,6 @@
               ? (event.durationInSeconds * 1000 | date : "HH:mm" : "UTC")
               : ""
           }}</span>
-
           @if(event.isTeleport || (event.errorMessages &&
           event.errorMessages.length > 0) || event.manualDriving || event.refuel
           || event.locationMismatch) {

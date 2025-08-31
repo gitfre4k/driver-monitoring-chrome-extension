@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { from, switchMap, tap } from 'rxjs';
+import { from, mergeMap, switchMap, tap } from 'rxjs';
 import { IEventDetails, ITenant } from '../interfaces';
 import { DateTime } from 'luxon';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
@@ -10,6 +10,14 @@ import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 })
 export class ApiOperationsService {
   private http: HttpClient = inject(HttpClient);
+
+  constructor() {}
+
+  getRandom = (min: number, max: number) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
 
   ///////////////////
   // get Event
@@ -27,21 +35,69 @@ export class ApiOperationsService {
     );
   }
 
-  //     "startTime": "2025-06-03T02:04:39Z",
+  deleteEvents = (tenant: ITenant, ids: number[]) => {
+    const url = 'https://app.monitoringdriver.com/api/Logs/DeleteEvents';
+
+    const idsChunks: number[][] = [];
+    for (let i = 0; i < ids.length; i += 100) {
+      const chunk = ids.slice(i, i + 100);
+      idsChunks.push(chunk);
+    }
+
+    return from(idsChunks).pipe(
+      mergeMap((ids) => {
+        const body = { ids };
+        return this.http.post(url, body, {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        });
+      })
+    );
+  };
+
+  addPTI = (tenant: ITenant, eventId: number) => {
+    const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+
+    const getStartTime = (date: string) =>
+      DateTime.fromISO(date)
+        .minus({ minutes: 15 })
+        .minus({ seconds: this.getRandom(1, 180) })
+        .minus({ millisecond: this.getRandom(1, 1000) })
+        .toUTC()
+        .toISO();
+
+    return this.getEvent(tenant, eventId).pipe(
+      switchMap((eventDetails) => {
+        const body = {
+          ...eventDetails,
+          eventTypeCode: 'ChangeToOnDutyNotDrivingStatus',
+          note: 'Pre-Trip Inspection',
+          startTime: getStartTime(eventDetails.startTime),
+          id: null,
+        };
+
+        return this.http.post<IEventDetails>(url, body, {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        });
+      })
+    );
+  };
 
   extendPTI = (tenant: ITenant, eventId: number, seconds: number) => {
     const url = 'https://app.monitoringdriver.com/api/Logs/UpdateEvent';
 
-    const getRandom = (min: number, max: number) => {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-
     const getStartTime = (date: string) =>
       DateTime.fromISO(date)
         .minus({ seconds })
-        .minus({ seconds: getRandom(1, 180) }) // + random (1sec - 3min)
+        .minus({ seconds: this.getRandom(1, 180) }) // + random (1sec - 3min)
+        .minus({ millisecond: this.getRandom(1, 999) })
         .toUTC()
         .toISO();
 

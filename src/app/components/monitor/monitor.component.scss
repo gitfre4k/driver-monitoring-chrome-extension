@@ -92,6 +92,7 @@
 
   .event-list {
     width: 100%;
+    height: 100%;
     max-width: 476px;
     font-weight: 400;
 
@@ -118,9 +119,11 @@
         .event {
           display: grid;
           grid-template-columns: 30px 58px 100px 45px 1fr;
+
           align-items: center;
           justify-items: center;
           width: 100%;
+          overflow: hidden;
 
           .view-id {
             padding: 4px;
@@ -163,13 +166,40 @@
             width: 85px;
             text-align: center;
             align-self: center;
+            &__fix {
+              transform: scale(0.7);
+              margin-bottom: -5px;
+            }
+          }
+
+          .tools {
+            align-self: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 20px;
+            &__rotate {
+              transform: rotate(90deg);
+            }
+            a {
+              transform: scale(0.8);
+              transition: transform 0.15s ease-in-out;
+            }
+            a:hover {
+              transform: scale(0.9);
+            }
           }
 
           .status-note {
             border-radius: 4px;
             font-weight: 700;
             margin: 0 4px;
+            padding: 3px 2px;
             border: 1px solid rgb(234, 234, 234);
+            // border-left: 1px solid rgb(234, 234, 234);
+            // border-right: 0;
+            // border-top-right-radius: 12px;
+            // border-bottom-right-radius: 12px;
           }
 
           .duration {
