@@ -22,6 +22,10 @@ export class MonitorService {
   private appService = inject(AppService);
 
   refresh = signal(0);
+  refreshBtnDisabled = signal(false);
+  extendPTIBtnDisabled = signal(false);
+  addPTIBtnDisabled = signal(false);
+  showToolMenu = signal(false);
 
   updateEvents = effect(() => {
     const url = this.urlService.url();
@@ -63,6 +67,7 @@ export class MonitorService {
 
     if (logs !== 'logs' || id === undefined || timestamp === undefined) {
       this.driverDailyLog.set(null);
+      this.refreshBtnDisabled.set(false);
       this.isUpdating.set(false);
       return;
     }
@@ -98,6 +103,7 @@ export class MonitorService {
 
   handleDriverDailyLogEvents({ driverDailyLog, coDriverDailyLog }: IDailyLogs) {
     this.isUpdating.set(false);
+    this.refreshBtnDisabled.set(false);
     if (!driverDailyLog) {
       console.log('No driver daily log found', driverDailyLog);
       return this.computedDailyLogEvents.set(null);

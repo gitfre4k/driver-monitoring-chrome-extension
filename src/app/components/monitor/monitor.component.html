@@ -1,8 +1,52 @@
 <div class="content">
   @if (monitorService.driverDailyLog(); as ddle) {
-  <a mat-icon-button matTooltip="Refresh" class="refresh" (click)="refresh()"
-    ><mat-icon>refresh</mat-icon></a
+  <button
+    mat-icon-button
+    matTooltip="Refresh"
+    matTooltipPosition="left"
+    class="refresh"
+    (click)="refresh()"
+    [disabled]="refreshBtnDisabled()"
   >
+    <mat-icon>refresh</mat-icon>
+  </button>
+
+  <button
+    [cdkMenuTriggerFor]="menu"
+    mat-icon-button
+    (click)="toggleToolMenu()"
+    class="menu"
+  >
+    <mat-icon>more_vert</mat-icon>
+  </button>
+
+  <ng-template #menu>
+    <div class="tool-menu" cdkMenu>
+      <ul>
+        <li
+          (click)="handleContextMenuAction('DELETE_ENGINES_IN_DRIVING')"
+          class="tool-menu__item"
+          cdkMenuItem
+          matRipple
+        >
+          <mat-icon>delete_outline</mat-icon>
+          <span class="tool-menu__item__name"
+            >delete Engine events during Driving</span
+          >
+        </li>
+
+        <li
+          (click)="handleContextMenuAction('DELETE_ALL_ENGINES')"
+          class="tool-menu__item"
+          cdkMenuItem
+          matRipple
+        >
+          <mat-icon>delete_sweep</mat-icon>
+          <span class="tool-menu__item__name">delete all Engine events</span>
+        </li>
+      </ul>
+    </div>
+  </ng-template>
 
   <div class="info">
     <div class="info__company-and-driver">
@@ -72,6 +116,30 @@
       { @if (event.shift && ddle.coDrivers.length !== 0) {
       <p>{{ event.driver.name }}</p>
       <hr />
+      } @if (event.pti === 0) {
+      <li>
+        <div class="fix-error">
+          <button
+            (click)="handleContextMenuAction('ADD_PTI', event)"
+            [disabled]="addPTIBtnDisabled()"
+            class="fix-error__button shadow"
+            matRipple
+          >
+            @if (addPTIBtnDisabled()) {
+            <div class="fix-error__button__spinner">
+              <mat-spinner [diameter]="17"></mat-spinner>
+            </div>
+
+            } @else {
+            <mat-icon class="fix-error__button__icon">playlist_add</mat-icon>
+
+            }
+
+            <span class="fix-error__button__name">add Pre-Trip Inspection</span>
+          </button>
+        </div>
+      </li>
+
       }
       <li (contextmenu)="onContextMenu($event, event)">
         <div
@@ -125,11 +193,6 @@
                 ? event.notes.trim()
                 : event.statusName
             }}
-            @if (event.pti > 0 || event.pti === 0) {
-            <div class="status__fix">
-              <mat-icon>build</mat-icon>
-            </div>
-            }
           </span>
 
           <!-- <span class="tools">
@@ -205,7 +268,36 @@
           }
         </div>
       </li>
-      }
+      @if (event.pti > 0) {
+      <li>
+        <div class="fix-error">
+          <!-- <mat-icon class="fix-error__icon">build</mat-icon> -->
+          <button
+            (click)="handleContextMenuAction('EXTEND_PTI', event)"
+            [disabled]="extendPTIBtnDisabled()"
+            class="fix-error__button shadow"
+            matRipple
+          >
+            @if (extendPTIBtnDisabled()) {
+            <div class="fix-error__button__spinner">
+              <mat-spinner [diameter]="17"></mat-spinner>
+            </div>
+
+            } @else {
+            <mat-icon class="fix-error__button__icon-rotate"
+              >expand_content</mat-icon
+            >
+
+            }
+
+            <span class="fix-error__button__name"
+              >extend Pre-Trip Inspection</span
+            >
+          </button>
+        </div>
+      </li>
+
+      } }
     </ul>
 
     @if (contextMenuVisible()) {

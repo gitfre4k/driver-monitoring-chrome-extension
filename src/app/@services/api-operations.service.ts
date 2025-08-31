@@ -19,8 +19,6 @@ export class ApiOperationsService {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
-  ///////////////////
-  // get Event
   getEvent(tenant: ITenant, eventId: number) {
     console.log('[API Service]: getEvent() called');
     return this.http.get<IEventDetails>(
@@ -34,6 +32,33 @@ export class ApiOperationsService {
       }
     );
   }
+
+  addEngineOff = (tenant: ITenant, eventId: number) => {
+    const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+
+    const getStartTime = (date: string) =>
+      DateTime.fromISO(date)
+        .plus({ seconds: this.getRandom(1, 60) })
+        .plus({ millisecond: this.getRandom(1, 1000) })
+        .toUTC()
+        .toISO() as string;
+
+    return this.getEvent(tenant, eventId).pipe(
+      switchMap((eventDetails) => {
+        const { note, id, eventUuid, ...body } = eventDetails;
+        body.startTime = getStartTime(body.startTime);
+        body.eventTypeCode = 'EngineShutDownConventionalLocationPrecision';
+
+        return this.http.post<IEventDetails>(url, body, {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        });
+      })
+    );
+  };
 
   deleteEvents = (tenant: ITenant, ids: number[]) => {
     const url = 'https://app.monitoringdriver.com/api/Logs/DeleteEvents';
@@ -67,17 +92,14 @@ export class ApiOperationsService {
         .minus({ seconds: this.getRandom(1, 180) })
         .minus({ millisecond: this.getRandom(1, 1000) })
         .toUTC()
-        .toISO();
+        .toISO() as string;
 
     return this.getEvent(tenant, eventId).pipe(
       switchMap((eventDetails) => {
-        const body = {
-          ...eventDetails,
-          eventTypeCode: 'ChangeToOnDutyNotDrivingStatus',
-          note: 'Pre-Trip Inspection',
-          startTime: getStartTime(eventDetails.startTime),
-          id: null,
-        };
+        const { id, eventUuid, ...body } = eventDetails;
+        body.eventTypeCode = 'ChangeToOnDutyNotDrivingStatus';
+        body.note = 'Pre-Trip Inspection';
+        body.startTime = getStartTime(eventDetails.startTime);
 
         return this.http.post<IEventDetails>(url, body, {
           withCredentials: true,

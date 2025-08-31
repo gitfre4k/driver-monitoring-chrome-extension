@@ -4,8 +4,9 @@ import { Component } from '@angular/core';
   selector: 'app-engine',
   imports: [],
   templateUrl: './engine.component.html',
-  styleUrl: './engine.component.scss'
+  styleUrl: './engine.component.scss',
 })
 export class EngineComponent {
-
+  green = '#48bb78';
+  red = '#ef4444';
 }

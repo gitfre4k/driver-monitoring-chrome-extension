@@ -1,3 +1,41 @@
+.tool-menu {
+  background-color: rgb(33, 33, 36);
+  z-index: 1000;
+  margin: 5px;
+  border-radius: 4px;
+  border: 1px solid rgb(82, 82, 82);
+  min-width: 140px;
+
+  &__item {
+    display: grid;
+    grid-template-columns: 30px auto;
+    align-content: center;
+    justify-content: start;
+    border-radius: 4px;
+    margin: 3px;
+    padding: 0 4px;
+    height: 24px;
+    cursor: pointer;
+    &__rotate {
+      transform: rotate(90deg);
+    }
+    &__name {
+      align-self: center;
+      text-align: left;
+    }
+  }
+}
+
+.tool-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tool-menu li:hover {
+  background-color: rgb(63, 63, 68);
+}
+
 .content {
   display: flex;
   flex-direction: column;
@@ -24,8 +62,14 @@
 
   .refresh {
     position: absolute;
-    right: 10px;
-    top: 12px;
+    right: 5px;
+    top: 5px;
+  }
+
+  .menu {
+    position: absolute;
+    right: 5px;
+    top: 50px;
   }
 
   .info {
@@ -166,40 +210,14 @@
             width: 85px;
             text-align: center;
             align-self: center;
-            &__fix {
-              transform: scale(0.7);
-              margin-bottom: -5px;
-            }
-          }
-
-          .tools {
-            align-self: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 20px;
-            &__rotate {
-              transform: rotate(90deg);
-            }
-            a {
-              transform: scale(0.8);
-              transition: transform 0.15s ease-in-out;
-            }
-            a:hover {
-              transform: scale(0.9);
-            }
           }
 
           .status-note {
             border-radius: 4px;
             font-weight: 700;
-            margin: 0 4px;
-            padding: 3px 2px;
+            margin: 1px 4px;
+            padding: 2px;
             border: 1px solid rgb(234, 234, 234);
-            // border-left: 1px solid rgb(234, 234, 234);
-            // border-right: 0;
-            // border-top-right-radius: 12px;
-            // border-bottom-right-radius: 12px;
           }
 
           .duration {
@@ -215,10 +233,53 @@
           }
         }
 
-        // .selected {
-        //   box-shadow: 0 8px 16px rgba(240, 240, 240, 0.7);
-        //   background-color: rgba(53, 53, 58, 0.8);
-        // }
+        .fix-error {
+          display: flex;
+          width: 100%;
+          overflow: hidden;
+          padding-left: 34px;
+          &__icon {
+            transform: scale(0.8);
+            align-self: center;
+          }
+          &__button {
+            // justify-self: start;
+            display: grid;
+            grid-template-columns: 30px auto;
+            align-items: center;
+            justify-content: start;
+            // width: 160px;
+            font-size: 12px;
+            border-radius: 4px;
+            background-color: rgb(33, 33, 36);
+            margin: 3px 5px;
+            padding: 0 4px;
+            border: 1px solid rgb(82, 82, 82);
+            &__icon {
+              &-rotate {
+                transform: rotate(90deg);
+              }
+            }
+            &__spinner {
+              padding: 3.5px;
+            }
+            &__name {
+              align-self: center;
+              text-align: left;
+            }
+          }
+          &__button:hover {
+            background-color: rgb(63, 63, 68);
+            border-left: 1px solid rgb(1, 134, 50);
+            -webkit-box-shadow: -14px -1px 14px -6px rgba(55, 202, 75, 0.5);
+            box-shadow: -14px -1px 14px -6px rgba(55, 202, 75, 0.5);
+            cursor: pointer;
+          }
+        }
+
+        .selected {
+          background-color: rgba(72, 72, 78, 0.333);
+        }
 
         .event:hover .on-hover {
           display: block;
@@ -228,11 +289,6 @@
           background-color: rgba(53, 53, 58, 0.333);
           cursor: pointer;
         }
-        // .fix:hover {
-        //   box-shadow: 0 8px 16px rgba(251, 255, 0, 0.789);
-        //   background-color: rgba(255, 255, 1, 0.789);
-        //   cursor: pointer;
-        // }
       }
     }
   }
@@ -288,6 +344,6 @@
 }
 
 .shadow {
-  -webkit-box-shadow: -28px -1px 10px -2px rgba(142, 140, 221, 0.5);
-  box-shadow: -28px -1px 10px -2px rgba(142, 140, 221, 0.5);
+  -webkit-box-shadow: -14px -1px 14px -8px rgba(55, 202, 75, 0.5);
+  box-shadow: -14px -1px 14px -8px rgba(55, 202, 75, 0.5);
 }
