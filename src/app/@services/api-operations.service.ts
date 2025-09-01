@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { from, mergeMap, switchMap, tap } from 'rxjs';
+import { from, mergeMap, switchMap } from 'rxjs';
 import { IEventDetails, ITenant } from '../interfaces';
 import { DateTime } from 'luxon';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import { TEventTypeCode } from '../types';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +31,29 @@ export class ApiOperationsService {
           'x-client-timezone': `${DateTime.local().zoneName}`,
         },
       }
+    );
+  }
+
+  updateEventTypeCode(
+    tenant: ITenant,
+    eventId: number,
+    eventTypeCode: TEventTypeCode
+  ) {
+    const url = 'https://app.monitoringdriver.com/api/Logs/UpdateEvent';
+
+    return this.getEvent(tenant, eventId).pipe(
+      switchMap((eventDetails) => {
+        const { ...body } = eventDetails;
+        body.eventTypeCode = eventTypeCode;
+
+        return this.http.post<IEventDetails>(url, body, {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        });
+      })
     );
   }
 
@@ -124,18 +148,16 @@ export class ApiOperationsService {
         .toISO();
 
     return this.getEvent(tenant, eventId).pipe(
-      switchMap((event) => {
-        return this.http.post<IEventDetails>(
-          url,
-          { ...event, startTime: getStartTime(event.startTime)! },
-          {
-            withCredentials: true,
-            headers: {
-              'X-Tenant-Id': `${tenant.id}`,
-              'x-client-timezone': `${DateTime.local().zoneName}`,
-            },
-          }
-        );
+      switchMap((eventDetails) => {
+        const { ...body } = eventDetails;
+        body.startTime = getStartTime(body.startTime)!;
+        return this.http.post<IEventDetails>(url, body, {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        });
       })
     );
   };

@@ -3,10 +3,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { ContextMenuService } from '../../@services/context-menu.service';
 import { EngineComponent } from '../UI/engine/engine.component';
+import { SleeperBerthComponent } from '../UI/sleeper-berth/sleeper-berth.component';
 
 @Component({
   selector: 'app-context-menu',
-  imports: [MatIconModule, EngineComponent],
+  imports: [MatIconModule, EngineComponent, SleeperBerthComponent],
   templateUrl: './context-menu.component.html',
   styleUrl: './context-menu.component.scss',
 })

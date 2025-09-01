@@ -34,6 +34,29 @@ export class ContextMenuService {
     );
 
     switch (action) {
+      case 'ChangeToSleeperBerthStatus':
+      case 'ChangeToOffDutyStatus': {
+        if (!event) return;
+
+        return this.apiOperationsService
+          .updateEventTypeCode(tenant, event.id, action)
+          .subscribe({
+            error: (err) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+                duration: 3000,
+              });
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open('Event type successfully updated.', 'OK', {
+                duration: 3000,
+              });
+            },
+          });
+      }
       case 'EXTEND_PTI': {
         if (!event) return;
         this.monitorService.extendPTIBtnDisabled.set(true);
@@ -43,6 +66,7 @@ export class ContextMenuService {
             error: (err) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
+              this.monitorService.extendPTIBtnDisabled.set(false);
               this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
                 duration: 3000,
               });
@@ -74,6 +98,8 @@ export class ContextMenuService {
           error: (err) => {
             this.urlService.refreshWebApp();
             this.monitorService.refresh.update((value) => value + 1);
+            action === 'ADD_PTI' &&
+              this.monitorService.addPTIBtnDisabled.set(false);
             this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
               duration: 7000,
             });
@@ -98,7 +124,6 @@ export class ContextMenuService {
           },
         });
       }
-
       case 'DELETE_ALL_ENGINES':
       case 'DELETE_ENGINES_IN_DRIVING': {
         const ids: number[] = [];

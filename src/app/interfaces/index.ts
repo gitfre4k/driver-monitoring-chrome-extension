@@ -1,6 +1,7 @@
 import { ProgressBarMode } from '@angular/material/progress-bar';
 import { IEvent as ICEvent } from '../interfaces/driver-daily-log-events.interface';
 import { IDailyLog } from './daily-log.interface';
+import { TEventTypeCode } from '../types';
 
 export interface IViolations {
   company: ITenant;
@@ -129,7 +130,7 @@ export interface IEventDetails {
   driversLocationDescription: string;
   elapsedEngineHours: number;
   eventSequenceIdNumber: string;
-  eventTypeCode: string;
+  eventTypeCode: TEventTypeCode;
   eventUuid: string;
   geolocation: string;
   id: number;

@@ -3,7 +3,20 @@
   <ul>
     <!-- vertical_align_top || change sleep to off -->
     <!-- vertical_align_bottom || change off to sleep -->
+    <!-- case 'ChangeToSleeperBerthStatus': -->
+    <!-- case 'ChangeToOffDutyStatus':  -->
 
+    @if(event.statusName === 'Off Duty') {
+    <li
+      (click)="
+        contextMenuService.handleAction('ChangeToSleeperBerthStatus', event)
+      "
+      class="context-menu__item"
+    >
+      <app-sleeper-berth></app-sleeper-berth>
+      <span class="context-menu__item__name">Change to Sleeper Berth</span>
+    </li>
+    }
     <li
       (click)="contextMenuService.handleAction('ADD_ENGINE_OFF', event)"
       class="context-menu__item"
