@@ -56,7 +56,7 @@ function sendMessageToContentScript(tabId, url, tenantData) {
 }
 
 ///////////////////
-// on chrome tab change
+// on url change
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tab || !tab.url) {
     return;
@@ -78,6 +78,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 });
 
+///////////////////
+// on chrome tab change
 chrome.tabs.onActivated.addListener((activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, async (tab) => {
     if (!tab || !tab.url) {

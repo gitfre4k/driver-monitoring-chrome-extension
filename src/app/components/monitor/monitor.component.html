@@ -149,7 +149,7 @@
               ? ' selected'
               : '')
           "
-          (click)="focusElement(event.id)"
+          (click)="focusElement(event)"
         >
           <span
             [ngClass]="
@@ -224,11 +224,7 @@
           </span> -->
 
           <span class="duration">{{
-            event.realDurationInSeconds
-              ? (event.realDurationInSeconds * 1000 | date : "HH:mm" : "UTC")
-              : event.durationInSeconds
-              ? (event.durationInSeconds * 1000 | date : "HH:mm" : "UTC")
-              : ""
+            getStatusDuration(event) | duration
           }}</span>
           @if(event.isTeleport || (event.errorMessages &&
           event.errorMessages.length > 0) || event.manualDriving || event.refuel

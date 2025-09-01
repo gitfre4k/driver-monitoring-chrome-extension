@@ -71,3 +71,36 @@ export const isDutyStatus = (ev: IEvent) => {
     'YM',
   ].includes(ev.statusName);
 };
+
+export const getStatusDuration = (event: IEvent) => {
+  // status has started and ended within same day
+  if (event.realDurationInSeconds === event.durationInSeconds) {
+    console.log(
+      `I ${event.viewId}. [${event.driver.name}] ${event.statusName}: ${
+        event.durationInSeconds / 3600
+      }`
+    );
+    return event.durationInSeconds;
+  }
+  // status has started on previous day and ended on current day
+  if (event.realDurationInSeconds > event.durationInSeconds) {
+    console.log(
+      `II ${event.viewId}. [${event.driver.name}] ${event.statusName}: ${
+        event.realDurationInSeconds / 3600
+      }`
+    );
+    return event.realDurationInSeconds;
+  }
+  // ongoin status has started on previous day
+  else {
+    const startTime = new Date(event.realStartTime).getTime();
+    const now = new Date().getTime();
+    console.log(
+      `III ${event.viewId}. [${event.driver.name}] ${event.statusName}: ${
+        (now - startTime) / 1000 / 3600
+      }`
+    );
+
+    return (now - startTime) / 1000;
+  }
+};

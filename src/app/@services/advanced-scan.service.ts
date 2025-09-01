@@ -10,7 +10,7 @@ import { ProgressBarService } from './progress-bar.service';
 import { AppService } from './app.service';
 import { ComputeEventsService } from './compute-events.service';
 import { DateService } from './date.service';
-import { isPcOrYm } from '../helpers/monitor.helpers';
+import { isPcOrYm } from '../helpers/app.helpers';
 import { DateTime } from 'luxon';
 
 @Injectable({

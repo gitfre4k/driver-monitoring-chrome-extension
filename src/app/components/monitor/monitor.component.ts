@@ -13,10 +13,13 @@ import { DateTime } from 'luxon';
 
 import { UrlService } from '../../@services/url.service';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
-import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { AppService } from '../../@services/app.service';
 import { ContextMenuService } from '../../@services/context-menu.service';
+import { getStatusDuration } from '../../helpers/app.helpers';
+
+import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { TContextMenuAction } from '../../types';
+import { DurationPipe } from '../../pipes/duration.pipe';
 
 @Component({
   selector: 'app-monitor',
@@ -31,6 +34,7 @@ import { TContextMenuAction } from '../../types';
     CdkMenu,
     CdkMenuItem,
     CdkMenuTrigger,
+    DurationPipe,
   ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
@@ -54,6 +58,8 @@ export class MonitorComponent {
   contextMenuY = 0;
   selectedEvent: IEvent | null = null;
 
+  getStatusDuration = getStatusDuration;
+
   constructor() {}
 
   refresh = () => {
@@ -72,8 +78,9 @@ export class MonitorComponent {
     return note.replace(/\s/g, '');
   }
 
-  focusElement(id: number) {
-    this.urlService.focusElement(id);
+  focusElement(event: IEvent) {
+    if (event.driver.id !== event.driver.viewId) return;
+    this.urlService.focusElement(event.id);
   }
 
   formatTenantName(tenant: string) {

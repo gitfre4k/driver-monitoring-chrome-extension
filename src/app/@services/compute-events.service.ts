@@ -3,12 +3,13 @@ import { inject, Injectable, signal } from '@angular/core';
 import {
   bindEventViewId,
   filterEvents,
+  getStatusDuration,
   getStatusName,
   isDriving,
   isDutyStatus,
   isIntermediate,
   isPcOrYm,
-} from '../helpers/monitor.helpers';
+} from '../helpers/app.helpers';
 
 import {
   IDailyLogs,
@@ -324,16 +325,13 @@ export class ComputeEventsService {
           timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
           shiftIsReadyToStart = false;
           wannabePTIonDutyId = 0;
-          // console.log(
-          // '[Pre-Trip Inspection validity] driving occured before valid PTI'
-          // );
         }
       }
 
       ////////////////////
       // prolonged On Duties
       if (events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {
-        const duration = this.getOnDutyDuration(events[i]);
+        const duration = getStatusDuration(events[i]);
         if (
           duration >
           (prolongedOnDutiesDuration ? prolongedOnDutiesDuration : 901)
@@ -553,23 +551,6 @@ export class ComputeEventsService {
     }
 
     return events;
-  };
-
-  getOnDutyDuration = (event: IEvent) => {
-    // OnDuty has started and ended within same day
-    if (event.realDurationInSeconds === event.durationInSeconds)
-      return event.durationInSeconds;
-    // OnDuty has started on previous day and ended on current day
-    if (event.realDurationInSeconds > event.durationInSeconds) {
-      return event.realDurationInSeconds;
-    }
-    // ongoin OnDuty has started on previous day
-    else {
-      const startTime = new Date(event.realStartTime).getTime();
-      const now = new Date().getTime();
-
-      return (now - startTime) / 1000;
-    }
   };
 
   detectAndBindTeleport = (importedEvents: IEvent[]) => {
