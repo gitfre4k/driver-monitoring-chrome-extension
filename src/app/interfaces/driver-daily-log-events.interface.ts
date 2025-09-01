@@ -53,6 +53,7 @@ export interface IEvent {
   malf: boolean;
   refuel: boolean;
   pti: number;
+  break: number;
 }
 
 export interface IDriverIdAndName {

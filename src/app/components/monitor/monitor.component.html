@@ -114,14 +114,20 @@
       <hr />
       } @for (event of monitorService.computedDailyLogEvents(); track event.id)
       { @if (event.shift && ddle.coDrivers.length !== 0) {
-      <p>{{ event.driver.name }}</p>
+      <p
+        [ngClass]="
+          event.driver.id === event.driver.viewId ? `left` : `right`
+        "
+      >
+        {{ event.driver.name }}
+      </p>
       <hr />
       } @if (event.pti === 0) {
       <li>
         <div class="fix-error">
           <button
             (click)="handleContextMenuAction('ADD_PTI', event)"
-            [disabled]="addPTIBtnDisabled()"
+            [disabled]="addPTIBtnDisabled() || monitorService.isUpdating()"
             class="fix-error__button shadow"
             matRipple
           >
@@ -141,7 +147,10 @@
       </li>
 
       }
-      <li (contextmenu)="onContextMenu($event, event)">
+      <li
+        (contextmenu)="onContextMenu($event, event)"
+        class="{{ markBreaksAndShift(event) }}"
+      >
         <div
           [ngClass]="
             'event' +
@@ -149,7 +158,9 @@
               ? ' selected'
               : '')
           "
-          (click)="focusElement(event)"
+          (mouseenter)="focusElement(event, 'FOCUS_ELEMENT_START')"
+          (mouseleave)="focusElement(event, 'FOCUS_ELEMENT_STOP')"
+          matRipple
         >
           <span
             [ngClass]="
@@ -166,6 +177,8 @@
             "
             >{{ event.viewId }}.</span
           >
+
+          <!-- @if (event.break) { {{ event.break }} } @else { -->
           <span
             [ngClass]="
               'odometer ' +
@@ -178,8 +191,6 @@
                 : event.odometer && event.odometer.toLocaleString()
             }}</span
           >
-
-          <!-- (event.notes && getNoSpaceNote(event.notes) ? ' underline + shadow' : '') + -->
 
           <span
             [ngClass]="
@@ -270,7 +281,7 @@
           <!-- <mat-icon class="fix-error__icon">build</mat-icon> -->
           <button
             (click)="handleContextMenuAction('EXTEND_PTI', event)"
-            [disabled]="extendPTIBtnDisabled()"
+            [disabled]="extendPTIBtnDisabled() || monitorService.isUpdating()"
             class="fix-error__button shadow"
             matRipple
           >

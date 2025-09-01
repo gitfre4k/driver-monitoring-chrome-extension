@@ -1,6 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, from, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { TFocusElementAction } from '../types';
 
 @Injectable({
   providedIn: 'root',
@@ -75,7 +76,10 @@ export class BackgroundJsService {
     });
   }
 
-  focusElement(tabId: number, elementId: number): Observable<boolean> {
+  focusElement(
+    action: TFocusElementAction,
+    payload: { tabId: number; elementId: number; statusName?: string }
+  ): Observable<boolean> {
     if (
       typeof chrome === 'undefined' ||
       !chrome.runtime ||
@@ -92,8 +96,8 @@ export class BackgroundJsService {
     }
 
     const message = {
-      action: 'focusElement',
-      payload: { tabId, elementId },
+      action,
+      payload,
     };
 
     return new Observable<boolean>((observer) => {

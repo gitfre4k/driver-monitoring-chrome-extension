@@ -242,11 +242,39 @@ export class ComputeEventsService {
         events[i].origin === 'AutomaticallyRecordedByEld' &&
         !isDriving(currentDutyStatus)
       )
-        currentDutyStatus.statusName &&
-          events[i].errorMessages.push(
-            `[origin: Auto] after ${currentDutyStatus.statusName}`
-          );
+        events[i].errorMessages.push(
+          '[origin: Auto]' +
+            (currentDutyStatus.statusName
+              ? ' after ' + currentDutyStatus.statusName
+              : '')
+        );
 
+      ///////////////
+      // detect 10h/34h break
+      const marker10Hours = new Date(shift).getTime();
+      const marker34Hours = new Date(cycle).getTime();
+      const eventStartTime = new Date(
+        events[i].realStartTime ? events[i].realStartTime : events[i].startTime
+      ).getTime();
+      const eventEndTime = new Date(
+        events[i].realEndTime ? events[i].realEndTime : events[i].endTime
+      ).getTime();
+      /////////////////////////////// 10h break ///////////////////////////////
+      if (['Sleeper Berth', 'Off Duty'].includes(events[i].statusName)) {
+        getStatusDuration(events[i]) / 60 / 60 > 10 && (events[i].break = 10);
+      }
+      if (marker10Hours > eventStartTime && marker10Hours < eventEndTime) {
+        events[i].break = 10;
+      }
+      /////////////////////////////// 34h break ///////////////////////////////
+      if (['Sleeper Berth', 'Off Duty'].includes(events[i].statusName)) {
+        getStatusDuration(events[i]) / 60 / 60 > 34 && (events[i].break = 34);
+      }
+      if (marker34Hours > eventStartTime && marker34Hours < eventEndTime) {
+        events[i].break = 34;
+      }
+
+      ///////////////////
       // assign duty status and double duty check
       if (isDutyStatus(events[i])) {
         if (currentDutyStatus.id) {
@@ -255,40 +283,37 @@ export class ComputeEventsService {
               ? events[i].errorMessages.push('double Duty status')
               : (currentDutyStatus = events[i]));
         } else currentDutyStatus = events[i];
-
-        //
       }
+
+      ////////////////////////////// mark break //////////////////////////////
+      events[i].break = currentDutyStatus.break ? currentDutyStatus.break : 0;
+
       ////////////////////
-      // Pre-Trip Inspection validity ````````````#####################`````````````````##########################````````````````#################````````````
+      // is shift ready to start ??
       if (
         // case 34 break or 10h+ Sleeper/Off
         ['Sleeper Berth', 'Off Duty'].includes(currentDutyStatus.statusName) &&
-        currentDutyStatus.realDurationInSeconds / 60 / 60 > 10
+        getStatusDuration(currentDutyStatus) / 60 / 60 > 10
       ) {
         shiftIsReadyToStart = true;
       }
-      // ...
-      // combined 10h+ break from multiple switch from off to sleep
-      // ...
-      // case 34h marker
-      // ...
-      const timeSinceShiftResetOccured =
-        new Date().getTime() - new Date(shift).getTime(); // miliseconds
-      const timeSinceCycleResetOccured =
-        new Date().getTime() - new Date(cycle).getTime(); // miliseconds
+
+      const timeSinceShiftResetOccured = new Date().getTime() - marker10Hours; // miliseconds
+      const timeSinceCycleResetOccured = new Date().getTime() - marker34Hours; // miliseconds
       const timeSinceEventOccured =
-        new Date().getTime() - new Date(events[i].realStartTime).getTime(); // miliseconds
+        new Date().getTime() -
+        new Date(
+          events[i].realStartTime
+            ? events[i].realStartTime
+            : events[i].startTime
+        ).getTime(); // miliseconds
       if (
         (timeSinceShiftResetOccured > timeSinceEventOccured ||
           timeSinceCycleResetOccured > timeSinceEventOccured ||
           shiftIsReadyToStart) &&
         events[i].eventType !== 'CmvEnginePowerUpOrShutDownActivity' &&
         events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv'
-        //  && currentDutyStatus.driver?.id === events[i].driver?.id
       ) {
-        // ## DM International
-        // Jul 8, 2025
-        // Milan Krstic
         if (
           events[i].statusName === 'On Duty' &&
           events[i].realDurationInSeconds !== 0

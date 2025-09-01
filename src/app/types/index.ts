@@ -38,3 +38,5 @@ export type TContextMenuAction =
   | 'DELETE_DRIVING_ENGINES'
   | 'DELETE_ENGINES_IN_DRIVING'
   | 'ADD_ENGINE_OFF';
+
+export type TFocusElementAction = 'FOCUS_ELEMENT_START' | 'FOCUS_ELEMENT_STOP';

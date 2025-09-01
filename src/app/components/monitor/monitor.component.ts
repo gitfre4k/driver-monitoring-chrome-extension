@@ -18,7 +18,7 @@ import { ContextMenuService } from '../../@services/context-menu.service';
 import { getStatusDuration } from '../../helpers/app.helpers';
 
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
-import { TContextMenuAction } from '../../types';
+import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { DurationPipe } from '../../pipes/duration.pipe';
 
 @Component({
@@ -78,9 +78,10 @@ export class MonitorComponent {
     return note.replace(/\s/g, '');
   }
 
-  focusElement(event: IEvent) {
+  focusElement(event: IEvent, action: TFocusElementAction) {
     if (event.driver.id !== event.driver.viewId) return;
-    this.urlService.focusElement(event.id);
+    if (this.monitorService.isUpdating()) return;
+    this.urlService.focusElement(event.id, action, event.statusName);
   }
 
   formatTenantName(tenant: string) {
@@ -144,5 +145,25 @@ export class MonitorComponent {
 
   handleContextMenuAction(action: TContextMenuAction, event?: IEvent) {
     this.contextMenuService.handleAction(action, event);
+  }
+
+  markBreaksAndShift(event: IEvent) {
+    let breakShift: string;
+    const driver = event.driver.id !== event.driver.viewId ? ' co-driver' : '';
+    switch (event.break) {
+      case 0:
+        breakShift = 'shift';
+        break;
+      case 10:
+        breakShift = 'ten-hour-break';
+        break;
+      case 34:
+        breakShift = 'cycle-break';
+        break;
+      default:
+        breakShift = 'undefined';
+        break;
+    }
+    return breakShift + driver;
   }
 }

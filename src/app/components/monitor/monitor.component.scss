@@ -145,10 +145,15 @@
     overflow-y: scroll;
     overflow-x: hidden;
 
-    p {
+    .left {
       text-align: left;
       margin-bottom: 0;
       padding-left: 30px;
+    }
+    .right {
+      text-align: right;
+      margin-bottom: 0;
+      padding-right: 30px;
     }
 
     hr {
@@ -303,7 +308,7 @@
 }
 
 .ChangeToDrivingStatus {
-  background-color: rgb(34, 197, 94);
+  background-color: hsl(142, 71%, 45%);
   color: black;
 }
 .ChangeToDrivingStatus-E,
@@ -312,7 +317,7 @@
 }
 
 .ChangeToSleeperBerthStatus {
-  background-color: rgb(234, 179, 8);
+  background-color: hsl(45, 93%, 47%);
   color: black;
 }
 
@@ -347,3 +352,42 @@
   -webkit-box-shadow: -14px -1px 14px -8px rgba(55, 202, 75, 0.5);
   box-shadow: -14px -1px 14px -8px rgba(55, 202, 75, 0.5);
 }
+
+// .shift {
+//   background: linear-gradient(
+//     -116deg,
+//     hsla(142, 71%, 45%, 0.1) 0%,
+//     #ff930f00 100%
+//   );
+// }
+// .shift.co-driver {
+//   background: linear-gradient(
+//     116deg,
+//     hsla(142, 71%, 45%, 0.1) 0%,
+//     hsla(33, 100%, 53%, 0) 100%
+//   );
+// }
+// .ten-hour-break {
+//   background: linear-gradient(
+//     -116deg,
+//     rgba(234, 178, 8, 0.1) 0%,
+//     #ff930f00 100%
+//   );
+// }
+// .ten-hour-break.co-driver {
+//   background: linear-gradient(
+//     116deg,
+//     rgba(234, 178, 8, 0.1) 0%,
+//     hsla(33, 100%, 53%, 0) 100%
+//   );
+// }
+// .cycle-break {
+//   background: linear-gradient(-116deg, rgba(3, 7, 18, 0.1) 0%, #ff930f00 100%);
+// }
+// .cycle-break.co-driver {
+//   background: linear-gradient(
+//     116deg,
+//     rgba(3, 7, 18, 0.1) 0%,
+//     hsla(33, 100%, 53%, 0) 100%
+//   );
+// }

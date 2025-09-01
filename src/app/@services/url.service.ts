@@ -3,6 +3,7 @@ import { BackgroundJsService } from './background-js.service';
 import { ICompany } from '../interfaces';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TFocusElementAction } from '../types';
 
 @Injectable({
   providedIn: 'root',
@@ -89,7 +90,11 @@ export class UrlService {
       );
   };
 
-  focusElement = (elementId: number) => {
+  focusElement = (
+    elementId: number,
+    action: TFocusElementAction,
+    statusName?: string
+  ) => {
     const tabId = this.tabId();
     if (!tabId)
       return this._snackBar.open(
@@ -100,11 +105,9 @@ export class UrlService {
         }
       );
 
-    return this.backgroundJsService
-      .focusElement(tabId, elementId)
-      .subscribe((success) =>
-        console.log('[backgroundJsService] focus element', success)
-      );
+    const payload = { tabId, elementId, statusName };
+
+    return this.backgroundJsService.focusElement(action, payload).subscribe();
   };
 
   navigateChromeActiveTab = (
@@ -140,5 +143,3 @@ export class UrlService {
       });
   };
 }
-
-//  text-sm border bg-secondary-0 border-shade-4 hover:bg-shade-3 cursor-pointer transition-colors duration-300 ease-in-out bg-shade-3

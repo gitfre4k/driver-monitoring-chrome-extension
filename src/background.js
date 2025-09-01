@@ -4,7 +4,7 @@ chrome.runtime.onInstalled.addListener(() => {
 console.log(">> [background.js] service worker active.");
 
 ///////////////////
-// "MASTER_TOOLS_PROVIDER_TENANT"
+// read from webApp's local storage
 async function getMasterToolsProviderTenant(tabId) {
   try {
     const results = await chrome.scripting.executeScript({
@@ -32,7 +32,7 @@ async function getMasterToolsProviderTenant(tabId) {
 }
 
 ///////////////////
-// on URL Change
+// sendMessageToContentScript
 function sendMessageToContentScript(tabId, url, tenantData) {
   chrome.runtime.sendMessage(
     {
@@ -172,31 +172,60 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   /////////////////////////////////////////
   // focus webApp's event on chromeExt click
-  if (message.action === "focusElement" && message.payload) {
-    const { tabId, elementId } = message.payload;
+  if (
+    (message.action === "FOCUS_ELEMENT_START" ||
+      message.action === "FOCUS_ELEMENT_STOP") &&
+    message.payload
+  ) {
+    const { tabId, elementId, statusName } = message.payload;
     chrome.scripting.executeScript(
       {
         target: { tabId: tabId },
-        function: (id) => {
+        function: (id, status, action) => {
+          // Added 'action' parameter here
+          console.log("id, status, action", id, status, action);
           const listElement = document.getElementById(`row-${id}`);
-          // const graphElement = document.querySelector(
-          //   `g:has(line#hos-event-${id}) > g > rect`
-          // );
+          const graphLineElement = document.getElementById(`hos-event-${id}`);
+          const graphParent =
+            graphLineElement && graphLineElement.parentElement;
+          const graphElement = graphParent && graphParent.children[1];
+          const rectElement = graphElement && graphElement.children[1];
+
+          const targetClassName =
+            status && status === "Driving"
+              ? "fill-green-500/10"
+              : "fill-primary-0/10";
 
           if (listElement) {
-            const mouseOverEvent = new MouseEvent("mouseover", {
-              bubbles: true,
-              cancelable: true,
-              view: window,
-            });
-
-            listElement.dispatchEvent(mouseOverEvent);
-            listElement.scrollIntoView({ behavior: "smooth", block: "center" });
-            listElement.focus();
-            listElement.style.transition = "background-color 0.3s ease-in-out";
-            listElement.classList.add("bg-shade-3");
-            listElement.style.transition = "background-color 0.5s ease-in";
-            setTimeout(() => listElement.classList.remove("bg-shade-3"), 400);
+            if (action === "FOCUS_ELEMENT_START") {
+              // Changed message.action to action
+              listElement.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+              listElement.focus();
+              listElement.classList.add(
+                "transition-colors",
+                "duration-300",
+                "ease-in-out",
+                "bg-shade-3"
+              );
+              if (rectElement) {
+                rectElement.classList.remove("fill-transparent");
+                rectElement.classList.add(targetClassName);
+              }
+            } else {
+              listElement.classList.remove(
+                "transition-colors",
+                "duration-300",
+                "ease-in-out",
+                "bg-shade-3"
+              );
+              if (rectElement) {
+                rectElement.classList.remove(targetClassName);
+                rectElement.classList.add("fill-transparent");
+              }
+            }
 
             return {
               success: true,
@@ -209,7 +238,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             };
           }
         },
-        args: [elementId],
+        args: [elementId, statusName, message.action], // Added message.action here
       },
       (injectionResults) => {
         if (chrome.runtime.lastError) {
