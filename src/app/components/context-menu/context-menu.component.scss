@@ -10,8 +10,8 @@
   &__item {
     display: grid;
     grid-template-columns: 30px auto;
-    align-content: center;
-    justify-content: start;
+    align-items: center;
+    justify-items: start;
     border-radius: 4px;
     margin: 3px;
     padding: 0 4px;

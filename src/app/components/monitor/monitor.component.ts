@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MonitorService } from '../../@services/monitor.service';
@@ -20,6 +20,7 @@ import { getStatusDuration } from '../../helpers/app.helpers';
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { DurationPipe } from '../../pipes/duration.pipe';
+import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
 
 @Component({
   selector: 'app-monitor',
@@ -45,6 +46,7 @@ export class MonitorComponent {
   urlService = inject(UrlService);
   appService = inject(AppService);
   contextMenuService = inject(ContextMenuService);
+  extTabNavService = inject(ExtensionTabNavigationService);
 
   driverInfo = this.monitorService.driverInfo;
   extendPTIBtnDisabled = this.monitorService.extendPTIBtnDisabled;
@@ -60,7 +62,25 @@ export class MonitorComponent {
 
   getStatusDuration = getStatusDuration;
 
-  constructor() {}
+  constructor() {
+    effect(() => {
+      const hovered = this.urlService.hoveredElement();
+      const selectedTabIndex = this.extTabNavService.selectedTabIndex();
+      if (!hovered || selectedTabIndex !== 2) return;
+      const id = hovered.id;
+      const element = document.getElementById(id!);
+
+      if (element) {
+        if (hovered.action === 'HOVER_START') {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.classList.add('selected');
+        }
+        if (hovered.action === 'HOVER_STOP') {
+          element.classList.remove('selected');
+        }
+      }
+    });
+  }
 
   refresh = () => {
     this.refreshBtnDisabled.set(true);

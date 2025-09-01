@@ -1,3 +1,7 @@
+function sendMessageToBackground(action, payload) {
+  chrome.runtime.sendMessage({ action: action, payload: payload });
+}
+
 function attachRowContextMenuListener(rowElement) {
   if (rowElement.dataset.contextMenuListenerAttached) {
     return;
@@ -60,6 +64,19 @@ function attachRowContextMenuListener(rowElement) {
   });
 }
 
+function attachHoverListeners(element) {
+  element.addEventListener("mouseover", () => {
+    const elementId = element.id.split("-").pop();
+
+    sendMessageToBackground("HOVER_START", { elementId });
+  });
+
+  element.addEventListener("mouseout", () => {
+    const elementId = element.id.split("-").pop();
+    sendMessageToBackground("HOVER_STOP", { elementId });
+  });
+}
+
 function scanAndAttachListenersToRows(nodes) {
   nodes.forEach((node) => {
     if (node.nodeType === Node.ELEMENT_NODE) {
@@ -72,13 +89,26 @@ function scanAndAttachListenersToRows(nodes) {
           attachRowContextMenuListener(row);
         }
       });
+
+      const elementsToAttach = node.querySelectorAll(
+        '[id^="row-"], [id^="hos-event-"]'
+      );
+      elementsToAttach.forEach(attachHoverListeners);
+      if (
+        node.id &&
+        (node.id.startsWith("row-") || node.id.startsWith("hos-event-"))
+      ) {
+        attachHoverListeners(node);
+      }
     }
   });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const initialRows = document.querySelectorAll('[id^="row-"]');
-  scanAndAttachListenersToRows(initialRows);
+  const initialElements = document.querySelectorAll(
+    '[id^="row-"], [id^="hos-event-"]'
+  );
+  scanAndAttachListenersToRows(initialElements);
 });
 
 const mainContentObserver = new MutationObserver(

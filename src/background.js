@@ -110,7 +110,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         message.payload
       );
       sendResponse({ success: false, error: "Missing tabId, key, or value" });
-      return true; // async
+      return true;
     }
 
     chrome.tabs.get(tabId, (tab) => {
@@ -182,7 +182,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       {
         target: { tabId: tabId },
         function: (id, status, action) => {
-          // Added 'action' parameter here
           console.log("id, status, action", id, status, action);
           const listElement = document.getElementById(`row-${id}`);
           const graphLineElement = document.getElementById(`hos-event-${id}`);
@@ -198,7 +197,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
           if (listElement) {
             if (action === "FOCUS_ELEMENT_START") {
-              // Changed message.action to action
               listElement.scrollIntoView({
                 behavior: "smooth",
                 block: "start",
@@ -238,7 +236,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             };
           }
         },
-        args: [elementId, statusName, message.action], // Added message.action here
+        args: [elementId, statusName, message.action],
       },
       (injectionResults) => {
         if (chrome.runtime.lastError) {
@@ -265,6 +263,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   //////////////////////////////////
   // refresh webApp's view on chromeExt click
+  // + on hover event dispatch
   if (message.action === "refresh" && message.payload) {
     const { tabId } = message.payload;
     chrome.scripting.executeScript(
@@ -309,6 +308,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       }
     );
+    return true;
+  }
+  if (
+    (message.action === "HOVER_START" || message.action === "HOVER_STOP") &&
+    message.payload
+  ) {
+    const { elementId } = message.payload;
+    const tabId = sender.tab.id;
+
+    chrome.runtime.sendMessage({
+      action: "hoverEvent",
+      data: {
+        tabId: tabId,
+        elementId: elementId,
+        hoverAction: message.action,
+      },
+    });
+
+    sendResponse({ success: true });
     return true;
   }
 });

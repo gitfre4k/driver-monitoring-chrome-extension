@@ -161,6 +161,7 @@
           (mouseenter)="focusElement(event, 'FOCUS_ELEMENT_START')"
           (mouseleave)="focusElement(event, 'FOCUS_ELEMENT_STOP')"
           matRipple
+          id="{{ event.id }}"
         >
           <span
             [ngClass]="

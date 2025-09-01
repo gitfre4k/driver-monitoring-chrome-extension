@@ -4,8 +4,5 @@ import { Component } from '@angular/core';
   selector: 'app-sleeper-berth',
   imports: [],
   templateUrl: './sleeper-berth.component.html',
-  styleUrl: './sleeper-berth.component.scss'
 })
-export class SleeperBerthComponent {
-
-}
+export class SleeperBerthComponent {}

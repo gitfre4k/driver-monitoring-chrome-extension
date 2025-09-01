@@ -35,7 +35,9 @@ export class ContextMenuService {
 
     switch (action) {
       case 'ChangeToSleeperBerthStatus':
-      case 'ChangeToOffDutyStatus': {
+      case 'ChangeToOffDutyStatus':
+      case 'ChangeToDrivingStatus':
+      case 'ChangeToOnDutyNotDrivingStatus': {
         if (!event) return;
 
         return this.apiOperationsService

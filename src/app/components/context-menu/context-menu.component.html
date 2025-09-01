@@ -5,8 +5,15 @@
     <!-- vertical_align_bottom || change off to sleep -->
     <!-- case 'ChangeToSleeperBerthStatus': -->
     <!-- case 'ChangeToOffDutyStatus':  -->
-
-    @if(event.statusName === 'Off Duty') {
+    @if (event.statusName !== 'Off Duty') {
+    <li
+      (click)="contextMenuService.handleAction('ChangeToOffDutyStatus', event)"
+      class="context-menu__item"
+    >
+      <app-off-duty></app-off-duty>
+      <span class="context-menu__item__name">Change to Off Duty</span>
+    </li>
+    } @if (event.statusName !== 'Sleeper Breth') {
     <li
       (click)="
         contextMenuService.handleAction('ChangeToSleeperBerthStatus', event)
@@ -16,7 +23,26 @@
       <app-sleeper-berth></app-sleeper-berth>
       <span class="context-menu__item__name">Change to Sleeper Berth</span>
     </li>
+    } @if (event.statusName !== 'Driving') {
+    <li
+      (click)="contextMenuService.handleAction('ChangeToDrivingStatus', event)"
+      class="context-menu__item"
+    >
+      <app-driving></app-driving>
+      <span class="context-menu__item__name">Change to Driving</span>
+    </li>
+    } @if (event.statusName !== 'On Duty') {
+    <li
+      (click)="
+        contextMenuService.handleAction('ChangeToOnDutyNotDrivingStatus', event)
+      "
+      class="context-menu__item"
+    >
+      <app-on-duty></app-on-duty>
+      <span class="context-menu__item__name">Change to On Duty</span>
+    </li>
     }
+
     <li
       (click)="contextMenuService.handleAction('ADD_ENGINE_OFF', event)"
       class="context-menu__item"

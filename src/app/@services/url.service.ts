@@ -20,6 +20,11 @@ export class UrlService {
     name: string;
   } | null>(null);
 
+  hoveredElement = signal<{
+    id: string | null;
+    action: 'HOVER_START' | 'HOVER_STOP';
+  } | null>(null);
+
   constructor(private ngZone: NgZone) {
     console.log(
       'UrlService: Constructor called, setting up Chrome message listener.'
@@ -67,6 +72,18 @@ export class UrlService {
               request.data.tenant
             );
           }
+        }
+        if (request.action === 'hoverEvent') {
+          console.log(
+            "UrlService: Received 'hoverEvent' message.",
+            request.data
+          );
+          const { elementId, hoverAction } = request.data;
+          this.hoveredElement.set({
+            id: elementId,
+            action: hoverAction,
+          });
+          sendResponse(true);
         }
       });
     });
