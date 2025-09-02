@@ -175,13 +175,13 @@
           overflow: hidden;
 
           .view-id {
-            padding: 4px;
+            padding: 0 4px;
             margin: 0px 3px;
             text-align: right;
           }
 
           .odometer {
-            padding: 3px;
+            padding: 0 3px;
             text-align: right;
           }
 
@@ -250,25 +250,30 @@
           display: flex;
           width: 100%;
           overflow: hidden;
-          padding-left: 34px;
+          justify-content: space-around;
+
           &__icon {
             transform: scale(0.8);
             align-self: center;
           }
-          &__button {
-            // justify-self: start;
+          &__button,
+          &__red-button {
+            width: 36%;
             display: grid;
             grid-template-columns: 30px auto;
             align-items: center;
-            justify-content: start;
-            // width: 160px;
+            justify-items: start;
             font-size: 12px;
             border-radius: 4px;
             background-color: rgb(33, 33, 36);
             margin: 3px 5px;
-            padding: 0 4px;
+            padding: 2px 4px;
             border: 1px solid rgb(82, 82, 82);
+
             &__icon {
+              display: flex;
+              align-items: center;
+              justify-content: center;
               &-rotate {
                 transform: rotate(90deg);
               }
@@ -286,6 +291,12 @@
             border-left: 1px solid rgb(1, 134, 50);
             -webkit-box-shadow: -14px -1px 14px -6px rgba(55, 202, 75, 0.5);
             box-shadow: -14px -1px 14px -6px rgba(55, 202, 75, 0.5);
+            cursor: pointer;
+          }
+
+          &__red-button:hover {
+            background-color: rgb(63, 63, 68);
+            border-right: 1px solid #ef4444;
             cursor: pointer;
           }
         }
@@ -356,7 +367,7 @@
   text-decoration-style: double;
 }
 
-.shadow {
+.green {
   -webkit-box-shadow: -14px -1px 14px -8px rgba(55, 202, 75, 0.5);
   box-shadow: -14px -1px 14px -8px rgba(55, 202, 75, 0.5);
 }

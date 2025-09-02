@@ -26,6 +26,7 @@ export class MonitorService {
   extendPTIBtnDisabled = signal(false);
   addPTIBtnDisabled = signal(false);
   showToolMenu = signal(false);
+  showUpdateEventButton = signal<number | null>(null);
   isUpdatingEvent = signal(false);
 
   updateEvents = effect(() => {

@@ -5,26 +5,35 @@ import {
   Output,
   EventEmitter,
   HostListener,
+  Input,
 } from '@angular/core';
 
 @Directive({
-  selector: '[appAutofocus]',
+  selector: '[appAutofocusAndHandleOutsideClick]',
 })
-export class AutofocusDirective implements AfterViewInit {
-  @Output() clickOutside = new EventEmitter<void>();
+export class AutofocusAndHandleOutsideClickDirective implements AfterViewInit {
+  @Output() clickOutside = new EventEmitter();
+  @Input() public clickOutsideIgnore: string[] = [];
 
-  constructor(private el: ElementRef) {}
+  constructor(private elementRef: ElementRef) {}
 
-  @HostListener('document:click', ['$event'])
-  onGlobalClick(event: MouseEvent): void {
-    if (!this.el.nativeElement.contains(event.target)) {
-      this.clickOutside.emit();
+  @HostListener('document:click', ['$event.target'])
+  public onClick(targetElement: any) {
+    const isClickedInside =
+      this.elementRef.nativeElement.contains(targetElement);
+    const isIgnoredElement = this.clickOutsideIgnore.some((selector) => {
+      const ignoredElement = document.querySelector(selector);
+      return ignoredElement && ignoredElement.contains(targetElement);
+    });
+
+    if (!isClickedInside && !isIgnoredElement) {
+      this.clickOutside.emit(null);
     }
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.el.nativeElement.focus();
+      this.elementRef.nativeElement.focus();
     }, 0);
   }
 }

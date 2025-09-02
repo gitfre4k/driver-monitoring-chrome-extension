@@ -10,7 +10,7 @@
       (click)="contextMenuService.handleAction('ChangeToOffDutyStatus', event)"
       class="context-menu__item"
     >
-      <app-off-duty></app-off-duty>
+      <app-off-duty style="margin-top: 1.5px"></app-off-duty>
       <span class="context-menu__item__name">Change to Off Duty</span>
     </li>
     } @if (event.statusName !== 'Sleeper Berth') {
@@ -20,7 +20,7 @@
       "
       class="context-menu__item"
     >
-      <app-sleeper-berth></app-sleeper-berth>
+      <app-sleeper-berth style="margin-top: 1.5px"></app-sleeper-berth>
       <span class="context-menu__item__name">Change to Sleeper Berth</span>
     </li>
     } @if (event.statusName !== 'Driving') {
@@ -28,7 +28,7 @@
       (click)="contextMenuService.handleAction('ChangeToDrivingStatus', event)"
       class="context-menu__item"
     >
-      <app-driving></app-driving>
+      <app-driving style="margin-top: 1.5px"></app-driving>
       <span class="context-menu__item__name">Change to Driving</span>
     </li>
     } @if (event.statusName !== 'On Duty') {
@@ -38,7 +38,7 @@
       "
       class="context-menu__item"
     >
-      <app-on-duty></app-on-duty>
+      <app-on-duty style="margin-top: 1.5px"></app-on-duty>
       <span class="context-menu__item__name">Change to On Duty</span>
     </li>
     }
@@ -47,7 +47,7 @@
       (click)="contextMenuService.handleAction('ADD_ENGINE_OFF', event)"
       class="context-menu__item"
     >
-      <app-engine></app-engine>
+      <app-engine style="margin-top: 1.5px"></app-engine>
       <span class="context-menu__item__name">add Engine Off</span>
     </li>
 

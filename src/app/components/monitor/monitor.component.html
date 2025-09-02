@@ -128,7 +128,7 @@
           <button
             (click)="handleContextMenuAction('ADD_PTI', event)"
             [disabled]="addPTIBtnDisabled() || monitorService.isUpdating()"
-            class="fix-error__button shadow"
+            class="fix-error__button"
             matRipple
           >
             @if (addPTIBtnDisabled()) {
@@ -199,14 +199,18 @@
           @if (isEditable()?.id === event.id) {
           <input
             [(ngModel)]="newNote"
-            appAutofocus
+            appAutofocusAndHandleOutsideClick
             (clickOutside)="cancelEventEdit()"
+            [clickOutsideIgnore]="['#updateChangesButton']"
+            (keydown.enter)="triggerButtonClick()"
+            (keydown.esc)="cancelEventEdit()"
             [ngClass]="
               'status ' +
               event.dutyStatus +
                ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '') + ' input'
             "
             type="text"
+            in="event.notes"
           />
           } @else {
           <span
@@ -277,11 +281,13 @@
 
       <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-      @if (isEditable()?.id === event.id) {
+      @if (showUpdateEventButton() === event.id) {
       <li>
         <div class="fix-error">
           <button
-            class="fix-error__button shadow"
+            #updateChangesButton
+            id="updateChangesButton"
+            class="fix-error__button"
             matRipple
             (click)="updateChanges()"
             [disabled]="isUpdatingEvent()"
@@ -294,6 +300,17 @@
             <app-save class="fix-error__button__icon"></app-save>
             }
             <span class="fix-error__button__name">Update Changes</span>
+          </button>
+
+          <button
+            class="fix-error__red-button"
+            matRipple
+            (click)="cancelEventEdit()"
+            [disabled]="isUpdatingEvent()"
+          >
+            <app-cancel class="fix-error__button__icon"> </app-cancel>
+
+            <span class="fix-error__button__name">Cancel</span>
           </button>
         </div>
       </li>
@@ -309,7 +326,7 @@
           <button
             (click)="handleContextMenuAction('EXTEND_PTI', event)"
             [disabled]="extendPTIBtnDisabled() || monitorService.isUpdating()"
-            class="fix-error__button shadow"
+            class="fix-error__button"
             matRipple
           >
             @if (extendPTIBtnDisabled()) {

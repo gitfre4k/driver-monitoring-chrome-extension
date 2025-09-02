@@ -4,8 +4,5 @@ import { Component } from '@angular/core';
   selector: 'app-cancel',
   imports: [],
   templateUrl: './cancel.component.html',
-  styleUrl: './cancel.component.scss'
 })
-export class CancelComponent {
-
-}
+export class CancelComponent {}

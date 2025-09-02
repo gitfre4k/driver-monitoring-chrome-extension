@@ -7,31 +7,33 @@ import {
   ViewChild,
 } from '@angular/core';
 
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MonitorService } from '../../@services/monitor.service';
+
+import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
-import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 
 import { DateTime } from 'luxon';
 
+import { MonitorService } from '../../@services/monitor.service';
 import { UrlService } from '../../@services/url.service';
+import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { AppService } from '../../@services/app.service';
 import { ContextMenuService } from '../../@services/context-menu.service';
 import { getStatusDuration } from '../../helpers/app.helpers';
+import { CancelComponent } from '../UI/cancel/cancel.component';
+import { SaveComponent } from '../UI/save/save.component';
+import { AutofocusAndHandleOutsideClickDirective } from '../../directive/autofocus.directive';
 
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { DurationPipe } from '../../pipes/duration.pipe';
-import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
-import { AutofocusDirective } from '../../directive/autofocus.directive';
-import { SaveComponent } from '../UI/save/save.component';
-import { FormsModule } from '@angular/forms';
-import { IEventDetails } from '../../interfaces';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-monitor',
@@ -48,8 +50,9 @@ import { IEventDetails } from '../../interfaces';
     CdkMenuItem,
     CdkMenuTrigger,
     DurationPipe,
-    AutofocusDirective,
+    AutofocusAndHandleOutsideClickDirective,
     SaveComponent,
+    CancelComponent,
   ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
@@ -57,18 +60,22 @@ import { IEventDetails } from '../../interfaces';
 })
 export class MonitorComponent {
   @ViewChild('inputRef') myInputField!: ElementRef<HTMLInputElement>;
+  @ViewChild('updateChangesButton')
+  updateChangesButtonRef!: ElementRef<HTMLButtonElement>;
 
   monitorService = inject(MonitorService);
   urlService = inject(UrlService);
   appService = inject(AppService);
   contextMenuService = inject(ContextMenuService);
   extTabNavService = inject(ExtensionTabNavigationService);
+  _snackBar = inject(MatSnackBar);
 
   driverInfo = this.monitorService.driverInfo;
   extendPTIBtnDisabled = this.monitorService.extendPTIBtnDisabled;
   addPTIBtnDisabled = this.monitorService.addPTIBtnDisabled;
   refreshBtnDisabled = this.monitorService.refreshBtnDisabled;
   showToolMenu = this.monitorService.showToolMenu;
+  showUpdateEventButton = this.monitorService.showUpdateEventButton;
   isUpdatingEvent = this.monitorService.isUpdatingEvent;
 
   statusText = '';
@@ -200,6 +207,7 @@ export class MonitorComponent {
       ].includes(event.dutyStatus)
     ) {
       this.isEditable.set(event);
+      this.showUpdateEventButton.set(event.id);
       this.newNote.set('');
     }
     if (event.dutyStatus === 'ChangeToDrivingStatus') {
@@ -210,14 +218,33 @@ export class MonitorComponent {
 
   cancelEventEdit() {
     this.isEditable.set(null);
+    this.monitorService.showUpdateEventButton.set(null);
   }
 
   updateChanges() {
     const event = this.isEditable();
     const note = this.newNote();
-    if (!event || !note) return;
-
+    if (!event) {
+      this._snackBar.open(
+        `[Monitor Component] error occurred, refreshing page... `,
+        'OK',
+        {
+          duration: 3000,
+        }
+      );
+      return this.refresh();
+    }
+    if (!note) {
+      this._snackBar.open(`[Monitor Component] error: invalid note`, 'OK', {
+        duration: 3000,
+      });
+    }
+    this.isEditable.set(null);
     this.contextMenuService.handleAction('UPDATE_EVENT', event, { note });
+  }
+
+  triggerButtonClick(): void {
+    this.updateChangesButtonRef.nativeElement.click();
   }
 
   markBreaksAndShift(event: IEvent) {
