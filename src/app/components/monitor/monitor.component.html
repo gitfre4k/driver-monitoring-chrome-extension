@@ -147,6 +147,10 @@
       </li>
 
       }
+
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
       <li
         (contextmenu)="onContextMenu($event, event)"
         class="{{ markBreaksAndShift(event) }}"
@@ -179,7 +183,6 @@
             >{{ event.viewId }}.</span
           >
 
-          <!-- @if (event.break) { {{ event.break }} } @else { -->
           <span
             [ngClass]="
               'odometer ' +
@@ -193,19 +196,40 @@
             }}</span
           >
 
+          @if (isEditable()?.id === event.id) {
+          <input
+            [(ngModel)]="newNote"
+            appAutofocus
+            (clickOutside)="cancelEventEdit()"
+            [ngClass]="
+              'status ' +
+              event.dutyStatus +
+               ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '') + ' input'
+            "
+            type="text"
+          />
+          } @else {
           <span
+            (dblclick)="handleDoubleClick(event)"
             [ngClass]="
               'status ' +
               event.dutyStatus +
                ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '')
             "
           >
+            @if (event.statusName === 'Driving' && event.averageSpeed) {
+            <span style="font-size: 12px">
+              {{ event.averageSpeed.toFixed(2) }} mph</span
+            >
+            } @else {
             {{
               event.notes && getNoSpaceNote(event.notes)
                 ? event.notes.trim()
                 : event.statusName
             }}
+            }
           </span>
+          }
 
           <!-- <span class="tools">
             <a
@@ -276,10 +300,40 @@
           }
         </div>
       </li>
+
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+      @if (isEditable()?.id === event.id) {
+      <li>
+        <div class="fix-error">
+          <button
+            class="fix-error__button shadow"
+            matRipple
+            (click)="updateChanges()"
+            [disabled]="isUpdatingEvent()"
+          >
+            @if(isUpdatingEvent()) {
+            <div class="fix-error__button__spinner">
+              <mat-spinner [diameter]="17"></mat-spinner>
+            </div>
+            } @else {
+            <app-save class="fix-error__button__icon"></app-save>
+            }
+            <span class="fix-error__button__name">Update Changes</span>
+          </button>
+        </div>
+      </li>
+      }
+
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
       @if (event.pti > 0) {
       <li>
         <div class="fix-error">
-          <!-- <mat-icon class="fix-error__icon">build</mat-icon> -->
           <button
             (click)="handleContextMenuAction('EXTEND_PTI', event)"
             [disabled]="extendPTIBtnDisabled() || monitorService.isUpdating()"

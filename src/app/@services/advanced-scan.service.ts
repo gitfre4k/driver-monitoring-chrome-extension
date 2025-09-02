@@ -44,7 +44,6 @@ export class AdvancedScanService {
         return this.apiService
           .getLogs(tenant, this.dateService.getLogsCustomDateRange(qDate))
           .pipe(
-            tap(() => console.log('[Advanced Scan Service] ## ', tenant.name)),
             tap({
               error: (error) => {
                 this.progressBarService.progressValue.update(
@@ -260,6 +259,7 @@ export class AdvancedScanService {
         return newValue;
       });
     }
+
     ////////////
     // handle Location Mismatch events
     if (locationMismatchEvents.length) {

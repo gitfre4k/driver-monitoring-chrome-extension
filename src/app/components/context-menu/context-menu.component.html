@@ -13,7 +13,7 @@
       <app-off-duty></app-off-duty>
       <span class="context-menu__item__name">Change to Off Duty</span>
     </li>
-    } @if (event.statusName !== 'Sleeper Breth') {
+    } @if (event.statusName !== 'Sleeper Berth') {
     <li
       (click)="
         contextMenuService.handleAction('ChangeToSleeperBerthStatus', event)

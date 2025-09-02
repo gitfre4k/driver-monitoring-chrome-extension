@@ -1,4 +1,11 @@
-import { Component, effect, inject } from '@angular/core';
+import {
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MonitorService } from '../../@services/monitor.service';
@@ -21,11 +28,16 @@ import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { DurationPipe } from '../../pipes/duration.pipe';
 import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
+import { AutofocusDirective } from '../../directive/autofocus.directive';
+import { SaveComponent } from '../UI/save/save.component';
+import { FormsModule } from '@angular/forms';
+import { IEventDetails } from '../../interfaces';
 
 @Component({
   selector: 'app-monitor',
   imports: [
     CommonModule,
+    FormsModule,
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
@@ -36,12 +48,16 @@ import { ExtensionTabNavigationService } from '../../@services/extension-tab-nav
     CdkMenuItem,
     CdkMenuTrigger,
     DurationPipe,
+    AutofocusDirective,
+    SaveComponent,
   ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
   providers: [],
 })
 export class MonitorComponent {
+  @ViewChild('inputRef') myInputField!: ElementRef<HTMLInputElement>;
+
   monitorService = inject(MonitorService);
   urlService = inject(UrlService);
   appService = inject(AppService);
@@ -53,6 +69,7 @@ export class MonitorComponent {
   addPTIBtnDisabled = this.monitorService.addPTIBtnDisabled;
   refreshBtnDisabled = this.monitorService.refreshBtnDisabled;
   showToolMenu = this.monitorService.showToolMenu;
+  isUpdatingEvent = this.monitorService.isUpdatingEvent;
 
   statusText = '';
   contextMenuVisible = this.appService.contextMenuVisible;
@@ -61,6 +78,9 @@ export class MonitorComponent {
   selectedEvent: IEvent | null = null;
 
   getStatusDuration = getStatusDuration;
+
+  isEditable = signal<null | IEvent>(null);
+  newNote = signal('');
 
   constructor() {
     effect(() => {
@@ -80,6 +100,10 @@ export class MonitorComponent {
         }
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.myInputField.nativeElement.focus();
   }
 
   refresh = () => {
@@ -165,6 +189,35 @@ export class MonitorComponent {
 
   handleContextMenuAction(action: TContextMenuAction, event?: IEvent) {
     this.contextMenuService.handleAction(action, event);
+  }
+
+  handleDoubleClick(event: IEvent) {
+    if (
+      [
+        'ChangeToOffDutyStatus',
+        'ChangeToSleeperBerthStatus',
+        'ChangeToOnDutyNotDrivingStatus',
+      ].includes(event.dutyStatus)
+    ) {
+      this.isEditable.set(event);
+      this.newNote.set('');
+    }
+    if (event.dutyStatus === 'ChangeToDrivingStatus') {
+      // resize
+    }
+    return;
+  }
+
+  cancelEventEdit() {
+    this.isEditable.set(null);
+  }
+
+  updateChanges() {
+    const event = this.isEditable();
+    const note = this.newNote();
+    if (!event || !note) return;
+
+    this.contextMenuService.handleAction('UPDATE_EVENT', event, { note });
   }
 
   markBreaksAndShift(event: IEvent) {

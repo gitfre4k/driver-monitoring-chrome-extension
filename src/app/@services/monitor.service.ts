@@ -26,6 +26,7 @@ export class MonitorService {
   extendPTIBtnDisabled = signal(false);
   addPTIBtnDisabled = signal(false);
   showToolMenu = signal(false);
+  isUpdatingEvent = signal(false);
 
   updateEvents = effect(() => {
     const url = this.urlService.url();

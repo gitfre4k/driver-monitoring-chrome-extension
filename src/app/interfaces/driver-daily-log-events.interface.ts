@@ -9,6 +9,7 @@ export interface IEvent {
   durationInSeconds: number;
   realDurationInSeconds: number;
   locationDisplayName: string;
+  averageSpeed: number;
   notes: string;
   engineMinutes: number;
   odometer: number;

@@ -6,6 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TContextMenuAction } from '../types';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 import { UrlService } from './url.service';
+import { IEventDetails } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,11 @@ export class ContextMenuService {
 
   computedEvents = this.monitorService.computedDailyLogEvents;
 
-  handleAction(action: TContextMenuAction, event?: IEvent) {
+  handleAction(
+    action: TContextMenuAction,
+    event?: IEvent,
+    payload?: Partial<IEventDetails>
+  ) {
     const tenant = this.appService.currentTenant();
     const computedEvents = this.computedEvents();
 
@@ -47,7 +52,7 @@ export class ContextMenuService {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
-                duration: 3000,
+                duration: 7000,
               });
             },
             complete: () => {
@@ -70,7 +75,7 @@ export class ContextMenuService {
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.extendPTIBtnDisabled.set(false);
               this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
-                duration: 3000,
+                duration: 7000,
               });
             },
             complete: () => {
@@ -164,6 +169,33 @@ export class ContextMenuService {
             );
           },
         });
+      }
+      case 'UPDATE_EVENT': {
+        if (!event || !payload) return;
+        this.monitorService.isUpdatingEvent.set(true);
+        return this.apiOperationsService
+          .updateEvent(tenant, event.id, payload)
+          .subscribe({
+            error: (err) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this.monitorService.isUpdatingEvent.set(false);
+              this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+                duration: 7000,
+              });
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              setTimeout(
+                () => this.monitorService.isUpdatingEvent.set(false),
+                2000
+              );
+              this._snackBar.open('Status successfully updated', 'OK', {
+                duration: 3000,
+              });
+            },
+          });
       }
 
       default:

@@ -222,7 +222,15 @@
             font-weight: 700;
             margin: 1px 4px;
             padding: 2px;
-            border: 1px solid rgb(234, 234, 234);
+            border: 1px solid #eaeaea;
+          }
+
+          .input {
+            border: none;
+          }
+
+          .input:focus {
+            outline: none;
           }
 
           .duration {
@@ -356,38 +364,38 @@
 // .shift {
 //   background: linear-gradient(
 //     -116deg,
-//     hsla(142, 71%, 45%, 0.1) 0%,
+//     hsla(142, 71%, 45%, 0.3) 0%,
 //     #ff930f00 100%
 //   );
 // }
 // .shift.co-driver {
 //   background: linear-gradient(
 //     116deg,
-//     hsla(142, 71%, 45%, 0.1) 0%,
+//     hsla(142, 71%, 45%, 0.3) 0%,
 //     hsla(33, 100%, 53%, 0) 100%
 //   );
 // }
 // .ten-hour-break {
 //   background: linear-gradient(
 //     -116deg,
-//     rgba(234, 178, 8, 0.1) 0%,
+//     rgba(234, 178, 8, 0.3) 0%,
 //     #ff930f00 100%
 //   );
 // }
 // .ten-hour-break.co-driver {
 //   background: linear-gradient(
 //     116deg,
-//     rgba(234, 178, 8, 0.1) 0%,
+//     rgba(234, 178, 8, 0.3) 0%,
 //     hsla(33, 100%, 53%, 0) 100%
 //   );
 // }
 // .cycle-break {
-//   background: linear-gradient(-116deg, rgba(3, 7, 18, 0.1) 0%, #ff930f00 100%);
+//   background: linear-gradient(-116deg, rgba(3, 7, 18, 0.3) 0%, #ff930f00 100%);
 // }
 // .cycle-break.co-driver {
 //   background: linear-gradient(
 //     116deg,
-//     rgba(3, 7, 18, 0.1) 0%,
+//     rgba(3, 7, 18, 0.3) 0%,
 //     hsla(33, 100%, 53%, 0) 100%
 //   );
 // }

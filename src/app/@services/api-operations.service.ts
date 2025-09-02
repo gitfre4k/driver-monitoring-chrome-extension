@@ -34,6 +34,28 @@ export class ApiOperationsService {
     );
   }
 
+  updateEvent(
+    tenant: ITenant,
+    eventId: number,
+    payload: Partial<IEventDetails>
+  ) {
+    const url = 'https://app.monitoringdriver.com/api/Logs/UpdateEvent';
+
+    return this.getEvent(tenant, eventId).pipe(
+      switchMap((eventDetails) => {
+        const body = { ...eventDetails, ...payload };
+
+        return this.http.post<IEventDetails>(url, body, {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        });
+      })
+    );
+  }
+
   updateEventTypeCode(
     tenant: ITenant,
     eventId: number,
@@ -62,8 +84,9 @@ export class ApiOperationsService {
 
     const getStartTime = (date: string) =>
       DateTime.fromISO(date)
-        .plus({ seconds: this.getRandom(1, 60) })
-        .plus({ millisecond: this.getRandom(1, 1000) })
+        // .plus({ seconds: this.getRandom(1, 60) })
+        // .plus({ millisecond: this.getRandom(1, 1000) })
+        .plus({ seconds: 1 })
         .toUTC()
         .toISO() as string;
 
@@ -103,7 +126,7 @@ export class ApiOperationsService {
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         });
-      })
+      }, 10)
     );
   };
 
