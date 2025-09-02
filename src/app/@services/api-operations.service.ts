@@ -84,9 +84,8 @@ export class ApiOperationsService {
 
     const getStartTime = (date: string) =>
       DateTime.fromISO(date)
-        // .plus({ seconds: this.getRandom(1, 60) })
-        // .plus({ millisecond: this.getRandom(1, 1000) })
-        .plus({ seconds: 1 })
+        .plus({ seconds: this.getRandom(1, 60) })
+        .plus({ millisecond: this.getRandom(1, 1000) })
         .toUTC()
         .toISO() as string;
 
