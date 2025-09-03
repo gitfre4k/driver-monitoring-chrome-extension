@@ -180,7 +180,7 @@ export class ContextMenuService {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.isUpdatingEvent.set(false);
-              this.monitorService.showUpdateEventButton.set(null);
+              this.monitorService.showUpdateEvent.set(null);
               this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
                 duration: 7000,
               });
@@ -192,7 +192,7 @@ export class ContextMenuService {
                 () => this.monitorService.isUpdatingEvent.set(false),
                 2000
               );
-              this.monitorService.showUpdateEventButton.set(null);
+              this.monitorService.showUpdateEvent.set(null);
               this._snackBar.open('Status successfully updated', 'OK', {
                 duration: 3000,
               });

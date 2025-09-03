@@ -34,6 +34,7 @@ import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { DurationPipe } from '../../pipes/duration.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
   selector: 'app-monitor',
@@ -53,6 +54,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     AutofocusAndHandleOutsideClickDirective,
     SaveComponent,
     CancelComponent,
+    MatSliderModule,
   ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
@@ -75,8 +77,10 @@ export class MonitorComponent {
   addPTIBtnDisabled = this.monitorService.addPTIBtnDisabled;
   refreshBtnDisabled = this.monitorService.refreshBtnDisabled;
   showToolMenu = this.monitorService.showToolMenu;
-  showUpdateEventButton = this.monitorService.showUpdateEventButton;
+  showUpdateEvent = this.monitorService.showUpdateEvent;
   isUpdatingEvent = this.monitorService.isUpdatingEvent;
+  showResize = this.monitorService.showResize;
+  resizeValue = this.monitorService.resizeValue;
 
   statusText = '';
   contextMenuVisible = this.appService.contextMenuVisible;
@@ -86,7 +90,9 @@ export class MonitorComponent {
 
   getStatusDuration = getStatusDuration;
 
-  isEditable = signal<null | IEvent>(null);
+  currentEditEvent = signal<null | IEvent>(null);
+  currentResizeDriving = signal<null | IEvent>(null);
+
   newNote = signal('');
 
   constructor() {
@@ -107,6 +113,18 @@ export class MonitorComponent {
         }
       }
     });
+    // effect(() => {
+    //   const resizeValue = this.resizeValue();
+    //   if (!resizeValue) return;
+
+    //   this.currentResizeDriving.update((prev) => {
+    //     const newValue = { ...prev! };
+
+    //     newValue.events;
+
+    //     return newValue;
+    //   });
+    // });
   }
 
   ngAfterViewInit(): void {
@@ -206,23 +224,24 @@ export class MonitorComponent {
         'ChangeToOnDutyNotDrivingStatus',
       ].includes(event.dutyStatus)
     ) {
-      this.isEditable.set(event);
-      this.showUpdateEventButton.set(event.id);
+      this.currentEditEvent.set(event);
+      this.showUpdateEvent.set(event.id);
       this.newNote.set('');
     }
     if (event.dutyStatus === 'ChangeToDrivingStatus') {
-      // resize
+      this.currentResizeDriving.set(event);
+      this.showResize.set(event.id);
     }
     return;
   }
 
   cancelEventEdit() {
-    this.isEditable.set(null);
-    this.monitorService.showUpdateEventButton.set(null);
+    this.currentEditEvent.set(null);
+    this.monitorService.showUpdateEvent.set(null);
   }
 
   updateChanges() {
-    const event = this.isEditable();
+    const event = this.currentEditEvent();
     const note = this.newNote();
     if (!event) {
       this._snackBar.open(
@@ -239,7 +258,7 @@ export class MonitorComponent {
         duration: 3000,
       });
     }
-    this.isEditable.set(null);
+    this.currentEditEvent.set(null);
     this.contextMenuService.handleAction('UPDATE_EVENT', event, { note });
   }
 

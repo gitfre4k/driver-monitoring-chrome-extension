@@ -9,7 +9,6 @@ import {
 import { UrlService } from './url.service';
 import { ComputeEventsService } from './compute-events.service';
 import { tap } from 'rxjs';
-import { DateTime } from 'luxon';
 import { AppService } from './app.service';
 
 @Injectable({
@@ -26,8 +25,10 @@ export class MonitorService {
   extendPTIBtnDisabled = signal(false);
   addPTIBtnDisabled = signal(false);
   showToolMenu = signal(false);
-  showUpdateEventButton = signal<number | null>(null);
+  showUpdateEvent = signal<number | null>(null);
   isUpdatingEvent = signal(false);
+  showResize = signal<number | null>(null);
+  resizeValue = signal(1);
 
   updateEvents = effect(() => {
     const url = this.urlService.url();
