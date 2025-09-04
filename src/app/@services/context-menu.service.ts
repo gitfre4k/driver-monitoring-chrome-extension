@@ -3,10 +3,16 @@ import { ApiOperationsService } from './api-operations.service';
 import { AppService } from './app.service';
 import { MonitorService } from './monitor.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TContextMenuAction } from '../types';
+import { TContextMenuAction, TErrorParsedComparison } from '../types';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 import { UrlService } from './url.service';
 import { IEventDetails } from '../interfaces';
+import {
+  IAdvancedResizePayload,
+  IParsedErrorInfo,
+  IResizePayload,
+} from '../interfaces/api.interface';
+import { parseErrorMessage } from '../helpers/context-menu.helpers';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +29,7 @@ export class ContextMenuService {
   handleAction(
     action: TContextMenuAction,
     event?: IEvent,
-    payload?: Partial<IEventDetails>
+    payload?: Partial<IEventDetails> | IResizePayload | IParsedErrorInfo
   ) {
     const tenant = this.appService.currentTenant();
     const computedEvents = this.computedEvents();
@@ -174,7 +180,7 @@ export class ContextMenuService {
         if (!event || !payload) return;
         this.monitorService.isUpdatingEvent.set(true);
         return this.apiOperationsService
-          .updateEvent(tenant, event.id, payload)
+          .updateEvent(tenant, event.id, payload as Partial<IEventDetails>)
           .subscribe({
             error: (err) => {
               this.urlService.refreshWebApp();
@@ -198,6 +204,70 @@ export class ContextMenuService {
               });
             },
           });
+      }
+      case 'RESIZE': {
+        if (!event || !payload) return;
+        this.monitorService.isResizingEvent.set(true);
+        return this.apiOperationsService
+          .resizeEvent(tenant, event.id, payload as IResizePayload)
+          .subscribe({
+            error: (err) => {
+              //  const payload = payload
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this.monitorService.isResizingEvent.set(false);
+              this.monitorService.showResize.set(null);
+              this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+                duration: 7000,
+              });
+
+              if (err.error.code === 'ResizeEvents.DifferenceInMiles') {
+                const parsedInfo = parseErrorMessage(err.error.message);
+                if (!parsedInfo) {
+                  this._snackBar.open(
+                    `Error Occured: could not parse resize error message`,
+                    'OK',
+                    {
+                      duration: 7000,
+                    }
+                  );
+                } else {
+                  this._snackBar.open(
+                    `Resize Error Message parsed: [miles]: ${parsedInfo.miles}, [comparison]: ${parsedInfo.comparison}\n
+                    Attempting advanced resize operatin...
+                    `,
+                    'OK',
+                    {
+                      duration: 7000,
+                    }
+                  );
+                  // this.handleAction('ADVANCED_RESIZE', event, {payload, parsedInfo});
+                }
+              }
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              setTimeout(
+                () => this.monitorService.isResizingEvent.set(false),
+                2000
+              );
+              this.monitorService.showResize.set(null);
+              this._snackBar.open('Driving successfully resized', 'OK', {
+                duration: 3000,
+              });
+            },
+          });
+      }
+      case 'ADVANCED_RESIZE': {
+        if (!event || !payload) return;
+        this.monitorService.isResizingEvent.set(true);
+        return this.apiOperationsService;
+        // .advancedResize(tenant, event, payload as IAdvancedResizePayload)
+        // .subscribe({
+        //   error: (err) => {
+
+        // }});
       }
 
       default:

@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   effect,
   ElementRef,
   inject,
@@ -17,8 +18,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
 
-import { DateTime } from 'luxon';
-
 import { MonitorService } from '../../@services/monitor.service';
 import { UrlService } from '../../@services/url.service';
 import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
@@ -35,6 +34,10 @@ import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { DurationPipe } from '../../pipes/duration.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSliderModule } from '@angular/material/slider';
+import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
+import { IEventDetails } from '../../interfaces';
+import { IResizePayload } from '../../interfaces/api.interface';
+import { Duration } from 'luxon';
 
 @Component({
   selector: 'app-monitor',
@@ -55,6 +58,7 @@ import { MatSliderModule } from '@angular/material/slider';
     SaveComponent,
     CancelComponent,
     MatSliderModule,
+    MonitorHeaderComponent,
   ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
@@ -77,10 +81,8 @@ export class MonitorComponent {
   addPTIBtnDisabled = this.monitorService.addPTIBtnDisabled;
   refreshBtnDisabled = this.monitorService.refreshBtnDisabled;
   showToolMenu = this.monitorService.showToolMenu;
-  showUpdateEvent = this.monitorService.showUpdateEvent;
-  isUpdatingEvent = this.monitorService.isUpdatingEvent;
-  showResize = this.monitorService.showResize;
-  resizeValue = this.monitorService.resizeValue;
+
+  handleAction = this.contextMenuService.handleAction;
 
   statusText = '';
   contextMenuVisible = this.appService.contextMenuVisible;
@@ -90,10 +92,28 @@ export class MonitorComponent {
 
   getStatusDuration = getStatusDuration;
 
-  currentEditEvent = signal<null | IEvent>(null);
-  currentResizeDriving = signal<null | IEvent>(null);
+  showUpdateEvent = this.monitorService.showUpdateEvent;
+  isUpdatingEvent = this.monitorService.isUpdatingEvent;
+  currentEditEvent = this.monitorService.currentEditEvent;
+  newNote = this.monitorService.newNote;
+  newOdometer = this.monitorService.newOdometer;
 
-  newNote = signal('');
+  showResize = this.monitorService.showResize;
+  isResizingEvent = this.monitorService.isResizingEvent;
+  maxResize = this.monitorService.maxResize;
+  currentResizeDriving = this.monitorService.currentResizeDriving;
+  newResize = this.monitorService.newResize;
+
+  newSpeed = computed(() => {
+    const currentDriving = this.currentResizeDriving();
+    const newDuration = this.newResize();
+    if (!currentDriving || !newDuration) return;
+    const currentSpeed = currentDriving.averageSpeed;
+    const currentDuration = currentDriving.realDurationInSeconds;
+    const distance = currentSpeed * (currentDuration / 3600);
+
+    return distance / (newDuration / 3600);
+  });
 
   constructor() {
     effect(() => {
@@ -113,79 +133,26 @@ export class MonitorComponent {
         }
       }
     });
-    // effect(() => {
-    //   const resizeValue = this.resizeValue();
-    //   if (!resizeValue) return;
-
-    //   this.currentResizeDriving.update((prev) => {
-    //     const newValue = { ...prev! };
-
-    //     newValue.events;
-
-    //     return newValue;
-    //   });
-    // });
   }
 
   ngAfterViewInit(): void {
-    this.myInputField.nativeElement.focus();
+    this.myInputField && this.myInputField.nativeElement.focus();
   }
 
   refresh = () => {
     this.refreshBtnDisabled.set(true);
     this.monitorService.refresh.update((value) => value + 1);
+    this.newResize.set(0);
   };
-
-  get date() {
-    const zone = this.monitorService.driverDailyLog()?.homeTerminalTimeZone!;
-    const date = this.monitorService.driverDailyLog()?.date!;
-
-    return DateTime.fromISO(date).setZone(zone).toISO();
-  }
 
   getNoSpaceNote(note: string) {
     return note.replace(/\s/g, '');
   }
 
   focusElement(event: IEvent, action: TFocusElementAction) {
-    if (event.driver.id !== event.driver.viewId) return;
-    if (this.monitorService.isUpdating()) return;
-    this.urlService.focusElement(event.id, action, event.statusName);
-  }
-
-  formatTenantName(tenant: string) {
-    const keywordsToRemove = new Set([
-      'logistics',
-      'transport',
-      'transportations',
-      'Transportation',
-      'express',
-      'enterprises',
-      'enterprise',
-      'freight',
-      'international',
-      'cargo',
-      'services',
-      'trucking',
-      'systems',
-      'transporting',
-    ]);
-    let words = tenant.replace(/,/g, '').trim().split(' ');
-
-    if (words.length === 0) return '';
-
-    let lastWord = words[words.length - 1];
-    if (
-      lastWord.length === 3 ||
-      (lastWord.length === 4 && lastWord[lastWord.length - 1] === '.')
-    )
-      words.pop();
-    if (words.length > 0) {
-      const newLastWord = words[words.length - 1];
-      if (keywordsToRemove.has(newLastWord.toLowerCase())) words.pop();
-    }
-
-    return words.join(' ');
+    // if (event.driver.id !== event.driver.viewId) return;
+    // if (this.monitorService.isUpdating()) return;
+    // this.urlService.focusElement(event.id, action, event.statusName);
   }
 
   onContextMenu($event: MouseEvent, event: IEvent) {
@@ -224,13 +191,24 @@ export class MonitorComponent {
         'ChangeToOnDutyNotDrivingStatus',
       ].includes(event.dutyStatus)
     ) {
+      this.currentResizeDriving.set(null);
+      this.showResize.set(null);
+      this.newResize.set(0);
+
       this.currentEditEvent.set(event);
       this.showUpdateEvent.set(event.id);
-      this.newNote.set('');
+      this.newNote.set(event.notes);
+      this.newOdometer.set(event.odometer);
     }
     if (event.dutyStatus === 'ChangeToDrivingStatus') {
+      this.currentEditEvent.set(null);
+      this.showUpdateEvent.set(null);
+      this.newNote.set('');
+      this.newOdometer.set(0);
+
       this.currentResizeDriving.set(event);
       this.showResize.set(event.id);
+      this.newResize.set(event.realDurationInSeconds);
     }
     return;
   }
@@ -240,9 +218,39 @@ export class MonitorComponent {
     this.monitorService.showUpdateEvent.set(null);
   }
 
+  cancelResize() {
+    this.currentResizeDriving.set(null);
+    this.newResize.set(0);
+    this.monitorService.showResize.set(null);
+  }
+
+  resize() {
+    const event = this.currentResizeDriving();
+    const seconds = this.newResize();
+    if (!event || !seconds) {
+      this._snackBar.open(
+        `[Monitor Component] error occurred, refreshing page... `,
+        'OK',
+        {
+          duration: 3000,
+        }
+      );
+      return this.refresh();
+    }
+    const duration = Duration.fromObject({ seconds }).toFormat('hh:mm:ss');
+    const durationAsTimeSpan = `${new Date().getTime()}`;
+
+    this.currentResizeDriving.set(null);
+    this.contextMenuService.handleAction('RESIZE', event, {
+      duration,
+      durationAsTimeSpan,
+    });
+  }
+
   updateChanges() {
     const event = this.currentEditEvent();
     const note = this.newNote();
+    const totalVehicleMiles = this.newOdometer();
     if (!event) {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
@@ -258,12 +266,32 @@ export class MonitorComponent {
         duration: 3000,
       });
     }
+    if (!totalVehicleMiles) {
+      this._snackBar.open(
+        `[Monitor Component] error: invalid odometer value`,
+        'OK',
+        {
+          duration: 3000,
+        }
+      );
+    }
     this.currentEditEvent.set(null);
-    this.contextMenuService.handleAction('UPDATE_EVENT', event, { note });
+    this.contextMenuService.handleAction('UPDATE_EVENT', event, {
+      totalVehicleMiles,
+      note,
+    });
   }
 
   triggerButtonClick(): void {
     this.updateChangesButtonRef.nativeElement.click();
+  }
+
+  onWheel(event: WheelEvent) {
+    event.preventDefault();
+    const delta = event.deltaY > 0 ? -31 : 31;
+    const newSliderValue = this.newResize() + delta;
+
+    this.newResize.set(Math.max(3600, Math.min(28799, newSliderValue)));
   }
 
   markBreaksAndShift(event: IEvent) {

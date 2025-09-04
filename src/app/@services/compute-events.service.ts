@@ -214,7 +214,7 @@ export class ComputeEventsService {
       } = events[i].driver.viewId === events[i].driver.id
         ? this.driverState()
         : this.coDriverState();
-      events[i].computeIndex = i;
+      events[i].viewId = i;
       events[i].errorMessages = [];
       events[i].statusName = getStatusName(events[i].dutyStatus);
       events[i].occurredDuringDriving = occurredDuringDriving;
@@ -238,6 +238,7 @@ export class ComputeEventsService {
 
       // onDuty, origin: Auto
       if (
+        events[i].viewId !== 1 &&
         events[i].statusName === 'On Duty' &&
         events[i].origin === 'AutomaticallyRecordedByEld' &&
         !isDriving(currentDutyStatus)
@@ -515,7 +516,7 @@ export class ComputeEventsService {
               arr[index + 1].odometer - arr[index].odometer
             ).toFixed(2);
             speed > this.speeding() &&
-              events[arr[index + 1].computeIndex].errorMessages.push(
+              events[arr[index + 1].viewId].errorMessages.push(
                 `speeding [${speed} mph]`
               );
           }
@@ -534,6 +535,8 @@ export class ComputeEventsService {
 
         occurredDuringDriving = false;
         events[i].occurredDuringDriving = false;
+        currentDriving &&
+          (events[currentDriving.viewId].nextDutyStatusId = events[i].id);
         currentDriving = null;
         intermediateCount = 0;
         currentDrivingIntermediates = [];
@@ -552,7 +555,7 @@ export class ComputeEventsService {
       }
 
       if (i === events.length - 1 && this.refuelMarker()) {
-        events[currentDutyStatus.computeIndex].refuel = true;
+        events[currentDutyStatus.viewId].refuel = true;
         this.refuelMarker.set(null);
       }
 

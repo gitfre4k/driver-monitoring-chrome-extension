@@ -6,6 +6,8 @@ export type TScanMode =
   | 'cert'
   | 'deleteUE';
 
+export type TErrorParsedComparison = 'smaller' | 'greater';
+
 export type TScanResult =
   | 'teleports'
   | 'locationMismatch'
@@ -39,6 +41,8 @@ export type TContextMenuAction =
   | 'DELETE_ENGINES_IN_DRIVING'
   | 'ADD_ENGINE_OFF'
   | 'UPDATE_EVENT'
+  | 'RESIZE'
+  | 'ADVANCED_RESIZE'
   | 'ChangeToOffDutyStatus'
   | 'ChangeToSleeperBerthStatus'
   | 'ChangeToDrivingStatus'

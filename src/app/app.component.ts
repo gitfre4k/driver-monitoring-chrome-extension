@@ -136,26 +136,27 @@ export class AppComponent {
   }
 
   private handleKeyboardEvent(event: KeyboardEvent) {
-    switch (event.key) {
-      case '1':
-        //  if (event.ctrlKey) console.log('Ctrl + 1 pressed!');
-        this.extensionTabNavigationService.selectedTabIndex.set(0);
-        event.preventDefault(); // Prevent default browser behavior
-        break;
-      case '2':
-        this.extensionTabNavigationService.selectedTabIndex.set(1);
-        event.preventDefault();
-        break;
-      case '3':
-        this.extensionTabNavigationService.selectedTabIndex.set(2);
-        event.preventDefault();
-        break;
-      case '4':
-        this.extensionTabNavigationService.selectedTabIndex.set(3);
-        event.preventDefault();
-        break;
-      default:
-        break;
+    if (event.ctrlKey) {
+      switch (event.key) {
+        case '1':
+          this.extensionTabNavigationService.selectedTabIndex.set(0);
+          event.preventDefault(); // Prevent default browser behavior
+          break;
+        case '2':
+          this.extensionTabNavigationService.selectedTabIndex.set(1);
+          event.preventDefault();
+          break;
+        case '3':
+          this.extensionTabNavigationService.selectedTabIndex.set(2);
+          event.preventDefault();
+          break;
+        case '4':
+          this.extensionTabNavigationService.selectedTabIndex.set(3);
+          event.preventDefault();
+          break;
+        default:
+          break;
+      }
     }
   }
 

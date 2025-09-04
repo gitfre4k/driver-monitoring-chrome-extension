@@ -55,6 +55,7 @@ export interface IEvent {
   refuel: boolean;
   pti: number;
   break: number;
+  nextDutyStatusId: number;
 }
 
 export interface IDriverIdAndName {

@@ -5,6 +5,7 @@ import { IEventDetails, ITenant } from '../interfaces';
 import { DateTime } from 'luxon';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 import { TEventTypeCode } from '../types';
+import { IParsedErrorInfo, IResizePayload } from '../interfaces/api.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +33,26 @@ export class ApiOperationsService {
         },
       }
     );
+  }
+
+  advancedResize(tenant: ITenant, event: IEvent, payload: IParsedErrorInfo) {
+    // this.getEvent()
+  }
+
+  resizeEvent(tenant: ITenant, eventId: number, payload: IResizePayload) {
+    const url = 'https://app.monitoringdriver.com/api/Logs/ResizeEvent';
+    const body = {
+      eventId,
+      ...payload,
+    };
+
+    return this.http.post(url, body, {
+      withCredentials: true,
+      headers: {
+        'X-Tenant-Id': `${tenant.id}`,
+        'x-client-timezone': `${DateTime.local().zoneName}`,
+      },
+    });
   }
 
   updateEvent(

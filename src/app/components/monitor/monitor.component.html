@@ -4,7 +4,7 @@
     mat-icon-button
     matTooltip="Refresh"
     matTooltipPosition="left"
-    class="refresh"
+    class="absolute refresh"
     (click)="refresh()"
     [disabled]="refreshBtnDisabled()"
   >
@@ -15,7 +15,7 @@
     [cdkMenuTriggerFor]="menu"
     mat-icon-button
     (click)="toggleToolMenu()"
-    class="menu"
+    class="absolute menu"
   >
     <mat-icon>more_vert</mat-icon>
   </button>
@@ -48,72 +48,18 @@
     </div>
   </ng-template>
 
-  <div class="info">
-    <div class="info__company-and-driver">
-      <div class="info__company-and-driver__1">
-        <span class="info__company-and-driver__1-company">
-          ## {{ formatTenantName(ddle.companyName) }}
-        </span>
-
-        <span
-          [class]="
-            ![
-              'Batbayar Enkhbat',
-              'Nedeljko Arezina',
-              'Farhan Abdullahi Hussein'
-            ].includes(ddle.driverFullName)
-              ? 'info__company-and-driver__1-driver-name'
-              : 'info__company-and-driver__1-driver-x'
-          "
-        >
-          {{ ddle.driverFullName }}
-        </span>
-      </div>
-      <div class="info__company-and-driver__2">
-        @if (driverInfo(); as driverInfo) { @if
-        (driverInfo.mobileAppType.toLowerCase().trim() === "android") {
-        <mat-icon>android</mat-icon>
-        } @else {
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="24px"
-          viewBox="0 -960 960 960"
-          width="24px"
-          fill="#e3e3e3"
-        >
-          <path
-            d="M160-600v-80h80v80h-80Zm0 320v-240h80v240h-80Zm280 0h-80q-33 0-56.5-23.5T280-360v-240q0-33 23.5-56.5T360-680h80q33 0 56.5 23.5T520-600v240q0 33-23.5 56.5T440-280Zm-80-80h80v-240h-80v240Zm200 80v-80h160v-80h-80q-33 0-56.5-23.5T560-520v-80q0-33 23.5-56.5T640-680h160v80H640v80h80q33 0 56.5 23.5T800-440v80q0 33-23.5 56.5T720-280H560Z"
-          />
-        </svg>
-        }
-        <span class="info__company-and-driver__2-version">{{
-          driverInfo.mobileAppVersion
-        }}</span>
-        <span style="margin-top: 6px">{{
-          driverInfo.homeTerminalTimeZone
-        }}</span>
-
-        }
-      </div>
-    </div>
-
-    @if (monitorService.isUpdating()) {
-    <div class="info__date">
-      <mat-spinner [diameter]="17"></mat-spinner>
-    </div>
-    } @else {
-    <div class="info__date">
-      <p class="info__date">{{ date | date : "mediumDate" }}</p>
-    </div>
-    }
-  </div>
+  <app-monitor-header
+    [companyName]="ddle.companyName"
+    [driverName]="ddle.driverFullName"
+  ></app-monitor-header>
 
   <div class="event-list">
+    @if (ddle.coDrivers.length === 0) {
+    <hr />
+    }
     <ul>
-      @if (ddle.coDrivers.length === 0) {
-      <hr />
-      } @for (event of monitorService.computedDailyLogEvents(); track event.id)
-      { @if (event.shift && ddle.coDrivers.length !== 0) {
+      @for (event of monitorService.computedDailyLogEvents(); track event.id) {
+      @if (event.shift && ddle.coDrivers.length !== 0) {
       <p
         [ngClass]="
           event.driver.id === event.driver.viewId ? `left` : `right`
@@ -122,25 +68,24 @@
         {{ event.driver.name }}
       </p>
       <hr />
-      } @if (event.pti === 0) {
+      }
+      <!-- [FIX] add Pre-Trip Inspection -->
+      @if (event.pti === 0) {
       <li>
         <div class="fix-error">
           <button
             (click)="handleContextMenuAction('ADD_PTI', event)"
             [disabled]="addPTIBtnDisabled() || monitorService.isUpdating()"
-            class="fix-error__button"
+            class="fix-error__button wide"
             matRipple
           >
             @if (addPTIBtnDisabled()) {
             <div class="fix-error__button__spinner">
               <mat-spinner [diameter]="17"></mat-spinner>
             </div>
-
             } @else {
             <mat-icon class="fix-error__button__icon">playlist_add</mat-icon>
-
             }
-
             <span class="fix-error__button__name">add Pre-Trip Inspection</span>
           </button>
         </div>
@@ -160,6 +105,10 @@
             'event' +
             (event.id === selectedEvent?.id && contextMenuVisible()
               ? ' selected'
+              : '') +
+            (currentEditEvent()?.id === event.id ||
+            currentResizeDriving()?.id === event.id
+              ? ' editing'
               : '')
           "
           (mouseenter)="focusElement(event, 'FOCUS_ELEMENT_START')"
@@ -167,6 +116,39 @@
           matRipple
           id="{{ event.id }}"
         >
+          @if (currentEditEvent()?.id === event.id) {
+          <span></span>
+          <input
+            [(ngModel)]="newOdometer"
+            #updateOdometer
+            id="updateOdometer"
+            type="number"
+            (keydown.enter)="triggerButtonClick()"
+            (keydown.esc)="cancelEventEdit()"
+            [ngClass]="
+              'odometer ' +
+              (event.isTeleport || event.error ? 'error' : '') +
+              (event.truckChange ? 'approved' : '') +
+              ' input'
+            "
+          />
+          <input
+            [(ngModel)]="newNote"
+            appAutofocusAndHandleOutsideClick
+            (clickOutside)="cancelEventEdit()"
+            [clickOutsideIgnore]="['#updateChangesButton', '#updateOdometer']"
+            (keydown.enter)="triggerButtonClick()"
+            (keydown.esc)="cancelEventEdit()"
+            [ngClass]="
+              'status ' +
+              event.dutyStatus  + ' input' +
+               ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '')
+            "
+            type="text"
+          />
+          }
+          <!--  -->
+          @else if (currentResizeDriving()?.id === event.id) {
           <span
             [ngClass]="
               'view-id ' +
@@ -182,7 +164,59 @@
             "
             >{{ event.viewId }}.</span
           >
+          <span
+            [ngClass]="
+              'odometer ' +
+              (event.isTeleport || event.error ? 'error' : '') +
+              (event.truckChange ? 'approved' : '')
+            "
+            >{{
+              event.truckChange
+                ? "truck change"
+                : event.odometer && event.odometer.toLocaleString()
+            }}</span
+          >
+          <span
+            (dblclick)="handleDoubleClick(event)"
+            [ngClass]="
+              'status ' +
+              event.dutyStatus +
+               ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '')
+            "
+          >
+            @if (event.statusName === 'Driving' && event.averageSpeed) {
+            <span style="font-size: 12px">
+              @if (newSpeed() && (currentResizeDriving()?.id === event.id)) {
+              {{ newSpeed()!.toFixed(2) }}
+              } @else {
+              {{ event.averageSpeed.toFixed(2) }}
+              } mph</span
+            >
+            } @else {
+            {{
+              event.notes && getNoSpaceNote(event.notes)
+                ? event.notes.trim()
+                : event.statusName
+            }}
+            }
+          </span>
 
+          } @else {
+          <span
+            [ngClass]="
+              'view-id ' +
+              (event.errorMessages && event.errorMessages.length
+                ? ' error'
+                : '') +
+              (event.manualDriving ||
+              event.malf ||
+              event.statusName === 'Fleet manager' ||
+              event.refuel
+                ? ' warn'
+                : '')
+            "
+            >{{ event.viewId }}.</span
+          >
           <span
             [ngClass]="
               'odometer ' +
@@ -196,23 +230,6 @@
             }}</span
           >
 
-          @if (currentEditEvent()?.id === event.id) {
-          <input
-            [(ngModel)]="newNote"
-            appAutofocusAndHandleOutsideClick
-            (clickOutside)="cancelEventEdit()"
-            [clickOutsideIgnore]="['#updateChangesButton']"
-            (keydown.enter)="triggerButtonClick()"
-            (keydown.esc)="cancelEventEdit()"
-            [ngClass]="
-              'status ' +
-              event.dutyStatus +
-               ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '') + ' input'
-            "
-            type="text"
-            in="event.notes"
-          />
-          } @else {
           <span
             (dblclick)="handleDoubleClick(event)"
             [ngClass]="
@@ -223,7 +240,11 @@
           >
             @if (event.statusName === 'Driving' && event.averageSpeed) {
             <span style="font-size: 12px">
-              {{ event.averageSpeed.toFixed(2) }} mph</span
+              @if (newSpeed() && (currentResizeDriving()?.id === event.id)) {
+              {{ newSpeed()!.toFixed(2) }}
+              } @else {
+              {{ event.averageSpeed.toFixed(2) }}
+              } mph</span
             >
             } @else {
             {{
@@ -281,37 +302,42 @@
       <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
       <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
       @if (showResize() === event.id) {
-      <li>
+      <li class="selected">
         <div class="slider">
-          <mat-slider [min]="1" [max]="event.durationInSeconds" [step]="60">
-            <input matSliderThumb [(ngModel)]="resizeValue" />
+          <mat-slider
+            [min]="3600"
+            [max]="maxResize()"
+            [step]="1"
+            (wheel)="onWheel($event)"
+          >
+            <input matSliderThumb [(ngModel)]="newResize" />
           </mat-slider>
-          {{ resizeValue() * 60 | duration }}
+          {{ newResize() | duration : true }}
         </div>
         <div class="fix-error">
           <button
-            id="updateChangesButton"
+            id="resizeButton"
             class="fix-error__button"
             matRipple
-            (click)="updateChanges()"
-            [disabled]="isUpdatingEvent()"
+            (click)="resize()"
+            [disabled]="isResizingEvent()"
           >
-            @if(isUpdatingEvent()) {
+            @if(isResizingEvent()) {
             <div class="fix-error__button__spinner">
               <mat-spinner [diameter]="17"></mat-spinner>
             </div>
             } @else {
             <app-save class="fix-error__button__icon"></app-save>
             }
-            <span class="fix-error__button__name">Update Changes</span>
+            <span class="fix-error__button__name">Resize</span>
           </button>
 
           <button
             class="fix-error__red-button"
             matRipple
-            (click)="cancelEventEdit()"
+            (click)="cancelResize()"
             [disabled]="isUpdatingEvent()"
           >
             <app-cancel class="fix-error__button__icon"> </app-cancel>
@@ -320,7 +346,10 @@
           </button>
         </div>
       </li>
-      } @if (showUpdateEvent() === event.id) {
+      }
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      @if (showUpdateEvent() === event.id) {
       <li>
         <div class="fix-error">
           <button
@@ -338,7 +367,7 @@
             } @else {
             <app-save class="fix-error__button__icon"></app-save>
             }
-            <span class="fix-error__button__name">Update Changes</span>
+            <span class="fix-error__button__name">Update</span>
           </button>
 
           <button
@@ -365,7 +394,7 @@
           <button
             (click)="handleContextMenuAction('EXTEND_PTI', event)"
             [disabled]="extendPTIBtnDisabled() || monitorService.isUpdating()"
-            class="fix-error__button"
+            class="fix-error__button wide"
             matRipple
           >
             @if (extendPTIBtnDisabled()) {

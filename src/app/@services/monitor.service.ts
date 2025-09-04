@@ -25,10 +25,27 @@ export class MonitorService {
   extendPTIBtnDisabled = signal(false);
   addPTIBtnDisabled = signal(false);
   showToolMenu = signal(false);
-  showUpdateEvent = signal<number | null>(null);
+
   isUpdatingEvent = signal(false);
+  showUpdateEvent = signal<number | null>(null);
+  currentEditEvent = signal<null | IEvent>(null);
+  newNote = signal('');
+  newOdometer = signal(0);
+
+  isResizingEvent = signal(false);
   showResize = signal<number | null>(null);
-  resizeValue = signal(1);
+  currentResizeDriving = signal<null | IEvent>(null);
+  newResize = signal(0);
+
+  maxResize = computed(() => {
+    const newResize = this.newResize();
+    let maxResize = 14399;
+    newResize > 14300 && (maxResize = 17999); // 4h+
+    newResize > 17900 && (maxResize = 21599); // 5h+
+    newResize > 21500 && (maxResize = 25199); // 6h+
+    newResize > 25100 && (maxResize = 28799); // 7h+
+    return maxResize;
+  });
 
   updateEvents = effect(() => {
     const url = this.urlService.url();
@@ -81,6 +98,13 @@ export class MonitorService {
         tap((driverDailyLog) => {
           this.driverDailyLog.set(driverDailyLog);
 
+          this.currentEditEvent.set(null);
+          this.showUpdateEvent.set(null);
+          this.newNote.set('');
+          this.currentResizeDriving.set(null);
+          this.showResize.set(null);
+          this.newResize.set(0);
+
           if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
             const coId = driverDailyLog.coDrivers[0].id;
             this.apiService
@@ -107,6 +131,7 @@ export class MonitorService {
   handleDriverDailyLogEvents({ driverDailyLog, coDriverDailyLog }: IDailyLogs) {
     this.isUpdating.set(false);
     this.refreshBtnDisabled.set(false);
+
     if (!driverDailyLog) {
       console.log('No driver daily log found', driverDailyLog);
       return this.computedDailyLogEvents.set(null);
