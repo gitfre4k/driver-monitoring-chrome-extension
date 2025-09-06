@@ -24,6 +24,18 @@
       align-self: center;
       text-align: left;
     }
+    &__icon {
+      align-self: center;
+      &-off {
+        color: #030712;
+      }
+      &-sleep {
+        color: #e7b008;
+      }
+      &-on {
+        color: #3b82f6;
+      }
+    }
   }
 }
 

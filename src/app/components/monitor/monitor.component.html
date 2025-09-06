@@ -23,25 +23,31 @@
   <ng-template #menu>
     <div class="tool-menu" cdkMenu>
       <ul>
+        <!-- DRIVING ENGINES -->
         <li
           (click)="handleContextMenuAction('DELETE_ENGINES_IN_DRIVING')"
           class="tool-menu__item"
           cdkMenuItem
           matRipple
         >
-          <mat-icon>delete_outline</mat-icon>
+          <mat-icon class="tool-menu__item__icon-drv-eng"
+            >delete_outline</mat-icon
+          >
           <span class="tool-menu__item__name"
             >delete Engine events during Driving</span
           >
         </li>
 
+        <!-- ALL ENGINES -->
         <li
           (click)="handleContextMenuAction('DELETE_ALL_ENGINES')"
           class="tool-menu__item"
           cdkMenuItem
           matRipple
         >
-          <mat-icon>delete_sweep</mat-icon>
+          <mat-icon class="tool-menu__item__icon-all-eng"
+            >delete_sweep</mat-icon
+          >
           <span class="tool-menu__item__name">delete all Engine events</span>
         </li>
       </ul>

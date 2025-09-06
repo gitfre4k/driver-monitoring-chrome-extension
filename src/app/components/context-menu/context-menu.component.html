@@ -5,7 +5,59 @@
     <!-- vertical_align_bottom || change off to sleep -->
     <!-- case 'ChangeToSleeperBerthStatus': -->
     <!-- case 'ChangeToOffDutyStatus':  -->
-    @if (event.statusName !== 'Off Duty') {
+
+    <!-- ENGINE OFF -->
+    <li
+      (click)="contextMenuService.handleAction('ADD_ENGINE_OFF', event)"
+      class="context-menu__item"
+    >
+      <app-engine style="margin-top: 1.5px"></app-engine>
+      <span class="context-menu__item__name">add Engine Off</span>
+    </li>
+
+    <!-- PARTIAL TO ON -->
+    @if (['Sleeper Berth', 'Off Duty'].includes(event.statusName) &&
+    (event.realDurationInSeconds > 1800) ) {
+    <li
+      (click)="contextMenuService.handleAction('PARTIAL_TO_ON', event)"
+      class="context-menu__item"
+    >
+      <mat-icon class="context-menu__item__icon-on"
+        >vertical_align_bottom</mat-icon
+      >
+      <span class="context-menu__item__name"
+        >partially transform to On Duty</span
+      >
+    </li>
+    } @if (event.statusName === 'On Duty' && event.realDurationInSeconds > 1800)
+    {
+    <!--  -->
+    <!-- to Off Duty -->
+    <li
+      (click)="contextMenuService.handleAction('PARTIAL_ON_TO_OFF', event)"
+      class="context-menu__item"
+    >
+      <mat-icon class="context-menu__item__icon-off"
+        >vertical_align_top</mat-icon
+      >
+      <span class="context-menu__item__name"
+        >partially transform into Off Duty</span
+      >
+    </li>
+    <!--  -->
+    <!-- to Sleeper -->
+    <li
+      (click)="contextMenuService.handleAction('PARTIAL_ON_TO_SLEEP', event)"
+      class="context-menu__item"
+    >
+      <mat-icon class="context-menu__item__icon-sleep"
+        >vertical_align_top
+      </mat-icon>
+      <span class="context-menu__item__name"
+        >partially transform into Sleeper Berth</span
+      >
+    </li>
+    } @if (event.statusName !== 'Off Duty') {
     <li
       (click)="contextMenuService.handleAction('ChangeToOffDutyStatus', event)"
       class="context-menu__item"
@@ -42,14 +94,8 @@
       <span class="context-menu__item__name">Change to On Duty</span>
     </li>
     }
-
-    <li
-      (click)="contextMenuService.handleAction('ADD_ENGINE_OFF', event)"
-      class="context-menu__item"
-    >
-      <app-engine style="margin-top: 1.5px"></app-engine>
-      <span class="context-menu__item__name">add Engine Off</span>
-    </li>
+    <!--  -->
+    <!--  -->
 
     <!-- developer_board_off  -->
 

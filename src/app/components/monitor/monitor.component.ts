@@ -34,8 +34,6 @@ import { DurationPipe } from '../../pipes/duration.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSliderModule } from '@angular/material/slider';
 import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
-import { IEventDetails } from '../../interfaces';
-import { IResizePayload } from '../../interfaces/api.interface';
 import { Duration } from 'luxon';
 
 @Component({

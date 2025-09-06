@@ -284,47 +284,70 @@ export class ContextMenuService {
             },
           });
       }
-      /////////////////////
-      // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       case 'PARTIAL_ON_TO_SLEEP':
       case 'PARTIAL_ON_TO_OFF': {
         if (!event) return;
-        action === 'PARTIAL_ON_TO_SLEEP' &&
-          this.monitorService.addPTIBtnDisabled.set(true);
-        return this.apiOperationsService[
-          action === 'PARTIAL_ON_TO_SLEEP' ? 'addPTI' : 'addEngineOff'
-        ](tenant, event.id).subscribe({
-          error: (err) => {
-            this.urlService.refreshWebApp();
-            this.monitorService.refresh.update((value) => value + 1);
-            action === 'PARTIAL_ON_TO_SLEEP' &&
-              this.monitorService.addPTIBtnDisabled.set(false);
-            this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-              duration: 7000,
-            });
-          },
-          complete: () => {
-            this.urlService.refreshWebApp();
-            this.monitorService.refresh.update((value) => value + 1);
-            action === 'PARTIAL_ON_TO_SLEEP' &&
-              setTimeout(
-                () => this.monitorService.addPTIBtnDisabled.set(false),
-                2000
+
+        const typeCode =
+          action === 'PARTIAL_ON_TO_SLEEP'
+            ? 'ChangeToSleeperBerthStatus'
+            : 'ChangeToOffDutyStatus';
+
+        return this.apiOperationsService
+          .partiallyTransformOnDuty(tenant, event, typeCode)
+          .subscribe({
+            error: (err) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+                duration: 7000,
+              });
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(
+                `On Duty event partially transformed into ${
+                  action === 'PARTIAL_ON_TO_SLEEP'
+                    ? 'Sleeper Berth'
+                    : 'Off Duty'
+                }`,
+                'OK',
+                {
+                  duration: 3000,
+                }
               );
-            this._snackBar.open(
-              `${
-                action === 'PARTIAL_ON_TO_SLEEP'
-                  ? 'Pre-Trip Inspection'
-                  : 'Engine Off'
-              } has been added.`,
-              'OK',
-              {
-                duration: 3000,
-              }
-            );
-          },
-        });
+            },
+          });
+      }
+
+      case 'PARTIAL_TO_ON': {
+        if (!event) return;
+
+        const typeCode = 'ChangeToOnDutyNotDrivingStatus';
+
+        return this.apiOperationsService
+          .partiallyTransformOnDuty(tenant, event, typeCode)
+          .subscribe({
+            error: (err) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+                duration: 7000,
+              });
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(
+                `Event partial transformation successful`,
+                'OK',
+                {
+                  duration: 3000,
+                }
+              );
+            },
+          });
       }
 
       default:

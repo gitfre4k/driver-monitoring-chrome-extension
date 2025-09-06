@@ -23,6 +23,14 @@
       align-self: center;
       text-align: left;
     }
+    &__icon {
+      &-drv-eng {
+        color: hsl(142, 71%, 45%);
+      }
+      &-all-eng {
+        color: "#ef4444";
+      }
+    }
   }
 }
 

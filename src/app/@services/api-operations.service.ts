@@ -42,6 +42,52 @@ export class ApiOperationsService {
     );
   }
 
+  partiallyTransformOnDuty = (
+    tenant: ITenant,
+    event: IEvent,
+    typeCode:
+      | 'ChangeToOffDutyStatus'
+      | 'ChangeToSleeperBerthStatus'
+      | 'ChangeToOnDutyNotDrivingStatus'
+  ) => {
+    const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+
+    const getStartTime = (date: string) => {
+      if (typeCode === 'ChangeToOnDutyNotDrivingStatus') {
+        return DateTime.fromISO(date)
+          .plus({ seconds: event.realDurationInSeconds })
+          .minus({ minutes: 15 })
+          .minus({ seconds: this.getRandom(1, 180) })
+          .minus({ millisecond: this.getRandom(1, 1000) })
+          .toUTC()
+          .toISO() as string;
+      }
+
+      return DateTime.fromISO(date)
+        .plus({ minutes: 15 })
+        .plus({ seconds: this.getRandom(1, 180) })
+        .plus({ millisecond: this.getRandom(1, 1000) })
+        .toUTC()
+        .toISO() as string;
+    };
+
+    return this.getEvent(tenant, event.id).pipe(
+      switchMap((eventDetails) => {
+        const { note, id, eventUuid, ...body } = eventDetails;
+        body.startTime = getStartTime(body.startTime);
+        body.eventTypeCode = typeCode;
+
+        return this.http.post<IEventDetails>(url, body, {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        });
+      })
+    );
+  };
+
   advancedResize(
     tenant: ITenant,
     event: IEvent,

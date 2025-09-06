@@ -7,6 +7,8 @@ import { SleeperBerthComponent } from '../UI/sleeper-berth/sleeper-berth.compone
 import { OnDutyComponent } from '../UI/on-duty/on-duty.component';
 import { DrivingComponent } from '../UI/driving/driving.component';
 import { OffDutyComponent } from '../UI/off-duty/off-duty.component';
+// import { ToOffComponent } from '../UI/to-off/to-off.component';
+// import { ToSleeperComponent } from '../UI/to-sleeper/to-sleeper.component';
 
 @Component({
   selector: 'app-context-menu',
@@ -17,6 +19,7 @@ import { OffDutyComponent } from '../UI/off-duty/off-duty.component';
     OnDutyComponent,
     DrivingComponent,
     OffDutyComponent,
+    // ToOffComponent, ToSleeperComponent
   ],
   templateUrl: './context-menu.component.html',
   styleUrl: './context-menu.component.scss',
