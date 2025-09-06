@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, from, throwError } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { TFocusElementAction } from '../types';
 

@@ -61,7 +61,7 @@ export class ContextMenuService {
             error: (err) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
                 duration: 7000,
               });
             },
@@ -84,7 +84,7 @@ export class ContextMenuService {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.extendPTIBtnDisabled.set(false);
-              this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
                 duration: 7000,
               });
             },
@@ -117,7 +117,7 @@ export class ContextMenuService {
             this.monitorService.refresh.update((value) => value + 1);
             action === 'ADD_PTI' &&
               this.monitorService.addPTIBtnDisabled.set(false);
-            this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+            this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
               duration: 7000,
             });
           },
@@ -161,7 +161,7 @@ export class ContextMenuService {
           error: (err) => {
             this.urlService.refreshWebApp();
             this.monitorService.refresh.update((value) => value + 1);
-            this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+            this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
               duration: 3000,
             });
           },
@@ -191,7 +191,7 @@ export class ContextMenuService {
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.isUpdatingEvent.set(false);
               this.monitorService.showUpdateEvent.set(null);
-              this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
                 duration: 7000,
               });
             },
@@ -216,44 +216,31 @@ export class ContextMenuService {
           .resizeEvent(tenant, event.id, payload as IResizePayload)
           .subscribe({
             error: (err) => {
-              const resizePayload = payload as IResizePayload;
-              this.urlService.refreshWebApp();
-              this.monitorService.refresh.update((value) => value + 1);
-              this.monitorService.isResizingEvent.set(false);
-              this.monitorService.showResize.set(null);
-              this._snackBar.open(`Error Occured: ${err.error.message}`, 'OK', {
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
                 duration: 7000,
               });
 
+              // go to [ADVANCED RESIZE]
               if (err.error.code === 'ResizeEvents.DifferenceInMiles') {
                 const parsedErrorInfo = parseErrorMessage(err.error.message);
-                if (!parsedErrorInfo) {
-                  this._snackBar.open(
-                    `Error Occured: could not parse resize error message`,
-                    'OK',
-                    {
-                      duration: 7000,
-                    }
-                  );
-                } else {
-                  this._snackBar.open(
-                    `Resize Error Message parsed: [miles]: ${parsedErrorInfo.miles}, [comparison]: ${parsedErrorInfo.comparison}\n
-                    Attempting advanced resize operatin...
-                    `,
-                    'OK',
-                    {
-                      duration: 7000,
-                    }
-                  );
-                  this.handleAction('ADVANCED_RESIZE', event, {
-                    resizePayload,
-                    parsedErrorInfo,
-                  });
+                if (parsedErrorInfo) {
+                  this.monitorService.showAdvancedResize.set(parsedErrorInfo);
+                  this.monitorService.isResizingEvent.set(false);
                 }
+              } else {
+                this.urlService.refreshWebApp();
+                this.monitorService.refresh.update((value) => value + 1);
+                this.monitorService.isResizingEvent.set(false);
+                this.monitorService.showResize.set(null);
+                this.monitorService.currentResizeDriving.set(null);
+                this._snackBar.open(`${err.error.message}`, 'OK', {
+                  duration: 7000,
+                });
               }
             },
             complete: () => {
               this.urlService.refreshWebApp();
+              this.monitorService.currentResizeDriving.set(null);
               this.monitorService.refresh.update((value) => value + 1);
               setTimeout(
                 () => this.monitorService.isResizingEvent.set(false),
@@ -271,9 +258,73 @@ export class ContextMenuService {
         this.monitorService.isResizingEvent.set(true);
         return this.apiOperationsService
           .advancedResize(tenant, event, payload as IAdvancedResizePayload)
-          .subscribe
-          // error: (err) => {
-          ();
+          .subscribe({
+            error: (err) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this.monitorService.isResizingEvent.set(false);
+              this.monitorService.showResize.set(null);
+              this.monitorService.showAdvancedResize.set(null);
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+                duration: 7000,
+              });
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this.monitorService.showResize.set(null);
+              this.monitorService.showAdvancedResize.set(null);
+              setTimeout(
+                () => this.monitorService.isResizingEvent.set(false),
+                2000
+              );
+              this._snackBar.open('Event successfully resized', 'OK', {
+                duration: 3000,
+              });
+            },
+          });
+      }
+      /////////////////////
+      // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      case 'PARTIAL_ON_TO_SLEEP':
+      case 'PARTIAL_ON_TO_OFF': {
+        if (!event) return;
+        action === 'PARTIAL_ON_TO_SLEEP' &&
+          this.monitorService.addPTIBtnDisabled.set(true);
+        return this.apiOperationsService[
+          action === 'PARTIAL_ON_TO_SLEEP' ? 'addPTI' : 'addEngineOff'
+        ](tenant, event.id).subscribe({
+          error: (err) => {
+            this.urlService.refreshWebApp();
+            this.monitorService.refresh.update((value) => value + 1);
+            action === 'PARTIAL_ON_TO_SLEEP' &&
+              this.monitorService.addPTIBtnDisabled.set(false);
+            this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+              duration: 7000,
+            });
+          },
+          complete: () => {
+            this.urlService.refreshWebApp();
+            this.monitorService.refresh.update((value) => value + 1);
+            action === 'PARTIAL_ON_TO_SLEEP' &&
+              setTimeout(
+                () => this.monitorService.addPTIBtnDisabled.set(false),
+                2000
+              );
+            this._snackBar.open(
+              `${
+                action === 'PARTIAL_ON_TO_SLEEP'
+                  ? 'Pre-Trip Inspection'
+                  : 'Engine Off'
+              } has been added.`,
+              'OK',
+              {
+                duration: 3000,
+              }
+            );
+          },
+        });
       }
 
       default:

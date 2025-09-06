@@ -1,4 +1,4 @@
-<div class="content">
+<div class="content" id="monitor">
   @if (monitorService.driverDailyLog(); as ddle) {
   <button
     mat-icon-button
@@ -111,8 +111,9 @@
               ? ' editing'
               : '')
           "
-          (mouseenter)="focusElement(event, 'FOCUS_ELEMENT_START')"
-          (mouseleave)="focusElement(event, 'FOCUS_ELEMENT_STOP')"
+          (mouseenter)="focusElement(event, 'FOCUS_TACHOGRAPH_START')"
+          (mouseleave)="focusElement(event, 'FOCUS_TACHOGRAPH_STOP')"
+          (click)="focusElement(event, 'ELEMENT_ON_CLICK')"
           matRipple
           id="{{ event.id }}"
         >
@@ -304,7 +305,7 @@
       <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
       <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
       @if (showResize() === event.id) {
-      <li class="selected">
+      <li class="selected" #resizeContainer id="resizeContainer">
         <div class="slider">
           <mat-slider
             [min]="3600"
@@ -312,10 +313,35 @@
             [step]="1"
             (wheel)="onWheel($event)"
           >
-            <input matSliderThumb [(ngModel)]="newResize" />
+            <!-- [disabled]="showAdvancedResize()" -->
+            <input
+              matSliderThumb
+              [(ngModel)]="newResize"
+              (clickOutside)="cancelResize()"
+              appAutofocusAndHandleOutsideClick
+              [clickOutsideIgnore]="[
+                '#resizeButton',
+                '#resizeError',
+                '#resizeContainer'
+              ]"
+            />
           </mat-slider>
           {{ newResize() | duration : true }}
         </div>
+        @if (showAdvancedResize(); as advancedResize) {
+        <div class="advanced" #resizeError id="resizeError">
+          <span>[Resize Error]</span>
+          <span>
+            > failed due to a mileage difference:
+            {{ advancedResize.comparison === "smaller" && "-"
+            }}{{ advancedResize.miles }}</span
+          >
+          <br />
+          <span>Proceed with an advanced resize?</span>
+          <br />
+        </div>
+
+        }
         <div class="fix-error">
           <button
             id="resizeButton"
@@ -323,6 +349,7 @@
             matRipple
             (click)="resize()"
             [disabled]="isResizingEvent()"
+            #resizeButton
           >
             @if(isResizingEvent()) {
             <div class="fix-error__button__spinner">
@@ -331,14 +358,16 @@
             } @else {
             <app-save class="fix-error__button__icon"></app-save>
             }
-            <span class="fix-error__button__name">Resize</span>
+            <span class="fix-error__button__name">
+              {{ showAdvancedResize() ? "Yes" : "Resize" }}</span
+            >
           </button>
 
           <button
             class="fix-error__red-button"
             matRipple
             (click)="cancelResize()"
-            [disabled]="isUpdatingEvent()"
+            [disabled]="isResizingEvent()"
           >
             <app-cancel class="fix-error__button__icon"> </app-cancel>
 

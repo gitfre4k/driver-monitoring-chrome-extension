@@ -41,6 +41,10 @@ export type TContextMenuAction =
   | 'DELETE_ENGINES_IN_DRIVING'
   | 'ADD_ENGINE_OFF'
   | 'UPDATE_EVENT'
+  | 'PARTIAL_ON_TO_OFF'
+  | 'PARTIAL_ON_TO_SLEEP'
+  | 'PARTIAL_OFF_TO_ON_TO'
+  | 'PARTIAL_SLEEP_TO_ON_TO'
   | 'RESIZE'
   | 'ADVANCED_RESIZE'
   | 'ChangeToOffDutyStatus'
@@ -48,7 +52,10 @@ export type TContextMenuAction =
   | 'ChangeToDrivingStatus'
   | 'ChangeToOnDutyNotDrivingStatus';
 
-export type TFocusElementAction = 'FOCUS_ELEMENT_START' | 'FOCUS_ELEMENT_STOP';
+export type TFocusElementAction =
+  | 'FOCUS_TACHOGRAPH_START'
+  | 'FOCUS_TACHOGRAPH_STOP'
+  | 'ELEMENT_ON_CLICK';
 
 export type TEventTypeCode =
   | 'ChangeToOffDutyStatus'

@@ -173,8 +173,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   /////////////////////////////////////////
   // focus webApp's event on chromeExt click
   if (
-    (message.action === "FOCUS_ELEMENT_START" ||
-      message.action === "FOCUS_ELEMENT_STOP") &&
+    (message.action === "FOCUS_TACHOGRAPH_START" ||
+      message.action === "FOCUS_TACHOGRAPH_STOP" ||
+      message.action === "ELEMENT_ON_CLICK") &&
     message.payload
   ) {
     const { tabId, elementId, statusName } = message.payload;
@@ -191,12 +192,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           const rectElement = graphElement && graphElement.children[1];
 
           const targetClassName =
-            status && status === "Driving"
-              ? "fill-green-500/10"
-              : "fill-primary-0/10";
+            status && status !== "Driving"
+              ? "fill-primary-0/10"
+              : "fill-green-500/10";
+
+          if (rectElement) {
+            if (action === "FOCUS_TACHOGRAPH_START") {
+              rectElement.classList.remove("fill-transparent");
+              rectElement.classList.add(targetClassName);
+            }
+            if (action === "FOCUS_TACHOGRAPH_STOP") {
+              rectElement.classList.remove(targetClassName);
+              rectElement.classList.add("fill-transparent");
+            }
+          }
 
           if (listElement) {
-            if (action === "FOCUS_ELEMENT_START") {
+            if (action === "ELEMENT_ON_CLICK") {
               listElement.scrollIntoView({
                 behavior: "smooth",
                 block: "start",
@@ -208,21 +220,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 "ease-in-out",
                 "bg-shade-3"
               );
-              if (rectElement) {
-                rectElement.classList.remove("fill-transparent");
-                rectElement.classList.add(targetClassName);
-              }
-            } else {
-              listElement.classList.remove(
-                "transition-colors",
-                "duration-300",
-                "ease-in-out",
-                "bg-shade-3"
+              setTimeout(
+                () =>
+                  listElement.classList.remove(
+                    "transition-colors",
+                    "duration-700",
+                    "ease-in-out",
+                    "bg-shade-3"
+                  ),
+                300
               );
-              if (rectElement) {
-                rectElement.classList.remove(targetClassName);
-                rectElement.classList.add("fill-transparent");
-              }
             }
 
             return {

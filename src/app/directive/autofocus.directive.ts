@@ -27,7 +27,7 @@ export class AutofocusAndHandleOutsideClickDirective implements AfterViewInit {
     });
 
     if (!isClickedInside && !isIgnoredElement) {
-      this.clickOutside.emit(null);
+      return this.clickOutside.emit(null);
     }
   }
 

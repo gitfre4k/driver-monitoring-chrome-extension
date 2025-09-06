@@ -10,6 +10,7 @@ import { UrlService } from './url.service';
 import { ComputeEventsService } from './compute-events.service';
 import { tap } from 'rxjs';
 import { AppService } from './app.service';
+import { IParsedErrorInfo } from '../interfaces/api.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +35,7 @@ export class MonitorService {
 
   isResizingEvent = signal(false);
   showResize = signal<number | null>(null);
+  showAdvancedResize = signal<IParsedErrorInfo | null>(null);
   currentResizeDriving = signal<null | IEvent>(null);
   newResize = signal(0);
 

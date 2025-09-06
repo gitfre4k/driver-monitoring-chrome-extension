@@ -4,7 +4,6 @@ import {
   effect,
   ElementRef,
   inject,
-  signal,
   ViewChild,
 } from '@angular/core';
 
@@ -102,6 +101,7 @@ export class MonitorComponent {
   isResizingEvent = this.monitorService.isResizingEvent;
   maxResize = this.monitorService.maxResize;
   currentResizeDriving = this.monitorService.currentResizeDriving;
+  showAdvancedResize = this.monitorService.showAdvancedResize;
   newResize = this.monitorService.newResize;
 
   newSpeed = computed(() => {
@@ -137,6 +137,8 @@ export class MonitorComponent {
 
   ngAfterViewInit(): void {
     this.myInputField && this.myInputField.nativeElement.focus();
+    const monitor = document.getElementById('monitor');
+    monitor && (monitor.scrollLeft -= 50);
   }
 
   refresh = () => {
@@ -150,9 +152,9 @@ export class MonitorComponent {
   }
 
   focusElement(event: IEvent, action: TFocusElementAction) {
-    // if (event.driver.id !== event.driver.viewId) return;
-    // if (this.monitorService.isUpdating()) return;
-    // this.urlService.focusElement(event.id, action, event.statusName);
+    if (event.driver.id !== event.driver.viewId) return;
+    if (this.monitorService.isUpdating()) return;
+    this.urlService.focusElement(event.id, action, event.statusName);
   }
 
   onContextMenu($event: MouseEvent, event: IEvent) {
@@ -215,13 +217,15 @@ export class MonitorComponent {
 
   cancelEventEdit() {
     this.currentEditEvent.set(null);
-    this.monitorService.showUpdateEvent.set(null);
+    this.showUpdateEvent.set(null);
   }
 
   cancelResize() {
     this.currentResizeDriving.set(null);
     this.newResize.set(0);
-    this.monitorService.showResize.set(null);
+    this.showResize.set(null);
+    this.showAdvancedResize.set(null);
+    this.showAdvancedResize.set(null);
   }
 
   resize() {
@@ -240,8 +244,15 @@ export class MonitorComponent {
     const duration = Duration.fromObject({ seconds }).toFormat('hh:mm:ss');
     const durationAsTimeSpan = `${new Date().getTime()}`;
 
-    this.currentResizeDriving.set(null);
-    this.contextMenuService.handleAction('RESIZE', event, {
+    const advancedResize = this.showAdvancedResize();
+    if (advancedResize) {
+      return this.contextMenuService.handleAction('ADVANCED_RESIZE', event, {
+        resizePayload: { duration, durationAsTimeSpan },
+        parsedErrorInfo: advancedResize,
+      });
+    }
+
+    return this.contextMenuService.handleAction('RESIZE', event, {
       duration,
       durationAsTimeSpan,
     });
