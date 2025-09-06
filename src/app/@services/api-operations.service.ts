@@ -1,17 +1,24 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { from, mergeMap, switchMap } from 'rxjs';
+import { from, map, mergeMap, switchMap, tap } from 'rxjs';
 import { IEventDetails, ITenant } from '../interfaces';
 import { DateTime } from 'luxon';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 import { TEventTypeCode } from '../types';
-import { IParsedErrorInfo, IResizePayload } from '../interfaces/api.interface';
+import {
+  IAdvancedResizePayload,
+  IResizePayload,
+} from '../interfaces/api.interface';
+import { ApiService } from './api.service';
+import { ComputeEventsService } from './compute-events.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiOperationsService {
   private http: HttpClient = inject(HttpClient);
+  private apiService = inject(ApiService);
+  private computeEventsService = inject(ComputeEventsService);
 
   constructor() {}
 
@@ -35,8 +42,64 @@ export class ApiOperationsService {
     );
   }
 
-  advancedResize(tenant: ITenant, event: IEvent, payload: IParsedErrorInfo) {
-    // this.getEvent()
+  advancedResize(
+    tenant: ITenant,
+    event: IEvent,
+    payload: IAdvancedResizePayload
+  ) {
+    const coefficient =
+      payload.parsedErrorInfo.comparison === 'smaller' ? -1 : 1;
+    const mileageDifference = payload.parsedErrorInfo.miles;
+    const originalOdometer = event.nextDutyStatusInfo.totalVehicleMiles;
+    const fixDistance = coefficient * mileageDifference + -coefficient * 14; // diff + 15mi tolerance
+    const newOdometer = originalOdometer + fixDistance;
+
+    return this.updateEvent(tenant, event.nextDutyStatusInfo.id, {
+      totalVehicleMiles: newOdometer,
+    }).pipe(
+      switchMap(() =>
+        this.resizeEvent(tenant, event.id, payload.resizePayload).pipe(
+          switchMap(() =>
+            this.updateEvent(tenant, event.nextDutyStatusInfo.id, {
+              totalVehicleMiles: originalOdometer,
+            })
+          ),
+          switchMap(() =>
+            this.apiService.getDriverDailyLogEvents(
+              event.driver.id,
+              event.date,
+              tenant.id
+            )
+          ),
+          map((driverDailyLog) =>
+            this.computeEventsService.getComputedEvents({
+              driverDailyLog,
+              coDriverDailyLog: null,
+            })
+          ),
+          switchMap((events) => events.filter((e) => e.id === event.id)),
+          switchMap((ev) => {
+            const intermediates = ev.intermediatesInfo.sort(
+              (a, b) => a.totalVehicleMiles - b.totalVehicleMiles
+            );
+            for (let i = 0; i < intermediates.length; i++) {
+              intermediates[i].totalVehicleMiles =
+                ev.odometer +
+                Math.floor(ev.averageSpeed * (i + 1)) +
+                (i % 2 === 0 ? -1 : 1);
+            }
+
+            return from(ev.intermediatesInfo).pipe(
+              mergeMap((inter) =>
+                this.updateEvent(tenant, inter.id, {
+                  totalVehicleMiles: inter.totalVehicleMiles,
+                })
+              )
+            );
+          })
+        )
+      )
+    );
   }
 
   resizeEvent(tenant: ITenant, eventId: number, payload: IResizePayload) {
@@ -208,14 +271,14 @@ export class ApiOperationsService {
   shift(
     tenant: ITenant,
     eventArray: IEvent[],
-    direction: 'Past' | 'Future',
+    coefficient: 'Past' | 'Future',
     time: string
   ) {
     const url = 'https://app.monitoringdriver.com/api/Logs/ShiftEvents';
     const body = {
       startEvent: eventArray[0],
       endEvent: eventArray[-1],
-      direction,
+      coefficient,
       time, // '00:05'
       timeAsTimeSpan: `${new Date().getTime()}`,
     };

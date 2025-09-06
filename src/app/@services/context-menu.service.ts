@@ -29,7 +29,11 @@ export class ContextMenuService {
   handleAction(
     action: TContextMenuAction,
     event?: IEvent,
-    payload?: Partial<IEventDetails> | IResizePayload | IParsedErrorInfo
+    payload?:
+      | Partial<IEventDetails>
+      | IResizePayload
+      | IParsedErrorInfo
+      | IAdvancedResizePayload
   ) {
     const tenant = this.appService.currentTenant();
     const computedEvents = this.computedEvents();
@@ -212,7 +216,7 @@ export class ContextMenuService {
           .resizeEvent(tenant, event.id, payload as IResizePayload)
           .subscribe({
             error: (err) => {
-              //  const payload = payload
+              const resizePayload = payload as IResizePayload;
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.isResizingEvent.set(false);
@@ -222,8 +226,8 @@ export class ContextMenuService {
               });
 
               if (err.error.code === 'ResizeEvents.DifferenceInMiles') {
-                const parsedInfo = parseErrorMessage(err.error.message);
-                if (!parsedInfo) {
+                const parsedErrorInfo = parseErrorMessage(err.error.message);
+                if (!parsedErrorInfo) {
                   this._snackBar.open(
                     `Error Occured: could not parse resize error message`,
                     'OK',
@@ -233,7 +237,7 @@ export class ContextMenuService {
                   );
                 } else {
                   this._snackBar.open(
-                    `Resize Error Message parsed: [miles]: ${parsedInfo.miles}, [comparison]: ${parsedInfo.comparison}\n
+                    `Resize Error Message parsed: [miles]: ${parsedErrorInfo.miles}, [comparison]: ${parsedErrorInfo.comparison}\n
                     Attempting advanced resize operatin...
                     `,
                     'OK',
@@ -241,7 +245,10 @@ export class ContextMenuService {
                       duration: 7000,
                     }
                   );
-                  // this.handleAction('ADVANCED_RESIZE', event, {payload, parsedInfo});
+                  this.handleAction('ADVANCED_RESIZE', event, {
+                    resizePayload,
+                    parsedErrorInfo,
+                  });
                 }
               }
             },
@@ -262,12 +269,11 @@ export class ContextMenuService {
       case 'ADVANCED_RESIZE': {
         if (!event || !payload) return;
         this.monitorService.isResizingEvent.set(true);
-        return this.apiOperationsService;
-        // .advancedResize(tenant, event, payload as IAdvancedResizePayload)
-        // .subscribe({
-        //   error: (err) => {
-
-        // }});
+        return this.apiOperationsService
+          .advancedResize(tenant, event, payload as IAdvancedResizePayload)
+          .subscribe
+          // error: (err) => {
+          ();
       }
 
       default:

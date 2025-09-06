@@ -55,7 +55,13 @@ export interface IEvent {
   refuel: boolean;
   pti: number;
   break: number;
-  nextDutyStatusId: number;
+  nextDutyStatusInfo: IStatusInfo;
+  intermediatesInfo: IStatusInfo[];
+}
+
+export interface IStatusInfo {
+  id: number;
+  totalVehicleMiles: number;
 }
 
 export interface IDriverIdAndName {

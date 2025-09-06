@@ -17,6 +17,7 @@ import {
   IDriverState,
   IEvent,
   IRefuels,
+  IStatusInfo,
 } from '../interfaces/driver-daily-log-events.interface';
 import { ITenant } from '../interfaces';
 import { ApiService } from './api.service';
@@ -214,7 +215,7 @@ export class ComputeEventsService {
       } = events[i].driver.viewId === events[i].driver.id
         ? this.driverState()
         : this.coDriverState();
-      events[i].viewId = i;
+      events[i].computeIndex = i;
       events[i].errorMessages = [];
       events[i].statusName = getStatusName(events[i].dutyStatus);
       events[i].occurredDuringDriving = occurredDuringDriving;
@@ -516,7 +517,7 @@ export class ComputeEventsService {
               arr[index + 1].odometer - arr[index].odometer
             ).toFixed(2);
             speed > this.speeding() &&
-              events[arr[index + 1].viewId].errorMessages.push(
+              events[arr[index + 1].computeIndex].errorMessages.push(
                 `speeding [${speed} mph]`
               );
           }
@@ -533,10 +534,24 @@ export class ComputeEventsService {
             events[i].errorMessages.push(`speeding [${speed} mph]`);
         }
 
+        if (currentDriving) {
+          const nextDutyStatusInfo: IStatusInfo = {
+            id: events[i].id,
+            totalVehicleMiles: events[i].odometer,
+          };
+          const intermediatesInfo: IStatusInfo[] =
+            currentDrivingIntermediates.map((inter) => ({
+              id: inter.id,
+              totalVehicleMiles: inter.odometer,
+            }));
+          events[currentDriving.computeIndex].nextDutyStatusInfo =
+            nextDutyStatusInfo;
+          events[currentDriving.computeIndex].intermediatesInfo =
+            intermediatesInfo;
+        }
+
         occurredDuringDriving = false;
         events[i].occurredDuringDriving = false;
-        currentDriving &&
-          (events[currentDriving.viewId].nextDutyStatusId = events[i].id);
         currentDriving = null;
         intermediateCount = 0;
         currentDrivingIntermediates = [];

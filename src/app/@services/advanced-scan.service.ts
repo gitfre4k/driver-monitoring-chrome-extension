@@ -72,7 +72,7 @@ export class AdvancedScanService {
                 driver,
                 tenant,
                 this.dateService.analyzeCustomDate(qDate)
-              ).pipe();
+              );
             }, 10),
             toArray()
           );
