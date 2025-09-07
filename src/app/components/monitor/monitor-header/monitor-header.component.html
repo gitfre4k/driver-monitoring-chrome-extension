@@ -45,13 +45,29 @@
     </div>
   </div>
 
-  @if (isUpdating()) {
-  <div class="info__date">
-    <mat-spinner [diameter]="17"></mat-spinner>
+  <div class="info__nav">
+    <button
+      mat-icon-button
+      [disabled]="!previousLogDate"
+      (click)="onChangeLogDate(previousLogDate)"
+    >
+      <mat-icon>arrow_left</mat-icon>
+    </button>
+    @if (isUpdating()) {
+    <div class="info__nav__date">
+      <mat-spinner [diameter]="17"></mat-spinner>
+    </div>
+    } @else {
+    <div class="info__nav__date">
+      <span class="info__nav__date">{{ date | date : "mediumDate" }}</span>
+    </div>
+    }
+    <button
+      mat-icon-button
+      [disabled]="!nextLogDate"
+      (click)="onChangeLogDate(nextLogDate)"
+    >
+      <mat-icon>arrow_right</mat-icon>
+    </button>
   </div>
-  } @else {
-  <div class="info__date">
-    <p class="info__date">{{ date | date : "mediumDate" }}</p>
-  </div>
-  }
 </div>

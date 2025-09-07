@@ -129,7 +129,7 @@ export class UrlService {
 
   navigateChromeActiveTab = (
     url: string,
-    tenant: ICompany,
+    tenant?: ICompany,
     stayOnTab?: boolean
   ) => {
     const tabId = this.tabId();
@@ -145,8 +145,8 @@ export class UrlService {
     const key = 'MASTER_TOOLS_PROVIDER_TENANT';
     const value = JSON.stringify({
       prologs: {
-        id: tenant.id,
-        name: tenant.name,
+        id: tenant ? tenant.id : this.tenant()!.id,
+        name: tenant ? tenant.name : this.tenant()!.name,
       },
     });
 

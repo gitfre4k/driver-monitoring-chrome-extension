@@ -7,34 +7,34 @@ import {
   ViewChild,
 } from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { MonitorService } from '../../@services/monitor.service';
-import { UrlService } from '../../@services/url.service';
-import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
-import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { AppService } from '../../@services/app.service';
 import { ContextMenuService } from '../../@services/context-menu.service';
+import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
+import { MonitorService } from '../../@services/monitor.service';
+import { UrlService } from '../../@services/url.service';
+import { AutofocusAndHandleOutsideClickDirective } from '../../directive/autofocus.directive';
 import { getStatusDuration } from '../../helpers/app.helpers';
+import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { CancelComponent } from '../UI/cancel/cancel.component';
 import { SaveComponent } from '../UI/save/save.component';
-import { AutofocusAndHandleOutsideClickDirective } from '../../directive/autofocus.directive';
 
-import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
-import { TContextMenuAction, TFocusElementAction } from '../../types';
-import { DurationPipe } from '../../pipes/duration.pipe';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSliderModule } from '@angular/material/slider';
-import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Duration } from 'luxon';
+import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
+import { DurationPipe } from '../../pipes/duration.pipe';
+import { TContextMenuAction, TFocusElementAction } from '../../types';
+import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
 
 @Component({
   selector: 'app-monitor',
@@ -297,10 +297,17 @@ export class MonitorComponent {
 
   onWheel(event: WheelEvent) {
     event.preventDefault();
+    if (this.isResizingEvent()) return;
     const delta = event.deltaY > 0 ? -31 : 31;
     const newSliderValue = this.newResize() + delta;
 
     this.newResize.set(Math.max(3600, Math.min(28799, newSliderValue)));
+  }
+
+  onChangeLogDate(date: string, id: number) {
+    this.urlService.navigateChromeActiveTab(
+      `https://app.monitoringdriver.com/logs/${id}/${date}/`
+    );
   }
 
   markBreaksAndShift(event: IEvent) {

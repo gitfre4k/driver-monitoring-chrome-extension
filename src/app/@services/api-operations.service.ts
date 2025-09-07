@@ -129,16 +129,19 @@ export class ApiOperationsService {
               (a, b) => a.totalVehicleMiles - b.totalVehicleMiles
             );
             for (let i = 0; i < intermediates.length; i++) {
+              const accumulatedMiles =
+                Math.floor(ev.averageSpeed * (i + 1)) + (i % 2 === 0 ? -1 : 1);
               intermediates[i].totalVehicleMiles =
-                ev.odometer +
-                Math.floor(ev.averageSpeed * (i + 1)) +
-                (i % 2 === 0 ? -1 : 1);
+                ev.odometer + accumulatedMiles;
+              intermediates[i].accumulatedVehicleMiles =
+                ev.accumulatedVehicleMiles + accumulatedMiles;
             }
 
             return from(ev.intermediatesInfo).pipe(
               mergeMap((inter) =>
                 this.updateEvent(tenant, inter.id, {
                   totalVehicleMiles: inter.totalVehicleMiles,
+                  accumulatedVehicleMiles: inter.accumulatedVehicleMiles,
                 })
               )
             );

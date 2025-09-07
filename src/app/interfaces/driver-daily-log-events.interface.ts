@@ -62,6 +62,7 @@ export interface IEvent {
 export interface IStatusInfo {
   id: number;
   totalVehicleMiles: number;
+  accumulatedVehicleMiles?: number;
 }
 
 export interface IDriverIdAndName {
@@ -136,6 +137,7 @@ export interface IDriverDailyLogEvents {
   shippingDocs: string[];
   pendingShippingDocs: any[];
   previousLogDate: string;
+  nextLogDate: string;
   certified: boolean;
   signature: string;
   inspectionReports: any[];

@@ -57,6 +57,9 @@
   <app-monitor-header
     [companyName]="ddle.companyName"
     [driverName]="ddle.driverFullName"
+    [previousLogDate]="ddle.previousLogDate"
+    [nextLogDate]="ddle.nextLogDate"
+    (changeLogDate)="onChangeLogDate($event, ddle.driverId)"
   ></app-monitor-header>
 
   <div class="event-list">
@@ -84,6 +87,7 @@
             [disabled]="addPTIBtnDisabled() || monitorService.isUpdating()"
             class="fix-error__button wide"
             matRipple
+            tabindex="0"
           >
             @if (addPTIBtnDisabled()) {
             <div class="fix-error__button__spinner">
@@ -138,6 +142,7 @@
               (event.truckChange ? 'approved' : '') +
               ' input'
             "
+            tabindex="0"
           />
           <input
             [(ngModel)]="newNote"
@@ -152,6 +157,7 @@
                ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '')
             "
             type="text"
+            tabindex="0"
           />
           }
           <!--  -->
@@ -239,6 +245,7 @@
 
           <span
             (dblclick)="handleDoubleClick(event)"
+            tabindex="0"
             [ngClass]="
               'status ' +
               event.dutyStatus +
@@ -311,13 +318,14 @@
       <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
       <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
       @if (showResize() === event.id) {
-      <li class="selected" #resizeContainer id="resizeContainer">
+      <li class="selected resize" #resizeContainer id="resizeContainer">
         <div class="slider">
           <mat-slider
             [min]="3600"
             [max]="maxResize()"
             [step]="1"
             (wheel)="onWheel($event)"
+            [disabled]="isResizingEvent()"
           >
             <!-- [disabled]="showAdvancedResize()" -->
             <input
@@ -325,6 +333,7 @@
               [(ngModel)]="newResize"
               (clickOutside)="cancelResize()"
               appAutofocusAndHandleOutsideClick
+              tabindex="0"
               [clickOutsideIgnore]="[
                 '#resizeButton',
                 '#resizeError',
@@ -356,6 +365,7 @@
             (click)="resize()"
             [disabled]="isResizingEvent()"
             #resizeButton
+            tabindex="0"
           >
             @if(isResizingEvent()) {
             <div class="fix-error__button__spinner">
@@ -374,6 +384,7 @@
             matRipple
             (click)="cancelResize()"
             [disabled]="isResizingEvent()"
+            tabindex="0"
           >
             <app-cancel class="fix-error__button__icon"> </app-cancel>
 
@@ -394,6 +405,7 @@
             matRipple
             (click)="updateChanges()"
             [disabled]="isUpdatingEvent()"
+            tabindex="0"
           >
             @if(isUpdatingEvent()) {
             <div class="fix-error__button__spinner">
@@ -410,6 +422,7 @@
             matRipple
             (click)="cancelEventEdit()"
             [disabled]="isUpdatingEvent()"
+            tabindex="0"
           >
             <app-cancel class="fix-error__button__icon"> </app-cancel>
 
@@ -431,6 +444,7 @@
             [disabled]="extendPTIBtnDisabled() || monitorService.isUpdating()"
             class="fix-error__button wide"
             matRipple
+            tabindex="0"
           >
             @if (extendPTIBtnDisabled()) {
             <div class="fix-error__button__spinner">

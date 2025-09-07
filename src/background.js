@@ -188,7 +188,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           const graphLineElement = document.getElementById(`hos-event-${id}`);
           const graphParent =
             graphLineElement && graphLineElement.parentElement;
-          const graphElement = graphParent && graphParent.children[1];
+          const graphElement =
+            graphParent && graphParent.querySelector(".group");
           const rectElement = graphElement && graphElement.children[1];
 
           const targetClassName =
