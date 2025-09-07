@@ -27,6 +27,8 @@ export class MonitorService {
   addPTIBtnDisabled = signal(false);
   showToolMenu = signal(false);
 
+  selectedEvents = signal<number[]>([]);
+
   isUpdatingEvent = signal(false);
   showUpdateEvent = signal<number | null>(null);
   currentEditEvent = signal<null | IEvent>(null);
@@ -54,6 +56,8 @@ export class MonitorService {
     const tenant = this.urlService.tenant();
     if (!url || !tenant) return;
     if (this.refresh()) console.log('live monitor page refreshed');
+
+    this.appService.contextMenuVisible.set(false);
 
     this.updateDriverDailyLogEvents(url, tenant.id);
   });

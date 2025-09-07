@@ -46,6 +46,7 @@ export type TContextMenuAction =
   | 'PARTIAL_TO_ON'
   | 'RESIZE'
   | 'ADVANCED_RESIZE'
+  | 'SHIFT_EVENTS'
   | 'ChangeToOffDutyStatus'
   | 'ChangeToSleeperBerthStatus'
   | 'ChangeToDrivingStatus'

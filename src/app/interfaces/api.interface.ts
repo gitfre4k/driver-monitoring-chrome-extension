@@ -14,3 +14,8 @@ export interface IAdvancedResizePayload {
   resizePayload: IResizePayload;
   parsedErrorInfo: IParsedErrorInfo;
 }
+
+export interface IShiftEvents {
+  coefficient: 'Past' | 'Future';
+  time: string;
+}

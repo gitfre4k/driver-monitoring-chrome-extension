@@ -35,6 +35,7 @@ import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { DurationPipe } from '../../pipes/duration.pipe';
 import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-monitor',
@@ -56,6 +57,7 @@ import { MonitorHeaderComponent } from './monitor-header/monitor-header.componen
     CancelComponent,
     MatSliderModule,
     MonitorHeaderComponent,
+    MatBadgeModule,
   ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
@@ -73,21 +75,23 @@ export class MonitorComponent {
   extTabNavService = inject(ExtensionTabNavigationService);
   _snackBar = inject(MatSnackBar);
 
-  driverInfo = this.monitorService.driverInfo;
-  extendPTIBtnDisabled = this.monitorService.extendPTIBtnDisabled;
-  addPTIBtnDisabled = this.monitorService.addPTIBtnDisabled;
-  refreshBtnDisabled = this.monitorService.refreshBtnDisabled;
-  showToolMenu = this.monitorService.showToolMenu;
-
-  handleAction = this.contextMenuService.handleAction;
-
   statusText = '';
-  contextMenuVisible = this.appService.contextMenuVisible;
   contextMenuX = 0;
   contextMenuY = 0;
   selectedEvent: IEvent | null = null;
 
+  contextMenuVisible = this.appService.contextMenuVisible;
+  handleAction = this.contextMenuService.handleAction;
+
+  driverInfo = this.monitorService.driverInfo;
+  extendPTIBtnDisabled = this.monitorService.extendPTIBtnDisabled;
+  addPTIBtnDisabled = this.monitorService.addPTIBtnDisabled;
+  refreshBtnDisabled = this.monitorService.refreshBtnDisabled;
+
   getStatusDuration = getStatusDuration;
+
+  selectedEvents = this.monitorService.selectedEvents;
+  isUpdating = this.monitorService.isUpdating;
 
   showUpdateEvent = this.monitorService.showUpdateEvent;
   isUpdatingEvent = this.monitorService.isUpdatingEvent;
@@ -124,10 +128,10 @@ export class MonitorComponent {
       if (element) {
         if (hovered.action === 'HOVER_START') {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          element.classList.add('selected');
+          element.classList.add('highlighted');
         }
         if (hovered.action === 'HOVER_STOP') {
-          element.classList.remove('selected');
+          element.classList.remove('highlighted');
         }
       }
     });
@@ -155,6 +159,22 @@ export class MonitorComponent {
     this.urlService.focusElement(event.id, action, event.statusName);
   }
 
+  selectEvent(id: number) {
+    this.monitorService.selectedEvents.update((prev) => {
+      const newSelectedElements = [...prev];
+
+      if (newSelectedElements.includes(id)) {
+        newSelectedElements.findIndex(
+          (index) => newSelectedElements[index] === id
+        );
+        return newSelectedElements.filter((eventId) => eventId !== id);
+      }
+
+      newSelectedElements.push(id);
+      return newSelectedElements;
+    });
+  }
+
   onContextMenu($event: MouseEvent, event: IEvent) {
     $event.preventDefault();
 
@@ -172,7 +192,7 @@ export class MonitorComponent {
   }
 
   toggleToolMenu() {
-    this.showToolMenu.update((prev) => !prev);
+    this.monitorService.showToolMenu.update((prev) => !prev);
   }
 
   onMenuAction($event: { action: string; event: IEvent }) {
@@ -308,6 +328,15 @@ export class MonitorComponent {
     this.urlService.navigateChromeActiveTab(
       `https://app.monitoringdriver.com/logs/${id}/${date}/`
     );
+  }
+
+  copyValue(value: string) {
+    navigator.clipboard.writeText(value);
+    this._snackBar.open(`Copied: ${value}`, 'OK', { duration: 1500 });
+  }
+
+  deselectAllEvents() {
+    this.selectedEvents.set([]);
   }
 
   markBreaksAndShift(event: IEvent) {

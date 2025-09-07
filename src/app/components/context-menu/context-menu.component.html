@@ -15,9 +15,12 @@
       <span class="context-menu__item__name">add Engine Off</span>
     </li>
 
+    <hr />
+
     <!-- PARTIAL TO ON -->
     @if (['Sleeper Berth', 'Off Duty'].includes(event.statusName) &&
     (event.realDurationInSeconds > 1800) ) {
+    <hr />
     <li
       (click)="contextMenuService.handleAction('PARTIAL_TO_ON', event)"
       class="context-menu__item"
@@ -33,6 +36,7 @@
     {
     <!--  -->
     <!-- to Off Duty -->
+    <hr />
     <li
       (click)="contextMenuService.handleAction('PARTIAL_ON_TO_OFF', event)"
       class="context-menu__item"

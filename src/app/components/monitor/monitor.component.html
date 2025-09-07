@@ -11,14 +11,34 @@
     <mat-icon>refresh</mat-icon>
   </button>
 
-  <button
-    [cdkMenuTriggerFor]="menu"
-    mat-icon-button
-    (click)="toggleToolMenu()"
-    class="absolute menu"
-  >
-    <mat-icon>more_vert</mat-icon>
-  </button>
+  <div class="absolute menu">
+    @if (selectedEvents().length) {
+    <button
+      mat-icon-button
+      matTooltip="Deselect all Events"
+      matTooltipPosition="left"
+      (click)="deselectAllEvents()"
+    >
+      <mat-icon>deselect</mat-icon>
+    </button>
+    <div
+      class="mat-badge-custom err-custom"
+      matBadge="{{ selectedEvents().length }}"
+      [matBadgeHidden]="!selectedEvents().length"
+      matBadgeColor="primary"
+      matBadgePosition="above"
+      matBadgeSize="medium"
+    ></div>
+    }
+
+    <button
+      [cdkMenuTriggerFor]="menu"
+      mat-icon-button
+      (click)="toggleToolMenu()"
+    >
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  </div>
 
   <ng-template #menu>
     <div class="tool-menu" cdkMenu>
@@ -50,6 +70,19 @@
           >
           <span class="tool-menu__item__name">delete all Engine events</span>
         </li>
+
+        @if (selectedEvents().length) {
+        <hr />
+        <li
+          (click)="handleContextMenuAction('SHIFT_EVENTS')"
+          class="tool-menu__item"
+          cdkMenuItem
+          matRipple
+        >
+          <mat-icon class="tool-menu__item__icon-all-eng">swap_horiz</mat-icon>
+          <span class="tool-menu__item__name">Shift selected Events</span>
+        </li>
+        }
       </ul>
     </div>
   </ng-template>
@@ -69,14 +102,16 @@
     <ul>
       @for (event of monitorService.computedDailyLogEvents(); track event.id) {
       @if (event.shift && ddle.coDrivers.length !== 0) {
-      <p
-        [ngClass]="
+      <div class="co-drivers">
+        <span
+          [ngClass]="
           event.driver.id === event.driver.viewId ? `left` : `right`
         "
-      >
-        {{ event.driver.name }}
-      </p>
-      <hr />
+        >
+          {{ event.driver.name }}
+        </span>
+        <hr />
+      </div>
       }
       <!-- [FIX] add Pre-Trip Inspection -->
       @if (event.pti === 0) {
@@ -84,7 +119,7 @@
         <div class="fix-error">
           <button
             (click)="handleContextMenuAction('ADD_PTI', event)"
-            [disabled]="addPTIBtnDisabled() || monitorService.isUpdating()"
+            [disabled]="addPTIBtnDisabled() || isUpdating()"
             class="fix-error__button wide"
             matRipple
             tabindex="0"
@@ -108,13 +143,16 @@
 
       <li
         (contextmenu)="onContextMenu($event, event)"
-        class="{{ markBreaksAndShift(event) }}"
+        class="{{ markBreaksAndShift(event) }} + {{
+          selectedEvents().includes(event.id) && 'selected'
+        }}"
+        (click)="selectEvent(event.id)"
       >
         <div
           [ngClass]="
             'event' +
             (event.id === selectedEvent?.id && contextMenuVisible()
-              ? ' selected'
+              ? ' highlighted'
               : '') +
             (currentEditEvent()?.id === event.id ||
             currentResizeDriving()?.id === event.id
@@ -231,6 +269,7 @@
             >{{ event.viewId }}.</span
           >
           <span
+            (dblclick)="copyValue(event.odometer.toFixed(0))"
             [ngClass]="
               'odometer ' +
               (event.isTeleport || event.error ? 'error' : '') +
@@ -318,7 +357,7 @@
       <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
       <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
       @if (showResize() === event.id) {
-      <li class="selected resize" #resizeContainer id="resizeContainer">
+      <li class="highlighted resize" #resizeContainer id="resizeContainer">
         <div class="slider">
           <mat-slider
             [min]="3600"
@@ -348,7 +387,7 @@
           <span>[Resize Error]</span>
           <span>
             > failed due to a mileage difference:
-            {{ advancedResize.comparison === "smaller" && "-"
+            {{ advancedResize.comparison === "smaller" ? "-" : ""
             }}{{ advancedResize.miles }}</span
           >
           <br />
@@ -441,7 +480,7 @@
         <div class="fix-error">
           <button
             (click)="handleContextMenuAction('EXTEND_PTI', event)"
-            [disabled]="extendPTIBtnDisabled() || monitorService.isUpdating()"
+            [disabled]="extendPTIBtnDisabled() || isUpdating()"
             class="fix-error__button wide"
             matRipple
             tabindex="0"

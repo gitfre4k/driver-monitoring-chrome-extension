@@ -11,6 +11,7 @@ import {
   IAdvancedResizePayload,
   IParsedErrorInfo,
   IResizePayload,
+  IShiftEvents,
 } from '../interfaces/api.interface';
 import { parseErrorMessage } from '../helpers/context-menu.helpers';
 
@@ -350,6 +351,49 @@ export class ContextMenuService {
           });
       }
 
+      default:
+        return;
+    }
+  }
+
+  handleMultiEventAction(
+    action: TContextMenuAction,
+    events: IEvent[],
+    payload?: IShiftEvents
+  ) {
+    const tenant = this.appService.currentTenant();
+    // const computedEvents = this.computedEvents();
+
+    if (!tenant) return;
+    switch (action) {
+      case 'SHIFT_EVENTS': {
+        if (!payload) return;
+
+        // this.monitorService.extendPTIBtnDisabled.set(true);
+        return this.apiOperationsService
+          .shift(tenant, events, payload)
+          .subscribe({
+            error: (err) => {
+              // this.urlService.refreshWebApp();
+              // this.monitorService.refresh.update((value) => value + 1);
+              // this.monitorService.extendPTIBtnDisabled.set(false);
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+                duration: 7000,
+              });
+            },
+            complete: () => {
+              // this.urlService.refreshWebApp();
+              // this.monitorService.refresh.update((value) => value + 1);
+              // setTimeout(
+              //   () => this.monitorService.extendPTIBtnDisabled.set(false),
+              //   2000
+              // );
+              this._snackBar.open('Shift operation successful.', 'OK', {
+                duration: 3000,
+              });
+            },
+          });
+      }
       default:
         return;
     }
