@@ -131,7 +131,9 @@ export class ApiOperationsService {
             );
             for (let i = 0; i < intermediates.length; i++) {
               const accumulatedMiles =
-                Math.floor(ev.averageSpeed * (i + 1)) + (i % 2 === 0 ? -1 : 1);
+                Math.floor(ev.averageSpeed * (i + 1)) +
+                (intermediates.length - i) +
+                (i % 2 === 0 ? -1 : 1);
               intermediates[i].totalVehicleMiles =
                 ev.odometer + accumulatedMiles;
               intermediates[i].accumulatedVehicleMiles =

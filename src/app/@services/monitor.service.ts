@@ -41,6 +41,8 @@ export class MonitorService {
   currentResizeDriving = signal<null | IEvent>(null);
   newResize = signal(0);
 
+  currentDriverLog = computed(() => {});
+
   maxResize = computed(() => {
     const newResize = this.newResize();
     let maxResize = 14399;
