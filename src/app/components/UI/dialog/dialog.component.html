@@ -1,0 +1,27 @@
+<div class="dialog">
+  <h1 class="dialog__title">Shift Events</h1>
+
+  <a matIconButton (click)="onClose()" class="dialog__exit">
+    <mat-icon>exit_to_app</mat-icon>
+  </a>
+
+  <mat-form-field class="dialog__direction" (wheel)="onMouseWheel($event)">
+    <mat-label>Choose a direction</mat-label>
+    <mat-select [(ngModel)]="direction">
+      <mat-option value="backward">backward</mat-option>
+      <mat-option value="forward">forward</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="dialog__time">
+    <app-time-input></app-time-input>
+  </div>
+
+  <button class="dialog__button" matButton="outlined">
+    @if(direction() === 'backward') {
+    <mat-icon>keyboard_double_arrow_left</mat-icon>
+    } Shift @if (direction() === 'forward') {
+    <mat-icon>keyboard_double_arrow_right</mat-icon>
+    }
+  </button>
+</div>

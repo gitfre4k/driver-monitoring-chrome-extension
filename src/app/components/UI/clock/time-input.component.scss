@@ -1,0 +1,79 @@
+:root {
+  --inactive: #e1e0f9;
+  --active: rgb(255, 255, 255);
+}
+
+#time_wrapper {
+  width: fit-content;
+  margin: 0;
+  transform: scale(1.4);
+}
+
+#time_input {
+  border: 2px solid var(--inactive);
+  width: fit-content;
+  color: light-dark(#63657c, #e1e0f9);
+  display: flex;
+  align-items: center;
+}
+
+input {
+  width: 44px;
+  height: 44px;
+  border: none;
+  box-sizing: border-box;
+  padding: auto 15px;
+  text-align: center;
+  color: rgb(229, 225, 230);
+  background-color: rgb(70, 70, 79);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.label {
+  font-size: 0.55rem;
+  position: absolute;
+  top: 1px;
+  color: light-dark(#343dff, #bec2ff);
+}
+
+.label.lbl-hrs {
+  left: 12px;
+}
+
+.label.lbl-min {
+  left: 7px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#time_input,
+input {
+  border-radius: 8px;
+  font-size: 22px;
+}
+
+input:focus {
+  outline: 3px solid var(--active);
+}
+
+input:focus + .label {
+  color: var(--active);
+}
+
+input.invalid:focus {
+  outline: 3px solid red;
+}
+
+input.invalid:focus + .label {
+  color: red;
+}

@@ -36,6 +36,8 @@ import { DurationPipe } from '../../pipes/duration.pipe';
 import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../UI/dialog/dialog.component';
 
 @Component({
   selector: 'app-monitor',
@@ -73,7 +75,13 @@ export class MonitorComponent {
   appService = inject(AppService);
   contextMenuService = inject(ContextMenuService);
   extTabNavService = inject(ExtensionTabNavigationService);
+
   _snackBar = inject(MatSnackBar);
+  readonly dialog = inject(MatDialog);
+
+  openDialog() {
+    this.dialog.open(DialogComponent);
+  }
 
   statusText = '';
   contextMenuX = 0;
