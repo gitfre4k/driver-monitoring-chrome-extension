@@ -74,10 +74,10 @@ export class UrlService {
           }
         }
         if (request.action === 'hoverEvent') {
-          console.log(
-            "UrlService: Received 'hoverEvent' message.",
-            request.data
-          );
+          // console.info(
+          //   "UrlService: Received 'hoverEvent' message.",
+          //   request.data
+          // );
           const { elementId, hoverAction } = request.data;
           this.hoveredElement.set({
             id: elementId,

@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
+import { CdkMenuModule } from '@angular/cdk/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,6 +38,7 @@ import { MonitorHeaderComponent } from './monitor-header/monitor-header.componen
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from '../UI/dialog/dialog.component';
+import { IShiftInputState } from '../../interfaces/api.interface';
 
 @Component({
   selector: 'app-monitor',
@@ -50,9 +51,7 @@ import { DialogComponent } from '../UI/dialog/dialog.component';
     MatProgressSpinnerModule,
     ContextMenuComponent,
     MatRippleModule,
-    CdkMenu,
-    CdkMenuItem,
-    CdkMenuTrigger,
+    CdkMenuModule,
     DurationPipe,
     AutofocusAndHandleOutsideClickDirective,
     SaveComponent,
@@ -79,10 +78,6 @@ export class MonitorComponent {
   _snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
 
-  openDialog() {
-    this.dialog.open(DialogComponent);
-  }
-
   statusText = '';
   contextMenuX = 0;
   contextMenuY = 0;
@@ -98,7 +93,9 @@ export class MonitorComponent {
 
   getStatusDuration = getStatusDuration;
 
-  selectedEvents = this.monitorService.selectedEvents;
+  selectedEventsIds = computed(() =>
+    this.monitorService.selectedEvents().map((ev) => ev.id),
+  );
   isUpdating = this.monitorService.isUpdating;
 
   showUpdateEvent = this.monitorService.showUpdateEvent;
@@ -109,20 +106,19 @@ export class MonitorComponent {
 
   showResize = this.monitorService.showResize;
   isResizingEvent = this.monitorService.isResizingEvent;
-  maxResize = this.monitorService.maxResize;
   currentResizeDriving = this.monitorService.currentResizeDriving;
   showAdvancedResize = this.monitorService.showAdvancedResize;
-  newResize = this.monitorService.newResize;
+  newResizeSpeed = this.monitorService.newResizeSpeed;
 
-  newSpeed = computed(() => {
-    const currentDriving = this.currentResizeDriving();
-    const newDuration = this.newResize();
-    if (!currentDriving || !newDuration) return;
-    const currentSpeed = currentDriving.averageSpeed;
-    const currentDuration = currentDriving.realDurationInSeconds;
-    const distance = currentSpeed * (currentDuration / 3600);
+  newResizeDuration = computed(() => {
+    const resizeEvent = this.currentResizeDriving();
+    const newSpeed = this.newResizeSpeed();
+    if (!resizeEvent || !newSpeed) return;
+    const originalSpeed = resizeEvent.averageSpeed * 10000; // upscale x 1000
+    const originalDuration = resizeEvent.realDurationInSeconds;
+    const distance = originalSpeed * (originalDuration / 3600);
 
-    return distance / (newDuration / 3600);
+    return ((distance / newSpeed) * 3600) / 10000; // downscale x 1000
   });
 
   constructor() {
@@ -154,7 +150,14 @@ export class MonitorComponent {
   refresh = () => {
     this.refreshBtnDisabled.set(true);
     this.monitorService.refresh.update((value) => value + 1);
-    this.newResize.set(0);
+
+    this.newResizeSpeed.set(0);
+    this.currentEditEvent.set(null);
+    this.showUpdateEvent.set(null);
+    this.newNote.set('');
+    this.newOdometer.set(0);
+    this.currentResizeDriving.set(null);
+    this.showResize.set(null);
   };
 
   getNoSpaceNote(note: string) {
@@ -167,18 +170,18 @@ export class MonitorComponent {
     this.urlService.focusElement(event.id, action, event.statusName);
   }
 
-  selectEvent(id: number) {
-    this.monitorService.selectedEvents.update((prev) => {
-      const newSelectedElements = [...prev];
+  selectEvent(event: IEvent) {
+    if (this.currentEditEvent() || this.showResize()) return;
 
-      if (newSelectedElements.includes(id)) {
-        newSelectedElements.findIndex(
-          (index) => newSelectedElements[index] === id
-        );
-        return newSelectedElements.filter((eventId) => eventId !== id);
+    this.monitorService.selectedEvents.update((prev) => {
+      let newSelectedElements = [...prev];
+      let selectedEventsIds = newSelectedElements.map((ev) => ev.id);
+
+      if (selectedEventsIds.includes(event.id)) {
+        return newSelectedElements.filter((ev) => ev.id !== event.id);
       }
 
-      newSelectedElements.push(id);
+      newSelectedElements.push(event);
       return newSelectedElements;
     });
   }
@@ -212,6 +215,16 @@ export class MonitorComponent {
   }
 
   handleDoubleClick(event: IEvent) {
+    this.monitorService.selectedEvents.set([]);
+
+    this.currentResizeDriving.set(null);
+    this.showResize.set(null);
+    this.newResizeSpeed.set(0);
+
+    this.currentEditEvent.set(event);
+    this.showUpdateEvent.set(event.id);
+    this.newOdometer.set(event.odometer);
+    this.newNote.set('');
     if (
       [
         'ChangeToOffDutyStatus',
@@ -219,36 +232,21 @@ export class MonitorComponent {
         'ChangeToOnDutyNotDrivingStatus',
       ].includes(event.dutyStatus)
     ) {
-      this.currentResizeDriving.set(null);
-      this.showResize.set(null);
-      this.newResize.set(0);
-
-      this.currentEditEvent.set(event);
-      this.showUpdateEvent.set(event.id);
       this.newNote.set(event.notes);
-      this.newOdometer.set(event.odometer);
     }
-    if (event.dutyStatus === 'ChangeToDrivingStatus') {
-      this.currentEditEvent.set(null);
-      this.showUpdateEvent.set(null);
-      this.newNote.set('');
-      this.newOdometer.set(0);
 
-      this.currentResizeDriving.set(event);
-      this.showResize.set(event.id);
-      this.newResize.set(event.realDurationInSeconds);
-    }
     return;
   }
 
   cancelEventEdit() {
     this.currentEditEvent.set(null);
     this.showUpdateEvent.set(null);
+    this.newNote.set('');
   }
 
   cancelResize() {
     this.currentResizeDriving.set(null);
-    this.newResize.set(0);
+    this.newResizeSpeed.set(0);
     this.showResize.set(null);
     this.showAdvancedResize.set(null);
     this.showAdvancedResize.set(null);
@@ -256,14 +254,14 @@ export class MonitorComponent {
 
   resize() {
     const event = this.currentResizeDriving();
-    const seconds = this.newResize();
+    const seconds = this.newResizeDuration();
     if (!event || !seconds) {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
         'OK',
         {
           duration: 3000,
-        }
+        },
       );
       return this.refresh();
     }
@@ -294,7 +292,7 @@ export class MonitorComponent {
         'OK',
         {
           duration: 3000,
-        }
+        },
       );
       return this.refresh();
     }
@@ -309,7 +307,7 @@ export class MonitorComponent {
         'OK',
         {
           duration: 3000,
-        }
+        },
       );
     }
     this.currentEditEvent.set(null);
@@ -326,15 +324,15 @@ export class MonitorComponent {
   onWheel(event: WheelEvent) {
     event.preventDefault();
     if (this.isResizingEvent()) return;
-    const delta = event.deltaY > 0 ? -31 : 31;
-    const newSliderValue = this.newResize() + delta;
+    const delta = event.deltaY > 0 ? -0.06 : 0.07;
+    const newSliderValue = this.newResizeSpeed() + delta;
 
-    this.newResize.set(Math.max(3600, Math.min(28799, newSliderValue)));
+    this.newResizeSpeed.set(newSliderValue);
   }
 
   onChangeLogDate(date: string, id: number) {
     this.urlService.navigateChromeActiveTab(
-      `https://app.monitoringdriver.com/logs/${id}/${date}/`
+      `https://app.monitoringdriver.com/logs/${id}/${date}/`,
     );
   }
 
@@ -344,7 +342,7 @@ export class MonitorComponent {
   }
 
   deselectAllEvents() {
-    this.selectedEvents.set([]);
+    this.monitorService.selectedEvents.set([]);
   }
 
   markBreaksAndShift(event: IEvent) {
@@ -365,5 +363,31 @@ export class MonitorComponent {
         break;
     }
     return breakShift + driver;
+  }
+
+  openDialog() {
+    const _dialogRef = this.dialog.open(DialogComponent);
+    const selectedEvents = this.monitorService.selectedEvents();
+    if (!selectedEvents) {
+      this._snackBar.open(
+        `Shift operation failed. \n[selectedEvents] ${selectedEvents}`,
+        'OK',
+        {
+          duration: 7000,
+        },
+      );
+      return;
+    }
+
+    _dialogRef.afterClosed().subscribe({
+      next: (payload: IShiftInputState) => {
+        console.log('qqqqqqqqqqqqqqqqqqq', selectedEvents, payload);
+        this.contextMenuService.handleMultiEventAction(
+          'SHIFT_EVENTS',
+          selectedEvents,
+          payload,
+        );
+      },
+    });
   }
 }

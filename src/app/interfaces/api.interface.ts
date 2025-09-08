@@ -15,7 +15,13 @@ export interface IAdvancedResizePayload {
   parsedErrorInfo: IParsedErrorInfo;
 }
 
-export interface IShiftEvents {
-  coefficient: 'Past' | 'Future';
+export interface IShiftInputState {
+  direction: 'Past' | 'Future';
   time: string;
+}
+export interface IMinutesOutput {
+  minutes: string;
+}
+export interface IHoursOutput {
+  hours: string;
 }

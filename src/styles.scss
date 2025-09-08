@@ -17,6 +17,14 @@
   );
 }
 
+// mat-dialog-container {
+//   background-color: rgba(0, 0, 0, 0) !important;
+// }
+
+// .mdc-dialog__surface {
+//   background-color: rgba(51, 51, 73, 0.888) !important;
+// }
+
 html {
   color-scheme: dark;
   @include mat.theme(

@@ -1,10 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  inject,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TimeInputComponent } from '../clock/time-input.component';
@@ -12,6 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  IHoursOutput,
+  IMinutesOutput,
+} from '../../../interfaces/api.interface';
 
 @Component({
   selector: 'app-dialog',
@@ -28,16 +26,37 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class DialogComponent {
   readonly dialogRef = inject(MatDialogRef<DialogComponent>);
-  time = signal('');
-  direction = signal<'forward' | 'backward'>('backward');
+
+  direction = signal<'Past' | 'Future'>('Past');
+  hh = signal('');
+  mm = signal('');
+  time = computed(() => {
+    const hh = this.hh();
+    const mm = this.mm();
+    return `${hh}:${mm}`;
+  });
 
   onMouseWheel(event: WheelEvent) {
     event.preventDefault();
-    this.direction.set(event.deltaY > 0 ? 'backward' : 'forward');
+    this.direction.set(event.deltaY > 0 ? 'Past' : 'Future');
+  }
+
+  handleHoursInputChange(event: IHoursOutput) {
+    this.hh.set(event.hours);
+  }
+
+  handleMinutesInputChange(event: IMinutesOutput) {
+    this.mm.set(event.minutes);
+  }
+
+  onShift() {
+    this.dialogRef.close({
+      direction: this.direction(),
+      time: this.time(),
+    });
   }
 
   onClose() {
-    console.log(this.time());
-    this.dialogRef.close();
+    this.dialogRef.close({ direction: this.direction });
   }
 }

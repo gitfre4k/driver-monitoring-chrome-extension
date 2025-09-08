@@ -106,7 +106,7 @@ export class BackgroundJsService {
           .pipe(
             map((response) => {
               if (response && response.success) {
-                console.log('Element focus successful:', response.message);
+                // console.log('Element focus successful:', response.message);
                 return true;
               } else {
                 const errorMessage =

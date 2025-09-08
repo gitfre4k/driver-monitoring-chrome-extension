@@ -8,7 +8,7 @@ import { TEventTypeCode } from '../types';
 import {
   IAdvancedResizePayload,
   IResizePayload,
-  IShiftEvents,
+  IShiftInputState,
 } from '../interfaces/api.interface';
 import { ApiService } from './api.service';
 import { ComputeEventsService } from './compute-events.service';
@@ -320,19 +320,21 @@ export class ApiOperationsService {
     );
   };
 
-  shift(tenant: ITenant, eventArray: IEvent[], payload: IShiftEvents) {
-    const { coefficient, time } = payload;
+  shift(tenant: ITenant, eventArray: IEvent[], payload: IShiftInputState) {
+    const { direction, time } = payload;
     const url = 'https://app.monitoringdriver.com/api/Logs/ShiftEvents';
-    const getTime = (date: IEvent) =>
+    const getEventStartTime = (date: IEvent) =>
       new Date(
         date.realStartTime ? date.realStartTime : date.startTime
       ).getTime();
-    const events = eventArray.sort((a, b) => getTime(a) - getTime(b));
+    const events = eventArray.sort(
+      (a, b) => getEventStartTime(a) - getEventStartTime(b)
+    );
 
     const body = {
-      startEvent: events[0],
-      endEvent: events[-1],
-      coefficient,
+      startEvent: events[0].id,
+      endEvent: events[events.length - 1].id,
+      direction,
       time, // '00:05'
       timeAsTimeSpan: `${new Date().getTime()}`,
     };

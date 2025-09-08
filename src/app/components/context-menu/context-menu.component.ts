@@ -7,6 +7,8 @@ import { SleeperBerthComponent } from '../UI/sleeper-berth/sleeper-berth.compone
 import { OnDutyComponent } from '../UI/on-duty/on-duty.component';
 import { DrivingComponent } from '../UI/driving/driving.component';
 import { OffDutyComponent } from '../UI/off-duty/off-duty.component';
+import { ResizeComponent } from '../UI/resize/resize.component';
+import { MonitorService } from '../../@services/monitor.service';
 // import { ToOffComponent } from '../UI/to-off/to-off.component';
 // import { ToSleeperComponent } from '../UI/to-sleeper/to-sleeper.component';
 
@@ -19,7 +21,7 @@ import { OffDutyComponent } from '../UI/off-duty/off-duty.component';
     OnDutyComponent,
     DrivingComponent,
     OffDutyComponent,
-    // ToOffComponent, ToSleeperComponent
+    ResizeComponent,
   ],
   templateUrl: './context-menu.component.html',
   styleUrl: './context-menu.component.scss',
@@ -31,4 +33,5 @@ export class ContextMenuComponent {
   @Input() event: IEvent | null = null;
 
   contextMenuService = inject(ContextMenuService);
+  monitorService = inject(MonitorService);
 }

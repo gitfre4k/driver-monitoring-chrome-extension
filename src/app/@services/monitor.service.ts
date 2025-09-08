@@ -27,7 +27,7 @@ export class MonitorService {
   addPTIBtnDisabled = signal(false);
   showToolMenu = signal(false);
 
-  selectedEvents = signal<number[]>([]);
+  selectedEvents = signal<IEvent[]>([]);
 
   isUpdatingEvent = signal(false);
   showUpdateEvent = signal<number | null>(null);
@@ -39,19 +39,9 @@ export class MonitorService {
   showResize = signal<number | null>(null);
   showAdvancedResize = signal<IParsedErrorInfo | null>(null);
   currentResizeDriving = signal<null | IEvent>(null);
-  newResize = signal(0);
+  newResizeSpeed = signal(0);
 
-  currentDriverLog = computed(() => {});
-
-  maxResize = computed(() => {
-    const newResize = this.newResize();
-    let maxResize = 14399;
-    newResize > 14300 && (maxResize = 17999); // 4h+
-    newResize > 17900 && (maxResize = 21599); // 5h+
-    newResize > 21500 && (maxResize = 25199); // 6h+
-    newResize > 25100 && (maxResize = 28799); // 7h+
-    return maxResize;
-  });
+  isShifting = signal(false);
 
   updateEvents = effect(() => {
     const url = this.urlService.url();
@@ -75,7 +65,7 @@ export class MonitorService {
       return null;
 
     const driverInfo = tenantsLog[currentTenant.id].items.find(
-      (d) => d.id === ddle.driverId
+      (d) => d.id === ddle.driverId,
     );
 
     return driverInfo;
@@ -111,7 +101,7 @@ export class MonitorService {
           this.newNote.set('');
           this.currentResizeDriving.set(null);
           this.showResize.set(null);
-          this.newResize.set(0);
+          this.newResizeSpeed.set(0);
 
           if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
             const coId = driverDailyLog.coDrivers[0].id;
@@ -129,7 +119,7 @@ export class MonitorService {
               driverDailyLog,
               coDriverDailyLog: null,
             });
-        })
+        }),
       )
       .subscribe();
 
@@ -148,7 +138,22 @@ export class MonitorService {
         this.computeEventsService.getComputedEvents({
           driverDailyLog,
           coDriverDailyLog,
-        })
+        }),
       );
+  }
+
+  showResizeForm(event: IEvent) {
+    if (event.dutyStatus === 'ChangeToDrivingStatus') {
+      this.selectedEvents.set([]);
+
+      this.currentEditEvent.set(null);
+      this.showUpdateEvent.set(null);
+      this.newNote.set('');
+      this.newOdometer.set(0);
+
+      this.currentResizeDriving.set(event);
+      this.showResize.set(event.id);
+      this.newResizeSpeed.set(event.averageSpeed);
+    }
   }
 }

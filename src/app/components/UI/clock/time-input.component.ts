@@ -5,6 +5,8 @@ import {
   ViewChild,
   ElementRef,
   HostListener,
+  output,
+  inject,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -24,6 +26,9 @@ import { debounceTime } from 'rxjs/operators';
 export class TimeInputComponent implements OnInit, OnDestroy {
   @ViewChild('hoursInput') hoursInput!: ElementRef<HTMLInputElement>;
   @ViewChild('minutesInput') minutesInput!: ElementRef<HTMLInputElement>;
+
+  onHoursInputChange = output<{ hours: string }>();
+  onMinutesInputChange = output<{ minutes: string }>();
 
   timeForm!: FormGroup;
 
@@ -68,6 +73,10 @@ export class TimeInputComponent implements OnInit, OnDestroy {
     this.timeForm
       .get(controlName)
       ?.patchValue(sanitizedValue, { emitEvent: false });
+
+    controlName === 'hours'
+      ? this.onHoursInputChange.emit({ hours: sanitizedValue })
+      : this.onMinutesInputChange.emit({ minutes: sanitizedValue });
   }
 
   onMouseWheel(event: WheelEvent, controlName: 'hours' | 'minutes') {
