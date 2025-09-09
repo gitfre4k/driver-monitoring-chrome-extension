@@ -6,7 +6,7 @@ import {
   ElementRef,
   HostListener,
   output,
-  inject,
+  input,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -27,6 +27,9 @@ export class TimeInputComponent implements OnInit, OnDestroy {
   @ViewChild('hoursInput') hoursInput!: ElementRef<HTMLInputElement>;
   @ViewChild('minutesInput') minutesInput!: ElementRef<HTMLInputElement>;
 
+  noLabel = input(false);
+  mm = input<string>();
+  hh = input<string>();
   onHoursInputChange = output<{ hours: string }>();
   onMinutesInputChange = output<{ minutes: string }>();
 
@@ -39,11 +42,11 @@ export class TimeInputComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.timeForm = this.fb.group({
       hours: [
-        '',
+        this.hh() ?? '',
         [Validators.required, Validators.min(0o0), Validators.max(99)],
       ],
       minutes: [
-        '',
+        this.mm() ?? '',
         [Validators.required, Validators.min(0o0), Validators.max(59)],
       ],
     });
@@ -52,13 +55,13 @@ export class TimeInputComponent implements OnInit, OnDestroy {
       this.timeForm
         .get('hours')
         ?.valueChanges.pipe(debounceTime(50))
-        .subscribe((val) => this.sanitizeAndValidate('hours', val))
+        .subscribe((val) => this.sanitizeAndValidate('hours', val)),
     );
     this.formSubscriptions.add(
       this.timeForm
         .get('minutes')
         ?.valueChanges.pipe(debounceTime(50))
-        .subscribe((val) => this.sanitizeAndValidate('minutes', val))
+        .subscribe((val) => this.sanitizeAndValidate('minutes', val)),
     );
   }
 
@@ -130,9 +133,10 @@ export class TimeInputComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.hoursInput.nativeElement.focus();
-    }, 150);
+    !this.noLabel() &&
+      setTimeout(() => {
+        this.hoursInput.nativeElement.focus();
+      }, 150);
   }
 
   @HostListener('keyup', ['$event']) onKeyUp(event: KeyboardEvent): void {

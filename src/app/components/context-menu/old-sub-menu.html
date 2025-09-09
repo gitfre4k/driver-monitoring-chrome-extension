@@ -1,0 +1,58 @@
+<!-- SUBMENU -->
+<!-- SUBMENU -->
+<li class="context-menu__item submenu">
+  <!-- SUBMENU CHANGE STATUS -->
+  <!-- SUBMENU CHANGE STATUS -->
+  <app-change></app-change>
+  <span class="context-menu__item__name">change Status</span>
+  <!--  -->
+  <ul class="context-menu submenu">
+    @if (event.statusName !== "Off Duty") {
+      <li
+        (click)="
+          contextMenuService.handleAction('ChangeToOffDutyStatus', event)
+        "
+        class="context-menu__item"
+      >
+        <app-off-duty style="margin-top: 1.5px"></app-off-duty>
+        <span class="context-menu__item__name">Off Duty</span>
+      </li>
+    }
+    @if (event.statusName !== "Sleeper Berth") {
+      <li
+        (click)="
+          contextMenuService.handleAction('ChangeToSleeperBerthStatus', event)
+        "
+        class="context-menu__item"
+      >
+        <app-sleeper-berth style="margin-top: 1.5px"></app-sleeper-berth>
+        <span class="context-menu__item__name">Sleeper Berth</span>
+      </li>
+    }
+    @if (event.statusName !== "Driving") {
+      <li
+        (click)="
+          contextMenuService.handleAction('ChangeToDrivingStatus', event)
+        "
+        class="context-menu__item"
+      >
+        <app-driving style="margin-top: 1.5px"></app-driving>
+        <span class="context-menu__item__name">Driving</span>
+      </li>
+    }
+    @if (event.statusName !== "On Duty") {
+      <li
+        (click)="
+          contextMenuService.handleAction(
+            'ChangeToOnDutyNotDrivingStatus',
+            event
+          )
+        "
+        class="context-menu__item"
+      >
+        <app-on-duty style="margin-top: 1.5px"></app-on-duty>
+        <span class="context-menu__item__name">On Duty</span>
+      </li>
+    }
+  </ul>
+</li>

@@ -3,7 +3,7 @@ import { ApiOperationsService } from './api-operations.service';
 import { AppService } from './app.service';
 import { MonitorService } from './monitor.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TContextMenuAction, TErrorParsedComparison } from '../types';
+import { TContextMenuAction } from '../types';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 import { UrlService } from './url.service';
 import { IEventDetails } from '../interfaces';
@@ -15,9 +15,7 @@ import {
 } from '../interfaces/api.interface';
 import { parseErrorMessage } from '../helpers/context-menu.helpers';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ContextMenuService {
   apiOperationsService = inject(ApiOperationsService);
   appService = inject(AppService);
@@ -34,7 +32,7 @@ export class ContextMenuService {
       | Partial<IEventDetails>
       | IResizePayload
       | IParsedErrorInfo
-      | IAdvancedResizePayload
+      | IAdvancedResizePayload,
   ) {
     const tenant = this.appService.currentTenant();
     const computedEvents = this.computedEvents();
@@ -44,9 +42,7 @@ export class ContextMenuService {
     this._snackBar.open(
       `[ContextMenuService] executing action: ${action}`,
       'OK',
-      {
-        duration: 2000,
-      }
+      { duration: 2000 },
     );
 
     switch (action) {
@@ -94,14 +90,12 @@ export class ContextMenuService {
               this.monitorService.refresh.update((value) => value + 1);
               setTimeout(
                 () => this.monitorService.extendPTIBtnDisabled.set(false),
-                2000
+                2000,
               );
               this._snackBar.open(
                 'Pre-Trip Inspection is now extended.',
                 'OK',
-                {
-                  duration: 3000,
-                }
+                { duration: 3000 },
               );
             },
           });
@@ -128,16 +122,14 @@ export class ContextMenuService {
             action === 'ADD_PTI' &&
               setTimeout(
                 () => this.monitorService.addPTIBtnDisabled.set(false),
-                2000
+                2000,
               );
             this._snackBar.open(
               `${
                 action === 'ADD_PTI' ? 'Pre-Trip Inspection' : 'Engine Off'
               } has been added.`,
               'OK',
-              {
-                duration: 3000,
-              }
+              { duration: 3000 },
             );
           },
         });
@@ -151,7 +143,7 @@ export class ContextMenuService {
             (action === 'DELETE_ENGINES_IN_DRIVING'
               ? e.occurredDuringDriving
               : true) &&
-            ids.push(e.id)
+            ids.push(e.id),
         );
         if (!ids.length)
           return this._snackBar.open('No engine status detected.', 'OK', {
@@ -174,9 +166,7 @@ export class ContextMenuService {
                 ids.length > 1 ? 's' : ''
               } have been deleted.`,
               'OK',
-              {
-                duration: 3000,
-              }
+              { duration: 3000 },
             );
           },
         });
@@ -201,7 +191,7 @@ export class ContextMenuService {
               this.monitorService.refresh.update((value) => value + 1);
               setTimeout(
                 () => this.monitorService.isUpdatingEvent.set(false),
-                2000
+                2000,
               );
               this.monitorService.showUpdateEvent.set(null);
               this._snackBar.open('Status successfully updated', 'OK', {
@@ -245,7 +235,7 @@ export class ContextMenuService {
               this.monitorService.refresh.update((value) => value + 1);
               setTimeout(
                 () => this.monitorService.isResizingEvent.set(false),
-                2000
+                2000,
               );
               this.monitorService.showResize.set(null);
               this._snackBar.open('Driving successfully resized', 'OK', {
@@ -277,7 +267,7 @@ export class ContextMenuService {
               this.monitorService.showAdvancedResize.set(null);
               setTimeout(
                 () => this.monitorService.isResizingEvent.set(false),
-                2000
+                2000,
               );
               this._snackBar.open('Event successfully resized', 'OK', {
                 duration: 3000,
@@ -314,9 +304,7 @@ export class ContextMenuService {
                     : 'Off Duty'
                 }`,
                 'OK',
-                {
-                  duration: 3000,
-                }
+                { duration: 3000 },
               );
             },
           });
@@ -343,9 +331,7 @@ export class ContextMenuService {
               this._snackBar.open(
                 `Event partial transformation successful`,
                 'OK',
-                {
-                  duration: 3000,
-                }
+                { duration: 3000 },
               );
             },
           });
@@ -359,7 +345,7 @@ export class ContextMenuService {
   handleMultiEventAction(
     action: TContextMenuAction,
     events: IEvent[],
-    payload?: IShiftInputState
+    payload?: IShiftInputState,
   ) {
     const tenant = this.appService.currentTenant();
     // const computedEvents = this.computedEvents();
@@ -381,9 +367,7 @@ export class ContextMenuService {
               this._snackBar.open(
                 `[ERROR]: ${err.error.message ?? err.title}`,
                 'OK',
-                {
-                  duration: 7000,
-                }
+                { duration: 7000 },
               );
             },
             complete: () => {
@@ -396,6 +380,32 @@ export class ContextMenuService {
               });
             },
           });
+      }
+      case 'DELETE_SELECTED_EVENTS': {
+        const ids = events.map((ev) => ev.id);
+
+        return this.apiOperationsService.deleteEvents(tenant, ids).subscribe({
+          error: (err) => {
+            this.urlService.refreshWebApp();
+            this.monitorService.refresh.update((value) => value + 1);
+            this.monitorService.selectedEvents.set([]);
+            this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+              duration: 3000,
+            });
+          },
+          complete: () => {
+            this.urlService.refreshWebApp();
+            this.monitorService.refresh.update((value) => value + 1);
+            this.monitorService.selectedEvents.set([]);
+            this._snackBar.open(
+              `${ids.length} event${
+                ids.length > 1 ? 's' : ''
+              } successfully deleted.`,
+              'OK',
+              { duration: 3000 },
+            );
+          },
+        });
       }
       default:
         return;

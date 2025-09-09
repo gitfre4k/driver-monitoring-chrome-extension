@@ -13,9 +13,7 @@ import {
 import { ApiService } from './api.service';
 import { ComputeEventsService } from './compute-events.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ApiOperationsService {
   private http: HttpClient = inject(HttpClient);
   private apiService = inject(ApiService);
@@ -39,7 +37,7 @@ export class ApiOperationsService {
           'X-Tenant-Id': `${tenant.id}`,
           'x-client-timezone': `${DateTime.local().zoneName}`,
         },
-      }
+      },
     );
   }
 
@@ -49,7 +47,7 @@ export class ApiOperationsService {
     typeCode:
       | 'ChangeToOffDutyStatus'
       | 'ChangeToSleeperBerthStatus'
-      | 'ChangeToOnDutyNotDrivingStatus'
+      | 'ChangeToOnDutyNotDrivingStatus',
   ) => {
     const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
 
@@ -85,14 +83,14 @@ export class ApiOperationsService {
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         });
-      })
+      }),
     );
   };
 
   advancedResize(
     tenant: ITenant,
     event: IEvent,
-    payload: IAdvancedResizePayload
+    payload: IAdvancedResizePayload,
   ) {
     const coefficient =
       payload.parsedErrorInfo.comparison === 'smaller' ? -1 : 1;
@@ -109,25 +107,25 @@ export class ApiOperationsService {
           switchMap(() =>
             this.updateEvent(tenant, event.nextDutyStatusInfo.id, {
               totalVehicleMiles: originalOdometer,
-            })
+            }),
           ),
           switchMap(() =>
             this.apiService.getDriverDailyLogEvents(
               event.driver.id,
               event.date,
-              tenant.id
-            )
+              tenant.id,
+            ),
           ),
           map((driverDailyLog) =>
             this.computeEventsService.getComputedEvents({
               driverDailyLog,
               coDriverDailyLog: null,
-            })
+            }),
           ),
           switchMap((events) => events.filter((e) => e.id === event.id)),
           switchMap((ev) => {
             const intermediates = ev.intermediatesInfo.sort(
-              (a, b) => a.totalVehicleMiles - b.totalVehicleMiles
+              (a, b) => a.totalVehicleMiles - b.totalVehicleMiles,
             );
             for (let i = 0; i < intermediates.length; i++) {
               const accumulatedMiles =
@@ -145,21 +143,18 @@ export class ApiOperationsService {
                 this.updateEvent(tenant, inter.id, {
                   totalVehicleMiles: inter.totalVehicleMiles,
                   accumulatedVehicleMiles: inter.accumulatedVehicleMiles,
-                })
-              )
+                }),
+              ),
             );
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
   }
 
   resizeEvent(tenant: ITenant, eventId: number, payload: IResizePayload) {
     const url = 'https://app.monitoringdriver.com/api/Logs/ResizeEvent';
-    const body = {
-      eventId,
-      ...payload,
-    };
+    const body = { eventId, ...payload };
 
     return this.http.post(url, body, {
       withCredentials: true,
@@ -173,7 +168,7 @@ export class ApiOperationsService {
   updateEvent(
     tenant: ITenant,
     eventId: number,
-    payload: Partial<IEventDetails>
+    payload: Partial<IEventDetails>,
   ) {
     const url = 'https://app.monitoringdriver.com/api/Logs/UpdateEvent';
 
@@ -188,14 +183,14 @@ export class ApiOperationsService {
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         });
-      })
+      }),
     );
   }
 
   updateEventTypeCode(
     tenant: ITenant,
     eventId: number,
-    eventTypeCode: TEventTypeCode
+    eventTypeCode: TEventTypeCode,
   ) {
     const url = 'https://app.monitoringdriver.com/api/Logs/UpdateEvent';
 
@@ -211,7 +206,7 @@ export class ApiOperationsService {
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         });
-      })
+      }),
     );
   }
 
@@ -238,7 +233,7 @@ export class ApiOperationsService {
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         });
-      })
+      }),
     );
   };
 
@@ -261,7 +256,7 @@ export class ApiOperationsService {
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         });
-      }, 10)
+      }, 10),
     );
   };
 
@@ -280,7 +275,7 @@ export class ApiOperationsService {
       switchMap((eventDetails) => {
         const { id, eventUuid, ...body } = eventDetails;
         body.eventTypeCode = 'ChangeToOnDutyNotDrivingStatus';
-        body.note = 'Pre-Trip Inspection';
+        body.note = 'pti';
         body.startTime = getStartTime(eventDetails.startTime);
 
         return this.http.post<IEventDetails>(url, body, {
@@ -290,7 +285,7 @@ export class ApiOperationsService {
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         });
-      })
+      }),
     );
   };
 
@@ -316,7 +311,7 @@ export class ApiOperationsService {
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         });
-      })
+      }),
     );
   };
 
@@ -325,10 +320,10 @@ export class ApiOperationsService {
     const url = 'https://app.monitoringdriver.com/api/Logs/ShiftEvents';
     const getEventStartTime = (date: IEvent) =>
       new Date(
-        date.realStartTime ? date.realStartTime : date.startTime
+        date.realStartTime ? date.realStartTime : date.startTime,
       ).getTime();
     const events = eventArray.sort(
-      (a, b) => getEventStartTime(a) - getEventStartTime(b)
+      (a, b) => getEventStartTime(a) - getEventStartTime(b),
     );
 
     const body = {
@@ -346,7 +341,7 @@ export class ApiOperationsService {
           'X-Tenant-Id': `${tenant.id}`,
           'x-client-timezone': `${DateTime.local().zoneName}`,
         },
-      })
+      }),
     );
   }
 }

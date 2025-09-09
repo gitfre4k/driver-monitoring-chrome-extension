@@ -11,10 +11,9 @@ import { ComputeEventsService } from './compute-events.service';
 import { tap } from 'rxjs';
 import { AppService } from './app.service';
 import { IParsedErrorInfo } from '../interfaces/api.interface';
+import { TEventTypeCode } from '../types';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class MonitorService {
   private apiService = inject(ApiService);
   private urlService = inject(UrlService);
@@ -34,6 +33,17 @@ export class MonitorService {
   currentEditEvent = signal<null | IEvent>(null);
   newNote = signal('');
   newOdometer = signal(0);
+  newEventTypeId = signal(0);
+  eventTypes: TEventTypeCode[] = [
+    'ChangeToOffDutyStatus',
+    'ChangeToSleeperBerthStatus',
+    'ChangeToDrivingStatus',
+    'ChangeToOnDutyNotDrivingStatus',
+    'IntermediateLogConventionalLocationPrecision',
+    'EnginePowerUpConventionalLocationPrecision',
+    'EngineShutDownConventionalLocationPrecision',
+  ];
+  newEventType = computed(() => this.eventTypes[this.newEventTypeId()]);
 
   isResizingEvent = signal(false);
   showResize = signal<number | null>(null);

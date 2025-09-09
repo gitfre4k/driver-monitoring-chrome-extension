@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+
 export const formatTenantName = (tenant: string) => {
   const keywordsToRemove = new Set([
     'logistics',
@@ -31,4 +33,10 @@ export const formatTenantName = (tenant: string) => {
   }
 
   return words.join(' ');
+};
+
+export const getHoursAndMinutes = (date: string, zone: string) => {
+  const hh = DateTime.fromISO(date).setZone(zone).toFormat('hh');
+  const mm = DateTime.fromISO(date).setZone(zone).toFormat('mm');
+  return { hh, mm };
 };

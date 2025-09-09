@@ -44,9 +44,7 @@
 
     <ng-template #menu>
       <app-monitor-menu
-        [numOfSelectedEvents]="monitorService.selectedEvents().length"
-        (menuAction)="handleContextMenuAction($event)"
-        (shiftAction)="openDialog()"
+        [selectedEvents]="monitorService.selectedEvents()"
       ></app-monitor-menu>
     </ng-template>
 
@@ -153,19 +151,23 @@
                 />
                 <!--(clickOutside)="cancelEventEdit()"  -->
                 <!-- [clickOutsideIgnore]="['#updateChangesButton', '#updateOdometer']" -->
+
                 @if (
-                  ["On Duty", "Sleeper Berth", "Off Duty"].includes(
-                    event.statusName
-                  )
+                  [
+                    "ChangeToOffDutyStatus",
+                    "ChangeToSleeperBerthStatus",
+                    "ChangeToOnDutyNotDrivingStatus",
+                  ].includes(monitorService.newEventType())
                 ) {
                   <input
                     [(ngModel)]="newNote"
                     appAutofocusAndHandleOutsideClick
                     (keydown.enter)="triggerButtonClick()"
                     (keydown.esc)="cancelEventEdit()"
+                    (wheel)="onEditStatusWheel($event)"
                     [ngClass]="
                       'status ' +
-                      event.dutyStatus +
+                      monitorService.newEventType() +
                       ' input' +
                       (event.notes && getNoSpaceNote(event.notes)
                         ? ` status-note`
@@ -175,36 +177,24 @@
                     tabindex="0"
                   />
                 } @else {
-                  <span
-                    (dblclick)="handleDoubleClick(event)"
+                  <input
+                    [ngModel]="newStatusName()"
+                    appAutofocusAndHandleOutsideClick
+                    (keydown.enter)="triggerButtonClick()"
+                    (keydown.esc)="cancelEventEdit()"
+                    (wheel)="onEditStatusWheel($event)"
                     [ngClass]="
                       'status ' +
-                      event.dutyStatus +
+                      monitorService.newEventType() +
+                      ' input' +
                       (event.notes && getNoSpaceNote(event.notes)
                         ? ` status-note`
                         : '')
                     "
-                  >
-                    @if (event.statusName === "Driving" && event.averageSpeed) {
-                      <span style="font-size: 12px">
-                        @if (
-                          newResizeSpeed() &&
-                          currentResizeDriving()?.id === event.id
-                        ) {
-                          {{ newResizeSpeed()!.toFixed(2) }}
-                        } @else {
-                          {{ event.averageSpeed.toFixed(2) }}
-                        }
-                        mph</span
-                      >
-                    } @else {
-                      {{
-                        event.notes && getNoSpaceNote(event.notes)
-                          ? event.notes.trim()
-                          : event.statusName
-                      }}
-                    }
-                  </span>
+                    type="text"
+                    tabindex="0"
+                    disabled
+                  />
                 }
               }
               <!--  -->
@@ -341,66 +331,98 @@
                 }
               </span>
               <!-- ~ -->
-              @if (
-                event.isTeleport ||
-                (event.errorMessages && event.errorMessages.length > 0) ||
-                event.manualDriving ||
-                event.refuel ||
-                event.locationMismatch
-              ) {
-                <span class="note" style="color: red">
-                  <!-- [teleport] message-->
-                  {{
-                    event.isTeleport
-                      ? event.isTeleport > 0
-                        ? "teleport [ " + event.isTeleport + " miles ]"
-                        : "odometer decreased"
-                      : ""
-                  }}
-                  @if (event.locationMismatch) {
-                    @if (event.isTeleport) {
-                      <br />
+              @if (currentEditEvent()?.id === event.id) {
+                <span class="note edit">
+                  <div class="note__clock">
+                    <app-time-input
+                      [noLabel]="true"
+                      [hh]="
+                        getHoursAndMinutes(
+                          event.realStartTime,
+                          ddle.homeTerminalTimeZone
+                        ).hh
+                      "
+                      [mm]="
+                        getHoursAndMinutes(
+                          event.realStartTime,
+                          ddle.homeTerminalTimeZone
+                        ).mm
+                      "
+                    ></app-time-input>
+                  </div>
+                  <div
+                    class="note__direction"
+                    (wheel)="onEditDirection($event)"
+                  >
+                    @if (directionForward()) {
+                      AM
+                    } @else {
+                      PM
                     }
-                    location mismatch
-                  }
-                  @if (
-                    (event.isTeleport || event.locationMismatch) &&
-                    event.errorMessages &&
-                    event.errorMessages.length > 0
-                  ) {
-                    <br />
-                  }
-                  <!-- [eventErrors] message-->
-                  {{
-                    event.errorMessages && event.errorMessages.length > 0
-                      ? event.errorMessages[0]
-                      : ""
-                  }}
-                  <!-- warnings -->
-                  @if (event.refuel) {
-                    @if (
-                      event.isTeleport ||
-                      event.locationMismatch ||
-                      (event.errorMessages && event.errorMessages.length > 0)
-                    ) {
-                      <br />
-                    }
-                    <span class="note" style="color: yellow"
-                      >potential unrecorded driving</span
-                    >
-                  }
-                  @if (event.manualDriving) {
-                    @if (
-                      event.isTeleport ||
-                      (event.errorMessages && event.errorMessages.length > 0)
-                    ) {
-                      <br />
-                    }
-                    <span class="note" style="color: yellow">
-                      manual origin
-                    </span>
-                  }
+                  </div>
                 </span>
+              } @else {
+                @if (
+                  event.isTeleport ||
+                  (event.errorMessages && event.errorMessages.length > 0) ||
+                  event.manualDriving ||
+                  event.refuel ||
+                  event.locationMismatch
+                ) {
+                  <span class="note" style="color: red">
+                    <!-- [teleport] message-->
+                    {{
+                      event.isTeleport
+                        ? event.isTeleport > 0
+                          ? "teleport [ " + event.isTeleport + " miles ]"
+                          : "odometer decreased"
+                        : ""
+                    }}
+                    @if (event.locationMismatch) {
+                      @if (event.isTeleport) {
+                        <br />
+                      }
+                      location mismatch
+                    }
+                    @if (
+                      (event.isTeleport || event.locationMismatch) &&
+                      event.errorMessages &&
+                      event.errorMessages.length > 0
+                    ) {
+                      <br />
+                    }
+                    <!-- [eventErrors] message-->
+                    {{
+                      event.errorMessages && event.errorMessages.length > 0
+                        ? event.errorMessages[0]
+                        : ""
+                    }}
+                    <!-- warnings -->
+                    @if (event.refuel) {
+                      @if (
+                        event.isTeleport ||
+                        event.locationMismatch ||
+                        (event.errorMessages && event.errorMessages.length > 0)
+                      ) {
+                        <br />
+                      }
+                      <span class="note" style="color: yellow"
+                        >potential unrecorded driving</span
+                      >
+                    }
+                    @if (event.manualDriving) {
+                      @if (
+                        event.isTeleport ||
+                        (event.errorMessages && event.errorMessages.length > 0)
+                      ) {
+                        <br />
+                      }
+                      <span class="note" style="color: yellow">
+                        manual origin
+                      </span>
+                    }
+                  </span>
+                }
               }
             </div>
           </li>
@@ -417,17 +439,19 @@
             >
               <div class="slider">
                 <div class="mph">
-                  <span class="mph__col">0</span>
-                  <span class="mph__col">10</span>
+                  <span class="mph__col-0">0</span>
+                  <!-- <span class="mph__col">10</span>
                   <span class="mph__col">20</span>
                   <span class="mph__col">30</span>
-                  <span class="mph__col">40</span>
-                  <span class="mph__col">50</span>
-                  <span class="mph__col">60</span>
+                  <span class="mph__col">40</span> -->
+                  <span class="mph__col-25">25</span>
+                  <span class="mph__col-50">50</span>
+                  <span class="mph__col-75">75</span>
+                  <!-- <span class="mph__col">60</span>
                   <span class="mph__col">70</span>
                   <span class="mph__col">80</span>
-                  <span class="mph__col">90</span>
-                  <span class="mph__col">100</span>
+                  <span class="mph__col">90</span> -->
+                  <span class="mph__col-100">100</span>
                 </div>
                 <mat-slider
                   [min]="0"

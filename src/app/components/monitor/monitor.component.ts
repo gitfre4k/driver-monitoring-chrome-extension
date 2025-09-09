@@ -4,6 +4,7 @@ import {
   effect,
   ElementRef,
   inject,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -28,7 +29,7 @@ import { ExtensionTabNavigationService } from '../../@services/extension-tab-nav
 import { MonitorService } from '../../@services/monitor.service';
 import { UrlService } from '../../@services/url.service';
 import { AutofocusAndHandleOutsideClickDirective } from '../../directive/autofocus.directive';
-import { getStatusDuration } from '../../helpers/app.helpers';
+import { getStatusDuration, getStatusName } from '../../helpers/app.helpers';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { CancelComponent } from '../UI/cancel/cancel.component';
 import { SaveComponent } from '../UI/save/save.component';
@@ -41,6 +42,9 @@ import { DurationPipe } from '../../pipes/duration.pipe';
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { IShiftInputState } from '../../interfaces/api.interface';
 import { TContextMenuAction, TFocusElementAction } from '../../types';
+import { DialogConfirmComponent } from '../UI/dialog-confirm/dialog-confirm.component';
+import { TimeInputComponent } from '../UI/clock/time-input.component';
+import { getHoursAndMinutes } from '../../helpers/monitor.helpers';
 
 @Component({
   selector: 'app-monitor',
@@ -62,6 +66,7 @@ import { TContextMenuAction, TFocusElementAction } from '../../types';
     MonitorHeaderComponent,
     MatBadgeModule,
     MonitorMenuComponent,
+    TimeInputComponent,
   ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
@@ -95,6 +100,8 @@ export class MonitorComponent {
   refreshBtnDisabled = this.monitorService.refreshBtnDisabled;
 
   getStatusDuration = getStatusDuration;
+  getStatusName = getStatusName;
+  getHoursAndMinutes = getHoursAndMinutes;
 
   selectedEventsIds = computed(() =>
     this.monitorService.selectedEvents().map((ev) => ev.id),
@@ -106,6 +113,11 @@ export class MonitorComponent {
   currentEditEvent = this.monitorService.currentEditEvent;
   newNote = this.monitorService.newNote;
   newOdometer = this.monitorService.newOdometer;
+  newEventTypeId = this.monitorService.newEventTypeId;
+  newStatusName = computed(() => {
+    return getStatusName(this.monitorService.newEventType());
+  });
+  directionForward = signal(true);
 
   showResize = this.monitorService.showResize;
   isResizingEvent = this.monitorService.isResizingEvent;
@@ -125,6 +137,15 @@ export class MonitorComponent {
   });
 
   constructor() {
+    effect(() => {
+      const currentDriverId = this.urlService.currentView()?.driverId;
+      if (!currentDriverId) return;
+      const selectedEvents = this.monitorService.selectedEvents();
+      if (!selectedEvents.length) return;
+
+      if (currentDriverId !== this.monitorService.selectedEvents()[0].driver.id)
+        this.monitorService.selectedEvents.set([]);
+    });
     effect(() => {
       const hovered = this.urlService.hoveredElement();
       const selectedTabIndex = this.extTabNavService.selectedTabIndex();
@@ -146,8 +167,8 @@ export class MonitorComponent {
 
   ngAfterViewInit(): void {
     this.myInputField && this.myInputField.nativeElement.focus();
-    const monitor = document.getElementById('monitor');
-    monitor && (monitor.scrollLeft -= 50);
+    // const monitor = document.getElementById('monitor');
+    // monitor && (monitor.scrollLeft -= 50);
   }
 
   refresh = () => {
@@ -227,6 +248,12 @@ export class MonitorComponent {
     this.currentEditEvent.set(event);
     this.showUpdateEvent.set(event.id);
     this.newOdometer.set(event.odometer);
+
+    this.newEventTypeId.set(
+      this.monitorService.eventTypes.findIndex(
+        (type) => type === event.dutyStatus,
+      ),
+    );
     this.newNote.set('');
     if (
       [
@@ -285,8 +312,16 @@ export class MonitorComponent {
 
   updateChanges() {
     const event = this.currentEditEvent();
-    const note = this.newNote();
     const totalVehicleMiles = this.newOdometer();
+    const eventTypeCode = this.monitorService.newEventType();
+    const note = [
+      'ChangeToOffDutyStatus',
+      'ChangeToSleeperBerthStatus',
+      'ChangeToOnDutyNotDrivingStatus',
+    ].includes(eventTypeCode)
+      ? this.newNote()
+      : '';
+
     if (!event) {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
@@ -301,16 +336,18 @@ export class MonitorComponent {
       });
     }
     if (!totalVehicleMiles) {
-      this._snackBar.open(
+      return this._snackBar.open(
         `[Monitor Component] error: invalid odometer value`,
         'OK',
         { duration: 3000 },
       );
     }
+
     this.currentEditEvent.set(null);
     this.contextMenuService.handleAction('UPDATE_EVENT', event, {
       totalVehicleMiles,
       note,
+      eventTypeCode,
     });
   }
 
@@ -362,27 +399,21 @@ export class MonitorComponent {
     return breakShift + driver;
   }
 
-  openDialog() {
-    const _dialogRef = this.dialog.open(DialogComponent);
-    const selectedEvents = this.monitorService.selectedEvents();
-    if (!selectedEvents) {
-      this._snackBar.open(
-        `Shift operation failed. \n[selectedEvents] ${selectedEvents}`,
-        'OK',
-        { duration: 7000 },
-      );
-      return;
+  onEditDirection(wheelEvent: WheelEvent) {
+    wheelEvent.preventDefault();
+    this.directionForward.update((prev) => !prev);
+  }
+
+  onEditStatusWheel(wheelEvent: WheelEvent) {
+    wheelEvent.preventDefault();
+    const maxToggle = this.monitorService.eventTypes.length - 1;
+    let toggle = this.monitorService.newEventTypeId();
+    if (wheelEvent.deltaY > 0) {
+      toggle === maxToggle ? (toggle = 0) : toggle++;
+    } else {
+      toggle === 0 ? (toggle = maxToggle) : toggle--;
     }
 
-    _dialogRef.afterClosed().subscribe({
-      next: (payload: IShiftInputState) => {
-        console.log('qqqqqqqqqqqqqqqqqqq', selectedEvents, payload);
-        this.contextMenuService.handleMultiEventAction(
-          'SHIFT_EVENTS',
-          selectedEvents,
-          payload,
-        );
-      },
-    });
+    this.monitorService.newEventTypeId.set(toggle);
   }
 }

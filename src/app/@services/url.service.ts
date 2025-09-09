@@ -1,13 +1,11 @@
-import { Injectable, signal, NgZone, inject } from '@angular/core';
+import { Injectable, signal, NgZone, inject, computed } from '@angular/core';
 import { BackgroundJsService } from './background-js.service';
 import { ICompany } from '../interfaces';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TFocusElementAction } from '../types';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class UrlService {
   private _snackBar = inject(MatSnackBar);
   backgroundJsService = inject(BackgroundJsService);
@@ -15,19 +13,28 @@ export class UrlService {
 
   tabId = signal<number | null>(null);
   url = signal<string | null>(null);
-  tenant = signal<{
-    id: string;
-    name: string;
-  } | null>(null);
+  tenant = signal<{ id: string; name: string } | null>(null);
 
   hoveredElement = signal<{
     id: string | null;
     action: 'HOVER_START' | 'HOVER_STOP';
   } | null>(null);
 
+  currentView = computed(() => {
+    const url = this.url();
+    if (!url) return;
+
+    const parts = url.split('/');
+    const logs = parts[3];
+    const id = +parts[4];
+    const timestamp = parts[5];
+
+    return { driverId: id, date: timestamp };
+  });
+
   constructor(private ngZone: NgZone) {
     console.log(
-      'UrlService: Constructor called, setting up Chrome message listener.'
+      'UrlService: Constructor called, setting up Chrome message listener.',
     );
 
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -35,7 +42,7 @@ export class UrlService {
         if (request.action === 'urlChanged') {
           console.log(
             "UrlService: Received 'urlChanged' message from background script.",
-            request?.data
+            request?.data,
           );
           this.tabId.set(request.data.tabId);
           request?.data?.url &&
@@ -53,7 +60,7 @@ export class UrlService {
                 this.tenant.set(parsedTenant.prologs);
               } else
                 console.log(
-                  'UrlService: Request data contains same tenant ID.'
+                  'UrlService: Request data contains same tenant ID.',
                 );
             } else if (request.data.tenant === null) {
               console.warn('UrlService: Tenant data received as null.');
@@ -61,7 +68,7 @@ export class UrlService {
             } else {
               console.error(
                 'UrlService: Unexpected tenant data type. Expected string or null.',
-                request.data.tenant
+                request.data.tenant,
               );
             }
           } catch (e) {
@@ -69,7 +76,7 @@ export class UrlService {
               'UrlService: Error parsing tenant data:',
               e,
               'Raw data:',
-              request.data.tenant
+              request.data.tenant,
             );
           }
         }
@@ -79,10 +86,7 @@ export class UrlService {
           //   request.data
           // );
           const { elementId, hoverAction } = request.data;
-          this.hoveredElement.set({
-            id: elementId,
-            action: hoverAction,
-          });
+          this.hoveredElement.set({ id: elementId, action: hoverAction });
           sendResponse(true);
         }
       });
@@ -95,31 +99,27 @@ export class UrlService {
       return this._snackBar.open(
         `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
         'OK',
-        {
-          duration: 3000,
-        }
+        { duration: 3000 },
       );
 
     return this.backgroundJsService
       .refreshWebApp(tabId)
       .subscribe((success) =>
-        console.log('[backgroundJsService] refresh', success)
+        console.log('[backgroundJsService] refresh', success),
       );
   };
 
   focusElement = (
     elementId: number,
     action: TFocusElementAction,
-    statusName?: string
+    statusName?: string,
   ) => {
     const tabId = this.tabId();
     if (!tabId)
       return this._snackBar.open(
         `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
         'OK',
-        {
-          duration: 3000,
-        }
+        { duration: 3000 },
       );
 
     const payload = { tabId, elementId, statusName };
@@ -130,16 +130,14 @@ export class UrlService {
   navigateChromeActiveTab = (
     url: string,
     tenant?: ICompany,
-    stayOnTab?: boolean
+    stayOnTab?: boolean,
   ) => {
     const tabId = this.tabId();
     if (!tabId)
       return this._snackBar.open(
         `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
         'OK',
-        {
-          duration: 3000,
-        }
+        { duration: 3000 },
       );
 
     const key = 'MASTER_TOOLS_PROVIDER_TENANT';

@@ -14,7 +14,9 @@
         (wheel)="onMouseWheel($event, 'hours')"
         autocomplete="off"
       />
-      <span class="label lbl-hrs">hours</span>
+      @if (!noLabel) {
+        <span class="label lbl-hrs">hours</span>
+      }
     </label>
     <span>:</span>
     <label for="minutes">
@@ -30,7 +32,9 @@
         (wheel)="onMouseWheel($event, 'minutes')"
         autocomplete="off"
       />
-      <span class="label lbl-min">minutes</span>
+      @if (!noLabel) {
+        <span class="label lbl-min">minutes</span>
+      }
     </label>
   </div>
 </div>
