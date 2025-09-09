@@ -1,4 +1,12 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { ContextMenuService } from '../../@services/context-menu.service';
@@ -9,6 +17,8 @@ import { DrivingComponent } from '../UI/driving/driving.component';
 import { OffDutyComponent } from '../UI/off-duty/off-duty.component';
 import { ResizeComponent } from '../UI/resize/resize.component';
 import { MonitorService } from '../../@services/monitor.service';
+import { ChangeComponent } from '../UI/change/change.component';
+import { PartialComponent } from '../UI/partial/partial.component';
 // import { ToOffComponent } from '../UI/to-off/to-off.component';
 // import { ToSleeperComponent } from '../UI/to-sleeper/to-sleeper.component';
 
@@ -22,6 +32,8 @@ import { MonitorService } from '../../@services/monitor.service';
     DrivingComponent,
     OffDutyComponent,
     ResizeComponent,
+    ChangeComponent,
+    PartialComponent,
   ],
   templateUrl: './context-menu.component.html',
   styleUrl: './context-menu.component.scss',

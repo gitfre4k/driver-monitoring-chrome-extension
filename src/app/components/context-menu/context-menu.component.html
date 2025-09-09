@@ -1,11 +1,6 @@
 @if (event) {
   <div class="context-menu" [style.left.px]="x" [style.top.px]="y">
     <ul>
-      <!-- vertical_align_top || change sleep to off -->
-      <!-- vertical_align_bottom || change off to sleep -->
-      <!-- case 'ChangeToSleeperBerthStatus': -->
-      <!-- case 'ChangeToOffDutyStatus':  -->
-
       @if (event.statusName !== "Driving") {
         <!-- ENGINE OFF -->
         @if (
@@ -20,6 +15,7 @@
             <app-engine style="margin-top: 1.5px"></app-engine>
             <span class="context-menu__item__name">add Engine Off</span>
           </li>
+          <hr />
         }
       } @else {
         <!-- RESIZE -->
@@ -30,16 +26,14 @@
           <app-resize></app-resize>
           <span class="context-menu__item__name">Resize</span>
         </li>
+        <hr />
       }
-
-      <hr />
 
       <!-- PARTIAL TO ON -->
       @if (
         ["Sleeper Berth", "Off Duty"].includes(event.statusName) &&
         event.realDurationInSeconds > 1800
       ) {
-        <hr />
         <li
           (click)="contextMenuService.handleAction('PARTIAL_TO_ON', event)"
           class="context-menu__item"
@@ -52,105 +46,111 @@
           >
         </li>
       }
+
+      <!-- SUBMENU -->
+      <!-- SUBMENU -->
+      <li class="context-menu__item submenu">
+        <!-- SUBMENU CHANGE STATUS -->
+        <!-- SUBMENU CHANGE STATUS -->
+        <app-change></app-change>
+        <span class="context-menu__item__name">change Status</span>
+        <!--  -->
+        <ul class="context-menu submenu">
+          @if (event.statusName !== "Off Duty") {
+            <li
+              (click)="
+                contextMenuService.handleAction('ChangeToOffDutyStatus', event)
+              "
+              class="context-menu__item"
+            >
+              <app-off-duty style="margin-top: 1.5px"></app-off-duty>
+              <span class="context-menu__item__name">Off Duty</span>
+            </li>
+          }
+          @if (event.statusName !== "Sleeper Berth") {
+            <li
+              (click)="
+                contextMenuService.handleAction(
+                  'ChangeToSleeperBerthStatus',
+                  event
+                )
+              "
+              class="context-menu__item"
+            >
+              <app-sleeper-berth style="margin-top: 1.5px"></app-sleeper-berth>
+              <span class="context-menu__item__name">Sleeper Berth</span>
+            </li>
+          }
+          @if (event.statusName !== "Driving") {
+            <li
+              (click)="
+                contextMenuService.handleAction('ChangeToDrivingStatus', event)
+              "
+              class="context-menu__item"
+            >
+              <app-driving style="margin-top: 1.5px"></app-driving>
+              <span class="context-menu__item__name">Driving</span>
+            </li>
+          }
+          @if (event.statusName !== "On Duty") {
+            <li
+              (click)="
+                contextMenuService.handleAction(
+                  'ChangeToOnDutyNotDrivingStatus',
+                  event
+                )
+              "
+              class="context-menu__item"
+            >
+              <app-on-duty style="margin-top: 1.5px"></app-on-duty>
+              <span class="context-menu__item__name">On Duty</span>
+            </li>
+          }
+        </ul>
+      </li>
       @if (
         event.statusName === "On Duty" && event.realDurationInSeconds > 1800
       ) {
-        <!--  -->
-        <!-- to Off Duty -->
-        <hr />
-        <li
-          (click)="contextMenuService.handleAction('PARTIAL_ON_TO_OFF', event)"
-          class="context-menu__item"
-        >
-          <mat-icon class="context-menu__item__icon-off"
-            >vertical_align_top</mat-icon
-          >
-          <span class="context-menu__item__name"
-            >partially transform into Off Duty</span
-          >
-        </li>
-        <!--  -->
-        <!-- to Sleeper -->
-        <li
-          (click)="
-            contextMenuService.handleAction('PARTIAL_ON_TO_SLEEP', event)
-          "
-          class="context-menu__item"
-        >
-          <mat-icon class="context-menu__item__icon-sleep"
-            >vertical_align_top
-          </mat-icon>
-          <span class="context-menu__item__name"
-            >partially transform into Sleeper Berth</span
-          >
-        </li>
-      }
-      @if (event.statusName !== "Off Duty") {
-        <li
-          (click)="
-            contextMenuService.handleAction('ChangeToOffDutyStatus', event)
-          "
-          class="context-menu__item"
-        >
-          <app-off-duty style="margin-top: 1.5px"></app-off-duty>
-          <span class="context-menu__item__name">Change to Off Duty</span>
-        </li>
-      }
-      @if (event.statusName !== "Sleeper Berth") {
-        <li
-          (click)="
-            contextMenuService.handleAction('ChangeToSleeperBerthStatus', event)
-          "
-          class="context-menu__item"
-        >
-          <app-sleeper-berth style="margin-top: 1.5px"></app-sleeper-berth>
-          <span class="context-menu__item__name">Change to Sleeper Berth</span>
+        <li class="context-menu__item submenu">
+          <!-- SUBMENU PARTIAL TRANSFORMATION -->
+          <!-- SUBMENU PARTIAL TRANSFORMATION -->
+          <app-partial></app-partial>
+          <span class="context-menu__item__name">partial transformation</span>
+          <ul class="context-menu submenu">
+            @if (
+              event.statusName === "On Duty" &&
+              event.realDurationInSeconds > 1800
+            ) {
+              <!--  -->
+              <!-- to Off Duty -->
+              <li
+                (click)="
+                  contextMenuService.handleAction('PARTIAL_ON_TO_OFF', event)
+                "
+                class="context-menu__item"
+              >
+                <mat-icon class="context-menu__item__icon-off"
+                  >vertical_align_top</mat-icon
+                >
+                <span class="context-menu__item__name">into Off Duty</span>
+              </li>
+              <!--  -->
+              <!-- to Sleeper -->
+              <li
+                (click)="
+                  contextMenuService.handleAction('PARTIAL_ON_TO_SLEEP', event)
+                "
+                class="context-menu__item"
+              >
+                <mat-icon class="context-menu__item__icon-sleep"
+                  >vertical_align_top
+                </mat-icon>
+                <span class="context-menu__item__name">into Sleeper Berth</span>
+              </li>
+            }
+          </ul>
         </li>
       }
-      @if (event.statusName !== "Driving") {
-        <li
-          (click)="
-            contextMenuService.handleAction('ChangeToDrivingStatus', event)
-          "
-          class="context-menu__item"
-        >
-          <app-driving style="margin-top: 1.5px"></app-driving>
-          <span class="context-menu__item__name">Change to Driving</span>
-        </li>
-      }
-      @if (event.statusName !== "On Duty") {
-        <li
-          (click)="
-            contextMenuService.handleAction(
-              'ChangeToOnDutyNotDrivingStatus',
-              event
-            )
-          "
-          class="context-menu__item"
-        >
-          <app-on-duty style="margin-top: 1.5px"></app-on-duty>
-          <span class="context-menu__item__name">Change to On Duty</span>
-        </li>
-      }
-      <!--  -->
-      <!--  -->
-
-      <!-- developer_board_off  -->
-
-      <!-- <li (click)="handleAction('add')" class="context-menu__item">
-      <mat-icon>add</mat-icon>
-      <span class="context-menu__item__name">add Pre-Trip Inspection</span>
-    </li>
-    <li (click)="handleAction('add')" class="context-menu__item">
-      <mat-icon>arrow_outward</mat-icon>
-      <span class="context-menu__item__name"
-        >partially transform to Sleeper Berth</span
-      >
-    </li>
-    <li (click)="handleAction('add')" class="context-menu__item">
-      <mat-icon>add</mat-icon>
-      <span class="context-menu__item__name">add Engine Off</span>
-    </li> -->
     </ul>
   </div>
 }

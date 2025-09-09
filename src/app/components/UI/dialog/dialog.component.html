@@ -25,12 +25,15 @@
     matButton="outlined"
     (click)="onShift()"
     (wheel)="onMouseWheel($event)"
+    onkeydown="''"
     [disabled]="time().length !== 5"
   >
-    @if(direction() === 'Past') {
-    <mat-icon>keyboard_double_arrow_left</mat-icon>
-    } Shift @if (direction() === 'Future') {
-    <mat-icon>keyboard_double_arrow_right</mat-icon>
+    @if (direction() === "Past") {
+      <mat-icon>keyboard_double_arrow_left</mat-icon>
+    }
+    Shift
+    @if (direction() === "Future") {
+      <mat-icon>keyboard_double_arrow_right</mat-icon>
     }
   </button>
 </div>

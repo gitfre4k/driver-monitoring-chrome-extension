@@ -43,52 +43,11 @@
     </div>
 
     <ng-template #menu>
-      <div class="tool-menu" cdkMenu>
-        <ul>
-          <!-- DRIVING ENGINES -->
-          <li
-            (click)="handleContextMenuAction('DELETE_ENGINES_IN_DRIVING')"
-            class="tool-menu__item"
-            cdkMenuItem
-            matRipple
-          >
-            <mat-icon class="tool-menu__item__icon-drv-eng"
-              >delete_outline</mat-icon
-            >
-            <span class="tool-menu__item__name"
-              >delete Engine events during Driving</span
-            >
-          </li>
-
-          <!-- ALL ENGINES -->
-          <li
-            (click)="handleContextMenuAction('DELETE_ALL_ENGINES')"
-            class="tool-menu__item"
-            cdkMenuItem
-            matRipple
-          >
-            <mat-icon class="tool-menu__item__icon-all-eng"
-              >delete_sweep</mat-icon
-            >
-            <span class="tool-menu__item__name">delete all Engine events</span>
-          </li>
-
-          @if (monitorService.selectedEvents().length) {
-            <hr />
-            <li
-              (click)="openDialog()"
-              class="tool-menu__item"
-              cdkMenuItem
-              matRipple
-            >
-              <mat-icon class="tool-menu__item__icon-all-eng"
-                >swap_horiz</mat-icon
-              >
-              <span class="tool-menu__item__name">Shift selected Events</span>
-            </li>
-          }
-        </ul>
-      </div>
+      <app-monitor-menu
+        [numOfSelectedEvents]="monitorService.selectedEvents().length"
+        (menuAction)="handleContextMenuAction($event)"
+        (shiftAction)="openDialog()"
+      ></app-monitor-menu>
     </ng-template>
 
     <app-monitor-header
@@ -112,8 +71,8 @@
             <div class="co-drivers">
               <span
                 [ngClass]="
-          event.driver.id === event.driver.viewId ? `left` : `right`
-        "
+                  event.driver.id === event.driver.viewId ? `left` : `right`
+                "
               >
                 {{ event.driver.name }}
               </span>
@@ -205,10 +164,13 @@
                     (keydown.enter)="triggerButtonClick()"
                     (keydown.esc)="cancelEventEdit()"
                     [ngClass]="
-              'status ' +
-              event.dutyStatus  + ' input' +
-               ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '')
-            "
+                      'status ' +
+                      event.dutyStatus +
+                      ' input' +
+                      (event.notes && getNoSpaceNote(event.notes)
+                        ? ` status-note`
+                        : '')
+                    "
                     type="text"
                     tabindex="0"
                   />
@@ -216,10 +178,12 @@
                   <span
                     (dblclick)="handleDoubleClick(event)"
                     [ngClass]="
-              'status ' +
-              event.dutyStatus +
-               ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '')
-            "
+                      'status ' +
+                      event.dutyStatus +
+                      (event.notes && getNoSpaceNote(event.notes)
+                        ? ` status-note`
+                        : '')
+                    "
                   >
                     @if (event.statusName === "Driving" && event.averageSpeed) {
                       <span style="font-size: 12px">
@@ -275,10 +239,12 @@
                 <span
                   (dblclick)="handleDoubleClick(event)"
                   [ngClass]="
-              'status ' +
-              event.dutyStatus +
-               ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '')
-            "
+                    'status ' +
+                    event.dutyStatus +
+                    (event.notes && getNoSpaceNote(event.notes)
+                      ? ` status-note`
+                      : '')
+                  "
                 >
                   @if (event.statusName === "Driving" && event.averageSpeed) {
                     <span style="font-size: 12px">
@@ -334,10 +300,12 @@
                   (dblclick)="handleDoubleClick(event)"
                   tabindex="0"
                   [ngClass]="
-              'status ' +
-              event.dutyStatus +
-               ((event.notes && getNoSpaceNote(event.notes)) ? ` status-note` : '')
-            "
+                    'status ' +
+                    event.dutyStatus +
+                    (event.notes && getNoSpaceNote(event.notes)
+                      ? ` status-note`
+                      : '')
+                  "
                 >
                   @if (event.statusName === "Driving" && event.averageSpeed) {
                     <span style="font-size: 12px">
@@ -449,7 +417,6 @@
             >
               <div class="slider">
                 <div class="mph">
-                  <span></span>
                   <span class="mph__col">0</span>
                   <span class="mph__col">10</span>
                   <span class="mph__col">20</span>
@@ -461,7 +428,6 @@
                   <span class="mph__col">80</span>
                   <span class="mph__col">90</span>
                   <span class="mph__col">100</span>
-                  <span></span>
                 </div>
                 <mat-slider
                   [min]="0"

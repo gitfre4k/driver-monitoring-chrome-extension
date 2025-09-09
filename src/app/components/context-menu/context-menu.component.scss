@@ -48,3 +48,28 @@
 .context-menu li:hover {
   background-color: rgb(63, 63, 68);
 }
+
+.context-menu__item.submenu {
+  position: relative;
+}
+
+.context-menu.submenu {
+  position: absolute;
+  left: 90%;
+  right: 0;
+  z-index: 100;
+  width: 100%;
+  top: 0;
+  flex-direction: column;
+  &:hover {
+    display: flex;
+  }
+}
+
+.context-menu__item.submenu .context-menu.submenu {
+  display: none;
+}
+
+.context-menu__item.submenu:hover .context-menu.submenu {
+  display: flex;
+}

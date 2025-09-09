@@ -6,7 +6,6 @@ import {
   inject,
   ViewChild,
 } from '@angular/core';
-
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -16,6 +15,12 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialog } from '@angular/material/dialog';
+
+import { Duration } from 'luxon';
 
 import { AppService } from '../../@services/app.service';
 import { ContextMenuService } from '../../@services/context-menu.service';
@@ -27,18 +32,15 @@ import { getStatusDuration } from '../../helpers/app.helpers';
 import { ContextMenuComponent } from '../context-menu/context-menu.component';
 import { CancelComponent } from '../UI/cancel/cancel.component';
 import { SaveComponent } from '../UI/save/save.component';
-
-import { MatSliderModule } from '@angular/material/slider';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Duration } from 'luxon';
-import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
-import { DurationPipe } from '../../pipes/duration.pipe';
-import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatDialog } from '@angular/material/dialog';
+import { MonitorMenuComponent } from './monitor-menu/monitor-menu.component';
 import { DialogComponent } from '../UI/dialog/dialog.component';
+
+import { DurationPipe } from '../../pipes/duration.pipe';
+
+import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { IShiftInputState } from '../../interfaces/api.interface';
+import { TContextMenuAction, TFocusElementAction } from '../../types';
 
 @Component({
   selector: 'app-monitor',
@@ -59,6 +61,7 @@ import { IShiftInputState } from '../../interfaces/api.interface';
     MatSliderModule,
     MonitorHeaderComponent,
     MatBadgeModule,
+    MonitorMenuComponent,
   ],
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
@@ -259,9 +262,7 @@ export class MonitorComponent {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
         'OK',
-        {
-          duration: 3000,
-        },
+        { duration: 3000 },
       );
       return this.refresh();
     }
@@ -290,9 +291,7 @@ export class MonitorComponent {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
         'OK',
-        {
-          duration: 3000,
-        },
+        { duration: 3000 },
       );
       return this.refresh();
     }
@@ -305,9 +304,7 @@ export class MonitorComponent {
       this._snackBar.open(
         `[Monitor Component] error: invalid odometer value`,
         'OK',
-        {
-          duration: 3000,
-        },
+        { duration: 3000 },
       );
     }
     this.currentEditEvent.set(null);
@@ -372,9 +369,7 @@ export class MonitorComponent {
       this._snackBar.open(
         `Shift operation failed. \n[selectedEvents] ${selectedEvents}`,
         'OK',
-        {
-          duration: 7000,
-        },
+        { duration: 7000 },
       );
       return;
     }
