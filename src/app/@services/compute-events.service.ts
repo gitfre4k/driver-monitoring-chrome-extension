@@ -54,7 +54,7 @@ export class ComputeEventsService {
     tenant?: ITenant,
     ptiDuration?: number,
     prolongedOnDutiesDuration?: number,
-    sleeperMinDuration?: number
+    sleeperMinDuration?: number,
   ) => {
     if (!driverDailyLog) return [];
 
@@ -108,12 +108,12 @@ export class ComputeEventsService {
             id: coDriverDailyLog.driverId,
             viewId: driverDailyLog.driverId,
             name: coDriverDailyLog.driverFullName,
-          })
+          }),
       );
       events = [...driverEvents, ...coDriverEvents].sort(
         (a, b) =>
           new Date(a.realStartTime).getTime() -
-          new Date(b.realStartTime).getTime()
+          new Date(b.realStartTime).getTime(),
       );
     } else events = [...driverEvents];
 
@@ -134,7 +134,7 @@ export class ComputeEventsService {
       prolongedOnDutiesDuration,
       sleeperMinDuration,
       driverDailyLog.date,
-      tenant
+      tenant,
     );
     events = this.detectAndBindTeleport(events);
 
@@ -185,7 +185,7 @@ export class ComputeEventsService {
     return events.sort(
       (a, b) =>
         new Date(a.realStartTime).getTime() -
-        new Date(b.realStartTime).getTime()
+        new Date(b.realStartTime).getTime(),
     );
   };
 
@@ -195,7 +195,7 @@ export class ComputeEventsService {
     prolongedOnDutiesDuration?: number,
     sleeperMinDuration?: number,
     date?: string,
-    tenant?: ITenant
+    tenant?: ITenant,
   ) => {
     let events = [...importedEvents];
     let currentDriver = {} as IDriverIdAndName;
@@ -248,7 +248,7 @@ export class ComputeEventsService {
           '[origin: Auto]' +
             (currentDutyStatus.statusName
               ? ' after ' + currentDutyStatus.statusName
-              : '')
+              : ''),
         );
 
       ///////////////
@@ -256,10 +256,10 @@ export class ComputeEventsService {
       const marker10Hours = new Date(shift).getTime();
       const marker34Hours = new Date(cycle).getTime();
       const eventStartTime = new Date(
-        events[i].realStartTime ? events[i].realStartTime : events[i].startTime
+        events[i].realStartTime ? events[i].realStartTime : events[i].startTime,
       ).getTime();
       const eventEndTime = new Date(
-        events[i].realEndTime ? events[i].realEndTime : events[i].endTime
+        events[i].realEndTime ? events[i].realEndTime : events[i].endTime,
       ).getTime();
       /////////////////////////////// 10h break ///////////////////////////////
       if (['Sleeper Berth', 'Off Duty'].includes(events[i].statusName)) {
@@ -272,7 +272,10 @@ export class ComputeEventsService {
       if (['Sleeper Berth', 'Off Duty'].includes(events[i].statusName)) {
         getStatusDuration(events[i]) / 60 / 60 > 34 && (events[i].break = 34);
       }
-      if (marker34Hours > eventStartTime && marker34Hours < eventEndTime) {
+      if (
+        (marker34Hours > eventStartTime && marker34Hours < eventEndTime) ||
+        events[i].isFirstEvent
+      ) {
         events[i].break = 34;
       }
 
@@ -307,7 +310,7 @@ export class ComputeEventsService {
         new Date(
           events[i].realStartTime
             ? events[i].realStartTime
-            : events[i].startTime
+            : events[i].startTime,
         ).getTime(); // miliseconds
       if (
         (timeSinceShiftResetOccured > timeSinceEventOccured ||
@@ -341,7 +344,7 @@ export class ComputeEventsService {
             events[wannabePTIonDutyId].pti =
               901 - events[wannabePTIonDutyId].realDurationInSeconds;
             events[wannabePTIonDutyId].errorMessages.push(
-              'short Pre-Trip Inspection'
+              'short Pre-Trip Inspection',
             );
           } else {
             events[i].pti = 0;
@@ -457,7 +460,7 @@ export class ComputeEventsService {
             Math.floor((currentDriving.durationInSeconds - 1) / 3600) !== // -1sec
               intermediateCount &&
               events[currentDriving.computeIndex].errorMessages.push(
-                'incorrect intermediate count'
+                'incorrect intermediate count',
               );
           }
 
@@ -468,18 +471,18 @@ export class ComputeEventsService {
             currentDriving.realStartTime !== currentDriving.startTime
           ) {
             let totalIntermediateCount = Math.floor(
-              (currentDriving.realDurationInSeconds - 1) / 3600 // -1sec
+              (currentDriving.realDurationInSeconds - 1) / 3600, // -1sec
             );
             let previousDayIntermediateCount = Math.floor(
               (currentDriving.realDurationInSeconds -
                 currentDriving.durationInSeconds) /
-                3600
+                3600,
             );
 
             totalIntermediateCount - previousDayIntermediateCount !==
               intermediateCount &&
               events[currentDriving.computeIndex].errorMessages.push(
-                'incorrect intermediate count'
+                'incorrect intermediate count',
               );
           }
 
@@ -497,13 +500,13 @@ export class ComputeEventsService {
             const totalIntermediateCount = Math.floor(durationInSeconds / 3600);
 
             const previousDayIntermediateCount = Math.floor(
-              (durationInSeconds - currentDriving.durationInSeconds) / 3600
+              (durationInSeconds - currentDriving.durationInSeconds) / 3600,
             );
 
             totalIntermediateCount - previousDayIntermediateCount !==
               intermediateCount &&
               events[currentDriving.computeIndex].errorMessages.push(
-                'incorrect intermediate count'
+                'incorrect intermediate count',
               );
           }
 
@@ -518,7 +521,7 @@ export class ComputeEventsService {
             ).toFixed(2);
             speed > this.speeding() &&
               events[arr[index + 1].computeIndex].errorMessages.push(
-                `speeding [${speed} mph]`
+                `speeding [${speed} mph]`,
               );
           }
           // last inter to sleep/off
@@ -570,7 +573,7 @@ export class ComputeEventsService {
       }
 
       if (i === events.length - 1 && this.refuelMarker()) {
-        events[currentDutyStatus.viewId].refuel = true;
+        events[currentDutyStatus.computeIndex].refuel = true;
         this.refuelMarker.set(null);
       }
 
@@ -637,7 +640,7 @@ export class ComputeEventsService {
         //pcYm => pc
         this.locationMismatch(
           ev1.locationDisplayName,
-          ev2.locationDisplayName
+          ev2.locationDisplayName,
         ) && (ev2.locationMismatch = true);
     }
     return 0;

@@ -22,7 +22,7 @@ input {
   height: 44px;
   border: none;
   box-sizing: border-box;
-  padding: auto 15px;
+  padding: auto;
   text-align: center;
   color: rgb(229, 225, 230);
   background-color: rgb(70, 70, 79);
@@ -36,9 +36,9 @@ label {
 }
 
 .label {
-  font-size: 0.55rem;
+  font-size: 0.5rem;
   position: absolute;
-  top: 1px;
+  top: 0;
   color: light-dark(#343dff, #bec2ff);
 }
 
@@ -58,7 +58,7 @@ input::-webkit-inner-spin-button {
 
 #time_input,
 input {
-  border-radius: 8px;
+  border-radius: 4px;
   font-size: 22px;
 }
 

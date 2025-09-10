@@ -7,14 +7,12 @@
         formControlName="hours"
         #hoursInput
         (focus)="hoursInput.select()"
-        min="00"
-        max="99"
         maxLength="2"
         minlength="2"
         (wheel)="onMouseWheel($event, 'hours')"
         autocomplete="off"
       />
-      @if (!noLabel) {
+      @if (!noLabel()) {
         <span class="label lbl-hrs">hours</span>
       }
     </label>
@@ -25,14 +23,13 @@
         id="minutes"
         formControlName="minutes"
         #minutesInput
-        min="00"
-        max="59"
+        (focus)="minutesInput.select()"
         maxLength="2"
         minlength="2"
         (wheel)="onMouseWheel($event, 'minutes')"
         autocomplete="off"
       />
-      @if (!noLabel) {
+      @if (!noLabel()) {
         <span class="label lbl-min">minutes</span>
       }
     </label>

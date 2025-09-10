@@ -41,14 +41,8 @@ export class TimeInputComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.timeForm = this.fb.group({
-      hours: [
-        this.hh() ?? '',
-        [Validators.required, Validators.min(0o0), Validators.max(99)],
-      ],
-      minutes: [
-        this.mm() ?? '',
-        [Validators.required, Validators.min(0o0), Validators.max(59)],
-      ],
+      hours: [this.hh() ?? '00', [Validators.required]],
+      minutes: [this.mm() ?? '00', [Validators.required]],
     });
 
     this.formSubscriptions.add(
