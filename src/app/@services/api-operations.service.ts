@@ -344,4 +344,34 @@ export class ApiOperationsService {
       }),
     );
   }
+
+  duplicateEvent = (
+    tenant: ITenant,
+    event: IEvent,
+    payload: Partial<IEventDetails>,
+  ) => {
+    const url = 'https://app.monitoringdriver.api/api/Logs/CreateEvent';
+
+    const getStartTime = (date: string) =>
+      DateTime.fromISO(date)
+        .plus({ seconds: this.getRandom(1, 60) })
+        .plus({ millisecond: this.getRandom(1, 1000) })
+        .toUTC()
+        .toISO() as string;
+
+    return this.getEvent(tenant, event.id).pipe(
+      switchMap((eventDetails) => {
+        const body = { ...eventDetails, ...payload };
+        body.startTime = getStartTime(body.startTime);
+
+        return this.http.post<IEventDetails>(url, body, {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        });
+      }),
+    );
+  };
 }

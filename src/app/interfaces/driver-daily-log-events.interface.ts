@@ -57,6 +57,7 @@ export interface IEvent {
   break: number;
   nextDutyStatusInfo: IStatusInfo;
   intermediatesInfo: IStatusInfo[];
+  custom: boolean;
 }
 
 export interface IStatusInfo {

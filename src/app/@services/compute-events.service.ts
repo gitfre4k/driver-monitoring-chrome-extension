@@ -204,6 +204,7 @@ export class ComputeEventsService {
     ////////////////////
     // compute events
     for (let i = 0; i < events.length; i++) {
+      // if (events[i].custom) continue;
       let {
         currentDriving,
         currentDrivingIntermediates,

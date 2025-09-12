@@ -12,6 +12,7 @@ import { tap } from 'rxjs';
 import { AppService } from './app.service';
 import { IParsedErrorInfo } from '../interfaces/api.interface';
 import { TEventTypeCode } from '../types';
+import { DateTime } from 'luxon';
 
 @Injectable({ providedIn: 'root' })
 export class MonitorService {
@@ -28,9 +29,11 @@ export class MonitorService {
 
   selectedEvents = signal<IEvent[]>([]);
 
+  duplicateEvent = signal(false);
   isUpdatingEvent = signal(false);
   showUpdateEvent = signal<number | null>(null);
   currentEditEvent = signal<null | IEvent>(null);
+  createNewEvent = signal(false);
   newNote = signal('');
   newOdometer = signal(0);
   newEventTypeId = signal(0);
@@ -150,6 +153,42 @@ export class MonitorService {
           coDriverDailyLog,
         }),
       );
+  }
+
+  createDuplicatedEvent(event: IEvent) {
+    this.duplicateEvent.set(true);
+    this.selectedEvents.set([]);
+    this.currentResizeDriving.set(null);
+    this.showResize.set(null);
+    this.newResizeSpeed.set(0);
+
+    const tempEvent = { ...event };
+
+    this.computedDailyLogEvents.update((prev) => {
+      const newEvents = [...(prev as IEvent[])];
+      newEvents.splice(event.computeIndex, 1, tempEvent);
+
+      return [...newEvents];
+    });
+
+    this.newEventTypeId.set(
+      this.eventTypes.findIndex((type) => type === tempEvent.dutyStatus),
+    );
+    this.newNote.set('');
+    if (
+      [
+        'ChangeToOffDutyStatus',
+        'ChangeToSleeperBerthStatus',
+        'ChangeToOnDutyNotDrivingStatus',
+      ].includes(tempEvent.dutyStatus)
+    ) {
+      this.newNote.set(tempEvent.notes);
+    }
+
+    this.newOdometer.set(tempEvent.odometer);
+
+    this.currentEditEvent.set(tempEvent);
+    this.showUpdateEvent.set(tempEvent.id);
   }
 
   showResizeForm(event: IEvent) {

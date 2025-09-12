@@ -21,4 +21,11 @@ export class ContextMenuComponent {
 
   contextMenuService = inject(ContextMenuService);
   monitorService = inject(MonitorService);
+
+  duplicateEvent() {
+    const dupEvent = this.event();
+    if (!dupEvent) return;
+
+    this.monitorService.createDuplicatedEvent(dupEvent);
+  }
 }

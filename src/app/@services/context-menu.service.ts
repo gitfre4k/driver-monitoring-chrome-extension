@@ -310,6 +310,30 @@ export class ContextMenuService {
           });
       }
 
+      case 'DUPLICATE': {
+        if (!event) return;
+        return this.apiOperationsService
+          .duplicateEvent(tenant, event, payload as Partial<IEventDetails>)
+          .subscribe({
+            error: (err) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+                duration: 7000,
+              });
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(
+                `operation Duplicate Event successful`,
+                'OK',
+                { duration: 3000 },
+              );
+            },
+          });
+      }
+
       case 'PARTIAL_TO_ON': {
         if (!event) return;
 

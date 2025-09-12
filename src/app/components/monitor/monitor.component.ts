@@ -341,11 +341,19 @@ export class MonitorComponent {
     }
 
     this.currentEditEvent.set(null);
-    this.contextMenuService.handleAction('UPDATE_EVENT', event, {
-      totalVehicleMiles,
-      note,
-      eventTypeCode,
-    });
+
+    if (this.monitorService.duplicateEvent()) {
+      this.contextMenuService.handleAction('DUPLICATE', event, {
+        totalVehicleMiles,
+        note,
+        eventTypeCode,
+      });
+    } else
+      this.contextMenuService.handleAction('UPDATE_EVENT', event, {
+        totalVehicleMiles,
+        note,
+        eventTypeCode,
+      });
   }
 
   triggerButtonClick(): void {
