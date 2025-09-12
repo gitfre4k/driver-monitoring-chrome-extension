@@ -35,14 +35,11 @@ import { CancelComponent } from '../UI/cancel/cancel.component';
 import { SaveComponent } from '../UI/save/save.component';
 import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
 import { MonitorMenuComponent } from './monitor-menu/monitor-menu.component';
-import { DialogComponent } from '../UI/dialog/dialog.component';
 
 import { DurationPipe } from '../../pipes/duration.pipe';
 
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
-import { IShiftInputState } from '../../interfaces/api.interface';
 import { TContextMenuAction, TFocusElementAction } from '../../types';
-import { DialogConfirmComponent } from '../UI/dialog-confirm/dialog-confirm.component';
 import { TimeInputComponent } from '../UI/clock/time-input.component';
 import { getHoursAndMinutes } from '../../helpers/monitor.helpers';
 
@@ -357,9 +354,39 @@ export class MonitorComponent {
 
   onWheel(event: WheelEvent) {
     event.preventDefault();
-    if (this.isResizingEvent()) return;
-    const delta = event.deltaY > 0 ? -0.06 : 0.07;
-    const newSliderValue = this.newResizeSpeed() + delta;
+    const isResizingEvent = this.isResizingEvent();
+    const newResizeSpeed = this.newResizeSpeed();
+
+    if (isResizingEvent) return;
+
+    let constDown = -0.06;
+    let constUp = 0.07;
+
+    if (newResizeSpeed < 70) {
+      constDown = -0.19;
+      constUp = 0.22;
+    }
+    if (newResizeSpeed < 66) {
+      constDown = -0.25;
+      constUp = 0.28;
+    }
+    if (newResizeSpeed < 64) {
+      constDown = -0.44;
+      constUp = 0.49;
+    }
+    if (newResizeSpeed < 62) {
+      constDown = -0.76;
+      constUp = 0.77;
+    }
+    if (newResizeSpeed < 50) {
+      constDown = -1.66;
+      constUp = 1.77;
+    }
+
+    const delta = event.deltaY > 0 ? constDown : constUp;
+    let newSliderValue = newResizeSpeed + delta;
+    if (newSliderValue < 0.01) newSliderValue = 0.01;
+    if (newSliderValue > 99.99) newSliderValue = 99.99;
 
     this.newResizeSpeed.set(newSliderValue);
   }

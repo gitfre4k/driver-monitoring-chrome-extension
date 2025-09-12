@@ -553,8 +553,11 @@ export class ComputeEventsService {
             intermediatesInfo;
         }
 
-        occurredDuringDriving = false;
-        events[i].occurredDuringDriving = false;
+        if (!(i === events.length - 1 && currentDriving)) {
+          occurredDuringDriving = false;
+          events[i].occurredDuringDriving = false;
+        }
+
         currentDriving = null;
         intermediateCount = 0;
         currentDrivingIntermediates = [];
