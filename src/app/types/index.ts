@@ -92,3 +92,5 @@ export type TEventTypeCode =
   | 'DriversDeCertificationOfRecords'
   | 'VehicleStartOfDay'
   | 'Dvir';
+
+export type TInputTime = 'hours' | 'minutes' | 'seconds' | 'period';

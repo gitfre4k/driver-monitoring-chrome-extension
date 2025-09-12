@@ -181,7 +181,7 @@
           .status {
             font-size: 11px;
             margin: 1px 5px;
-            padding: 3px;
+            padding: 4px 3px;
             border-radius: 12px;
             width: 85px;
             text-align: center;
@@ -212,6 +212,7 @@
             justify-self: start;
             line-height: 10px;
             &.edit {
+              grid-column: 1 / -1;
               display: flex;
               justify-content: flex-start;
               align-items: center;
@@ -224,6 +225,10 @@
           .on-hover {
             display: none;
           }
+        }
+
+        .event .note.edit:host {
+          grid-template-columns: 30px 58px 100px auto;
         }
 
         .slider {

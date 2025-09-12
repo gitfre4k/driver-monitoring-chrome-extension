@@ -6,11 +6,9 @@ import { DateTime } from 'luxon';
 
 import {
   IViolations,
-  IRange,
   IDOTInspections,
   ITenant,
   ILog,
-  IEventDetails,
   IISODateRange,
 } from '../interfaces';
 import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
@@ -109,8 +107,8 @@ export class ApiService {
             'X-Tenant-Id': `${tenant.id}`,
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
-        }
-      )
+        },
+      ),
     );
   }
 
@@ -119,18 +117,17 @@ export class ApiService {
   getAccessibleTenants() {
     return from(
       this.http
-        .get<ITenant[]>(
-          'https://app.monitoringdriver.com/api/Tenant/GetAccessibleTenants',
-          { withCredentials: true }
-        )
+        .get<
+          ITenant[]
+        >('https://app.monitoringdriver.com/api/Tenant/GetAccessibleTenants', { withCredentials: true })
         .pipe(
           tap(
             (tenants) =>
               !tenants.find(
-                (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
-              ) && window.close()
-          )
-        )
+                (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+              ) && window.close(),
+          ),
+        ),
     );
   }
 
@@ -138,7 +135,7 @@ export class ApiService {
   // get DOT Inspections
   getDOTInspectionList(
     tenant: ITenant,
-    range: IISODateRange
+    range: IISODateRange,
   ): Observable<IDOTInspections> {
     console.log(JSON.stringify(this.filterRule(range)));
     return from(
@@ -160,8 +157,8 @@ export class ApiService {
             'X-Tenant-Id': `${tenant.id}`,
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
-        }
-      )
+        },
+      ),
     );
   }
 
@@ -169,7 +166,7 @@ export class ApiService {
   // get Violations
   getViolations(
     tenant: ITenant,
-    range: IISODateRange
+    range: IISODateRange,
   ): Observable<IViolations> {
     return from(
       this.http.post<IViolations>(
@@ -187,8 +184,8 @@ export class ApiService {
             'x-client-timezone': `${DateTime.local().zoneName}`,
             'X-Tenant-Id': `${tenant.id}`,
           },
-        }
-      )
+        },
+      ),
     );
   }
 
@@ -209,7 +206,7 @@ export class ApiService {
           'x-client-timezone': `${DateTime.local().zoneName}`,
           'X-Tenant-Id': `${tenantId}`,
         },
-      }
+      },
     );
   }
 

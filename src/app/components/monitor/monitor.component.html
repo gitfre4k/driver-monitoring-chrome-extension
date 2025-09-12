@@ -319,110 +319,101 @@
                 </span>
               }
 
-              <span class="duration">
-                @if (
-                  currentResizeDriving()?.id === event.id &&
-                    newResizeDuration();
-                  as newResizeDuration
-                ) {
-                  {{ newResizeDuration | duration }}
-                } @else {
-                  {{ getStatusDuration(event) | duration }}
-                }
-              </span>
               <!-- ~ -->
               @if (currentEditEvent()?.id === event.id) {
                 <span class="note edit">
                   <div class="note__clock">
-                    <app-time-input
-                      [noLabel]="true"
-                      [hh]="
-                        getHoursAndMinutes(
-                          event.realStartTime,
-                          ddle.homeTerminalTimeZone
-                        ).hh
-                      "
-                      [mm]="
-                        getHoursAndMinutes(
-                          event.realStartTime,
-                          ddle.homeTerminalTimeZone
-                        ).mm
-                      "
-                    ></app-time-input>
-                  </div>
-                  <div
-                    class="note__direction"
-                    (wheel)="onEditDirection($event)"
-                  >
-                    @if (directionForward()) {
-                      AM
-                    } @else {
-                      PM
+                    @if (
+                      getHoursAndMinutes(
+                        event.realStartTime,
+                        ddle.homeTerminalTimeZone
+                      );
+                      as clockInfo
+                    ) {
+                      <app-time-input
+                        [fullClock]="true"
+                        [hh]="clockInfo.hh"
+                        [mm]="clockInfo.mm"
+                        [ss]="clockInfo.ss"
+                        [period]="clockInfo.period"
+                      ></app-time-input>
                     }
                   </div>
                 </span>
               } @else {
-                @if (
-                  event.isTeleport ||
+                <span class="duration">
+                  @if (
+                    currentResizeDriving()?.id === event.id &&
+                      newResizeDuration();
+                    as newResizeDuration
+                  ) {
+                    {{ newResizeDuration | duration }}
+                  } @else {
+                    {{ getStatusDuration(event) | duration }}
+                  }
+                </span>
+              }
+              @if (
+                !(currentEditEvent()?.id === event.id) &&
+                (event.isTeleport ||
                   (event.errorMessages && event.errorMessages.length > 0) ||
                   event.manualDriving ||
                   event.refuel ||
-                  event.locationMismatch
-                ) {
-                  <span class="note" style="color: red">
-                    <!-- [teleport] message-->
-                    {{
-                      event.isTeleport
-                        ? event.isTeleport > 0
-                          ? "teleport [ " + event.isTeleport + " miles ]"
-                          : "odometer decreased"
-                        : ""
-                    }}
-                    @if (event.locationMismatch) {
-                      @if (event.isTeleport) {
-                        <br />
-                      }
-                      location mismatch
+                  event.locationMismatch)
+              ) {
+                <span class="note" style="color: red">
+                  <!-- [teleport] message-->
+                  {{
+                    event.isTeleport
+                      ? event.isTeleport > 0
+                        ? "teleport [ " + event.isTeleport + " miles ]"
+                        : "odometer decreased"
+                      : ""
+                  }}
+                  @if (event.locationMismatch) {
+                    @if (event.isTeleport) {
+                      <br />
                     }
+                    location mismatch
+                  }
+                  @if (
+                    (event.isTeleport || event.locationMismatch) &&
+                    event.errorMessages &&
+                    event.errorMessages.length > 0
+                  ) {
+                    <br />
+                  }
+                  <!-- [eventErrors] message-->
+                  {{
+                    event.errorMessages && event.errorMessages.length > 0
+                      ? event.errorMessages[0]
+                      : ""
+                  }}
+                  <!-- warnings -->
+                  @if (event.refuel) {
                     @if (
-                      (event.isTeleport || event.locationMismatch) &&
-                      event.errorMessages &&
-                      event.errorMessages.length > 0
+                      event.isTeleport ||
+                      event.locationMismatch ||
+                      (event.errorMessages && event.errorMessages.length > 0)
                     ) {
                       <br />
                     }
-                    <!-- [eventErrors] message-->
-                    {{
-                      event.errorMessages && event.errorMessages.length > 0
-                        ? event.errorMessages[0]
-                        : ""
-                    }}
-                    <!-- warnings -->
-                    @if (event.refuel) {
-                      @if (
-                        event.isTeleport ||
-                        event.locationMismatch ||
-                        (event.errorMessages && event.errorMessages.length > 0)
-                      ) {
-                        <br />
-                      }
-                      <span class="note" style="color: yellow"
-                        >potential unrecorded driving</span
-                      >
+                    <span class="note" style="color: yellow"
+                      >potential unrecorded driving</span
+                    >
+                  }
+                  @if (event.manualDriving) {
+                    @if (
+                      event.isTeleport ||
+                      (event.errorMessages && event.errorMessages.length > 0)
+                    ) {
+                      <br />
                     }
-                    @if (event.manualDriving) {
-                      @if (
-                        event.isTeleport ||
-                        (event.errorMessages && event.errorMessages.length > 0)
-                      ) {
-                        <br />
-                      }
-                      <span class="note" style="color: yellow">
-                        manual origin
-                      </span>
-                    }
-                  </span>
-                }
+                    <span class="note" style="color: yellow">
+                      manual origin
+                    </span>
+                  }
+                </span>
               }
             </div>
           </li>

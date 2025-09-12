@@ -38,5 +38,8 @@ export const formatTenantName = (tenant: string) => {
 export const getHoursAndMinutes = (date: string, zone: string) => {
   const hh = DateTime.fromISO(date).setZone(zone).toFormat('hh');
   const mm = DateTime.fromISO(date).setZone(zone).toFormat('mm');
-  return { hh, mm };
+  const ss = DateTime.fromISO(date).setZone(zone).toFormat('ss');
+  const period: 'AM' | 'PM' =
+    +DateTime.fromISO(date).setZone(zone).toFormat('HH') >= 12 ? 'PM' : 'AM';
+  return { hh, mm, ss, period };
 };

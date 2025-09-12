@@ -114,7 +114,6 @@ export class MonitorComponent {
   newStatusName = computed(() => {
     return getStatusName(this.monitorService.newEventType());
   });
-  directionForward = signal(true);
 
   showResize = this.monitorService.showResize;
   isResizingEvent = this.monitorService.isResizingEvent;
@@ -432,11 +431,6 @@ export class MonitorComponent {
         break;
     }
     return breakShift + driver;
-  }
-
-  onEditDirection(wheelEvent: WheelEvent) {
-    wheelEvent.preventDefault();
-    this.directionForward.update((prev) => !prev);
   }
 
   onEditStatusWheel(wheelEvent: WheelEvent) {

@@ -350,7 +350,7 @@ export class ApiOperationsService {
     event: IEvent,
     payload: Partial<IEventDetails>,
   ) => {
-    const url = 'https://app.monitoringdriver.api/api/Logs/CreateEvent';
+    const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
 
     const getStartTime = (date: string) =>
       DateTime.fromISO(date)
@@ -361,7 +361,9 @@ export class ApiOperationsService {
 
     return this.getEvent(tenant, event.id).pipe(
       switchMap((eventDetails) => {
-        const body = { ...eventDetails, ...payload };
+        const { id, eventUuid, ...data } = eventDetails;
+        const body = { ...data, ...payload };
+        // const body = { ...eventDetails, ...payload };
         body.startTime = getStartTime(body.startTime);
 
         return this.http.post<IEventDetails>(url, body, {

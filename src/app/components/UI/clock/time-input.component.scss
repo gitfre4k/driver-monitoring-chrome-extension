@@ -4,9 +4,11 @@
 }
 
 #time_wrapper {
-  width: fit-content;
+  width: 200px;
   margin: 0;
   transform: scale(1.4);
+  display: flex;
+  justify-content: space-between;
 }
 
 #time_input {
@@ -60,20 +62,4 @@ input::-webkit-inner-spin-button {
 input {
   border-radius: 4px;
   font-size: 22px;
-}
-
-input:focus {
-  outline: 3px solid var(--active);
-}
-
-input:focus + .label {
-  color: var(--active);
-}
-
-input.invalid:focus {
-  outline: 3px solid red;
-}
-
-input.invalid:focus + .label {
-  color: red;
 }

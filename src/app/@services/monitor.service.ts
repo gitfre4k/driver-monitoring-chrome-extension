@@ -163,11 +163,11 @@ export class MonitorService {
     this.newResizeSpeed.set(0);
 
     const tempEvent = { ...event };
+    event.id = 0;
 
     this.computedDailyLogEvents.update((prev) => {
       const newEvents = [...(prev as IEvent[])];
-      newEvents.splice(event.computeIndex, 1, tempEvent);
-
+      newEvents.splice(event.computeIndex + 1, 0, tempEvent);
       return [...newEvents];
     });
 
