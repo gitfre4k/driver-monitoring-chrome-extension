@@ -18,14 +18,14 @@ async function getMasterToolsProviderTenant(tabId) {
       return results[0].result;
     } else {
       console.warn(
-        ` >> [background.js] MASTER_TOOLS_PROVIDER_TENANT not found in localStorage for tab ${tabId}.`
+        ` >> [background.js] MASTER_TOOLS_PROVIDER_TENANT not found in localStorage for tab ${tabId}.`,
       );
       return null;
     }
   } catch (error) {
     console.error(
       ` >> [background.js] Error getting MASTER_TOOLS_PROVIDER_TENANT for tab ${tabId}:`,
-      error
+      error,
     );
     return null;
   }
@@ -43,15 +43,15 @@ function sendMessageToContentScript(tabId, url, tenantData) {
       if (chrome.runtime.lastError) {
         console.error(
           ">> [background.js] Error sending message to content script:",
-          chrome.runtime.lastError.message
+          chrome.runtime.lastError.message,
         );
       } else {
         console.log(
           ">> [background.js] Message sent successfully. Response from content script:",
-          response
+          response,
         );
       }
-    }
+    },
   );
 }
 
@@ -67,13 +67,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     changeInfo.url.startsWith("https://app.monitoringdriver.com/")
   ) {
     console.log(`>> [background.js] URL changed to: ${changeInfo.url}`);
-    const MASTER_TOOLS_PROVIDER_TENANT = await getMasterToolsProviderTenant(
-      tabId
-    );
+    const MASTER_TOOLS_PROVIDER_TENANT =
+      await getMasterToolsProviderTenant(tabId);
     sendMessageToContentScript(
       tabId,
       changeInfo.url,
-      MASTER_TOOLS_PROVIDER_TENANT
+      MASTER_TOOLS_PROVIDER_TENANT,
     );
   }
 });
@@ -89,12 +88,12 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
     if (tab.url && tab.url.startsWith("https://app.monitoringdriver.com/")) {
       console.log(`>> [background.js] Tab activated: ${tab.url}`);
       const MASTER_TOOLS_PROVIDER_TENANT = await getMasterToolsProviderTenant(
-        activeInfo.tabId
+        activeInfo.tabId,
       );
       sendMessageToContentScript(
         activeInfo.tabId,
         tab.url,
-        MASTER_TOOLS_PROVIDER_TENANT
+        MASTER_TOOLS_PROVIDER_TENANT,
       );
     }
   });
@@ -107,7 +106,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (tabId === undefined || key === undefined || value === undefined) {
       console.error(
         ">> [background.js] Invalid payload for updateLocalStorage:",
-        message.payload
+        message.payload,
       );
       sendResponse({ success: false, error: "Missing tabId, key, or value" });
       return true;
@@ -117,7 +116,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (chrome.runtime.lastError) {
         console.error(
           ">> [background.js] Error getting tab:",
-          chrome.runtime.lastError.message
+          chrome.runtime.lastError.message,
         );
         sendResponse({
           success: false,
@@ -219,7 +218,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 "transition-colors",
                 "duration-300",
                 "ease-in-out",
-                "bg-shade-3"
+                "bg-shade-3",
               );
               setTimeout(
                 () =>
@@ -227,9 +226,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     "transition-colors",
                     "duration-700",
                     "ease-in-out",
-                    "bg-shade-3"
+                    "bg-shade-3",
                   ),
-                300
+                300,
               );
             }
 
@@ -265,7 +264,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               "[background.js] focusElement: Failed to get result from injected script.",
           });
         }
-      }
+      },
     );
     return true;
   }
@@ -279,7 +278,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         target: { tabId: tabId },
         function: () => {
           const refreshButton = document.querySelector(
-            "#layout > div.w-full.h-screen.flex.overflow-hidden.text-primary-0.bg-buildings.bg-cover > div > header > div.flex.gap-4.items-center.justify-between.border-l.pl-4.h-full > button.flex.rounded-full.p-1.bg-transparent.text-theme-primary.hover\\:bg-shade-4.disabled\\:text-shade-1.disabled\\:bg-transparent.hover\\:bg-theme-primary\\/60.relative.p-2"
+            "#layout > div.w-full.h-screen.flex.overflow-hidden.text-primary-0.bg-buildings.bg-cover > div > header > div.flex.gap-4.items-center.justify-between.border-l.pl-4.h-full > button.flex.rounded-full.p-1.bg-transparent.text-theme-primary.hover\\:bg-shade-4.disabled\\:text-shade-1.disabled\\:bg-transparent.hover\\:bg-theme-primary\\/60.relative.p-2",
           );
           if (refreshButton) {
             refreshButton.click();
@@ -314,7 +313,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               "[background.js] refresh: Failed to get result from injected script.",
           });
         }
-      }
+      },
     );
     return true;
   }

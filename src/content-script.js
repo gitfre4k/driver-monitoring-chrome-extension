@@ -14,12 +14,12 @@ function attachRowContextMenuListener(rowElement) {
     const time = rowElement.children[3]?.textContent;
     const place = rowElement.children[5]?.textContent;
     const drivingTimeLeft = document.querySelector(
-      "#layout > div.w-full.h-screen.flex.overflow-hidden.text-primary-0.bg-buildings.bg-cover > div > main > div > div > div > section.h-32.flex.justify-between.flex-nowrap.border-b.px-5.pb-4.pt-3 > div.flex.items-end.relative > div:nth-child(1) > svg > text:nth-child(3)"
+      "#layout > div.w-full.h-screen.flex.overflow-hidden.text-primary-0.bg-buildings.bg-cover > div > main > div > div > div > section.h-32.flex.justify-between.flex-nowrap.border-b.px-5.pb-4.pt-3 > div.flex.items-end.relative > div:nth-child(1) > svg > text:nth-child(3)",
     )?.textContent;
 
     const menuObserver = new MutationObserver((mutations, observerInstance) => {
       const existingDiv = document.querySelector(
-        "div.absolute.z-50.bg-secondary-0.shadow-xl.border.border-shade-2 > div > div"
+        "div.absolute.z-50.bg-secondary-0.shadow-xl.border.border-shade-2 > div > div",
       );
 
       if (existingDiv && !document.getElementById("copyTextReply")) {
@@ -91,7 +91,7 @@ function scanAndAttachListenersToRows(nodes) {
       });
 
       const elementsToAttach = node.querySelectorAll(
-        '[id^="row-"], [id^="hos-event-"]'
+        '[id^="row-"], [id^="hos-event-"]',
       );
       elementsToAttach.forEach(attachHoverListeners);
       if (
@@ -106,7 +106,7 @@ function scanAndAttachListenersToRows(nodes) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const initialElements = document.querySelectorAll(
-    '[id^="row-"], [id^="hos-event-"]'
+    '[id^="row-"], [id^="hos-event-"]',
   );
   scanAndAttachListenersToRows(initialElements);
 });
@@ -118,7 +118,7 @@ const mainContentObserver = new MutationObserver(
         scanAndAttachListenersToRows(mutation.addedNodes);
       }
     }
-  }
+  },
 );
 
 mainContentObserver.observe(document.body, { childList: true, subtree: true });

@@ -21,7 +21,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 
-import { Duration } from 'luxon';
+import { DateTime, Duration } from 'luxon';
 
 import { AppService } from '../../@services/app.service';
 import { ContextMenuService } from '../../@services/context-menu.service';
@@ -134,6 +134,7 @@ export class MonitorComponent {
 
   constructor() {
     effect(() => {
+      console.log(this.monitorService.computedDailyLogEvents());
       const currentDriverId = this.urlService.currentView()?.driverId;
       if (!currentDriverId) return;
       const selectedEvents = this.monitorService.selectedEvents();
@@ -163,6 +164,7 @@ export class MonitorComponent {
 
   ngAfterViewInit(): void {
     this.myInputField && this.myInputField.nativeElement.focus();
+
     // const monitor = document.getElementById('monitor');
     // monitor && (monitor.scrollLeft -= 50);
   }
@@ -275,7 +277,6 @@ export class MonitorComponent {
     this.newResizeSpeed.set(0);
     this.showResize.set(null);
     this.showAdvancedResize.set(null);
-    this.showAdvancedResize.set(null);
   }
 
   resize() {
@@ -318,6 +319,8 @@ export class MonitorComponent {
       ? this.newNote()
       : '';
 
+    const duplicateEvent = this.monitorService.duplicateEvent();
+
     if (!event) {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
@@ -341,12 +344,13 @@ export class MonitorComponent {
 
     this.currentEditEvent.set(null);
 
-    if (this.monitorService.duplicateEvent()) {
+    if (duplicateEvent) {
       this.contextMenuService.handleAction('DUPLICATE', event, {
         totalVehicleMiles,
         note,
         eventTypeCode,
       });
+      this.monitorService.duplicateEvent.set(false);
     } else
       this.contextMenuService.handleAction('UPDATE_EVENT', event, {
         totalVehicleMiles,

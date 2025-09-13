@@ -3,7 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { from, map, mergeMap, switchMap, tap } from 'rxjs';
 import { IEventDetails, ITenant } from '../interfaces';
 import { DateTime } from 'luxon';
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import {
+  IEvent,
+  IStatusInfo,
+} from '../interfaces/driver-daily-log-events.interface';
 import { TEventTypeCode } from '../types';
 import {
   IAdvancedResizePayload,
@@ -110,6 +113,7 @@ export class ApiOperationsService {
             }),
           ),
           switchMap(() =>
+            ///// ------
             this.apiService.getDriverDailyLogEvents(
               event.driver.id,
               event.date,

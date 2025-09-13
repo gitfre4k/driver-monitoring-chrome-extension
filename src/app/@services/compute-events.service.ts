@@ -525,7 +525,7 @@ export class ComputeEventsService {
                 `speeding [${speed} mph]`,
               );
           }
-          // last inter to sleep/off
+          // last inter to next duty status
           const distance = events[i].odometer - arr.at(-1)!.odometer;
           const minutes =
             (new Date(events[i].startTime).getTime() -
@@ -538,7 +538,7 @@ export class ComputeEventsService {
             events[i].errorMessages.push(`speeding [${speed} mph]`);
         }
 
-        if (currentDriving) {
+        if (currentDriving && i !== events.length - 1) {
           const nextDutyStatusInfo: IStatusInfo = {
             id: events[i].id,
             totalVehicleMiles: events[i].odometer,

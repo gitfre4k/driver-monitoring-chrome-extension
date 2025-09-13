@@ -49,16 +49,17 @@
       /></label>
     }
   </div>
-
-  <label for="period">
-    <input
-      type="text"
-      id="period"
-      readonly
-      formControlName="period"
-      #periodInput
-      (focus)="periodInput.select()"
-      (wheel)="onMouseWheel($event, 'period')"
-      autocomplete="off"
-  /></label>
+  @if (fullClock()) {
+    <label for="period">
+      <input
+        type="text"
+        id="period"
+        readonly
+        formControlName="period"
+        #periodInput
+        (focus)="periodInput.select()"
+        (wheel)="onMouseWheel($event, 'period')"
+        autocomplete="off"
+    /></label>
+  }
 </div>

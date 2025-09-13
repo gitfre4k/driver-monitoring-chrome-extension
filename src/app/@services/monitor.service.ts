@@ -8,11 +8,12 @@ import {
 } from '../interfaces/driver-daily-log-events.interface';
 import { UrlService } from './url.service';
 import { ComputeEventsService } from './compute-events.service';
-import { tap } from 'rxjs';
+import { EMPTY, map, tap } from 'rxjs';
 import { AppService } from './app.service';
 import { IParsedErrorInfo } from '../interfaces/api.interface';
 import { TEventTypeCode } from '../types';
 import { DateTime } from 'luxon';
+import { ITenant } from '../interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class MonitorService {
@@ -108,7 +109,6 @@ export class MonitorService {
       .pipe(
         tap((driverDailyLog) => {
           this.driverDailyLog.set(driverDailyLog);
-
           this.currentEditEvent.set(null);
           this.showUpdateEvent.set(null);
           this.newNote.set('');
@@ -146,13 +146,18 @@ export class MonitorService {
     if (!driverDailyLog) {
       console.log('No driver daily log found', driverDailyLog);
       return this.computedDailyLogEvents.set(null);
-    } else
+    } else {
+      const tenant = this.urlService.tenant() as ITenant;
       return this.computedDailyLogEvents.set(
-        this.computeEventsService.getComputedEvents({
-          driverDailyLog,
-          coDriverDailyLog,
-        }),
+        this.computeEventsService.getComputedEvents(
+          {
+            driverDailyLog,
+            coDriverDailyLog,
+          },
+          tenant,
+        ),
       );
+    }
   }
 
   createDuplicatedEvent(event: IEvent) {

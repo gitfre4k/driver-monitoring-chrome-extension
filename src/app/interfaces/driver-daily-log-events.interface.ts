@@ -30,6 +30,7 @@ export interface IEvent {
   isFirstEvent: boolean;
   coDriverDisplayName: string;
   coDriverId: string;
+  nextDayFirstEventOdometer: number;
   //////////////
   // custom
   statusName: string;

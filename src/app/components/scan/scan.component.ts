@@ -46,7 +46,6 @@ import { MatBadgeModule } from '@angular/material/badge';
 
 import { IDriverLogs } from '../../interfaces/daily-log.interface';
 import { CertificationsScanService } from '../../@services/certifications-scan.service';
-import { FindEventService } from '../../@services/find-event.service';
 import { AppService } from '../../@services/app.service';
 import { UnidentifiedEventsService } from '../../@services/unidentified-events.service';
 
@@ -81,7 +80,6 @@ export class ScanComponent {
   dateService = inject(DateService);
   progressBarService = inject(ProgressBarService);
   certScanService = inject(CertificationsScanService);
-  findEventService = inject(FindEventService);
   appService = inject(AppService);
   unidentifiedEventsService = inject(UnidentifiedEventsService);
   private advancedScanService = inject(AdvancedScanService);
@@ -90,17 +88,17 @@ export class ScanComponent {
 
   // Analyze Date
   date = new FormControl<Date>(
-    DateTime.fromISO(this.dateService.analyzeDate).toJSDate()
+    DateTime.fromISO(this.dateService.analyzeDate).toJSDate(),
   );
   analyzeDate = signal(
     this.date.value
       ? this.dateService.analyzeCustomDate(this.date.value)
-      : this.dateService.analyzeDate
+      : this.dateService.analyzeDate,
   );
 
   // DOT Date
   date2 = new FormControl<Date>(
-    DateTime.fromISO(this.dateService.fmcsaRange().from).toJSDate()
+    DateTime.fromISO(this.dateService.fmcsaRange().from).toJSDate(),
   );
   dotDate = signal(this.dateService.fmcsaRange());
 
@@ -121,7 +119,7 @@ export class ScanComponent {
     let dateTo = violationsToday;
     const { from, to } = violationsRange(
       this.range.value.start!,
-      this.range.value.end!
+      this.range.value.end!,
     );
     this.updateRangeTrigger();
     switch (this.scanService.selectedRange()) {
@@ -162,11 +160,11 @@ export class ScanComponent {
     console.log('change date => ', ev.value);
     console.log(
       'change date ISO UTC => ',
-      DateTime.fromJSDate(ev.value!).toUTC().toISO()
+      DateTime.fromJSDate(ev.value!).toUTC().toISO(),
     );
     console.log(
       "change now startOf 'day' ISO UTC => ",
-      DateTime.now().startOf('day').toUTC().toISO()
+      DateTime.now().startOf('day').toUTC().toISO(),
     );
     this.analyzeDate.set(this.dateService.analyzeCustomDate(ev.value!));
   }
@@ -313,7 +311,7 @@ export class ScanComponent {
           this.scanMode.value === 'violations'
             ? this.scanService.getAllViolations({ from: dateFrom, to: dateTo })
             : (this.scanService.getAllDOTInspections(
-                dotDate
+                dotDate,
               ) as Observable<any>)
         ).subscribe({
           next: (data: IViolations[] | IDOTInspections[]) =>
