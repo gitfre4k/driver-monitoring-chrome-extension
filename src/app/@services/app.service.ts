@@ -29,7 +29,7 @@ export class AppService {
 
   currentTenant = computed(() => {
     const tenant = this.tenantsSignal().find(
-      (t) => t.id === this.urlService.tenant()?.id
+      (t) => t.id === this.urlService.tenant()?.id,
     );
 
     return tenant ? tenant : null;
@@ -48,7 +48,7 @@ export class AppService {
       finalize(() => {
         this.isLoading.set(false);
         console.log(this.tenantsSignal(), this.tenantsLogSignal());
-      })
+      }),
     );
   };
 
@@ -62,14 +62,14 @@ export class AppService {
       .pipe(
         tap((tenants) => {
           !tenants.find(
-            (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
+            (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170',
           ) && window.close();
           this.tenantsSignal.set(tenants);
         }),
         finalize(() => {
           this.initMode.set('determinate');
           this.initPhase.set('loading tenants and getting drivers info...');
-        })
+        }),
       )
       .pipe(
         switchMap((tenants) => from(tenants)),
@@ -80,7 +80,7 @@ export class AppService {
               tap((log) => {
                 this.initCurrentTenant.set(tenant.name);
                 this.initProgressValue.update(
-                  (prev) => prev + this.initConstant()
+                  (prev) => prev + this.initConstant(),
                 );
                 this.tenantsSignal.update((prevV) => {
                   let newValue = [...prevV];
@@ -89,7 +89,7 @@ export class AppService {
                   if (index !== -1) {
                     newValue[index].offSet = log.items.length
                       ? this.dateService.getOffsetFromTimeZone(
-                          log.items[0].homeTerminalTimeZone
+                          log.items[0].homeTerminalTimeZone,
                         )
                       : -300;
                   }
@@ -103,15 +103,15 @@ export class AppService {
 
                   return newValue;
                 });
-              })
+              }),
             );
-        }, 10)
+        }, 10),
       )
       .pipe(
         finalize(() => {
           this.isLoading.set(false);
           console.log(this.tenantsSignal(), this.tenantsLogSignal());
-        })
+        }),
       );
   };
 }

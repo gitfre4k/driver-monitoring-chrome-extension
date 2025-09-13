@@ -10,7 +10,7 @@ export class BackgroundJsService {
   constructor(private ngZone: NgZone) {
     if (typeof chrome === 'undefined' || !chrome.runtime) {
       console.warn(
-        'Chrome extension APIs not available. This service should run within a Chrome extension context.'
+        'Chrome extension APIs not available. This service should run within a Chrome extension context.',
       );
     }
   }
@@ -18,7 +18,7 @@ export class BackgroundJsService {
   updateTabLocalStorage(
     tabId: number,
     key: string,
-    value: string
+    value: string,
   ): Observable<boolean> {
     if (
       typeof chrome === 'undefined' ||
@@ -28,8 +28,8 @@ export class BackgroundJsService {
       return new Observable((observer) => {
         observer.error(
           new Error(
-            'Chrome extension APIs not available. Cannot update local storage.'
-          )
+            'Chrome extension APIs not available. Cannot update local storage.',
+          ),
         );
         observer.complete();
       });
@@ -48,7 +48,7 @@ export class BackgroundJsService {
               if (response && response.success) {
                 console.log(
                   'Local storage update successful:',
-                  response.message
+                  response.message,
                 );
                 return true;
               } else {
@@ -65,7 +65,7 @@ export class BackgroundJsService {
                 'Error sending message to background.';
               console.error('Error in sendMessage Observable:', errorMessage);
               throw new Error(errorMessage);
-            })
+            }),
           )
           .subscribe({
             next: (success) => observer.next(success),
@@ -78,7 +78,7 @@ export class BackgroundJsService {
 
   focusElement(
     action: TFocusElementAction,
-    payload: { tabId: number; elementId: number; statusName?: string }
+    payload: { tabId: number; elementId: number; statusName?: string },
   ): Observable<boolean> {
     if (
       typeof chrome === 'undefined' ||
@@ -88,8 +88,8 @@ export class BackgroundJsService {
       return new Observable((observer) => {
         observer.error(
           new Error(
-            'Chrome extension APIs not available. Cannot focus element.'
-          )
+            'Chrome extension APIs not available. Cannot focus element.',
+          ),
         );
         observer.complete();
       });
@@ -122,7 +122,7 @@ export class BackgroundJsService {
                 'Error sending message to background.';
               console.error('Error in sendMessage Observable:', errorMessage);
               throw new Error(errorMessage);
-            })
+            }),
           )
           .subscribe({
             next: (success) => observer.next(success),
@@ -142,8 +142,8 @@ export class BackgroundJsService {
       return new Observable((observer) => {
         observer.error(
           new Error(
-            'Chrome extension APIs not available. Cannot refresh web app.'
-          )
+            'Chrome extension APIs not available. Cannot refresh web app.',
+          ),
         );
         observer.complete();
       });
@@ -176,7 +176,7 @@ export class BackgroundJsService {
                 'Error sending message to background.';
               console.error('Error in sendMessage Observable:', errorMessage);
               throw new Error(errorMessage);
-            })
+            }),
           )
           .subscribe({
             next: (success) => observer.next(success),

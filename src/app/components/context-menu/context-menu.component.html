@@ -1,101 +1,76 @@
 @if (event(); as event) {
-  <div class="context-menu" [style.left.px]="x()" [style.top.px]="y()">
-    <ul>
-      <!--  -->
-      <li
-        (click)="monitorService.createDuplicatedEvent(event)"
-        class="context-menu__item"
-      >
-        <mat-icon>control_point_duplicate</mat-icon>
-        <span class="context-menu__item__name">Duplicate Event #4</span>
-      </li>
-      @if (event.statusName !== "Driving") {
-        <!-- ENGINE OFF -->
+<div class="context-menu" [style.left.px]="x()" [style.top.px]="y()">
+  <ul>
+    <!--  -->
+    <li (click)="monitorService.createDuplicatedEvent(event)" class="context-menu__item">
+      <mat-icon>control_point_duplicate</mat-icon>
+      <span class="context-menu__item__name">Duplicate Event #4</span>
+    </li>
+    @if (event.statusName !== "Driving") {
+    <!-- ENGINE OFF -->
+    @if (
+    !["Intermediate", "Engine On", "Engine Off"].includes(
+    event.statusName
+    )
+    ) {
+    <li (click)="contextMenuService.handleAction('ADD_ENGINE_OFF', event)" class="context-menu__item">
+      <app-engine style="margin-top: 1.5px"></app-engine>
+      <span class="context-menu__item__name">add Engine Off</span>
+    </li>
+    }
+    } @else {
+    <!-- RESIZE -->
+    <li (click)="monitorService.showResizeForm(event)" class="context-menu__item">
+      <app-resize></app-resize>
+      <span class="context-menu__item__name">Resize</span>
+    </li>
+    }
+
+    <!-- PARTIAL TO ON -->
+    @if (
+    ["Sleeper Berth", "Off Duty"].includes(event.statusName) &&
+    event.realDurationInSeconds > 1800
+    ) {
+    <li (click)="contextMenuService.handleAction('PARTIAL_TO_ON', event)" class="context-menu__item">
+      <mat-icon class="context-menu__item__icon-on">vertical_align_bottom</mat-icon>
+      <span class="context-menu__item__name">partially transform to On Duty</span>
+    </li>
+    }
+
+    @if (
+    event.statusName === "On Duty" && event.realDurationInSeconds > 1800
+    ) {
+    <li class="context-menu__item submenu">
+      <!-- SUBMENU PARTIAL TRANSFORMATION -->
+      <!-- SUBMENU PARTIAL TRANSFORMATION -->
+      <app-partial></app-partial>
+      <span class="context-menu__item__name">partial transformation</span>
+      <ul class="context-menu submenu">
         @if (
-          !["Intermediate", "Engine On", "Engine Off"].includes(
-            event.statusName
-          )
-        ) {
-          <li
-            (click)="contextMenuService.handleAction('ADD_ENGINE_OFF', event)"
-            class="context-menu__item"
-          >
-            <app-engine style="margin-top: 1.5px"></app-engine>
-            <span class="context-menu__item__name">add Engine Off</span>
-          </li>
-        }
-      } @else {
-        <!-- RESIZE -->
-        <li
-          (click)="monitorService.showResizeForm(event)"
-          class="context-menu__item"
-        >
-          <app-resize></app-resize>
-          <span class="context-menu__item__name">Resize</span>
-        </li>
-      }
-
-      <!-- PARTIAL TO ON -->
-      @if (
-        ["Sleeper Berth", "Off Duty"].includes(event.statusName) &&
+        event.statusName === "On Duty" &&
         event.realDurationInSeconds > 1800
-      ) {
-        <li
-          (click)="contextMenuService.handleAction('PARTIAL_TO_ON', event)"
-          class="context-menu__item"
-        >
-          <mat-icon class="context-menu__item__icon-on"
-            >vertical_align_bottom</mat-icon
-          >
-          <span class="context-menu__item__name"
-            >partially transform to On Duty</span
-          >
-        </li>
-      }
-
-      @if (
-        event.statusName === "On Duty" && event.realDurationInSeconds > 1800
-      ) {
-        <li class="context-menu__item submenu">
-          <!-- SUBMENU PARTIAL TRANSFORMATION -->
-          <!-- SUBMENU PARTIAL TRANSFORMATION -->
-          <app-partial></app-partial>
-          <span class="context-menu__item__name">partial transformation</span>
-          <ul class="context-menu submenu">
-            @if (
-              event.statusName === "On Duty" &&
-              event.realDurationInSeconds > 1800
-            ) {
-              <!--  -->
-              <!-- to Off Duty -->
-              <li
-                (click)="
+        ) {
+        <!--  -->
+        <!-- to Off Duty -->
+        <li (click)="
                   contextMenuService.handleAction('PARTIAL_ON_TO_OFF', event)
-                "
-                class="context-menu__item double-icon"
-              >
-                <mat-icon class="context-menu__item__icon-off"
-                  >vertical_align_top</mat-icon
-                >
-                <span class="context-menu__item__name">into Off Duty</span>
-              </li>
-              <!--  -->
-              <!-- to Sleeper -->
-              <li
-                (click)="
-                  contextMenuService.handleAction('PARTIAL_ON_TO_SLEEP', event)
-                "
-                class="context-menu__item"
-              >
-                <mat-icon class="context-menu__item__icon-sleep"
-                  >vertical_align_top
-                </mat-icon>
-                <span class="context-menu__item__name">into Sleeper Berth</span>
-              </li>
-            }
-          </ul>
+                " class="context-menu__item double-icon">
+          <mat-icon class="context-menu__item__icon-off">vertical_align_top</mat-icon>
+          <span class="context-menu__item__name">into Off Duty</span>
         </li>
-      }
-    </ul>
-  </div>
+        <!--  -->
+        <!-- to Sleeper -->
+        <li (click)="
+                  contextMenuService.handleAction('PARTIAL_ON_TO_SLEEP', event)
+                " class="context-menu__item">
+          <mat-icon class="context-menu__item__icon-sleep">vertical_align_top
+          </mat-icon>
+          <span class="context-menu__item__name">into Sleeper Berth</span>
+        </li>
+        }
+      </ul>
+    </li>
+    }
+  </ul>
+</div>
 }

@@ -31,7 +31,7 @@ export class ProgressBarService {
   totalVCount = computed(() => {
     let totalVCount = 0;
     this.violations().forEach(
-      (v) => (totalVCount = totalVCount + v.violations.items?.length)
+      (v) => (totalVCount = totalVCount + v.violations.items?.length),
     );
 
     return totalVCount;
@@ -91,7 +91,7 @@ export class ProgressBarService {
       this.pErrors().length +
       this.dErrors().length +
       this.aErrors().length +
-      this.cErrors().length
+      this.cErrors().length,
   );
   resultsAreReady = computed(
     () =>
@@ -107,7 +107,7 @@ export class ProgressBarService {
       !this.isEmpty(this.lowTotalEngineHours()) ||
       !this.isEmpty(this.newDrivers()) ||
       !this.isEmpty(this.fleetManager()) ||
-      !this.isEmpty(this.refuelWarning())
+      !this.isEmpty(this.refuelWarning()),
   );
 
   constructor() {}
@@ -121,11 +121,11 @@ export class ProgressBarService {
       let violations = [...prevValue];
       violations.forEach((v) => {
         v.violations.items = v.violations.items.filter(
-          (driver) => driver.id !== id
+          (driver) => driver.id !== id,
         );
       });
       const index = violations.findIndex(
-        (v) => v.violations.items?.length === 0
+        (v) => v.violations.items?.length === 0,
       );
       violations.splice(index, 1);
       return violations;
@@ -137,7 +137,7 @@ export class ProgressBarService {
 
     if (scanResult === 'preViolations' || scanResult === 'cycleHours') {
       const index = this[scanResult]()[companyName].items.findIndex(
-        (driver) => driver.driverDisplayName === driverName
+        (driver) => driver.driverDisplayName === driverName,
       );
       this[scanResult].update((prev) => {
         const newValue = { ...prev };
@@ -148,7 +148,7 @@ export class ProgressBarService {
       });
     } else {
       const index = this[scanResult]()[companyName].findIndex(
-        (driver) => driver.driverName === driverName
+        (driver) => driver.driverName === driverName,
       );
 
       this[scanResult].update((prev) => {

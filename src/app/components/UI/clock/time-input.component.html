@@ -1,65 +1,30 @@
 <div id="time_wrapper" [formGroup]="timeForm">
   <div id="time_input">
     <label for="hours">
-      <input
-        type="text"
-        id="hours"
-        formControlName="hours"
-        #hoursInput
-        (focus)="hoursInput.select()"
-        maxLength="2"
-        minlength="2"
-        (wheel)="onMouseWheel($event, 'hours')"
-        autocomplete="off"
-      />
+      <input type="text" id="hours" formControlName="hours" #hoursInput (focus)="hoursInput.select()" maxLength="2"
+        minlength="2" (wheel)="onMouseWheel($event, 'hours')" autocomplete="off" />
       @if (!fullClock()) {
-        <span class="label lbl-hrs">hours</span>
+      <span class="label lbl-hrs">hours</span>
       }
     </label>
     <span>:</span>
     <label for="minutes">
-      <input
-        type="text"
-        id="minutes"
-        formControlName="minutes"
-        #minutesInput
-        (focus)="minutesInput.select()"
-        maxLength="2"
-        minlength="2"
-        (wheel)="onMouseWheel($event, 'minutes')"
-        autocomplete="off"
-      />
+      <input type="text" id="minutes" formControlName="minutes" #minutesInput (focus)="minutesInput.select()"
+        maxLength="2" minlength="2" (wheel)="onMouseWheel($event, 'minutes')" autocomplete="off" />
       @if (!fullClock()) {
-        <span class="label lbl-min">minutes</span>
+      <span class="label lbl-min">minutes</span>
       }
     </label>
     @if (fullClock()) {
-      <span>:</span>
-      <label for="seconds">
-        <input
-          type="text"
-          id="seconds"
-          formControlName="seconds"
-          #secondsInput
-          (focus)="secondsInput.select()"
-          maxLength="2"
-          minlength="2"
-          (wheel)="onMouseWheel($event, 'seconds')"
-          autocomplete="off"
-      /></label>
+    <span>:</span>
+    <label for="seconds">
+      <input type="text" id="seconds" formControlName="seconds" #secondsInput (focus)="secondsInput.select()"
+        maxLength="2" minlength="2" (wheel)="onMouseWheel($event, 'seconds')" autocomplete="off" /></label>
     }
   </div>
   @if (fullClock()) {
-    <label for="period">
-      <input
-        type="text"
-        id="period"
-        readonly
-        formControlName="period"
-        #periodInput
-        (focus)="periodInput.select()"
-        (wheel)="onMouseWheel($event, 'period')"
-        autocomplete="off"
-    /></label>
+  <label for="period">
+    <input type="text" id="period" readonly formControlName="period" #periodInput (focus)="periodInput.select()"
+      (wheel)="onMouseWheel($event, 'period')" autocomplete="off" /></label>
   }
 </div>

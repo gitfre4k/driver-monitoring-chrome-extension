@@ -12,9 +12,8 @@ import { CdkMenuModule } from '@angular/cdk/menu';
 import { TContextMenuAction } from '../../../types';
 import { IEvent } from '../../../interfaces/driver-daily-log-events.interface';
 import { ContextMenuService } from '../../../@services/context-menu.service';
-import { IShiftInputState } from '../../../interfaces/api.interface';
-import { DialogComponent } from '../../UI/dialog/dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MonitorService } from '../../../@services/monitor.service';
 import { DialogConfirmComponent } from '../../UI/dialog-confirm/dialog-confirm.component';
 
 @Component({
@@ -27,47 +26,21 @@ import { DialogConfirmComponent } from '../../UI/dialog-confirm/dialog-confirm.c
 export class MonitorMenuComponent {
   selectedEvents = input<IEvent[]>([]);
   contextMenuService = inject(ContextMenuService);
+  monitorService = inject(MonitorService);
 
   readonly dialog = inject(MatDialog);
-  private _snackBar: any;
 
   onMenuAction(action: TContextMenuAction) {
     this.contextMenuService.handleAction(action);
   }
 
   onShiftAction() {
-    const _dialogRef = this.dialog.open(DialogComponent);
-    const selectedEvents = this.selectedEvents();
-    if (!selectedEvents) {
-      this._snackBar.open(
-        `Shift operation failed. \n[selectedEvents] ${selectedEvents}`,
-        'OK',
-        { duration: 7000 },
-      );
-      return;
-    }
-
-    _dialogRef.afterClosed().subscribe({
-      next: (payload: IShiftInputState) => {
-        this.contextMenuService.handleMultiEventAction(
-          'SHIFT_EVENTS',
-          selectedEvents,
-          payload,
-        );
-      },
-    });
+    this.monitorService.openShiftDialog();
   }
 
   onDeleteSelectedAction() {
     const events = this.selectedEvents();
-
-    if (events.length === 0) {
-      return this._snackBar.open(
-        `Delete operation failed. \nNo event has been selected.`,
-        'OK',
-        { duration: 7000 },
-      );
-    }
+    if (events.length === 0) return;
 
     const eventsOnSameDay = events.every((ev) => ev.date === events[0].date);
 
@@ -82,7 +55,6 @@ export class MonitorMenuComponent {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed', result);
       if (result) {
         this.contextMenuService.handleMultiEventAction(
           'DELETE_SELECTED_EVENTS',

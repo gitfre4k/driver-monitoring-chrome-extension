@@ -1,5 +1,4 @@
 import { Injectable, inject, signal, effect, computed } from '@angular/core';
-import { ApiService } from './api.service';
 
 import {
   IDailyLogs,
@@ -7,20 +6,27 @@ import {
   IEvent,
 } from '../interfaces/driver-daily-log-events.interface';
 import { UrlService } from './url.service';
-import { ComputeEventsService } from './compute-events.service';
-import { EMPTY, map, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { AppService } from './app.service';
 import { IParsedErrorInfo } from '../interfaces/api.interface';
 import { TEventTypeCode } from '../types';
-import { DateTime } from 'luxon';
+
 import { ITenant } from '../interfaces';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../components/UI/dialog/dialog.component';
+import { ApiService } from './api.service';
+import { ComputeEventsService } from './compute-events.service';
+import { DialogConfirmComponent } from '../components/UI/dialog-confirm/dialog-confirm.component';
+import { ContextMenuService } from './context-menu.service';
 
 @Injectable({ providedIn: 'root' })
 export class MonitorService {
-  private apiService = inject(ApiService);
   private urlService = inject(UrlService);
-  private computeEventsService = inject(ComputeEventsService);
   private appService = inject(AppService);
+  private apiService = inject(ApiService);
+  private computeEventsService = inject(ComputeEventsService);
+
+  readonly dialog = inject(MatDialog);
 
   refresh = signal(0);
   refreshBtnDisabled = signal(false);
@@ -88,6 +94,29 @@ export class MonitorService {
   isUpdating = signal(false);
 
   constructor() {}
+
+  // getPrevDutyStatus(event: IEvent) {
+  //   this.computedEvents();
+  // }
+
+  selectAllEvents() {
+    const allEvents = this.computedDailyLogEvents();
+
+    if (!allEvents) return this.selectedEvents.set([]);
+    if (allEvents.length === this.selectedEvents().length)
+      return this.selectedEvents.set([]);
+    if (allEvents.length - this.selectedEvents().length === 1)
+      return this.selectedEvents.set([...allEvents]);
+
+    const events = [...allEvents];
+    events.shift();
+    this.selectedEvents.update((prev) => [...new Set([...prev, ...events])]);
+  }
+
+  openShiftDialog() {
+    if (this.selectedEvents().length === 0) return;
+    return this.dialog.open(DialogComponent);
+  }
 
   updateDriverDailyLogEvents(url: string, tenantId: string): void {
     this.isUpdating.set(true);

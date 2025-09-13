@@ -270,10 +270,13 @@ export class TimeInputComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    !this.fullClock() &&
+    if (!this.fullClock()) {
+      this.onMinutesInputChange.emit({ minutes: '00' });
+      this.onHoursInputChange.emit({ hours: '00' });
       setTimeout(() => {
         this.hoursInput.nativeElement.focus();
       }, 150);
+    }
   }
 
   @HostListener('keyup', ['$event']) onKeyUp(event: KeyboardEvent): void {

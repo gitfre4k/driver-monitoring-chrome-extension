@@ -21,8 +21,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 
-import { DateTime, Duration } from 'luxon';
-
 import { AppService } from '../../@services/app.service';
 import { ContextMenuService } from '../../@services/context-menu.service';
 import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
@@ -42,6 +40,8 @@ import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 import { TContextMenuAction, TFocusElementAction } from '../../types';
 import { TimeInputComponent } from '../UI/clock/time-input.component';
 import { getHoursAndMinutes } from '../../helpers/monitor.helpers';
+import { KeyboardService } from '../../@services/keyboard.service';
+import { Duration } from 'luxon';
 
 @Component({
   selector: 'app-monitor',
@@ -79,6 +79,7 @@ export class MonitorComponent {
   appService = inject(AppService);
   contextMenuService = inject(ContextMenuService);
   extTabNavService = inject(ExtensionTabNavigationService);
+  keyboardService = inject(KeyboardService);
 
   _snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
@@ -164,9 +165,6 @@ export class MonitorComponent {
 
   ngAfterViewInit(): void {
     this.myInputField && this.myInputField.nativeElement.focus();
-
-    // const monitor = document.getElementById('monitor');
-    // monitor && (monitor.scrollLeft -= 50);
   }
 
   refresh = () => {

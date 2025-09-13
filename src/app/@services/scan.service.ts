@@ -105,7 +105,7 @@ export class ScanService {
 
     this.cycleAlertExcludeNonWorking() &&
       (cycleHours = cycleHours.filter(
-        (driver) => !['OFF', 'SB'].includes(driver.driverDutyStatus)
+        (driver) => !['OFF', 'SB'].includes(driver.driverDutyStatus),
       ));
     cycleHours.length &&
       this.progressBarService.cycleHours.update((prev) => ({
@@ -148,7 +148,7 @@ export class ScanService {
       'OK',
       {
         duration: 3000,
-      }
+      },
     );
 
     if (this.autofocus()) {
@@ -163,7 +163,7 @@ export class ScanService {
       'OK',
       {
         duration: 3000,
-      }
+      },
     );
     this.extensionTabNavService.selectedTabIndex.set(1);
     this.extensionTabNavService.dotPanelIsOpened.set(true);
@@ -196,7 +196,7 @@ export class ScanService {
           'OK',
           {
             duration: 3000,
-          }
+          },
         );
         count > 0 &&
           (() => {
@@ -213,7 +213,7 @@ export class ScanService {
               'OK',
               {
                 duration: 3000,
-              }
+              },
             );
         break;
       case 'cert':
@@ -236,7 +236,7 @@ export class ScanService {
       mergeMap((tenant) => {
         this.progressBarService.currentCompany.set(tenant.name);
         this.progressBarService.progressValue.update(
-          (value) => value + this.progressBarService.constant()
+          (value) => value + this.progressBarService.constant(),
         );
         return this.apiService
           .getDrivers(tenant)
@@ -244,7 +244,7 @@ export class ScanService {
             tap({
               error: (error) => {
                 this.progressBarService.progressValue.update(
-                  (value) => value + this.progressBarService.constant()
+                  (value) => value + this.progressBarService.constant(),
                 );
                 this.progressBarService.pErrors.update((prev) => [
                   ...prev,
@@ -254,16 +254,16 @@ export class ScanService {
                   },
                 ]);
               },
-            })
+            }),
           )
           .pipe(
             map((drivers) => {
               drivers.tenant = tenant;
               drivers.date = this.dateService.analyzeDate;
               return drivers;
-            })
+            }),
           );
-      }, 10)
+      }, 10),
     );
   }
 
@@ -277,16 +277,16 @@ export class ScanService {
         tap(
           (tenants) =>
             !tenants.find(
-              (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
-            ) && window.close()
+              (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+            ) && window.close(),
         ),
-        switchMap((tenants) => from(tenants))
+        switchMap((tenants) => from(tenants)),
       )
       .pipe(
         mergeMap((tenant) => {
           this.progressBarService.currentCompany.set(tenant.name);
           this.progressBarService.progressValue.update(
-            (value) => value + this.progressBarService.constant()
+            (value) => value + this.progressBarService.constant(),
           );
           return this.apiService
             .getViolations(tenant, range)
@@ -294,7 +294,7 @@ export class ScanService {
               tap({
                 error: (error) => {
                   this.progressBarService.progressValue.update(
-                    (value) => value + this.progressBarService.constant()
+                    (value) => value + this.progressBarService.constant(),
                   );
                   this.progressBarService.vErrors.update((prev) => [
                     ...prev,
@@ -305,16 +305,16 @@ export class ScanService {
                   ]);
                 },
               }),
-              catchError(() => of())
+              catchError(() => of()),
             )
             .pipe(
               map((v) => {
                 v.company = tenant;
                 return v;
-              })
+              }),
             );
         }, 10),
-        toArray()
+        toArray(),
       );
   }
 
@@ -328,16 +328,16 @@ export class ScanService {
         tap(
           (tenants) =>
             !tenants.find(
-              (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170'
-            ) && window.close()
+              (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+            ) && window.close(),
         ),
-        switchMap((tenants) => from(tenants))
+        switchMap((tenants) => from(tenants)),
       )
       .pipe(
         mergeMap((tenant) => {
           this.progressBarService.currentCompany.set(tenant.name);
           this.progressBarService.progressValue.update(
-            (value) => value + this.progressBarService.constant()
+            (value) => value + this.progressBarService.constant(),
           );
           return this.apiService
             .getDOTInspectionList(tenant, range)
@@ -345,7 +345,7 @@ export class ScanService {
               tap({
                 error: (error) => {
                   this.progressBarService.progressValue.update(
-                    (value) => value + this.progressBarService.constant()
+                    (value) => value + this.progressBarService.constant(),
                   );
                   this.progressBarService.dErrors.update((prev) => [
                     ...prev,
@@ -356,23 +356,23 @@ export class ScanService {
                   ]);
                 },
               }),
-              catchError(() => of())
+              catchError(() => of()),
             )
             .pipe(
               tap(
                 (dot) =>
                   dot.totalCount &&
                   this.progressBarService.totalDCount.update(
-                    (prev) => prev + dot.totalCount
-                  )
+                    (prev) => prev + dot.totalCount,
+                  ),
               ),
               map((dot) => {
                 dot.company = tenant;
                 return dot;
-              })
+              }),
             );
         }, 10),
-        toArray()
+        toArray(),
       );
   }
 }

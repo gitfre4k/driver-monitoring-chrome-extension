@@ -10,6 +10,9 @@ import {
   IHoursOutput,
   IMinutesOutput,
 } from '../../../interfaces/api.interface';
+import { ContextMenuService } from '../../../@services/context-menu.service';
+import { MonitorService } from '../../../@services/monitor.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-dialog',
@@ -20,12 +23,15 @@ import {
     MatSelectModule,
     MatFormFieldModule,
     MatIconModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './dialog.component.html',
   styleUrl: './dialog.component.scss',
 })
 export class DialogComponent {
   readonly dialogRef = inject(MatDialogRef<DialogComponent>);
+  contextMenuService = inject(ContextMenuService);
+  monitorService = inject(MonitorService);
 
   direction = signal<'Past' | 'Future'>('Past');
   hh = signal('');
@@ -36,9 +42,14 @@ export class DialogComponent {
     return `${hh}:${mm}`;
   });
 
+  ngOnInit() {
+    if (this.monitorService.selectedEvents().length === 0) this.onClose();
+  }
+
   onMouseWheel(event: WheelEvent) {
     event.preventDefault();
-    this.direction.set(event.deltaY > 0 ? 'Past' : 'Future');
+    !this.monitorService.isShifting() &&
+      this.direction.set(event.deltaY > 0 ? 'Past' : 'Future');
   }
 
   handleHoursInputChange(event: IHoursOutput) {
@@ -50,13 +61,17 @@ export class DialogComponent {
   }
 
   onShift() {
-    this.dialogRef.close({
-      direction: this.direction(),
-      time: this.time(),
-    });
+    this.contextMenuService.handleMultiEventAction(
+      'SHIFT_EVENTS',
+      this.monitorService.selectedEvents(),
+      {
+        direction: this.direction(),
+        time: this.time(),
+      },
+    );
   }
 
   onClose() {
-    this.dialogRef.close({ direction: this.direction });
+    this.dialogRef.close();
   }
 }

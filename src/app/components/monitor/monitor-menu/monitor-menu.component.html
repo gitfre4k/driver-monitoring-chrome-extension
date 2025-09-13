@@ -1,48 +1,31 @@
 <div class="menu" cdkMenu>
   <ul>
     <!-- DRIVING ENGINES -->
-    <li
-      (click)="onMenuAction('DELETE_ENGINES_IN_DRIVING')"
-      class="menu__item"
-      cdkMenuItem
-      matRipple
-    >
+    <li (click)="onMenuAction('DELETE_ENGINES_IN_DRIVING')" class="menu__item" cdkMenuItem matRipple>
       <mat-icon class="menu__item__icon-drv-eng">delete_outline</mat-icon>
       <span class="menu__item__name">delete Engine events during Driving</span>
     </li>
 
     <!-- ALL ENGINES -->
-    <li
-      (click)="onMenuAction('DELETE_ALL_ENGINES')"
-      class="menu__item"
-      cdkMenuItem
-      matRipple
-    >
+    <li (click)="onMenuAction('DELETE_ALL_ENGINES')" class="menu__item" cdkMenuItem matRipple>
       <mat-icon class="menu__item__icon-all-eng">delete_sweep</mat-icon>
       <span class="menu__item__name">delete all Engine events</span>
     </li>
 
     @if (selectedEvents(); as selectedEvents) {
-      @if (selectedEvents.length) {
-        <hr />
-        <li (click)="onShiftAction()" class="menu__item" cdkMenuItem matRipple>
-          <mat-icon class="menu__item__icon-all-eng">swap_horiz</mat-icon>
-          <span class="menu__item__name">Shift selected Events</span>
-        </li>
-        <li
-          (click)="onDeleteSelectedAction()"
-          class="menu__item"
-          cdkMenuItem
-          matRipple
-        >
-          <mat-icon class="menu__item__icon-warning">delete_forever</mat-icon>
-          <span class="menu__item__name"
-            >Delete selected Event{{ selectedEvents.length > 1 ? "s" : "" }} ({{
-              selectedEvents.length
-            }})</span
-          >
-        </li>
-      }
+    @if (selectedEvents.length) {
+    <hr />
+    <li (click)="onShiftAction()" class="menu__item" cdkMenuItem matRipple>
+      <mat-icon class="menu__item__icon-all-eng">swap_horiz</mat-icon>
+      <span class="menu__item__name">Shift selected Events</span>
+    </li>
+    <li (click)="onDeleteSelectedAction()" class="menu__item" cdkMenuItem matRipple>
+      <mat-icon class="menu__item__icon-warning">delete_forever</mat-icon>
+      <span class="menu__item__name">Delete selected Event{{ selectedEvents.length > 1 ? "s" : "" }} ({{
+        selectedEvents.length
+        }})</span>
+    </li>
+    }
     }
   </ul>
 </div>

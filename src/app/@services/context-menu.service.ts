@@ -387,7 +387,6 @@ export class ContextMenuService {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.isShifting.set(false);
-              this.monitorService.selectedEvents.set([]);
               this._snackBar.open(
                 `[ERROR]: ${err.error.message ?? err.title}`,
                 'OK',

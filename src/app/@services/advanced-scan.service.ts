@@ -47,7 +47,7 @@ export class AdvancedScanService {
             tap({
               error: (error) => {
                 this.progressBarService.progressValue.update(
-                  (value) => value + this.progressBarService.constant()
+                  (value) => value + this.progressBarService.constant(),
                 );
                 this.progressBarService.aErrors.update((prev) => [
                   ...prev,
@@ -61,8 +61,8 @@ export class AdvancedScanService {
             catchError(() => of()),
             tap(() =>
               this.progressBarService.progressValue.update(
-                (prevValue) => prevValue + this.progressBarService.constant()
-              )
+                (prevValue) => prevValue + this.progressBarService.constant(),
+              ),
             ),
 
             concatMap((log) => from(log.items)), // switchMap??
@@ -71,12 +71,12 @@ export class AdvancedScanService {
               return this.dailyLogEvents$(
                 driver,
                 tenant,
-                this.dateService.analyzeCustomDate(qDate)
+                this.dateService.analyzeCustomDate(qDate),
               );
             }, 10),
-            toArray()
+            toArray(),
           );
-      })
+      }),
     );
   }
 
@@ -116,7 +116,7 @@ export class AdvancedScanService {
                     ]);
                   },
                 }),
-                catchError(() => of())
+                catchError(() => of()),
               )
               .subscribe({
                 next: (coDriverDailyLog) =>
@@ -125,7 +125,7 @@ export class AdvancedScanService {
                       driverDailyLog,
                       coDriverDailyLog,
                     },
-                    tenant
+                    tenant,
                   ),
               });
           } else
@@ -134,15 +134,15 @@ export class AdvancedScanService {
                 driverDailyLog,
                 coDriverDailyLog: null,
               },
-              tenant
+              tenant,
             );
-        })
+        }),
       );
   }
 
   handleDriverDailyLogEvents(
     { driverDailyLog, coDriverDailyLog }: IDailyLogs,
-    tenant: ITenant
+    tenant: ITenant,
   ) {
     if (!driverDailyLog) return;
     this.progressBarService.currentDriver.set(driverDailyLog.driverFullName);
@@ -155,7 +155,7 @@ export class AdvancedScanService {
       tenant,
       this.ptiDuration(),
       this.prolongedOnDutiesDuration(),
-      this.sleeperDuration()
+      this.sleeperDuration(),
     );
 
     const errorEvents: IEvent[] = [];
