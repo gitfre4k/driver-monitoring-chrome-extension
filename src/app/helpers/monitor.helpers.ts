@@ -1,30 +1,30 @@
-import { DateTime } from 'luxon';
+import { DateTime } from "luxon";
 
 export const formatTenantName = (tenant: string) => {
   const keywordsToRemove = new Set([
-    'logistics',
-    'transport',
-    'transportations',
-    'Transportation',
-    'express',
-    'enterprises',
-    'enterprise',
-    'freight',
-    'international',
-    'cargo',
-    'services',
-    'trucking',
-    'systems',
-    'transporting',
+    "logistics",
+    "transport",
+    "transportations",
+    "Transportation",
+    "express",
+    "enterprises",
+    "enterprise",
+    "freight",
+    "international",
+    "cargo",
+    "services",
+    "trucking",
+    "systems",
+    "transporting",
   ]);
-  let words = tenant.replace(/,/g, '').trim().split(' ');
+  let words = tenant.replace(/,/g, "").trim().split(" ");
 
-  if (words.length === 0) return '';
+  if (words.length === 0) return "";
 
   let lastWord = words[words.length - 1];
   if (
     lastWord.length === 3 ||
-    (lastWord.length === 4 && lastWord[lastWord.length - 1] === '.')
+    (lastWord.length === 4 && lastWord[lastWord.length - 1] === ".")
   )
     words.pop();
   if (words.length > 0) {
@@ -32,14 +32,14 @@ export const formatTenantName = (tenant: string) => {
     if (keywordsToRemove.has(newLastWord.toLowerCase())) words.pop();
   }
 
-  return words.join(' ');
+  return words.join(" ");
 };
 
 export const getHoursAndMinutes = (date: string, zone: string) => {
-  const hh = DateTime.fromISO(date).setZone(zone).toFormat('hh');
-  const mm = DateTime.fromISO(date).setZone(zone).toFormat('mm');
-  const ss = DateTime.fromISO(date).setZone(zone).toFormat('ss');
-  const period: 'AM' | 'PM' =
-    +DateTime.fromISO(date).setZone(zone).toFormat('HH') >= 12 ? 'PM' : 'AM';
+  const hh = DateTime.fromISO(date).setZone(zone).toFormat("hh");
+  const mm = DateTime.fromISO(date).setZone(zone).toFormat("mm");
+  const ss = DateTime.fromISO(date).setZone(zone).toFormat("ss");
+  const period: "AM" | "PM" =
+    +DateTime.fromISO(date).setZone(zone).toFormat("HH") >= 12 ? "PM" : "AM";
   return { hh, mm, ss, period };
 };

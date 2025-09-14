@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { TimeInputComponent } from '../clock/time-input.component';
+import { ShiftPeriodComponent } from '../shift-period/shift-period.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,7 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   selector: 'app-dialog',
   imports: [
     FormsModule,
-    TimeInputComponent,
+    ShiftPeriodComponent,
     MatButtonModule,
     MatSelectModule,
     MatFormFieldModule,

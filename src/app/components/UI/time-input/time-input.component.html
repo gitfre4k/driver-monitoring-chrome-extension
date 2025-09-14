@@ -1,0 +1,90 @@
+@if (clock(); as clock) {
+  <div class="time">
+    <div id="time_wrapper">
+      <div id="time_input">
+        <label for="hours">
+          <input
+            type="text"
+            id="hours"
+            #hoursInput
+            maxLength="2"
+            minlength="2"
+            (wheel)="onMouseWheel($event, 'hours')"
+            [(ngModel)]="clock.hours"
+            autocomplete="off"
+            readonly
+            (keydown.arrowdown)="onMouseWheel($event, 'hours')"
+            (keydown.arrowup)="onMouseWheel($event, 'hours')"
+            (keydown.arrowright)="minutesInput.focus()"
+          />
+        </label>
+        <span>:</span>
+        <label for="minutes">
+          <input
+            type="text"
+            id="minutes"
+            #minutesInput
+            maxLength="2"
+            minlength="2"
+            (wheel)="onMouseWheel($event, 'minutes')"
+            [(ngModel)]="clock.minutes"
+            autocomplete="off"
+            readonly
+            (keydown.arrowdown)="onMouseWheel($event, 'minutes')"
+            (keydown.arrowup)="onMouseWheel($event, 'minutes')"
+            (keydown.arrowright)="secondsInput.focus()"
+            (keydown.arrowleft)="hoursInput.focus()"
+          />
+        </label>
+
+        <span>:</span>
+        <label for="seconds">
+          <input
+            type="text"
+            id="seconds"
+            #secondsInput
+            maxLength="2"
+            minlength="2"
+            (wheel)="onMouseWheel($event, 'seconds')"
+            [(ngModel)]="clock.seconds"
+            autocomplete="off"
+            readonly
+            (keydown.arrowdown)="onMouseWheel($event, 'seconds')"
+            (keydown.arrowup)="onMouseWheel($event, 'seconds')"
+            (keydown.arrowleft)="minutesInput.focus()"
+            (keydown.arrowright)="periodInput.focus()"
+        /></label>
+      </div>
+
+      <label for="period">
+        <input
+          class="period"
+          type="text"
+          id="period"
+          readonly
+          #periodInput
+          (wheel)="onMouseWheel($event, 'period')"
+          [(ngModel)]="clock.period"
+          autocomplete="off"
+          readonly
+          (keydown.arrowdown)="onMouseWheel($event, 'period')"
+          (keydown.arrowup)="onMouseWheel($event, 'period')"
+          (keydown.arrowleft)="secondsInput.focus()"
+          (keydown.arrowright)="dateInput.focus()"
+      /></label>
+    </div>
+
+    <input
+      type="text"
+      class="date"
+      [(ngModel)]="clock.date"
+      readonly
+      id="date"
+      #dateInput
+      (wheel)="onMouseWheel($event, 'date')"
+      (keydown.arrowdown)="onMouseWheel($event, 'date')"
+      (keydown.arrowup)="onMouseWheel($event, 'date')"
+      (keydown.arrowleft)="periodInput.focus()"
+    />
+  </div>
+}

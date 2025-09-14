@@ -17,8 +17,8 @@
     @if ( monitorService.isShifting()) {
     <mat-spinner [diameter]="44"></mat-spinner>
     } @else {
-    <app-time-input (onHoursInputChange)="handleHoursInputChange($event)"
-      (onMinutesInputChange)="handleMinutesInputChange($event)"></app-time-input> }
+    <app-shift-period (onHoursInputChange)="handleHoursInputChange($event)"
+      (onMinutesInputChange)="handleMinutesInputChange($event)"></app-shift-period> }
   </div>
 
   <button class="dialog__button" matButton="outlined" (click)="onShift()" (wheel)="onMouseWheel($event)" onkeydown="''"

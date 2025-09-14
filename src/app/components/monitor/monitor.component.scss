@@ -186,6 +186,7 @@
             width: 85px;
             text-align: center;
             align-self: center;
+            cursor: pointer;
           }
 
           .input {
@@ -200,7 +201,7 @@
             border-radius: 4px;
             font-weight: 700;
             margin: 1px 4px;
-            padding: 2px;
+            padding: 3px;
             border: 1px solid #eaeaea;
           }
 
@@ -216,10 +217,11 @@
               display: flex;
               justify-content: flex-start;
               align-items: center;
+              width: 100%;
             }
-            &__clock {
-              transform: scale(0.5);
-            }
+            // &__clock {
+            // transform: scale(0.5);
+            // }
           }
 
           .on-hover {
@@ -311,7 +313,6 @@
         .event:hover {
           box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
           background-color: rgba(53, 53, 58, 0.333);
-          cursor: pointer;
         }
       }
     }

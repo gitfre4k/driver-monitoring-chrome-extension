@@ -19,12 +19,12 @@ import { debounceTime } from 'rxjs/operators';
 import { TInputTime } from '../../../types';
 
 @Component({
-  selector: 'app-time-input',
+  selector: 'app-shift-period',
   imports: [ReactiveFormsModule],
-  templateUrl: './time-input.component.html',
-  styleUrls: ['./time-input.component.scss'],
+  templateUrl: './shift-period.component.html',
+  styleUrls: ['./shift-period.component.scss'],
 })
-export class TimeInputComponent implements OnInit, OnDestroy {
+export class ShiftPeriodComponent implements OnInit, OnDestroy {
   @ViewChild('hoursInput') hoursInput!: ElementRef<HTMLInputElement>;
   @ViewChild('minutesInput') minutesInput!: ElementRef<HTMLInputElement>;
   @ViewChild('secondsInput') secondsInput!: ElementRef<HTMLInputElement>;

@@ -6,45 +6,46 @@ import {
   inject,
   signal,
   ViewChild,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+} from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
-import { CdkMenuModule } from '@angular/cdk/menu';
-import { MatButtonModule } from '@angular/material/button';
-import { MatRippleModule } from '@angular/material/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSliderModule } from '@angular/material/slider';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatDialog } from '@angular/material/dialog';
+import { CdkMenuModule } from "@angular/cdk/menu";
+import { MatButtonModule } from "@angular/material/button";
+import { MatRippleModule } from "@angular/material/core";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatSliderModule } from "@angular/material/slider";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatBadgeModule } from "@angular/material/badge";
+import { MatDialog } from "@angular/material/dialog";
 
-import { AppService } from '../../@services/app.service';
-import { ContextMenuService } from '../../@services/context-menu.service';
-import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
-import { MonitorService } from '../../@services/monitor.service';
-import { UrlService } from '../../@services/url.service';
-import { AutofocusAndHandleOutsideClickDirective } from '../../directive/autofocus.directive';
-import { getStatusDuration, getStatusName } from '../../helpers/app.helpers';
-import { ContextMenuComponent } from '../context-menu/context-menu.component';
-import { CancelComponent } from '../UI/cancel/cancel.component';
-import { SaveComponent } from '../UI/save/save.component';
-import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
-import { MonitorMenuComponent } from './monitor-menu/monitor-menu.component';
+import { AppService } from "../../@services/app.service";
+import { ContextMenuService } from "../../@services/context-menu.service";
+import { ExtensionTabNavigationService } from "../../@services/extension-tab-navigation.service";
+import { MonitorService } from "../../@services/monitor.service";
+import { UrlService } from "../../@services/url.service";
+import { AutofocusAndHandleOutsideClickDirective } from "../../directive/autofocus.directive";
+import { getStatusDuration, getStatusName } from "../../helpers/app.helpers";
+import { ContextMenuComponent } from "../context-menu/context-menu.component";
+import { CancelComponent } from "../UI/cancel/cancel.component";
+import { SaveComponent } from "../UI/save/save.component";
+import { MonitorHeaderComponent } from "./monitor-header/monitor-header.component";
+import { MonitorMenuComponent } from "./monitor-menu/monitor-menu.component";
 
-import { DurationPipe } from '../../pipes/duration.pipe';
+import { DurationPipe } from "../../pipes/duration.pipe";
 
-import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
-import { TContextMenuAction, TFocusElementAction } from '../../types';
-import { TimeInputComponent } from '../UI/clock/time-input.component';
-import { getHoursAndMinutes } from '../../helpers/monitor.helpers';
-import { KeyboardService } from '../../@services/keyboard.service';
-import { Duration } from 'luxon';
+import { IEvent } from "../../interfaces/driver-daily-log-events.interface";
+import { TContextMenuAction, TFocusElementAction } from "../../types";
+import { TimeInputComponent } from "../UI/time-input/time-input.component";
+import { getHoursAndMinutes } from "../../helpers/monitor.helpers";
+import { KeyboardService } from "../../@services/keyboard.service";
+import { DateTime, Duration } from "luxon";
+import { TimeInputService } from "../../@services/time-input.service";
 
 @Component({
-  selector: 'app-monitor',
+  selector: "app-monitor",
   imports: [
     CommonModule,
     FormsModule,
@@ -65,14 +66,15 @@ import { Duration } from 'luxon';
     MonitorMenuComponent,
     TimeInputComponent,
   ],
-  templateUrl: './monitor.component.html',
-  styleUrl: './monitor.component.scss',
+  templateUrl: "./monitor.component.html",
+  styleUrl: "./monitor.component.scss",
   providers: [],
 })
 export class MonitorComponent {
-  @ViewChild('inputRef') myInputField!: ElementRef<HTMLInputElement>;
-  @ViewChild('updateChangesButton')
+  @ViewChild("inputRef") myInputField!: ElementRef<HTMLInputElement>;
+  @ViewChild("updateChangesButton")
   updateChangesButtonRef!: ElementRef<HTMLButtonElement>;
+  DateTime = DateTime;
 
   monitorService = inject(MonitorService);
   urlService = inject(UrlService);
@@ -80,11 +82,12 @@ export class MonitorComponent {
   contextMenuService = inject(ContextMenuService);
   extTabNavService = inject(ExtensionTabNavigationService);
   keyboardService = inject(KeyboardService);
+  timeInputService = inject(TimeInputService);
 
   _snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
 
-  statusText = '';
+  statusText = "";
   contextMenuX = 0;
   contextMenuY = 0;
   selectedEvent: IEvent | null = null;
@@ -152,12 +155,12 @@ export class MonitorComponent {
       const element = document.getElementById(id!);
 
       if (element) {
-        if (hovered.action === 'HOVER_START') {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          element.classList.add('highlighted');
+        if (hovered.action === "HOVER_START") {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+          element.classList.add("highlighted");
         }
-        if (hovered.action === 'HOVER_STOP') {
-          element.classList.remove('highlighted');
+        if (hovered.action === "HOVER_STOP") {
+          element.classList.remove("highlighted");
         }
       }
     });
@@ -174,24 +177,30 @@ export class MonitorComponent {
     this.newResizeSpeed.set(0);
     this.currentEditEvent.set(null);
     this.showUpdateEvent.set(null);
-    this.newNote.set('');
+    this.newNote.set("");
     this.newOdometer.set(0);
     this.currentResizeDriving.set(null);
     this.showResize.set(null);
   };
 
   getNoSpaceNote(note: string) {
-    return note.replace(/\s/g, '');
+    return note.replace(/\s/g, "");
   }
 
   focusElement(event: IEvent, action: TFocusElementAction) {
     if (event.driver.id !== event.driver.viewId) return;
     if (this.monitorService.isUpdating()) return;
+    if (this.selectedEventsIds().includes(event.id)) return;
     this.urlService.focusElement(event.id, action, event.statusName);
   }
 
   selectEvent(event: IEvent) {
-    if (this.currentEditEvent() || this.showResize()) return;
+    if (
+      this.currentEditEvent() ||
+      this.showResize() ||
+      event.driver.id !== event.driver.viewId
+    )
+      return;
 
     this.monitorService.selectedEvents.update((prev) => {
       let newSelectedElements = [...prev];
@@ -202,6 +211,7 @@ export class MonitorComponent {
       }
 
       newSelectedElements.push(event);
+      this.focusElement(event, "FOCUS_TACHOGRAPH_START");
       return newSelectedElements;
     });
   }
@@ -250,12 +260,12 @@ export class MonitorComponent {
         (type) => type === event.dutyStatus,
       ),
     );
-    this.newNote.set('');
+    this.newNote.set("");
     if (
       [
-        'ChangeToOffDutyStatus',
-        'ChangeToSleeperBerthStatus',
-        'ChangeToOnDutyNotDrivingStatus',
+        "ChangeToOffDutyStatus",
+        "ChangeToSleeperBerthStatus",
+        "ChangeToOnDutyNotDrivingStatus",
       ].includes(event.dutyStatus)
     ) {
       this.newNote.set(event.notes);
@@ -267,7 +277,7 @@ export class MonitorComponent {
   cancelEventEdit() {
     this.currentEditEvent.set(null);
     this.showUpdateEvent.set(null);
-    this.newNote.set('');
+    this.newNote.set("");
   }
 
   cancelResize() {
@@ -283,23 +293,23 @@ export class MonitorComponent {
     if (!event || !seconds) {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
-        'OK',
+        "OK",
         { duration: 3000 },
       );
       return this.refresh();
     }
-    const duration = Duration.fromObject({ seconds }).toFormat('hh:mm:ss');
+    const duration = Duration.fromObject({ seconds }).toFormat("hh:mm:ss");
     const durationAsTimeSpan = `${new Date().getTime()}`;
 
     const advancedResize = this.showAdvancedResize();
     if (advancedResize) {
-      return this.contextMenuService.handleAction('ADVANCED_RESIZE', event, {
+      return this.contextMenuService.handleAction("ADVANCED_RESIZE", event, {
         resizePayload: { duration, durationAsTimeSpan },
         parsedErrorInfo: advancedResize,
       });
     }
 
-    return this.contextMenuService.handleAction('RESIZE', event, {
+    return this.contextMenuService.handleAction("RESIZE", event, {
       duration,
       durationAsTimeSpan,
     });
@@ -309,51 +319,59 @@ export class MonitorComponent {
     const event = this.currentEditEvent();
     const totalVehicleMiles = this.newOdometer();
     const eventTypeCode = this.monitorService.newEventType();
+    const startTime = this.timeInputService.newDate();
     const note = [
-      'ChangeToOffDutyStatus',
-      'ChangeToSleeperBerthStatus',
-      'ChangeToOnDutyNotDrivingStatus',
+      "ChangeToOffDutyStatus",
+      "ChangeToSleeperBerthStatus",
+      "ChangeToOnDutyNotDrivingStatus",
     ].includes(eventTypeCode)
       ? this.newNote()
-      : '';
+      : "";
 
     const duplicateEvent = this.monitorService.duplicateEvent();
 
     if (!event) {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
-        'OK',
-        { duration: 3000 },
+        "OK",
+        { duration: 7000 },
       );
       return this.refresh();
     }
     if (!note) {
-      this._snackBar.open(`[Monitor Component] error: invalid note`, 'OK', {
-        duration: 3000,
+      this._snackBar.open(`[Monitor Component] error: invalid note`, "OK", {
+        duration: 7000,
+      });
+    }
+    if (!startTime) {
+      this._snackBar.open(`[Monitor Component] error: invalid date`, "OK", {
+        duration: 7000,
       });
     }
     if (!totalVehicleMiles) {
       return this._snackBar.open(
         `[Monitor Component] error: invalid odometer value`,
-        'OK',
-        { duration: 3000 },
+        "OK",
+        { duration: 7000 },
       );
     }
 
     this.currentEditEvent.set(null);
 
     if (duplicateEvent) {
-      this.contextMenuService.handleAction('DUPLICATE', event, {
+      this.contextMenuService.handleAction("DUPLICATE", event, {
         totalVehicleMiles,
         note,
         eventTypeCode,
+        startTime,
       });
       this.monitorService.duplicateEvent.set(false);
     } else
-      this.contextMenuService.handleAction('UPDATE_EVENT', event, {
+      this.contextMenuService.handleAction("UPDATE_EVENT", event, {
         totalVehicleMiles,
         note,
         eventTypeCode,
+        startTime,
       });
   }
 
@@ -408,7 +426,7 @@ export class MonitorComponent {
 
   copyValue(value: string) {
     navigator.clipboard.writeText(value);
-    this._snackBar.open(`Copied: ${value}`, 'OK', { duration: 1500 });
+    this._snackBar.open(`Copied: ${value}`, "OK", { duration: 1500 });
   }
 
   deselectAllEvents() {
@@ -417,19 +435,19 @@ export class MonitorComponent {
 
   markBreaksAndShift(event: IEvent) {
     let breakShift: string;
-    const driver = event.driver.id !== event.driver.viewId ? ' co-driver' : '';
+    const driver = event.driver.id !== event.driver.viewId ? " co-driver" : "";
     switch (event.break) {
       case 0:
-        breakShift = 'shift';
+        breakShift = "shift";
         break;
       case 10:
-        breakShift = 'ten-hour-break';
+        breakShift = "ten-hour-break";
         break;
       case 34:
-        breakShift = 'cycle-break';
+        breakShift = "cycle-break";
         break;
       default:
-        breakShift = 'undefined';
+        breakShift = "undefined";
         break;
     }
     return breakShift + driver;
