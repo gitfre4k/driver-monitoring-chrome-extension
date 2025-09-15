@@ -7,37 +7,41 @@ import {
   HostListener,
   output,
   input,
-} from '@angular/core';
+  inject,
+} from "@angular/core";
 import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
-} from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-import { TInputTime } from '../../../types';
+} from "@angular/forms";
+import { Subscription } from "rxjs";
+import { debounceTime } from "rxjs/operators";
+import { TInputTime } from "../../../types";
+import { MonitorService } from "../../../@services/monitor.service";
 
 @Component({
-  selector: 'app-shift-period',
+  selector: "app-shift-period",
   imports: [ReactiveFormsModule],
-  templateUrl: './shift-period.component.html',
-  styleUrls: ['./shift-period.component.scss'],
+  templateUrl: "./shift-period.component.html",
+  styleUrls: ["./shift-period.component.scss"],
 })
 export class ShiftPeriodComponent implements OnInit, OnDestroy {
-  @ViewChild('hoursInput') hoursInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('minutesInput') minutesInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('secondsInput') secondsInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("hoursInput") hoursInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("minutesInput") minutesInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("secondsInput") secondsInput!: ElementRef<HTMLInputElement>;
+
+  monitorService = inject(MonitorService);
 
   fullClock = input(false);
   mm = input<string>();
   hh = input<string>();
   ss = input<string>();
-  period = input<'AM' | 'PM'>();
+  period = input<"AM" | "PM">();
   onHoursInputChange = output<{ hours: string }>();
   onMinutesInputChange = output<{ minutes: string }>();
   onSecondsInputChange = output<{ seconds: string }>();
-  onPeriodChange = output<'AM' | 'PM'>();
+  onPeriodChange = output<"AM" | "PM">();
 
   timeForm!: FormGroup;
 
@@ -47,55 +51,55 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.timeForm = this.fb.group({
-      hours: [this.hh() ?? '00', [Validators.required]],
-      minutes: [this.mm() ?? '00', [Validators.required]],
-      seconds: [this.ss() ?? '00', [Validators.required]],
-      period: [this.period() ?? 'AM', [Validators.required]],
+      hours: [this.hh() ?? "00", [Validators.required]],
+      minutes: [this.mm() ?? "00", [Validators.required]],
+      seconds: [this.ss() ?? "00", [Validators.required]],
+      period: [this.period() ?? "AM", [Validators.required]],
     });
 
     this.formSubscriptions.add(
       this.timeForm
-        .get('hours')
+        .get("hours")
         ?.valueChanges.pipe(debounceTime(50))
-        .subscribe((val) => this.sanitizeAndValidate('hours', val)),
+        .subscribe((val) => this.sanitizeAndValidate("hours", val)),
     );
     this.formSubscriptions.add(
       this.timeForm
-        .get('minutes')
+        .get("minutes")
         ?.valueChanges.pipe(debounceTime(50))
-        .subscribe((val) => this.sanitizeAndValidate('minutes', val)),
+        .subscribe((val) => this.sanitizeAndValidate("minutes", val)),
     );
     this.formSubscriptions.add(
       this.timeForm
-        .get('seconds')
+        .get("seconds")
         ?.valueChanges.pipe(debounceTime(50))
-        .subscribe((val) => this.sanitizeAndValidate('seconds', val)),
+        .subscribe((val) => this.sanitizeAndValidate("seconds", val)),
     );
   }
 
   private sanitizeAndValidate(controlName: TInputTime, value: string) {
-    let sanitizedValue = String(value).replace(/[^0-9]/g, '');
+    let sanitizedValue = String(value).replace(/[^0-9]/g, "");
     const isClockMode = this.fullClock();
-    if (controlName === 'hours')
+    if (controlName === "hours")
       +sanitizedValue > (isClockMode ? 12 : 99) &&
-        (sanitizedValue = isClockMode ? '12' : '99');
-    if (controlName === 'minutes' && +sanitizedValue > 59)
-      sanitizedValue = '59';
-    if (controlName === 'seconds' && +sanitizedValue > 59)
-      sanitizedValue = '59';
+        (sanitizedValue = isClockMode ? "12" : "99");
+    if (controlName === "minutes" && +sanitizedValue > 59)
+      sanitizedValue = "59";
+    if (controlName === "seconds" && +sanitizedValue > 59)
+      sanitizedValue = "59";
 
     this.timeForm
       .get(controlName)
       ?.patchValue(sanitizedValue, { emitEvent: false });
 
     switch (controlName) {
-      case 'hours':
+      case "hours":
         this.onHoursInputChange.emit({ hours: sanitizedValue });
         break;
-      case 'minutes':
+      case "minutes":
         this.onMinutesInputChange.emit({ minutes: sanitizedValue });
         break;
-      case 'seconds':
+      case "seconds":
         this.onSecondsInputChange.emit({ seconds: sanitizedValue });
         break;
     }
@@ -103,10 +107,12 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
   onMouseWheel(event: WheelEvent, controlName: TInputTime) {
     event.preventDefault();
 
-    let hours: number = +this.timeForm.get('hours')?.value;
-    let minutes: number = +this.timeForm.get('minutes')?.value;
-    let seconds: number = +this.timeForm.get('seconds')?.value;
-    let period: 'AM' | 'PM' = this.timeForm.get('period')?.value;
+    if (this.monitorService.isShifting()) return;
+
+    let hours: number = +this.timeForm.get("hours")?.value;
+    let minutes: number = +this.timeForm.get("minutes")?.value;
+    let seconds: number = +this.timeForm.get("seconds")?.value;
+    let period: "AM" | "PM" = this.timeForm.get("period")?.value;
 
     const isClockMode: boolean = this.fullClock();
     let currentValue: number = +this.timeForm.get(controlName)?.value;
@@ -114,7 +120,7 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
     const isScrollUp = event.deltaY < 0; // true for up, false for down
 
     switch (controlName) {
-      case 'hours':
+      case "hours":
         if (isScrollUp) {
           hours++;
           if (isClockMode) {
@@ -140,13 +146,13 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
         this.timeForm.get(controlName)?.patchValue(this.formatValue(hours));
         break;
 
-      case 'minutes':
+      case "minutes":
         if (isScrollUp) {
           minutes++;
           if (minutes > 59) {
             minutes = 0;
             this.timeForm
-              .get('hours')
+              .get("hours")
               ?.patchValue(
                 this.formatValue(
                   isClockMode
@@ -162,7 +168,7 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
           if (minutes < 0) {
             minutes = 59;
             this.timeForm
-              .get('hours')
+              .get("hours")
               ?.patchValue(
                 this.formatValue(
                   isClockMode
@@ -176,17 +182,17 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
         this.timeForm.get(controlName)?.patchValue(this.formatValue(minutes));
         break;
 
-      case 'seconds':
+      case "seconds":
         if (isScrollUp) {
           seconds++;
           if (seconds > 59) {
             seconds = 0;
             this.timeForm
-              .get('minutes')
+              .get("minutes")
               ?.patchValue(this.formatValue(this.incrementMinute(minutes)));
             if (minutes + 1 > 59) {
               this.timeForm
-                .get('hours')
+                .get("hours")
                 ?.patchValue(
                   this.formatValue(
                     isClockMode
@@ -203,11 +209,11 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
           if (seconds < 0) {
             seconds = 59;
             this.timeForm
-              .get('minutes')
+              .get("minutes")
               ?.patchValue(this.formatValue(this.decrementMinute(minutes)));
             if (minutes - 1 < 0) {
               this.timeForm
-                .get('hours')
+                .get("hours")
                 ?.patchValue(
                   this.formatValue(
                     isClockMode
@@ -222,7 +228,7 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
         this.timeForm.get(controlName)?.patchValue(this.formatValue(seconds));
         break;
 
-      case 'period':
+      case "period":
         if (period) {
           this.togglePeriod(period, isScrollUp);
         }
@@ -234,27 +240,27 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
     return value < 10 ? `0${value}` : `${value}`;
   }
 
-  private togglePeriod(currentPeriod: 'AM' | 'PM', isScrollUp?: boolean): void {
-    const newPeriod = currentPeriod === 'AM' ? 'PM' : 'AM';
-    this.timeForm.get('period')?.patchValue(newPeriod);
+  private togglePeriod(currentPeriod: "AM" | "PM", isScrollUp?: boolean): void {
+    const newPeriod = currentPeriod === "AM" ? "PM" : "AM";
+    this.timeForm.get("period")?.patchValue(newPeriod);
   }
 
-  private incrementHour(hours: number, period?: 'AM' | 'PM'): number {
+  private incrementHour(hours: number, period?: "AM" | "PM"): number {
     if (period) {
       if (hours === 11) {
-        if (period === 'AM') this.togglePeriod('AM');
-        else this.togglePeriod('PM');
+        if (period === "AM") this.togglePeriod("AM");
+        else this.togglePeriod("PM");
       }
       if (hours === 12) return 1;
     }
     return (hours + 1) % 100;
   }
 
-  private decrementHour(hours: number, period?: 'AM' | 'PM'): number {
+  private decrementHour(hours: number, period?: "AM" | "PM"): number {
     if (period) {
       if (hours === 12) {
-        if (period === 'AM') this.togglePeriod('AM');
-        else this.togglePeriod('PM');
+        if (period === "AM") this.togglePeriod("AM");
+        else this.togglePeriod("PM");
       }
       if (hours === 1) return 12;
     }
@@ -271,15 +277,15 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (!this.fullClock()) {
-      this.onMinutesInputChange.emit({ minutes: '00' });
-      this.onHoursInputChange.emit({ hours: '00' });
+      this.onMinutesInputChange.emit({ minutes: "00" });
+      this.onHoursInputChange.emit({ hours: "00" });
       setTimeout(() => {
         this.hoursInput.nativeElement.focus();
       }, 150);
     }
   }
 
-  @HostListener('keyup', ['$event']) onKeyUp(event: KeyboardEvent): void {
+  @HostListener("keyup", ["$event"]) onKeyUp(event: KeyboardEvent): void {
     const hoursElement = this.hoursInput.nativeElement;
     const minutesElement = this.minutesInput.nativeElement;
     const secondsElement = this.secondsInput?.nativeElement;
@@ -288,8 +294,12 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
     const id = (event.target as HTMLElement).id;
     let focusMinutesFirst = true;
 
-    if (event.key !== 'Backspace' && event.key !== 'Delete') {
-      if (id === 'hours') {
+    if (
+      event.key !== "Backspace" &&
+      event.key !== "Delete" &&
+      event.key !== "Shift"
+    ) {
+      if (id === "hours") {
         hoursElement.value.length === 1 && (focusMinutesFirst = true);
         focusMinutesFirst &&
           hoursElement &&
@@ -298,7 +308,7 @@ export class ShiftPeriodComponent implements OnInit, OnDestroy {
           minutesElement.focus() &&
           (focusMinutesFirst = false);
       }
-      if (id === 'minutes') {
+      if (id === "minutes") {
         minutesElement.value.length === 2 &&
           secondsElement &&
           secondsElement.focus();

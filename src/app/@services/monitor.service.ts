@@ -60,6 +60,7 @@ export class MonitorService {
   newResizeSpeed = signal(0);
 
   isShifting = signal(false);
+  isShiftingDialogOpen = signal(false);
 
   updateEvents = effect(() => {
     const url = this.urlService.url();
@@ -191,6 +192,9 @@ export class MonitorService {
   }
 
   createDuplicatedEvent(event: IEvent) {
+    this.computedDailyLogEvents.update((events) =>
+      events ? events.filter((ev) => ev.id !== 0) : [],
+    );
     this.duplicateEvent.set(true);
     this.selectedEvents.set([]);
     this.currentResizeDriving.set(null);

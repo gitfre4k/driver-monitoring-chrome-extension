@@ -134,9 +134,16 @@
           justify-items: center;
 
           .view-id {
-            padding: 0 4px;
-            margin: 0px 3px;
-            text-align: right;
+            width: 100%;
+            padding: 4.6px 1px 4.6px 8px;
+            // margin: 0px 3px;
+            text-align: left;
+          }
+
+          .view-id.err {
+            border-left: 4px solid red;
+            padding-left: 2px;
+            margin-left: 2px;
           }
 
           .odometer {
@@ -179,6 +186,9 @@
           }
 
           .status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             font-size: 11px;
             margin: 1px 5px;
             padding: 4px 3px;
@@ -212,12 +222,14 @@
           .note {
             justify-self: start;
             line-height: 10px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+
             &.edit {
               grid-column: 1 / -1;
-              display: flex;
-              justify-content: flex-start;
-              align-items: center;
-              width: 100%;
             }
             // &__clock {
             // transform: scale(0.5);
@@ -388,43 +400,31 @@
   background-color: rgba(29, 29, 177, 0.444);
 }
 
-// .shift {
-//   background: linear-gradient(
-//     -116deg,
-//     hsla(142, 71%, 45%, 0.3) 0%,
-//     #ff930f00 100%
-//   );
-// }
+.shift {
+  background: linear-gradient(
+    -90deg,
+    hsla(142, 71%, 45%, 0.3) 0%,
+    #ff930f00 40%
+  );
+}
 // .shift.co-driver {
 //   background: linear-gradient(
-//     116deg,
+//     90deg,
 //     hsla(142, 71%, 45%, 0.3) 0%,
-//     hsla(33, 100%, 53%, 0) 100%
+//     #ff930f00 10%
 //   );
 // }
-// .ten-hour-break {
-//   background: linear-gradient(
-//     -116deg,
-//     rgba(234, 178, 8, 0.3) 0%,
-//     #ff930f00 100%
-//   );
-// }
+.ten-hour-break {
+  background: linear-gradient(-90deg, rgb(231, 175, 8, 0.8) 0%, #fbff0b00 30%);
+}
 // .ten-hour-break.co-driver {
-//   background: linear-gradient(
-//     116deg,
-//     rgba(234, 178, 8, 0.3) 0%,
-//     hsla(33, 100%, 53%, 0) 100%
-//   );
+//   background: linear-gradient(90deg, rgb(231, 175, 8, 0.8) 0%, #fbff0b00 10%);
 // }
-// .cycle-break {
-//   background: linear-gradient(-116deg, rgba(3, 7, 18, 0.3) 0%, #ff930f00 100%);
-// }
+.cycle-break {
+  background: linear-gradient(-90deg, rgb(3, 7, 18) 0%, #ff930f00 100%);
+}
 // .cycle-break.co-driver {
-//   background: linear-gradient(
-//     116deg,
-//     rgba(3, 7, 18, 0.3) 0%,
-//     hsla(33, 100%, 53%, 0) 100%
-//   );
+//   background: linear-gradient(90deg, rgb(3, 7, 18) 0%, #ff930f00 10%);
 // }
 
 .highlighted {

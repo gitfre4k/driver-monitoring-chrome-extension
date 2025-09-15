@@ -138,14 +138,26 @@ export class MonitorComponent {
 
   constructor() {
     effect(() => {
-      console.log(this.monitorService.computedDailyLogEvents());
-      const currentDriverId = this.urlService.currentView()?.driverId;
-      if (!currentDriverId) return;
+      const currentView = this.urlService.currentView();
+      if (!currentView) return;
+
+      const currentDriverId = currentView.driverId;
       const selectedEvents = this.monitorService.selectedEvents();
       if (!selectedEvents.length) return;
-
       if (currentDriverId !== this.monitorService.selectedEvents()[0].driver.id)
         this.monitorService.selectedEvents.set([]);
+      setTimeout(
+        () =>
+          this.monitorService.selectedEvents().forEach((ev) => {
+            ev.date.substring(0, 10) === currentView.date.substring(0, 10) &&
+              this.urlService.focusElement(
+                ev.id,
+                "FOCUS_TACHOGRAPH_START",
+                ev.statusName,
+              );
+          }),
+        1500,
+      );
     });
     effect(() => {
       const hovered = this.urlService.hoveredElement();
@@ -190,8 +202,14 @@ export class MonitorComponent {
   focusElement(event: IEvent, action: TFocusElementAction) {
     if (event.driver.id !== event.driver.viewId) return;
     if (this.monitorService.isUpdating()) return;
+    const currentView = this.urlService.currentView();
+    if (
+      !currentView ||
+      !(event.date.substring(0, 10) === currentView.date.substring(0, 10))
+    )
+      return;
     if (this.selectedEventsIds().includes(event.id)) return;
-    this.urlService.focusElement(event.id, action, event.statusName);
+    else this.urlService.focusElement(event.id, action, event.statusName);
   }
 
   selectEvent(event: IEvent) {
@@ -278,6 +296,9 @@ export class MonitorComponent {
     this.currentEditEvent.set(null);
     this.showUpdateEvent.set(null);
     this.newNote.set("");
+    this.monitorService.computedDailyLogEvents.update((events) =>
+      events ? events.filter((ev) => ev.id !== 0) : [],
+    );
   }
 
   cancelResize() {
@@ -433,9 +454,9 @@ export class MonitorComponent {
     this.monitorService.selectedEvents.set([]);
   }
 
-  markBreaksAndShift(event: IEvent) {
+  markBreaksAndShift(event: IEvent, coDriver?: boolean) {
     let breakShift: string;
-    const driver = event.driver.id !== event.driver.viewId ? " co-driver" : "";
+
     switch (event.break) {
       case 0:
         breakShift = "shift";
@@ -450,7 +471,10 @@ export class MonitorComponent {
         breakShift = "undefined";
         break;
     }
-    return breakShift + driver;
+    if (coDriver && event.driver.id !== event.driver.viewId)
+      return "co-driver " + breakShift;
+    if (!coDriver && event.driver.id === event.driver.viewId) return breakShift;
+    else return "";
   }
 
   onEditStatusWheel(wheelEvent: WheelEvent) {

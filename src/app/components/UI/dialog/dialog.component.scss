@@ -17,9 +17,16 @@
     margin: 16px;
   }
 
+  &__spinner {
+    margin: 32px 100px;
+  }
+
   &__button {
     margin-top: 60px;
     width: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     span {
       display: flex;
     }

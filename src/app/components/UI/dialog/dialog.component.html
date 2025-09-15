@@ -5,33 +5,49 @@
     <mat-icon>exit_to_app</mat-icon>
   </a>
 
-  <mat-form-field class="dialog__direction" (wheel)="onMouseWheel($event)">
-    <mat-label>Choose a direction</mat-label>
-    <mat-select [(ngModel)]="direction" [disabled]="monitorService.isShifting()">
-      <mat-option value="Past">backward</mat-option>
-      <mat-option value="Future">forward</mat-option>
-    </mat-select>
-  </mat-form-field>
+  @if (monitorService.isShifting()) {
+    <div class="dialog__spinner">
+      <mat-spinner [diameter]="44"></mat-spinner>
+    </div>
+  } @else {
+    <mat-form-field class="dialog__direction" (wheel)="onMouseWheel($event)">
+      <mat-label>Choose a direction</mat-label>
+      <mat-select
+        [(ngModel)]="direction"
+        [disabled]="monitorService.isShifting()"
+      >
+        <mat-option value="Past">backward</mat-option>
+        <mat-option value="Future">forward</mat-option>
+      </mat-select>
+    </mat-form-field>
+  }
 
   <div class="dialog__time">
-    @if ( monitorService.isShifting()) {
-    <mat-spinner [diameter]="44"></mat-spinner>
-    } @else {
-    <app-shift-period (onHoursInputChange)="handleHoursInputChange($event)"
-      (onMinutesInputChange)="handleMinutesInputChange($event)"></app-shift-period> }
+    <app-shift-period
+      (onHoursInputChange)="handleHoursInputChange($event)"
+      (onMinutesInputChange)="handleMinutesInputChange($event)"
+    ></app-shift-period>
   </div>
 
-  <button class="dialog__button" matButton="outlined" (click)="onShift()" (wheel)="onMouseWheel($event)" onkeydown="''"
-    [disabled]="time().length !== 5 || monitorService.isShifting() || monitorService.selectedEvents().length === 0">
+  <button
+    class="dialog__button"
+    matButton="outlined"
+    (click)="onShift()"
+    (wheel)="onMouseWheel($event)"
+    onkeydown="''"
+    [disabled]="
+      time().length !== 5 ||
+      monitorService.isShifting() ||
+      monitorService.selectedEvents().length === 0
+    "
+  >
     <mat-icon>
       @if (direction() === "Past") {
-      keyboard_double_arrow_left
+        keyboard_double_arrow_left
+      } @else {
+        keyboard_double_arrow_right
       }
-      @else{
-      keyboard_double_arrow_right
-      } </mat-icon>
+    </mat-icon>
     Shift
   </button>
-
-
 </div>

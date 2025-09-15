@@ -35,7 +35,10 @@ export class KeyboardService {
           case "Control":
             return this.ctrlPressed.set(true);
           case "Shift":
-            return this.monitorService.openShiftDialog();
+            return (
+              !this.monitorService.isShiftingDialogOpen() &&
+              this.monitorService.openShiftDialog()
+            );
           case "Delete": {
             const events = this.monitorService.selectedEvents();
             if (events.length === 0) return;

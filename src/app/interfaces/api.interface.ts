@@ -1,4 +1,5 @@
-import { TErrorParsedComparison } from '../types';
+import { MatDialogRef } from "@angular/material/dialog";
+import { TErrorParsedComparison } from "../types";
 
 export interface IResizePayload {
   duration: string;
@@ -16,8 +17,9 @@ export interface IAdvancedResizePayload {
 }
 
 export interface IShiftInputState {
-  direction: 'Past' | 'Future';
+  direction: "Past" | "Future";
   time: string;
+  dialogRef: MatDialogRef<any, any>;
 }
 export interface IMinutesOutput {
   minutes: string;

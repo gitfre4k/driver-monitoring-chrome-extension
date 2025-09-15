@@ -26,6 +26,7 @@ import { DateTime } from "luxon";
 import { MonitorService } from "../../../@services/monitor.service";
 import { formatTenantName } from "../../../helpers/monitor.helpers";
 import { ExtensionTabNavigationService } from "../../../@services/extension-tab-navigation.service";
+import { IDriverDailyLogEvents } from "../../../interfaces/driver-daily-log-events.interface";
 
 @Component({
   selector: "app-monitor-header",
@@ -52,17 +53,14 @@ export class MonitorHeaderComponent {
     this.handleKeyboardEvent(event);
   }
 
-  @Input() companyName = "";
-  @Input() driverName = "";
-  @Input() minDate: Date | null = null;
-  @Input() maxDate: Date | null = null;
-  @Input() nextLogDate: string | null = null;
-  @Input() currentLogDate: Date | null = null;
-  @Input() previousLogDate: string | null = null;
+  @Input() driverDailyLog!: IDriverDailyLogEvents;
+
   @Output() changeLogDate = new EventEmitter<string>();
 
   private monitorService = inject(MonitorService);
   private extTabNavService = inject(ExtensionTabNavigationService);
+
+  DateTime = DateTime;
 
   driverInfo = this.monitorService.driverInfo;
   isUpdating = this.monitorService.isUpdating;
@@ -83,14 +81,14 @@ export class MonitorHeaderComponent {
     ) {
       switch (event.key) {
         case "ArrowLeft":
-          if (this.previousLogDate) {
-            this.onChangeLogDate(this.previousLogDate);
+          if (this.driverDailyLog.previousLogDate) {
+            this.onChangeLogDate(this.driverDailyLog.previousLogDate);
             event.preventDefault();
           }
           break;
         case "ArrowRight":
-          if (this.nextLogDate) {
-            this.onChangeLogDate(this.nextLogDate);
+          if (this.driverDailyLog.nextLogDate) {
+            this.onChangeLogDate(this.driverDailyLog.nextLogDate);
             event.preventDefault();
           }
           break;

@@ -1,89 +1,104 @@
-<div class="info">
-  <div class="info__company-and-driver">
-    <div class="info__company-and-driver__1">
-      <span class="info__company-and-driver__1-company">
-        ## {{ formatTenantName(companyName) }}
-      </span>
+@if (driverDailyLog; as ddle) {
+  <div class="info">
+    <div class="info__company-and-driver">
+      <div class="info__company-and-driver__1">
+        <span class="info__company-and-driver__1-company">
+          ## {{ formatTenantName(ddle.companyName) }}
+        </span>
 
-      <span
-        [class]="
-          ![
-            'Batbayar Enkhbat',
-            'Nedeljko Arezina',
-            'Farhan Abdullahi Hussein',
-          ].includes(driverName)
-            ? 'info__company-and-driver__1-driver-name'
-            : 'info__company-and-driver__1-driver-x'
-        "
-      >
-        {{ driverName }}
-      </span>
-    </div>
-    <div class="info__company-and-driver__2">
-      @if (driverInfo(); as driverInfo) {
-        @if (driverInfo.mobileAppType.toLowerCase().trim() === "android") {
-          <mat-icon>android</mat-icon>
-        } @else {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24px"
-            viewBox="0 -960 960 960"
-            width="24px"
-            fill="#e3e3e3"
-          >
-            <path
-              d="M160-600v-80h80v80h-80Zm0 320v-240h80v240h-80Zm280 0h-80q-33 0-56.5-23.5T280-360v-240q0-33 23.5-56.5T360-680h80q33 0 56.5 23.5T520-600v240q0 33-23.5 56.5T440-280Zm-80-80h80v-240h-80v240Zm200 80v-80h160v-80h-80q-33 0-56.5-23.5T560-520v-80q0-33 23.5-56.5T640-680h160v80H640v80h80q33 0 56.5 23.5T800-440v80q0 33-23.5 56.5T720-280H560Z"
-            />
-          </svg>
+        <span
+          [class]="
+            ![
+              'Batbayar Enkhbat',
+              'Nedeljko Arezina',
+              'Farhan Abdullahi Hussein',
+            ].includes(ddle.driverFullName)
+              ? 'info__company-and-driver__1-driver-name'
+              : 'info__company-and-driver__1-driver-x'
+          "
+        >
+          {{ ddle.driverFullName }}
+        </span>
+
+        <span class="info__company-and-driver__1-vehicles">
+          [ truckID ]
+          @for (vehicle of ddle.vehicles; let i = $index; track $index) {
+            {{ $index > 0 ? ", " : "" }}{{ vehicle.name }}
+          }
+        </span>
+      </div>
+      <div class="info__company-and-driver__2">
+        @if (driverInfo(); as driverInfo) {
+          @if (driverInfo.mobileAppType.toLowerCase().trim() === "android") {
+            <mat-icon>android</mat-icon>
+          } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="#e3e3e3"
+            >
+              <path
+                d="M160-600v-80h80v80h-80Zm0 320v-240h80v240h-80Zm280 0h-80q-33 0-56.5-23.5T280-360v-240q0-33 23.5-56.5T360-680h80q33 0 56.5 23.5T520-600v240q0 33-23.5 56.5T440-280Zm-80-80h80v-240h-80v240Zm200 80v-80h160v-80h-80q-33 0-56.5-23.5T560-520v-80q0-33 23.5-56.5T640-680h160v80H640v80h80q33 0 56.5 23.5T800-440v80q0 33-23.5 56.5T720-280H560Z"
+              />
+            </svg>
+          }
+          <span class="info__company-and-driver__2-version">{{
+            driverInfo.mobileAppVersion
+          }}</span>
+          <span style="margin-top: 6px">{{
+            driverInfo.homeTerminalTimeZone
+          }}</span>
         }
-        <span class="info__company-and-driver__2-version">{{
-          driverInfo.mobileAppVersion
-        }}</span>
-        <span style="margin-top: 6px">{{
-          driverInfo.homeTerminalTimeZone
-        }}</span>
+      </div>
+    </div>
+
+    <div class="info__nav">
+      <button
+        mat-icon-button
+        [disabled]="!ddle.previousLogDate"
+        (click)="onChangeLogDate(ddle.previousLogDate)"
+      >
+        <mat-icon>arrow_left</mat-icon>
+      </button>
+      @if (isUpdating()) {
+        <div class="info__nav__date">
+          <mat-spinner [diameter]="17"></mat-spinner>
+        </div>
+      } @else {
+        <div>
+          <mat-form-field style="display: none">
+            <input
+              matInput
+              [matDatepicker]="viewDatePicker"
+              [formControl]="datePicker"
+              (dateChange)="onDateChange($event)"
+              [value]="DateTime.fromISO(ddle.date).toJSDate()"
+              [min]="DateTime.fromISO(ddle.firstEventTime).toJSDate()"
+              [max]="
+                DateTime.now().setZone(ddle.homeTerminalTimeZone).toJSDate()
+              "
+            />
+            <mat-datepicker #viewDatePicker></mat-datepicker>
+          </mat-form-field>
+
+          <div
+            class="info__nav__date"
+            (click)="viewDatePicker.open()"
+            matRipple
+          >
+            <span> {{ date | date: "mediumDate" }} </span>
+          </div>
+        </div>
       }
+      <button
+        mat-icon-button
+        [disabled]="!ddle.nextLogDate"
+        (click)="onChangeLogDate(ddle.nextLogDate)"
+      >
+        <mat-icon>arrow_right</mat-icon>
+      </button>
     </div>
   </div>
-
-  <div class="info__nav">
-    <button
-      mat-icon-button
-      [disabled]="!previousLogDate"
-      (click)="onChangeLogDate(previousLogDate)"
-    >
-      <mat-icon>arrow_left</mat-icon>
-    </button>
-    @if (isUpdating()) {
-      <div class="info__nav__date">
-        <mat-spinner [diameter]="17"></mat-spinner>
-      </div>
-    } @else {
-      <div>
-        <mat-form-field style="display: none">
-          <input
-            matInput
-            [matDatepicker]="viewDatePicker"
-            [formControl]="datePicker"
-            (dateChange)="onDateChange($event)"
-            [value]="currentLogDate"
-            [min]="minDate"
-            [max]="maxDate"
-          />
-          <mat-datepicker #viewDatePicker></mat-datepicker>
-        </mat-form-field>
-
-        <div class="info__nav__date" (click)="viewDatePicker.open()" matRipple>
-          <span> {{ date | date: "mediumDate" }} </span>
-        </div>
-      </div>
-    }
-    <button
-      mat-icon-button
-      [disabled]="!nextLogDate"
-      (click)="onChangeLogDate(nextLogDate)"
-    >
-      <mat-icon>arrow_right</mat-icon>
-    </button>
-  </div>
-</div>
+}

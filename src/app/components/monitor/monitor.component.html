@@ -49,14 +49,8 @@
     </ng-template>
 
     <app-monitor-header
-      [companyName]="ddle.companyName"
-      [driverName]="ddle.driverFullName"
-      [currentLogDate]="DateTime.fromISO(ddle.date).toJSDate()"
-      [previousLogDate]="ddle.previousLogDate"
-      [nextLogDate]="ddle.nextLogDate"
+      [driverDailyLog]="ddle"
       (changeLogDate)="onChangeLogDate($event, ddle.driverId)"
-      [minDate]="DateTime.fromISO(ddle.firstEventTime).toJSDate()"
-      [maxDate]="DateTime.now().setZone(ddle.homeTerminalTimeZone).toJSDate()"
     ></app-monitor-header>
 
     <div class="event-list">
@@ -113,9 +107,7 @@
 
           <li
             (contextmenu)="onContextMenu($event, event)"
-            class="{{ markBreaksAndShift(event) }} + {{
-              selectedEventsIds().includes(event.id) && 'selected'
-            }}"
+            class="{{ selectedEventsIds().includes(event.id) && 'selected' }}"
             (click)="selectEvent(event)"
           >
             <div
@@ -262,15 +254,16 @@
               } @else {
                 <span
                   [ngClass]="
-                    'view-id ' +
+                    markBreaksAndShift(event) +
+                    ' view-id ' +
                     (event.errorMessages && event.errorMessages.length
-                      ? ' error'
+                      ? ' err'
                       : '') +
                     (event.manualDriving ||
                     event.malf ||
                     event.statusName === 'Fleet manager' ||
                     event.refuel
-                      ? ' warn'
+                      ? ' war'
                       : '')
                   "
                   >{{ event.viewId }}.</span
@@ -301,7 +294,7 @@
                   "
                 >
                   @if (event.statusName === "Driving" && event.averageSpeed) {
-                    <span style="font-size: 12px">
+                    <span style="font-weight: 500">
                       @if (
                         newResizeSpeed() &&
                         currentResizeDriving()?.id === event.id
@@ -410,6 +403,8 @@
                       </span>
                     }
                   </span>
+                } @else {
+                  <span class="note"> </span>
                 }
               }
             </div>

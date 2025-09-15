@@ -113,7 +113,6 @@ export class ApiOperationsService {
             }),
           ),
           switchMap(() =>
-            ///// ------
             this.apiService.getDriverDailyLogEvents(
               event.driver.id,
               event.date,
