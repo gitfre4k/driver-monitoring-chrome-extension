@@ -1,66 +1,69 @@
 <div class="info-tab">
   <div class="info-tab__tenant">
     @if (appService.currentTenant(); as tenant) {
-    <h2>## {{ tenant.name }}</h2>
+      <h2>## {{ tenant.name }}</h2>
 
-    <div class="info-tab__tenant__group">
-      <span>domain</span
-      ><span
-        ><a href="{{ tenant.domainName }}" target="_blank">{{
-          tenant.domainName
-        }}</a></span
-      >
-    </div>
-    <hr />
-    <div class="info-tab__tenant__group">
-      <span>e-mail</span><span>{{ tenant.customerContactEmail }}</span>
-    </div>
-    <div class="info-tab__tenant__group">
-      <span>contact person:</span><span>{{ tenant.customerContactName }}</span>
-    </div>
-    <div class="info-tab__tenant__group">
-      <span>contact phone:</span><span>{{ tenant.customerContactPhone }}</span>
-    </div>
-
+      <div class="info-tab__tenant__group">
+        <span>domain</span
+        ><span
+          ><a href="{{ tenant.domainName }}" target="_blank">{{
+            tenant.domainName
+          }}</a></span
+        >
+      </div>
+      <hr />
+      <div class="info-tab__tenant__group">
+        <span>e-mail</span><span>{{ tenant.customerContactEmail }}</span>
+      </div>
+      <div class="info-tab__tenant__group">
+        <span>contact person:</span
+        ><span>{{ tenant.customerContactName }}</span>
+      </div>
+      <div class="info-tab__tenant__group">
+        <span>contact phone:</span
+        ><span>{{ tenant.customerContactPhone }}</span>
+      </div>
     }
   </div>
   <div class="info-tab__log">
     <button (click)="getLogs()">get Driver log info</button>
     @if (driver(); as driver) {
-    <h3>{{ driver.fullName }}</h3>
-    <div class="info-tab__log__group">
-      <span>driver id</span><span>{{ driver.driverId }}</span>
-    </div>
-    <div class="info-tab__log__group">
-      <span>status</span><span>{{ driver.driverStatus }}</span>
-    </div>
-    <div class="info-tab__log__group">
-      <span>app type</span><span>{{ driver.mobileAppType }}</span>
-    </div>
-    <div class="info-tab__log__group">
-      <span>app version</span><span>{{ driver.mobileAppVersion }}</span>
-    </div>
+      <h3>{{ driver.fullName }}</h3>
+      <div class="info-tab__log__group">
+        <span>driver id</span><span>{{ driver.driverId }}</span>
+      </div>
+      <div class="info-tab__log__group">
+        <span>status</span><span>{{ driver.driverStatus }}</span>
+      </div>
+      <div class="info-tab__log__group">
+        <span>app type</span><span>{{ driver.mobileAppType }}</span>
+      </div>
+      <div class="info-tab__log__group">
+        <span>app version</span><span>{{ driver.mobileAppVersion }}</span>
+      </div>
 
-    <div class="info-tab__log__group">
-      <span>last sync</span
-      ><span>{{ driver.lastSync | date : "HH:mm:ss MMMM d, y" }}</span>
-    </div>
-    <div class="info-tab__log__group">
-      <span> </span><span>({{ driver.lastSync | dateAgo }})</span>
-    </div>
+      <div class="info-tab__log__group">
+        <span>last sync</span
+        ><span>{{ driver.lastSync | date: "HH:mm:ss MMMM d, y" }}</span>
+      </div>
+      <div class="info-tab__log__group">
+        <span> </span><span>({{ driver.lastSync | dateAgo }})</span>
+      </div>
 
-    <div class="info-tab__log__group">
-      <span>timezone:</span
-      ><span>{{ monitorService.driverDailyLog()?.homeTerminalTimeZone }}</span>
-    </div>
-    <span class="info-tab__log__single">{{
-      monitorService.driverDailyLog()?.windowsHomeTerminalZone
-    }}</span>
+      <div class="info-tab__log__group">
+        <span>timezone:</span
+        ><span>{{
+          monitorService.driverDailyLog()?.homeTerminalTimeZone
+        }}</span>
+      </div>
+      <span class="info-tab__log__single">{{
+        monitorService.driverDailyLog()?.windowsHomeTerminalZone
+      }}</span>
     }
   </div>
 
   <div class="info-tab__extension-version">
     <p>Driver Monitoring Chrome Extension</p>
-    <p>version: 0.0.4 TEST VERSION 1</p>
+    <p>version: 0.0.4</p>
   </div>
 </div>

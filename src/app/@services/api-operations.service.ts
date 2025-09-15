@@ -1,18 +1,19 @@
 import { HttpClient } from "@angular/common/http";
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, Signal } from "@angular/core";
+
 import { from, map, mergeMap, switchMap, tap } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
+
 import { IEventDetails, ITenant } from "../interfaces";
 import { DateTime } from "luxon";
-import {
-  IEvent,
-  IStatusInfo,
-} from "../interfaces/driver-daily-log-events.interface";
+import { IEvent } from "../interfaces/driver-daily-log-events.interface";
 import { TEventTypeCode } from "../types";
 import {
   IAdvancedResizePayload,
   IResizePayload,
   IShiftInputState,
 } from "../interfaces/api.interface";
+
 import { ApiService } from "./api.service";
 import { ComputeEventsService } from "./compute-events.service";
 
