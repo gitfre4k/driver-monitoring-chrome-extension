@@ -1,4 +1,4 @@
-import { ITenant } from './';
+import { ITenant } from "./";
 
 export interface IEvent {
   id: number;
@@ -59,6 +59,7 @@ export interface IEvent {
   nextDutyStatusInfo: IStatusInfo;
   intermediatesInfo: IStatusInfo[];
   custom: boolean;
+  coDriverLastBreakStatus: number | null;
 }
 
 export interface IStatusInfo {
@@ -123,7 +124,7 @@ export interface IDriverDailyLogEvents {
   driverId: number;
   driverAssignedId: string;
   driverFullName: string;
-  violations: any[];
+  violations: IDriverLogViolation[];
   events: IEvent[];
   coDrivers: ICoDriver[];
   vehicles: IVehicle[];
@@ -152,6 +153,17 @@ export interface IDriverDailyLogEvents {
   isEngineOffInnerEvents: boolean;
   shiftBreak: string;
   cycleBreak: string;
+}
+
+export interface IDriverLogViolation {
+  id: number;
+  violationType: string;
+  isHosViolation: boolean;
+  violationError: string;
+  startDateTime: string;
+  startTime: number;
+  endDateTime: string;
+  endTime: number;
 }
 
 export interface IRefuels {
@@ -187,5 +199,6 @@ export interface IDriverState {
   currentDutyStatus: IEvent;
   occurredDuringDriving: boolean;
   shiftIsReadyToStart: boolean;
+  coDriverLastBreakStatus: number | null;
   break: IDriverBreak;
 }

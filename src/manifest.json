@@ -20,7 +20,10 @@
   "side_panel": {
     "default_path": "index.html"
   },
-  "host_permissions": ["https://app.monitoringdriver.com/*"],
+  "host_permissions": [
+    "https://app.monitoringdriver.com/*",
+    "https://admin.prologs.us"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -32,8 +35,12 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://app.monitoringdriver.com/*"],
-      "js": ["content-script.js"]
+      "matches": [
+        "https://app.monitoringdriver.com/*"
+      ],
+      "js": [
+        "content-script.js"
+      ]
     }
   ]
 }

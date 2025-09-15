@@ -38,6 +38,7 @@ export class ComputeEventsService {
     currentDutyStatus: {} as IEvent,
     occurredDuringDriving: false,
     shiftIsReadyToStart: false,
+    coDriverLastBreakStatus: null,
     break: {
       shift: "",
       cycle: "",
@@ -220,6 +221,7 @@ export class ComputeEventsService {
         currentDutyStatus,
         occurredDuringDriving,
         shiftIsReadyToStart,
+        coDriverLastBreakStatus,
         break: { shift, cycle },
       } = events[i].driver.viewId === events[i].driver.id
         ? this.driverState()
@@ -244,7 +246,11 @@ export class ComputeEventsService {
       if (events[i].driver?.id !== currentDriver.id) {
         currentDriver = events[i].driver;
         events[i].shift = true;
+        // if (i !== 0) coDriverLastBreakStatus = events[i - 1].break;
       }
+
+      // coDriverLastBreakStatus
+      events[i].coDriverLastBreakStatus = coDriverLastBreakStatus;
 
       // onDuty, origin: Auto
       if (
@@ -617,6 +623,7 @@ export class ComputeEventsService {
         currentDutyStatus,
         occurredDuringDriving,
         shiftIsReadyToStart,
+        coDriverLastBreakStatus,
         break: { ...prev.break, shift, cycle },
       }));
     }

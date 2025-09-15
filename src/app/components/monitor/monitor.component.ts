@@ -36,7 +36,10 @@ import { MonitorMenuComponent } from "./monitor-menu/monitor-menu.component";
 
 import { DurationPipe } from "../../pipes/duration.pipe";
 
-import { IEvent } from "../../interfaces/driver-daily-log-events.interface";
+import {
+  IDriverLogViolation,
+  IEvent,
+} from "../../interfaces/driver-daily-log-events.interface";
 import { TContextMenuAction, TFocusElementAction } from "../../types";
 import { TimeInputComponent } from "../UI/time-input/time-input.component";
 import { getHoursAndMinutes } from "../../helpers/monitor.helpers";
@@ -454,27 +457,39 @@ export class MonitorComponent {
     this.monitorService.selectedEvents.set([]);
   }
 
-  markBreaksAndShift(event: IEvent, coDriver?: boolean) {
-    let breakShift: string;
+  addViolationClass(event: IEvent, violations: IDriverLogViolation[]) {
+    let isViolation = false;
+    const eventStartTime = DateTime.fromISO(event.realStartTime)
+      .toJSDate()
+      .getTime();
+    violations.forEach((v) => {
+      if (v.startTime <= eventStartTime && v.endTime >= eventStartTime)
+        isViolation = true;
+    });
+    return isViolation;
+  }
 
-    switch (event.break) {
-      case 0:
-        breakShift = "shift";
-        break;
-      case 10:
-        breakShift = "ten-hour-break";
-        break;
-      case 34:
-        breakShift = "cycle-break";
-        break;
-      default:
-        breakShift = "undefined";
-        break;
+  markBreaksAndShift(event: IEvent) {
+    let breakShift = "";
+
+    if (event.driver.id === event.driver.viewId) {
+      switch (event.break) {
+        case 0:
+          breakShift = "shift";
+          break;
+        case 10:
+          breakShift = "ten-hour-break";
+          break;
+        case 34:
+          breakShift = "cycle-break";
+          break;
+        default:
+          breakShift = "undefined";
+          break;
+      }
     }
-    if (coDriver && event.driver.id !== event.driver.viewId)
-      return "co-driver " + breakShift;
-    if (!coDriver && event.driver.id === event.driver.viewId) return breakShift;
-    else return "";
+
+    return breakShift;
   }
 
   onEditStatusWheel(wheelEvent: WheelEvent) {

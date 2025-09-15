@@ -48,6 +48,7 @@ import { IDriverLogs } from "../../interfaces/daily-log.interface";
 import { CertificationsScanService } from "../../@services/certifications-scan.service";
 import { AppService } from "../../@services/app.service";
 import { UnidentifiedEventsService } from "../../@services/unidentified-events.service";
+import { ApiPrologsAdminService } from "../../@services/api-prologs-admin.service";
 
 @Component({
   selector: "app-scan",
@@ -82,6 +83,7 @@ export class ScanComponent {
   certScanService = inject(CertificationsScanService);
   appService = inject(AppService);
   unidentifiedEventsService = inject(UnidentifiedEventsService);
+  prologsAdminService = inject(ApiPrologsAdminService);
   private advancedScanService = inject(AdvancedScanService);
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
@@ -250,6 +252,12 @@ export class ScanComponent {
   getPreViolationAlert() {
     this.scanMode.setValue("pre");
     this.startScan();
+  }
+
+  getDashboardLocationsData() {
+    this.prologsAdminService
+      .getDashboardLocationsData()
+      .subscribe({ next: (prologs) => console.log(prologs) });
   }
 
   deleteUnidentifiedEvents() {

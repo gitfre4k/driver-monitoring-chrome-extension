@@ -255,6 +255,9 @@
                 <span
                   [ngClass]="
                     markBreaksAndShift(event) +
+                    (addViolationClass(event, ddle.violations)
+                      ? ' violation'
+                      : '') +
                     ' view-id ' +
                     (event.errorMessages && event.errorMessages.length
                       ? ' err'
@@ -326,6 +329,7 @@
                   </div>
                 </span>
               } @else {
+                <!-- <span [ngClass]="markBreaksAndShift(event, true) + ' duration'"> -->
                 <span class="duration">
                   @if (
                     currentResizeDriving()?.id === event.id &&
@@ -340,7 +344,11 @@
               }
 
               @if (keyboardService.ctrlPressed()) {
-                <span class="note">{{ event.locationDisplayName }}</span>
+                <span
+                  class="note"
+                  [style]="event.locationMismatch ? 'color: red' : ''"
+                  >{{ event.locationDisplayName }}</span
+                >
               } @else {
                 @if (
                   !(currentEditEvent()?.id === event.id) &&
