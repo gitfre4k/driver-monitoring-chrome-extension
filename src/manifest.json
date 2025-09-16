@@ -21,8 +21,7 @@
     "default_path": "index.html"
   },
   "host_permissions": [
-    "https://app.monitoringdriver.com/*",
-    "https://admin.prologs.us"
+    "https://app.monitoringdriver.com/*"
   ],
   "background": {
     "service_worker": "background.js"

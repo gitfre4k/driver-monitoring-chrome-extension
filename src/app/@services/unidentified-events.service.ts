@@ -37,9 +37,9 @@ export class UnidentifiedEventsService {
                   .deleteUncertifiedEvents(tenant, eventsArray)
                   .subscribe();
               }
-            })
+            }),
           );
-        }, 10)
+        }, 10),
       )
       .pipe(
         finalize(() => {
@@ -55,7 +55,9 @@ export class UnidentifiedEventsService {
           this._snackBar.open(message, 'OK', {
             duration: 3000,
           });
-        })
+
+          this.totalCount.set(0);
+        }),
       );
   }
 }
