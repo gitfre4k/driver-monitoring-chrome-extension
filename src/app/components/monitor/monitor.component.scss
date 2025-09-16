@@ -128,7 +128,7 @@
 
         .event {
           display: grid;
-          grid-template-columns: 30px 58px 100px 45px 1fr;
+          grid-template-columns: 30px 58px 100px 36px 1fr;
           width: 100%;
           align-items: center;
           justify-items: center;
@@ -153,10 +153,13 @@
               width: 62px;
               margin-right: 13px;
             }
-            &.copy {
-              cursor: copy;
-            }
           }
+          .odometer.copy:hover {
+            padding: 3px;
+            cursor: cell;
+            border: 1px solid #eaeaea;
+          }
+
           input::-webkit-outer-spin-button,
           input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -196,7 +199,12 @@
             width: 85px;
             text-align: center;
             align-self: center;
+            height: auto;
             cursor: pointer;
+          }
+
+          .status.mph {
+            font-weight: 500;
           }
 
           .input {
@@ -216,21 +224,28 @@
           }
 
           .duration {
-            justify-self: start;
+            justify-self: end;
           }
 
           .note {
-            justify-self: start;
+            justify-self: center;
             line-height: 10px;
             width: 100%;
             height: 100%;
             display: flex;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
 
             &.edit {
               grid-column: 1 / -1;
             }
+          }
+
+          .note.location:hover {
+            padding: 3px;
+            cursor: cell;
+            height: auto;
+            border: 1px solid #eaeaea;
           }
 
           .on-hover {

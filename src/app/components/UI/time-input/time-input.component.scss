@@ -6,12 +6,12 @@
 .time {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #time_wrapper {
   margin: 0;
-  margin-left: -15px;
   transform: scale(0.65);
   display: flex;
   justify-content: space-between;
@@ -69,8 +69,7 @@ input {
   background-color: rgb(36, 36, 43);
 }
 .date {
-  margin-left: -50px;
-  width: 175px;
+  width: 194px;
   transform: scale(0.65);
   background-color: rgba(88, 88, 88, 0.15);
 }

@@ -26,6 +26,24 @@
         }})</span>
     </li>
     }
+    @if (monitorService.copiedEventLocation(); as location ) {
+
+    <li (click)="
+                contextMenuService.handleMultiEventAction(
+                  'PASTE_LOCATION',
+                  selectedEvents
+                )
+              " class="menu__item big">
+      <mat-icon style="color: yellow;">content_paste_go</mat-icon>
+      <span class="menu__item__name">
+        <span class="menu__item__name">Paste location</span>
+        <span class="menu__item__name">@ {{ location.geolocation }}</span>
+        <span class="menu__item__name">on selected Event{{ selectedEvents.length > 1 ? "s" : "" }} ({{
+          selectedEvents.length
+          }})
+        </span></span>
+    </li>
+    }
     }
   </ul>
 </div>

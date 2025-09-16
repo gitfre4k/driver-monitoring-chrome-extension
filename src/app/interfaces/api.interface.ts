@@ -27,3 +27,10 @@ export interface IMinutesOutput {
 export interface IHoursOutput {
   hours: string;
 }
+
+export interface IEventLocation {
+  geolocation: string;
+  latitude: string;
+  locationSource: string;
+  longitude: string;
+}

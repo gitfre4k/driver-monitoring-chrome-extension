@@ -1,7 +1,7 @@
-import { ProgressBarMode } from '@angular/material/progress-bar';
-import { IEvent as ICEvent } from '../interfaces/driver-daily-log-events.interface';
-import { IDailyLog } from './daily-log.interface';
-import { TEventTypeCode } from '../types';
+import { ProgressBarMode } from "@angular/material/progress-bar";
+import { IEvent as ICEvent } from "../interfaces/driver-daily-log-events.interface";
+import { IDailyLog } from "./daily-log.interface";
+import { TEventTypeCode } from "../types";
 
 export interface IViolations {
   company: ITenant;
@@ -60,7 +60,7 @@ export interface IDOTInspections {
       driverDriverId: string;
       isUnofficial: boolean;
       id: string;
-    }
+    },
   ];
 }
 
@@ -132,8 +132,8 @@ export interface IEventDetails {
   eventSequenceIdNumber: string;
   eventTypeCode: TEventTypeCode;
   eventUuid: string;
-  geolocation: string;
   id: number;
+  geolocation: string;
   latitude: string;
   locationSource: string;
   longitude: string;

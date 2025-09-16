@@ -219,7 +219,9 @@ export class MonitorComponent {
     if (
       this.currentEditEvent() ||
       this.showResize() ||
-      event.driver.id !== event.driver.viewId
+      this.showAdvancedResize() ||
+      event.driver.id !== event.driver.viewId ||
+      this.keyboardService.ctrlPressed()
     )
       return;
 
@@ -503,5 +505,9 @@ export class MonitorComponent {
     }
 
     this.monitorService.newEventTypeId.set(toggle);
+  }
+
+  copyLocation(event: IEvent) {
+    this.contextMenuService.handleAction("COPY_LOCATION", event);
   }
 }

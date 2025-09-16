@@ -8,7 +8,7 @@ import {
 import { UrlService } from "./url.service";
 import { tap } from "rxjs";
 import { AppService } from "./app.service";
-import { IParsedErrorInfo } from "../interfaces/api.interface";
+import { IEventLocation, IParsedErrorInfo } from "../interfaces/api.interface";
 import { TEventTypeCode } from "../types";
 
 import { ITenant } from "../interfaces";
@@ -61,6 +61,8 @@ export class MonitorService {
 
   isShifting = signal(false);
   isShiftingDialogOpen = signal(false);
+
+  copiedEventLocation = signal<IEventLocation | null>(null);
 
   updateEvents = effect(() => {
     const url = this.urlService.url();

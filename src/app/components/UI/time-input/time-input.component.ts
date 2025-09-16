@@ -36,6 +36,8 @@ export class TimeInputComponent {
   ) {
     event.preventDefault();
 
+    const newDate = this.timeInputService.newDate();
+
     let isScrollUp = false;
     if (event instanceof WheelEvent) {
       isScrollUp = event.deltaY < 0;
@@ -66,36 +68,47 @@ export class TimeInputComponent {
     }
 
     if (["hours", "minutes", "seconds"].includes(inputType)) {
-      this.timeInputService.newDate.update(
-        (date) =>
-          DateTime.fromISO(date)
-            .setZone(this.zone())
-            [isScrollUp ? "plus" : "minus"]({ [inputType]: 1 })
-            .toUTC()
-            .toISO()!,
+      this.updateNewDate(
+        DateTime.fromISO(newDate)
+          .setZone(this.zone())
+          [isScrollUp ? "plus" : "minus"]({ [inputType]: 1 })
+          .toUTC()
+          .toISO()!,
       );
     }
     if (inputType === "period") {
       const isAM = this.clock().period === "AM";
       if ((isAM && isScrollUp) || (!isAM && !isScrollUp))
-        this.timeInputService.newDate.update(
-          (date) =>
-            DateTime.fromISO(date)
-              .setZone(this.zone())
-              [isScrollUp ? "plus" : "minus"]({ hours: 12 })
-              .toUTC()
-              .toISO()!,
+        this.updateNewDate(
+          DateTime.fromISO(newDate)
+            .setZone(this.zone())
+            [isScrollUp ? "plus" : "minus"]({ hours: 12 })
+            .toUTC()
+            .toISO()!,
         );
     }
     if (inputType === "date") {
-      this.timeInputService.newDate.update(
-        (date) =>
-          DateTime.fromISO(date)
-            .setZone(this.zone())
-            [isScrollUp ? "plus" : "minus"]({ days: 1 })
-            .toUTC()
-            .toISO()!,
+      this.updateNewDate(
+        DateTime.fromISO(newDate)
+          .setZone(this.zone())
+          [isScrollUp ? "plus" : "minus"]({ days: 1 })
+          .toUTC()
+          .toISO()!,
       );
     }
+  }
+
+  updateNewDate(newDate: string) {
+    const inputDateAsTime = DateTime.fromISO(newDate).toJSDate().getTime();
+    const thisMomentAsTime = DateTime.now()
+      .setZone(this.zone())
+      .toJSDate()
+      .getTime();
+
+    this.timeInputService.newDate.set(
+      inputDateAsTime > thisMomentAsTime
+        ? DateTime.now().setZone(this.zone()).toUTC().toISO()!
+        : newDate,
+    );
   }
 }

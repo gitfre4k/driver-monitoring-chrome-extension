@@ -9,7 +9,7 @@ export class TimeInputService {
   zone = signal("");
 
   clock = linkedSignal(() => {
-    const newDate = this.newDate();
+    let newDate = this.newDate();
     const zone = this.zone();
 
     const hours = DateTime.fromISO(newDate).setZone(zone).toFormat("hh");
