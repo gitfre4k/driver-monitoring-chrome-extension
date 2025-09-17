@@ -39,6 +39,10 @@ export class KeyboardService {
               !this.monitorService.isShiftingDialogOpen() &&
               this.monitorService.openShiftDialog()
             );
+          //
+          // case "Escape": {
+          //   this.monitorService ...
+          // }
           case "Delete": {
             const events = this.monitorService.selectedEvents();
             if (events.length === 0) return;

@@ -46,6 +46,7 @@ import { getHoursAndMinutes } from "../../helpers/monitor.helpers";
 import { KeyboardService } from "../../@services/keyboard.service";
 import { DateTime, Duration } from "luxon";
 import { TimeInputService } from "../../@services/time-input.service";
+import { LocationInputComponent } from "../UI/location-input/location-input.component";
 
 @Component({
   selector: "app-monitor",
@@ -68,6 +69,7 @@ import { TimeInputService } from "../../@services/time-input.service";
     MatBadgeModule,
     MonitorMenuComponent,
     TimeInputComponent,
+    LocationInputComponent,
   ],
   templateUrl: "./monitor.component.html",
   styleUrl: "./monitor.component.scss",

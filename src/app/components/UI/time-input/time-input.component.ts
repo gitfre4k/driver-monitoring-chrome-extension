@@ -1,4 +1,11 @@
-import { Component, ViewChild, ElementRef, input, inject } from "@angular/core";
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  input,
+  inject,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { DateTime } from "luxon";
 import { TimeInputService } from "../../../@services/time-input.service";
@@ -8,6 +15,7 @@ import { TimeInputService } from "../../../@services/time-input.service";
   imports: [FormsModule],
   templateUrl: "./time-input.component.html",
   styleUrl: "./time-input.component.scss",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeInputComponent {
   @ViewChild("hoursInput") hoursInput!: ElementRef<HTMLInputElement>;
