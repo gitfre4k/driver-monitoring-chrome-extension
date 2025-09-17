@@ -50,4 +50,9 @@
     </mat-icon>
     Shift
   </button>
+  @if (space(); as space) {
+    space backwards: {{ space.backward | duration }}
+    <br />
+    space forward: {{ space.forward | duration }}
+  }
 </div>
