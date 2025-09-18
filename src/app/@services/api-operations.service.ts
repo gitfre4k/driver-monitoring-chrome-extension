@@ -10,6 +10,7 @@ import { IEvent } from "../interfaces/driver-daily-log-events.interface";
 import { TEventTypeCode } from "../types";
 import {
   IAdvancedResizePayload,
+  ILocationData,
   IResizePayload,
   IShiftInputState,
 } from "../interfaces/api.interface";
@@ -43,6 +44,17 @@ export class ApiOperationsService {
         },
       },
     );
+  }
+
+  getGeolocation(tenant: ITenant, lat: number, long: number) {
+    const url = `https://app.monitoringdriver.com/api/Locations/GetGeolocation?lat=${lat}&lng=${long}`;
+    return this.http.get<ILocationData>(url, {
+      withCredentials: true,
+      headers: {
+        "X-Tenant-Id": `${tenant.id}`,
+        "x-client-timezone": `${DateTime.local().zoneName}`,
+      },
+    });
   }
 
   partiallyTransformOnDuty = (

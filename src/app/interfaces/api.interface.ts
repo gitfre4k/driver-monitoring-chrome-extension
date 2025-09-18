@@ -34,3 +34,11 @@ export interface IEventLocation {
   locationSource: string;
   longitude: string;
 }
+
+export interface ILocationData {
+  name: string;
+  state: string;
+  distance: number;
+  direction: string;
+  bearing: number;
+}
