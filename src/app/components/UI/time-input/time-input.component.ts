@@ -5,101 +5,101 @@ import {
   input,
   inject,
   ChangeDetectionStrategy,
-} from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { DateTime } from "luxon";
-import { TimeInputService } from "../../../@services/time-input.service";
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { DateTime } from 'luxon';
+import { FormInputService } from '../../../@services/form-input.service';
 
 @Component({
-  selector: "app-time-input",
+  selector: 'app-time-input',
   imports: [FormsModule],
-  templateUrl: "./time-input.component.html",
-  styleUrl: "./time-input.component.scss",
+  templateUrl: './time-input.component.html',
+  styleUrl: './time-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeInputComponent {
-  @ViewChild("hoursInput") hoursInput!: ElementRef<HTMLInputElement>;
-  @ViewChild("minutesInput") minutesInput!: ElementRef<HTMLInputElement>;
-  @ViewChild("secondsInput") secondsInput!: ElementRef<HTMLInputElement>;
-  @ViewChild("periodInput") periodInput!: ElementRef<HTMLInputElement>;
-  @ViewChild("dateInput") dateInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('hoursInput') hoursInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('minutesInput') minutesInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('secondsInput') secondsInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('periodInput') periodInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('dateInput') dateInput!: ElementRef<HTMLInputElement>;
 
-  timeInputService = inject(TimeInputService);
+  formInputService = inject(FormInputService);
 
-  date = input("");
-  zone = input("");
+  date = input('');
+  zone = input('');
 
-  clock = this.timeInputService.clock;
+  clock = this.formInputService.clock;
 
   constructor() {}
 
   ngOnInit(): void {
-    this.timeInputService.newDate.set(this.date());
-    this.timeInputService.zone.set(this.zone());
+    this.formInputService.newDate.set(this.date());
+    this.formInputService.zone.set(this.zone());
   }
 
   onMouseWheel(
     event: Event,
-    inputType: "hours" | "minutes" | "seconds" | "period" | "date",
+    inputType: 'hours' | 'minutes' | 'seconds' | 'period' | 'date',
   ) {
     event.preventDefault();
 
-    const newDate = this.timeInputService.newDate();
+    const newDate = this.formInputService.newDate();
 
     let isScrollUp = false;
     if (event instanceof WheelEvent) {
       isScrollUp = event.deltaY < 0;
     }
     if (event instanceof KeyboardEvent) {
-      event.key === "ArrowUp" && (isScrollUp = true);
-      event.key === "ArrowDown" && (isScrollUp = false);
+      event.key === 'ArrowUp' && (isScrollUp = true);
+      event.key === 'ArrowDown' && (isScrollUp = false);
     }
 
     switch (inputType) {
-      case "hours":
+      case 'hours':
         this.hoursInput.nativeElement.focus();
         break;
-      case "minutes":
+      case 'minutes':
         this.minutesInput.nativeElement.focus();
         break;
-      case "seconds":
+      case 'seconds':
         this.secondsInput.nativeElement.focus();
         break;
-      case "period":
+      case 'period':
         this.periodInput.nativeElement.focus();
         break;
-      case "date":
+      case 'date':
         this.dateInput.nativeElement.focus();
         break;
       default:
         break;
     }
 
-    if (["hours", "minutes", "seconds"].includes(inputType)) {
+    if (['hours', 'minutes', 'seconds'].includes(inputType)) {
       this.updateNewDate(
         DateTime.fromISO(newDate)
           .setZone(this.zone())
-          [isScrollUp ? "plus" : "minus"]({ [inputType]: 1 })
+          [isScrollUp ? 'plus' : 'minus']({ [inputType]: 1 })
           .toUTC()
           .toISO()!,
       );
     }
-    if (inputType === "period") {
-      const isAM = this.clock().period === "AM";
+    if (inputType === 'period') {
+      const isAM = this.clock().period === 'AM';
       if ((isAM && isScrollUp) || (!isAM && !isScrollUp))
         this.updateNewDate(
           DateTime.fromISO(newDate)
             .setZone(this.zone())
-            [isScrollUp ? "plus" : "minus"]({ hours: 12 })
+            [isScrollUp ? 'plus' : 'minus']({ hours: 12 })
             .toUTC()
             .toISO()!,
         );
     }
-    if (inputType === "date") {
+    if (inputType === 'date') {
       this.updateNewDate(
         DateTime.fromISO(newDate)
           .setZone(this.zone())
-          [isScrollUp ? "plus" : "minus"]({ days: 1 })
+          [isScrollUp ? 'plus' : 'minus']({ days: 1 })
           .toUTC()
           .toISO()!,
       );
@@ -113,7 +113,7 @@ export class TimeInputComponent {
       .toJSDate()
       .getTime();
 
-    this.timeInputService.newDate.set(
+    this.formInputService.newDate.set(
       inputDateAsTime > thisMomentAsTime
         ? DateTime.now().setZone(this.zone()).toUTC().toISO()!
         : newDate,

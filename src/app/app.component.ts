@@ -166,7 +166,7 @@ export class AppComponent {
 
   popUp() {
     let height = window.screen.availHeight;
-    const windowFeatures = `width=444,height=${height},left=6846845,top=0`;
+    const windowFeatures = `width=444,height=${height},left=0,top=6846845`;
     window.open('index.html', '', windowFeatures);
     window.close();
   }

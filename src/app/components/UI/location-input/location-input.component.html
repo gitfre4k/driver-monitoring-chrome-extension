@@ -1,17 +1,64 @@
-<div id="location_wrapper">
-    <div id="location_input">
-        <label for="geolocation" class="geolocation">
-            <input id="hours" class="geolocation__input" #hoursInput [(ngModel)]="geolocation" autocomplete="off"
-                readonly />
-        </label>
-        <label for="latitude" class="latitude">
-            <span>lat</span>
-            <input id="hours" class="latitude__input" #hoursInput [(ngModel)]="latitude" autocomplete="off" readonly />
-        </label>
-        <label for="longitude" class="longitude">
-            <span>long</span>
-            <input id="hours" class="longitude__input" #hoursInput [(ngModel)]="longitude" autocomplete="off"
-                readonly />
-        </label>
+<!-- @if (monitorService.copiedEventLocation(); as location) {
+  <div id="location_wrapper">
+    <div id="location_paste">
+      <button
+        mat-icon-button
+        matTooltip="
+      Paste location 
+      @ {{ location.geolocation }}
+      on #{{ event()?.viewId }} {{ event()?.statusName }}
+      "
+        matTooltipPosition="left"
+      >
+        <mat-icon style="color: yellow">content_paste_go</mat-icon>
+      </button>
     </div>
+  </div>
+} -->
+
+<div id="location_wrapper">
+  <div id="location_input">
+    <label for="geolocation" class="geolocation">
+      <input
+        id="hours"
+        class="geolocation__input"
+        [(ngModel)]="formInputService.geolocation"
+        autocomplete="off"
+        readonly
+      />
+    </label>
+    <label for="latitude" class="latitude">
+      <span>lat</span>
+      <input
+        class="
+          {{
+          'latitude__input ' + (formInputService.isLatValid() ? '' : 'invalid')
+        }}
+        "
+        [(ngModel)]="formInputService.latitude"
+        autocomplete="off"
+        placeholder="latitude"
+        (paste)="onLatLongPaste($event)"
+      />
+    </label>
+    <label for="longitude" class="longitude">
+      <span>long</span>
+      <input
+        class="
+          {{
+          'longitude__input ' +
+            (formInputService.isLongValid() ? '' : 'invalid')
+        }}
+        "
+        [(ngModel)]="formInputService.longitude"
+        autocomplete="off"
+        placeholder="longitude"
+        (paste)="onLatLongPaste($event)"
+      />
+    </label>
+    <span
+      >{{ formInputService.isLatValid() }}
+      {{ formInputService.isLongValid() }}</span
+    >
+  </div>
 </div>
