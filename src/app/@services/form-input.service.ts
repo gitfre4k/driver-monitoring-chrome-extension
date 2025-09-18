@@ -1,10 +1,21 @@
-import { computed, Injectable, linkedSignal, signal } from "@angular/core";
+import {
+  computed,
+  inject,
+  Injectable,
+  linkedSignal,
+  signal,
+} from "@angular/core";
 import { DateTime } from "luxon";
+import { ApiOperationsService } from "./api-operations.service";
+import { ITenant } from "../interfaces";
+import { ILocationData } from "../interfaces/api.interface";
 
 @Injectable({
   providedIn: "root",
 })
 export class FormInputService {
+  apiOperationsService = inject(ApiOperationsService);
+
   newDate = signal("");
   zone = signal("");
 
@@ -25,9 +36,30 @@ export class FormInputService {
     return { hours, minutes, seconds, period, date };
   });
 
-  geolocation = signal("");
   latitude = signal("");
   isLatValid = computed(() => !isNaN(+this.latitude()));
   longitude = signal("");
   isLongValid = computed(() => !isNaN(+this.longitude()));
+
+  geolocation = signal<ILocationData | null>(null);
+  locationDisplayName = computed(() => {
+    const geolocation = this.geolocation();
+    if (!geolocation) return null;
+
+    const { distance, direction, name, state } = geolocation;
+
+    const distanceString = distance ? `${distance}mi` : "";
+    const directionString = direction ? `${distance ? direction : ""}` : "";
+    if (isNaN(distance)) return `E R R O R`;
+
+    return `${distanceString} ${directionString} ${name}, ${state}`
+      .replace(/\s+/g, " ")
+      .trim();
+  });
+
+  getGeolocation = (tenant: ITenant) => {
+    const lat = +this.latitude();
+    const long = +this.longitude();
+    return this.apiOperationsService.getGeolocation(tenant, lat, long);
+  };
 }

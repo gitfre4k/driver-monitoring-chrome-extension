@@ -24,6 +24,11 @@ export class KeyboardService {
         if (event.ctrlKey) {
           switch (event.key) {
             case "a": {
+              if (
+                this.monitorService.currentEditEvent() ||
+                this.monitorService.showResize()
+              )
+                break;
               event.preventDefault();
               return this.monitorService.selectAllEvents();
             }

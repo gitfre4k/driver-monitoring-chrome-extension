@@ -210,6 +210,9 @@
           .status.mph {
             font-weight: 500;
           }
+          .status.start-time {
+            font-weight: 700;
+          }
 
           .input {
             border: none;
@@ -243,6 +246,8 @@
             &.edit {
               grid-column: 1 / -1;
               flex-direction: column;
+              justify-content: space-between;
+              height: 160px;
             }
             &__form {
               display: flex;
@@ -254,9 +259,8 @@
           }
 
           .note.location:hover {
-            padding: 1px;
             cursor: cell;
-            height: auto;
+            height: 100%;
             // border: 1px solid #eaeaea;
             box-shadow: inset 0 8px 16px rgba(58, 55, 224, 0.3);
           }
@@ -301,7 +305,7 @@
             font-size: 12px;
             border-radius: 4px;
             background-color: rgb(33, 33, 36);
-            margin: 12px 5px;
+            margin: 20px 5px;
             padding: 2px 4px;
             border: 1px solid rgb(82, 82, 82);
 
@@ -371,10 +375,6 @@
 .ChangeToDrivingStatus-E,
 .ChangeToDrivingStatus-CR {
   border: solid 1px #22c55e;
-}
-
-.dotted {
-  border: 1px dotted #eaeaea;
 }
 
 .ChangeToSleeperBerthStatus {

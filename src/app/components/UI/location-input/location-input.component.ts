@@ -1,8 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
+  signal,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { MatSnackBar } from "@angular/material/snack-bar";
@@ -13,10 +15,14 @@ import { FormInputService } from "../../../@services/form-input.service";
 import { IEvent } from "../../../interfaces/driver-daily-log-events.interface";
 import { ApiOperationsService } from "../../../@services/api-operations.service";
 import { tap } from "rxjs";
+import { ILocationData } from "../../../interfaces/api.interface";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
   selector: "app-location-input",
-  imports: [FormsModule],
+  imports: [FormsModule, MatIconModule, MatButtonModule, MatTooltipModule],
   templateUrl: "./location-input.component.html",
   styleUrl: "./location-input.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,11 +34,11 @@ export class LocationInputComponent {
   apiOperationService = inject(ApiOperationsService);
   _snackBar = inject(MatSnackBar);
 
-  ngOnInit() {
+  editLocation = signal(false);
+
+  onEditLocation() {
     const inputEvent = this.event();
     if (!inputEvent) return;
-
-    this.formInputService.geolocation.set(inputEvent.locationDisplayName ?? "");
 
     this.apiOperationService
       .getEvent(inputEvent.tenant, inputEvent.id)
@@ -43,6 +49,7 @@ export class LocationInputComponent {
         }),
       )
       .subscribe();
+    this.editLocation.set(true);
   }
 
   onLatLongPaste(event: ClipboardEvent) {
@@ -54,6 +61,15 @@ export class LocationInputComponent {
     setTimeout(() => {
       this.formInputService.latitude.set(lat);
       this.formInputService.longitude.set(long);
-    }, 50);
+      this.apiOperationService
+        .getGeolocation(this.event()!.tenant, +lat, +long)
+        .subscribe({
+          next: this.formInputService.geolocation.set,
+          error: () =>
+            this.formInputService.geolocation.set({
+              distance: NaN,
+            } as ILocationData),
+        });
+    }, 0);
   }
 }

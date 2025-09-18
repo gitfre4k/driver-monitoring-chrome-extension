@@ -16,6 +16,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { DialogComponent } from "../components/UI/dialog/dialog.component";
 import { ApiService } from "./api.service";
 import { ComputeEventsService } from "./compute-events.service";
+import { FormInputService } from "./form-input.service";
 
 @Injectable({ providedIn: "root" })
 export class MonitorService {
@@ -23,6 +24,7 @@ export class MonitorService {
   private appService = inject(AppService);
   private apiService = inject(ApiService);
   private computeEventsService = inject(ComputeEventsService);
+  private formInputService = inject(FormInputService);
 
   readonly dialog = inject(MatDialog);
 
@@ -202,6 +204,10 @@ export class MonitorService {
     this.currentResizeDriving.set(null);
     this.showResize.set(null);
     this.newResizeSpeed.set(0);
+
+    this.formInputService.geolocation.set(null);
+    this.formInputService.latitude.set("");
+    this.formInputService.longitude.set("");
 
     const tempEvent = { ...event };
     event.id = 0;

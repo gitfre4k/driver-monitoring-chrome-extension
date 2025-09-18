@@ -224,8 +224,12 @@
                     (event.eventType ===
                     'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
                       ? ' dotted'
-                      : '')
+                      : '') + (this.keyboardService.ctrlPressed() ? ' start-time' : '')
                   ">
+
+            @if (keyboardService.ctrlPressed()) {
+            {{event.realStartTime | date:'shortTime' }}
+            }@else {
             @if (event.statusName === "Driving" && event.averageSpeed) {
             @if (
             newResizeSpeed() &&
@@ -243,6 +247,7 @@
             : event.statusName
             }}
             }
+            }
           </span>
           }
 
@@ -258,7 +263,7 @@
             <div class="fix-error">
               <button #updateChangesButton id="updateChangesButton" class="fix-error__button" matRipple
                 (click)="updateChanges()"
-                [disabled]="isUpdatingEvent() || !formInputService.isLatValid() || !formInputService.isLongValid()"
+                [disabled]="isUpdatingEvent() || !formInputService.isLatValid() || !formInputService.isLongValid() || (formInputService.locationDisplayName() === 'E R R O R')"
                 tabindex="0">
                 @if (isUpdatingEvent()) {
                 <div class="fix-error__button__spinner">
@@ -293,7 +298,7 @@
           </span>
           }
 
-          @if (keyboardService.ctrlPressed()) {
+          @if (keyboardService.ctrlPressed() && (currentEditEvent()?.id !== event.id)) {
           <span (click)="copyLocation(event)" class="note location"
             [style]="event.locationMismatch ? 'color: red' : ''">{{ event.locationDisplayName }}</span>
           } @else {
