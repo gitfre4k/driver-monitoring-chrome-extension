@@ -15,19 +15,20 @@
     @if (selectedEvents(); as selectedEvents) {
     @if (selectedEvents.length) {
     <hr />
+    <!-- shift -->
     <li (click)="onShiftAction()" class="menu__item" cdkMenuItem matRipple>
       <mat-icon class="menu__item__icon-all-eng">swap_horiz</mat-icon>
       <span class="menu__item__name">Shift selected Events</span>
     </li>
+    <!-- delete -->
     <li (click)="onDeleteSelectedAction()" class="menu__item" cdkMenuItem matRipple>
       <mat-icon class="menu__item__icon-warning">delete_forever</mat-icon>
       <span class="menu__item__name">Delete selected Event{{ selectedEvents.length > 1 ? "s" : "" }} ({{
         selectedEvents.length
         }})</span>
     </li>
-    }
-    @if (monitorService.copiedEventLocation(); as location ) {
-
+    <!-- paste location -->
+    @if (monitorService.copiedEventLocation(); as location) {
     <li (click)="
                 contextMenuService.handleMultiEventAction(
                   'PASTE_LOCATION',
@@ -44,6 +45,18 @@
         </span></span>
     </li>
     }
+    <!--  zip operation -->
+    <li (click)="onZipAction()" class="menu__item" cdkMenuItem matRipple>
+      <mat-icon class="menu__item__icon__rotate">compress</mat-icon>
+      <span class="menu__item__name">zip</span>
+    </li>
     }
+
+    }
+    <!-- <hr>
+    <li (click)="onLoadMockLog()" class="menu__item" cdkMenuItem matRipple>
+      <mat-icon class="menu__item__icon__rotate">compress</mat-icon>
+      <span class="menu__item__name">load mock day (Aug23th)</span>
+    </li> -->
   </ul>
 </div>

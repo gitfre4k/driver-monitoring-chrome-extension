@@ -39,6 +39,9 @@
       &-warning {
         color: rgb(239 68 68);
       }
+      &__rotate {
+        transform: rotate(90deg);
+      }
     }
   }
   &__item.big {
