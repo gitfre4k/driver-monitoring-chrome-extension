@@ -5,7 +5,7 @@
 
 #location_input {
   border: 1px solid var(--inactive);
-  width: fit-content;
+  width: 100%;
   color: light-dark(#63657c, #e1e0f9);
   display: flex;
   flex-direction: column;
@@ -68,20 +68,37 @@ input {
 }
 
 input.latitude__input {
-  border-radius: 4px 4px 0 0;
+  border-radius: 4px 0 0 0;
   &.invalid {
     border: 1px solid red;
   }
 }
 input.longitude__input {
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 0 4px;
   &.invalid {
     border: 1px solid red;
   }
 }
 .edit-location {
+  display: flex;
+  justify-content: space-evenly;
   width: 100%;
-  button {
-    margin: 0 auto;
+}
+::ng-deep .mat-tooltip {
+  white-space: pre-line !important;
+}
+.latnong {
+  display: flex;
+  width: 218px;
+  align-items: center;
+  justify-content: center;
+  .exit {
+    padding: 5.5px;
+    background-color: rgba(88, 88, 88, 0.15);
+    border-radius: 0 4px 4px 0;
+    &:hover {
+      background-color: rgb(50, 50, 59);
+      cursor: pointer;
+    }
   }
 }

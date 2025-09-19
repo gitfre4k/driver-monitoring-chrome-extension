@@ -1,30 +1,29 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   input,
   signal,
-} from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { MatSnackBar } from "@angular/material/snack-bar";
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { MonitorService } from "../../../@services/monitor.service";
-import { FormInputService } from "../../../@services/form-input.service";
+import { MonitorService } from '../../../@services/monitor.service';
+import { FormInputService } from '../../../@services/form-input.service';
 
-import { IEvent } from "../../../interfaces/driver-daily-log-events.interface";
-import { ApiOperationsService } from "../../../@services/api-operations.service";
-import { tap } from "rxjs";
-import { ILocationData } from "../../../interfaces/api.interface";
-import { MatIconModule } from "@angular/material/icon";
-import { MatButtonModule } from "@angular/material/button";
-import { MatTooltipModule } from "@angular/material/tooltip";
+import { IEvent } from '../../../interfaces/driver-daily-log-events.interface';
+import { ApiOperationsService } from '../../../@services/api-operations.service';
+import { tap } from 'rxjs';
+import { ILocationData } from '../../../interfaces/api.interface';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: "app-location-input",
+  selector: 'app-location-input',
   imports: [FormsModule, MatIconModule, MatButtonModule, MatTooltipModule],
-  templateUrl: "./location-input.component.html",
-  styleUrl: "./location-input.component.scss",
+  templateUrl: './location-input.component.html',
+  styleUrl: './location-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LocationInputComponent {
@@ -51,18 +50,41 @@ export class LocationInputComponent {
       .subscribe();
     this.editLocation.set(true);
   }
+  exitEditLocation() {
+    this.formInputService.geolocation.set(null);
+    this.formInputService.latitude.set('');
+    this.formInputService.longitude.set('');
+    this.editLocation.set(false);
+  }
 
+  onPasteLocationFromEvent() {
+    const copiedEvent = this.monitorService.copiedEventLocation();
+    if (!copiedEvent) return;
+    this.formInputService.latitude.set(copiedEvent.latitude);
+    this.formInputService.longitude.set(copiedEvent.longitude);
+
+    this.updateLocationForm(+copiedEvent.latitude, +copiedEvent.longitude);
+    this.monitorService.copiedEventLocation.set(null);
+    this.editLocation.set(true);
+  }
+
+  /////////////////////
   onLatLongPaste(event: ClipboardEvent) {
     let clipboardData = event.clipboardData!;
-    let pastedText = clipboardData.getData("text");
+    let pastedText = clipboardData.getData('text');
 
-    const [lat, long] = pastedText.split(",");
+    const [lat, long] = pastedText.split(',');
 
+    this.updateLocationForm(+lat, +long);
+  }
+
+  /////////////////////
+  updateLocationForm(lat: number, long: number) {
     setTimeout(() => {
-      this.formInputService.latitude.set(lat);
-      this.formInputService.longitude.set(long);
+      this.formInputService.latitude.set(`${lat}`);
+      this.formInputService.longitude.set(`${long}`);
       this.apiOperationService
-        .getGeolocation(this.event()!.tenant, +lat, +long)
+        .getGeolocation(this.event()!.tenant, lat, long)
         .subscribe({
           next: this.formInputService.geolocation.set,
           error: () =>

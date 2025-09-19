@@ -1,36 +1,81 @@
 <div id="location_wrapper">
-  <div id="location_input">
-    <label for="geolocation" class="geolocation">
-      <input id="hours" class="geolocation__input"
-        [value]="(formInputService.isLatValid() || formInputService.isLongValid()) ? (formInputService.locationDisplayName() ?? event()?.locationDisplayName) : 'E R R O R'"
-        autocomplete="off" readonly />
-    </label>
-    @if (editLocation()) {
-    <label for="latitude" class="latitude">
-      <span>lat</span>
-      <input class="
+  <label for="geolocation" class="geolocation">
+    <input
+      id="hours"
+      class="geolocation__input"
+      [value]="
+        formInputService.isLatValid() || formInputService.isLongValid()
+          ? (formInputService.locationDisplayName() ??
+            event()?.locationDisplayName)
+          : 'E R R O R'
+      "
+      autocomplete="off"
+      readonly
+    />
+  </label>
+
+  @if (editLocation()) {
+    <div class="latnong">
+      <div id="location_input">
+        <label for="latitude" class="latitude">
+          <input
+            class="
       {{
-        'latitude__input ' + (formInputService.isLatValid() ? '' : 'invalid')
-      }}
-          " [(ngModel)]="formInputService.latitude" autocomplete="off" placeholder="latitude"
-        (paste)="onLatLongPaste($event)" />
-    </label>
-    <label for="longitude" class="longitude">
-      <span>long</span>
-      <input class="
+              'latitude__input ' +
+                (formInputService.isLatValid() ? '' : 'invalid')
+            }}
+          "
+            [(ngModel)]="formInputService.latitude"
+            autocomplete="off"
+            placeholder="latitude"
+            (paste)="onLatLongPaste($event)"
+          />
+        </label>
+        <label for="longitude" class="longitude">
+          <input
+            class="
             {{
-            'longitude__input ' +
-              (formInputService.isLongValid() ? '' : 'invalid')
-          }}
-          " [(ngModel)]="formInputService.longitude" autocomplete="off" placeholder="longitude"
-        (paste)="onLatLongPaste($event)" />
-    </label>
-    } @else {
-    <label class="edit-location">
-      <button matTooltip="Edit location" matTooltipPosition="left" mat-icon-button (click)="onEditLocation()">
+              'longitude__input ' +
+                (formInputService.isLongValid() ? '' : 'invalid')
+            }}
+          "
+            [(ngModel)]="formInputService.longitude"
+            autocomplete="off"
+            placeholder="longitude"
+            (paste)="onLatLongPaste($event)"
+          />
+        </label>
+      </div>
+      <a class="exit" (click)="exitEditLocation()" matTooltip="discard changes">
+        <mat-icon>wrong_location</mat-icon>
+      </a>
+    </div>
+  } @else {
+    <div class="edit-location">
+      <button
+        matTooltip="Edit location"
+        matTooltipPosition="left"
+        mat-icon-button
+        (click)="onEditLocation()"
+      >
         <mat-icon>edit_location_alt</mat-icon>
       </button>
-    </label>
-    }
-  </div>
+
+      <button
+        matTooltip="
+            
+            Paste location&#13;
+            {{ monitorService.copiedEventLocation()?.geolocation }}
+            
+          "
+        matTooltipClass="mat-tooltip"
+        matTooltipPosition="below"
+        mat-icon-button
+        (click)="onPasteLocationFromEvent()"
+        [disabled]="!monitorService.copiedEventLocation()"
+      >
+        <mat-icon>add_location_alt </mat-icon>
+      </button>
+    </div>
+  }
 </div>
