@@ -17,9 +17,9 @@ import { MonitorService } from '../../../@services/monitor.service';
 import { DialogConfirmComponent } from '../../UI/dialog-confirm/dialog-confirm.component';
 import { ZipService } from '../../../@services/zip.service';
 import { MOCK__EVENT_DETAILS } from '../../../data/mock-ddle';
-import { from, mergeMap, toArray } from 'rxjs';
+import { concatMap, delay, from, mergeMap, toArray } from 'rxjs';
 import { ApiOperationsService } from '../../../@services/api-operations.service';
-import { ITenant } from '../../../interfaces';
+import { IEventDetails, ITenant } from '../../../interfaces';
 
 @Component({
   selector: 'app-monitor-menu',
@@ -37,19 +37,20 @@ export class MonitorMenuComponent {
 
   readonly dialog = inject(MatDialog);
 
-  // onLoadMockLog() {
-  //   from(MOCK__EVENT_DETAILS)
-  //     .pipe(
-  //       mergeMap((event) =>
-  //         this.apiOperationsService.getEvent(
-  //           { id: '3a0e2d3b-8214-edb4-c139-0d55051fc170' } as ITenant,
-  //           event.id,
-  //         ),
-  //       ),
-  //       toArray(),
-  //     )
-  //     .subscribe({ next: (data) => console.log(data) });
-  // }
+  onLoadMockLog() {
+    from(MOCK__EVENT_DETAILS)
+      .pipe(
+        concatMap((eventDetails) =>
+          this.apiOperationsService.createEvent(
+            '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+            eventDetails as IEventDetails,
+          ),
+        ),
+        toArray(),
+      )
+      .pipe(delay(1000))
+      .subscribe({ next: (data) => console.log(data) });
+  }
 
   onZipAction() {
     this.zipService.zip();
