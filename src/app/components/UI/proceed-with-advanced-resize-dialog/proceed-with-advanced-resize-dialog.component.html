@@ -1,0 +1,24 @@
+<div class="dialog">
+    <div class="dialog__title">
+        <app-resize></app-resize>
+        <h1 mat-dialog-title>
+            {{ data.title }}
+        </h1>
+    </div>
+
+    <div class="dialog__content" mat-dialog-content>
+        @if (data.info) {
+        <p class="dialog__content-info">{{ data.info }}</p>
+        }
+        @if (data.warning) {
+        <p class="dialog__content-warning">{{ data.warning }}</p>
+        }
+        <p class="dialog__content-message">{{ data.message }}</p>
+    </div>
+    <div mat-dialog-actions class="dialog__actions">
+        <button mat-button (click)="onNoClick()">No</button>
+        <button mat-raised-button color="primary" (click)="onYesClick()" cdkFocusInitial>
+            Yes
+        </button>
+    </div>
+</div>

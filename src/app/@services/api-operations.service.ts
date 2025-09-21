@@ -1,24 +1,24 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, Signal } from '@angular/core';
+import { HttpClient } from "@angular/common/http";
+import { inject, Injectable, Signal } from "@angular/core";
 
-import { forkJoin, from, map, mergeMap, switchMap, tap } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { forkJoin, from, map, mergeMap, switchMap, tap } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
 
-import { IEventDetails, ITenant } from '../interfaces';
-import { DateTime } from 'luxon';
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
-import { TEventTypeCode } from '../types';
+import { IEventDetails, ITenant } from "../interfaces";
+import { DateTime } from "luxon";
+import { IEvent } from "../interfaces/driver-daily-log-events.interface";
+import { TEventTypeCode } from "../types";
 import {
   IAdvancedResizePayload,
   ILocationData,
   IResizePayload,
   IShiftInputState,
-} from '../interfaces/api.interface';
+} from "../interfaces/api.interface";
 
-import { ApiService } from './api.service';
-import { ComputeEventsService } from './compute-events.service';
+import { ApiService } from "./api.service";
+import { ComputeEventsService } from "./compute-events.service";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class ApiOperationsService {
   private http: HttpClient = inject(HttpClient);
   private apiService = inject(ApiService);
@@ -33,14 +33,14 @@ export class ApiOperationsService {
   };
 
   getEvent(tenant: ITenant, eventId: number) {
-    console.log('[API Service]: getEvent() called');
+    console.log("[API Service]: getEvent() called");
     return this.http.get<IEventDetails>(
       `https://app.monitoringdriver.com/api/Logs/GetEvent/${eventId}`,
       {
         withCredentials: true,
         headers: {
-          'X-Tenant-Id': `${tenant.id}`,
-          'x-client-timezone': `${DateTime.local().zoneName}`,
+          "X-Tenant-Id": `${tenant.id}`,
+          "x-client-timezone": `${DateTime.local().zoneName}`,
         },
       },
     );
@@ -51,8 +51,8 @@ export class ApiOperationsService {
     return this.http.get<ILocationData>(url, {
       withCredentials: true,
       headers: {
-        'X-Tenant-Id': `${tenant.id}`,
-        'x-client-timezone': `${DateTime.local().zoneName}`,
+        "X-Tenant-Id": `${tenant.id}`,
+        "x-client-timezone": `${DateTime.local().zoneName}`,
       },
     });
   }
@@ -61,14 +61,14 @@ export class ApiOperationsService {
     tenant: ITenant,
     event: IEvent,
     typeCode:
-      | 'ChangeToOffDutyStatus'
-      | 'ChangeToSleeperBerthStatus'
-      | 'ChangeToOnDutyNotDrivingStatus',
+      | "ChangeToOffDutyStatus"
+      | "ChangeToSleeperBerthStatus"
+      | "ChangeToOnDutyNotDrivingStatus",
   ) => {
-    const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+    const url = "https://app.monitoringdriver.com/api/Logs/CreateEvent";
 
     const getStartTime = (date: string) => {
-      if (typeCode === 'ChangeToOnDutyNotDrivingStatus') {
+      if (typeCode === "ChangeToOnDutyNotDrivingStatus") {
         return DateTime.fromISO(date)
           .plus({ seconds: event.realDurationInSeconds })
           .minus({ minutes: 15 })
@@ -95,8 +95,8 @@ export class ApiOperationsService {
         return this.http.post<IEventDetails>(url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
       }),
@@ -127,7 +127,7 @@ export class ApiOperationsService {
             const nextDutyStatusInfo = next.nextDutyStatusInfo;
             /////////////
             const coefficient =
-              payload.parsedErrorInfo.comparison === 'smaller' ? -1 : 1;
+              payload.parsedErrorInfo.comparison === "smaller" ? -1 : 1;
             const mileageDifference = payload.parsedErrorInfo.miles;
             const originalOdometer = nextDutyStatusInfo.totalVehicleMiles;
             const fixDistance =
@@ -180,7 +180,7 @@ export class ApiOperationsService {
                     events.filter((e) => e.id === event.id),
                   ),
                   switchMap((ev) => {
-                    console.log('ADVANCED RESIZE ', ev);
+                    console.log("ADVANCED RESIZE ", ev);
                     const intermediates = ev.intermediatesInfo.sort(
                       (a, b) => a.totalVehicleMiles - b.totalVehicleMiles,
                     );
@@ -213,7 +213,7 @@ export class ApiOperationsService {
         );
     } else if (event.startTime !== event.realStartTime) {
       const coefficient =
-        payload.parsedErrorInfo.comparison === 'smaller' ? -1 : 1;
+        payload.parsedErrorInfo.comparison === "smaller" ? -1 : 1;
       const mileageDifference = payload.parsedErrorInfo.miles;
       const originalOdometer = event.nextDutyStatusInfo.totalVehicleMiles;
       const fixDistance = coefficient * mileageDifference + -coefficient * 14; // diff + 15mi tolerance
@@ -264,7 +264,7 @@ export class ApiOperationsService {
             }),
             switchMap((events) => events.filter((e) => e.id === event.id)),
             switchMap((ev) => {
-              console.log('ADVANCED RESIZE ', ev);
+              console.log("ADVANCED RESIZE ", ev);
               const intermediates = ev.intermediatesInfo.sort(
                 (a, b) => a.totalVehicleMiles - b.totalVehicleMiles,
               );
@@ -295,7 +295,7 @@ export class ApiOperationsService {
       //
     } else {
       const coefficient =
-        payload.parsedErrorInfo.comparison === 'smaller' ? -1 : 1;
+        payload.parsedErrorInfo.comparison === "smaller" ? -1 : 1;
       const mileageDifference = payload.parsedErrorInfo.miles;
       const originalOdometer = event.nextDutyStatusInfo.totalVehicleMiles;
       const fixDistance = coefficient * mileageDifference + -coefficient * 14; // diff + 15mi tolerance
@@ -356,14 +356,14 @@ export class ApiOperationsService {
   }
 
   resizeEvent(tenant: ITenant, eventId: number, payload: IResizePayload) {
-    const url = 'https://app.monitoringdriver.com/api/Logs/ResizeEvent';
+    const url = "https://app.monitoringdriver.com/api/Logs/ResizeEvent";
     const body = { eventId, ...payload };
 
     return this.http.post(url, body, {
       withCredentials: true,
       headers: {
-        'X-Tenant-Id': `${tenant.id}`,
-        'x-client-timezone': `${DateTime.local().zoneName}`,
+        "X-Tenant-Id": `${tenant.id}`,
+        "x-client-timezone": `${DateTime.local().zoneName}`,
       },
     });
   }
@@ -373,7 +373,7 @@ export class ApiOperationsService {
     eventId: number,
     payload: Partial<IEventDetails>,
   ) {
-    const url = 'https://app.monitoringdriver.com/api/Logs/UpdateEvent';
+    const url = "https://app.monitoringdriver.com/api/Logs/UpdateEvent";
 
     return this.getEvent(tenant, eventId).pipe(
       switchMap((eventDetails) => {
@@ -382,8 +382,8 @@ export class ApiOperationsService {
         return this.http.post<IEventDetails>(url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
       }),
@@ -395,7 +395,7 @@ export class ApiOperationsService {
     eventId: number,
     eventTypeCode: TEventTypeCode,
   ) {
-    const url = 'https://app.monitoringdriver.com/api/Logs/UpdateEvent';
+    const url = "https://app.monitoringdriver.com/api/Logs/UpdateEvent";
 
     return this.getEvent(tenant, eventId).pipe(
       switchMap((eventDetails) => {
@@ -405,8 +405,8 @@ export class ApiOperationsService {
         return this.http.post<IEventDetails>(url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
       }),
@@ -414,7 +414,7 @@ export class ApiOperationsService {
   }
 
   addEngineOff = (tenant: ITenant, eventId: number) => {
-    const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+    const url = "https://app.monitoringdriver.com/api/Logs/CreateEvent";
 
     const getStartTime = (date: string) =>
       DateTime.fromISO(date)
@@ -427,13 +427,13 @@ export class ApiOperationsService {
       switchMap((eventDetails) => {
         const { note, id, eventUuid, ...body } = eventDetails;
         body.startTime = getStartTime(body.startTime);
-        body.eventTypeCode = 'EngineShutDownConventionalLocationPrecision';
+        body.eventTypeCode = "EngineShutDownConventionalLocationPrecision";
 
         return this.http.post<IEventDetails>(url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
       }),
@@ -441,7 +441,7 @@ export class ApiOperationsService {
   };
 
   deleteEvents = (tenant: ITenant, ids: number[]) => {
-    const url = 'https://app.monitoringdriver.com/api/Logs/DeleteEvents';
+    const url = "https://app.monitoringdriver.com/api/Logs/DeleteEvents";
 
     const idsChunks: number[][] = [];
     for (let i = 0; i < ids.length; i += 100) {
@@ -455,8 +455,8 @@ export class ApiOperationsService {
         return this.http.post(url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
       }, 10),
@@ -464,7 +464,7 @@ export class ApiOperationsService {
   };
 
   addPTI = (tenant: ITenant, eventId: number) => {
-    const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+    const url = "https://app.monitoringdriver.com/api/Logs/CreateEvent";
 
     const getStartTime = (date: string) =>
       DateTime.fromISO(date)
@@ -477,15 +477,15 @@ export class ApiOperationsService {
     return this.getEvent(tenant, eventId).pipe(
       switchMap((eventDetails) => {
         const { id, eventUuid, ...body } = eventDetails;
-        body.eventTypeCode = 'ChangeToOnDutyNotDrivingStatus';
-        body.note = 'pti';
+        body.eventTypeCode = "ChangeToOnDutyNotDrivingStatus";
+        body.note = "pti";
         body.startTime = getStartTime(eventDetails.startTime);
 
         return this.http.post<IEventDetails>(url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
       }),
@@ -493,7 +493,7 @@ export class ApiOperationsService {
   };
 
   extendPTI = (tenant: ITenant, eventId: number, seconds: number) => {
-    const url = 'https://app.monitoringdriver.com/api/Logs/UpdateEvent';
+    const url = "https://app.monitoringdriver.com/api/Logs/UpdateEvent";
 
     const getStartTime = (date: string) =>
       DateTime.fromISO(date)
@@ -510,8 +510,8 @@ export class ApiOperationsService {
         return this.http.post<IEventDetails>(url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
       }),
@@ -520,7 +520,7 @@ export class ApiOperationsService {
 
   shift(tenant: ITenant, eventArray: IEvent[], payload: IShiftInputState) {
     const { direction, time } = payload;
-    const url = 'https://app.monitoringdriver.com/api/Logs/ShiftEvents';
+    const url = "https://app.monitoringdriver.com/api/Logs/ShiftEvents";
     const getEventStartTime = (date: IEvent) =>
       new Date(
         date.realStartTime ? date.realStartTime : date.startTime,
@@ -541,22 +541,22 @@ export class ApiOperationsService {
       this.http.post(url, body, {
         withCredentials: true,
         headers: {
-          'X-Tenant-Id': `${tenant.id}`,
-          'x-client-timezone': `${DateTime.local().zoneName}`,
+          "X-Tenant-Id": `${tenant.id}`,
+          "x-client-timezone": `${DateTime.local().zoneName}`,
         },
       }),
     );
   }
 
   createEvent = (tenantId: string, eventDetails: IEventDetails) => {
-    const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+    const url = "https://app.monitoringdriver.com/api/Logs/CreateEvent";
     const { id, eventUuid, ...body } = eventDetails;
 
     return this.http.post<IEventDetails>(url, body, {
       withCredentials: true,
       headers: {
-        'X-Tenant-Id': `${tenantId}`,
-        'x-client-timezone': `${DateTime.local().zoneName}`,
+        "X-Tenant-Id": `${tenantId}`,
+        "x-client-timezone": `${DateTime.local().zoneName}`,
       },
     });
   };
@@ -566,7 +566,7 @@ export class ApiOperationsService {
     event: IEvent,
     payload: Partial<IEventDetails>,
   ) => {
-    const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+    const url = "https://app.monitoringdriver.com/api/Logs/CreateEvent";
 
     const getStartTime = (date: string) =>
       DateTime.fromISO(date)
@@ -584,8 +584,8 @@ export class ApiOperationsService {
         return this.http.post<IEventDetails>(url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
       }),

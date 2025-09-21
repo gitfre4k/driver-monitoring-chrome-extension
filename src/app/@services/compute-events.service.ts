@@ -8,7 +8,7 @@ import {
   isDriving,
   isDutyStatus,
   isIntermediate,
-  isPcOrYm,
+  isPc,
 } from "../helpers/app.helpers";
 
 import {
@@ -660,15 +660,14 @@ export class ComputeEventsService {
       }
       // [[ teleport detected ]]
       if (ev1.odometer > ev2.odometer) return -mileageDifference;
-      if (!isDriving(ev1) && !isPcOrYm(ev1) && !ev1.occurredDuringDriving) {
-        //pcYm => pc
+      if (!isDriving(ev1) && !isPc(ev1) && !ev1.occurredDuringDriving) {
         return mileageDifference;
       }
     } else {
       // location mismatch
       if (!ev1.locationDisplayName || !ev2.locationDisplayName) return 0;
       // ...
-      if (!isDriving(ev1) && !isPcOrYm(ev1) && !ev1.occurredDuringDriving)
+      if (!isDriving(ev1) && !isPc(ev1) && !ev1.occurredDuringDriving)
         //pcYm => pc
         this.locationMismatch(
           ev1.locationDisplayName,
