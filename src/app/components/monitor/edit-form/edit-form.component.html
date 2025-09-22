@@ -1,0 +1,47 @@
+@if (event(); as event) {
+  <div class="form">
+    <app-time-input
+      [date]="event.realStartTime"
+      [zone]="zone()"
+    ></app-time-input>
+    <app-location-input [event]="event"></app-location-input>
+  </div>
+
+  <div class="fix-error">
+    <button
+      #updateChangesButton
+      id="updateChangesButton"
+      class="fix-error__button"
+      matRipple
+      (click)="updateChanges()"
+      [disabled]="
+        monitorService.isUpdatingEvent() ||
+        !formInputService.isLatValid() ||
+        !formInputService.isLongValid() ||
+        formInputService.locationDisplayName() === 'E R R O R'
+      "
+      tabindex="0"
+    >
+      @if (monitorService.isUpdatingEvent()) {
+        <div class="fix-error__button__spinner">
+          <mat-spinner [diameter]="17"></mat-spinner>
+        </div>
+      } @else {
+        <app-save class="fix-error__button__icon"></app-save>
+      }
+      <span class="fix-error__button__name">Update</span>
+    </button>
+
+    <button
+      class="fix-error__red-button"
+      matRipple
+      (click)="monitorService.cancelEventEdit()"
+      [disabled]="monitorService.isUpdatingEvent()"
+      tabindex="0"
+    >
+      <app-cancel class="fix-error__button__icon"> </app-cancel>
+
+      <span class="fix-error__button__name">Cancel</span>
+    </button>
+  </div>
+}

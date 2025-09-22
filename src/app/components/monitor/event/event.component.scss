@@ -1,0 +1,223 @@
+.view-id {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 4.6px 1px 4.6px 8px;
+  text-align: left;
+}
+
+.view-id.err {
+  border-left: 4px solid red;
+  padding-left: 2px;
+  margin-left: 2px;
+}
+
+.odometer {
+  padding: 1px 3px;
+  text-align: right;
+  &.input {
+    width: 62px;
+    margin-right: 13px;
+  }
+}
+.odometer.copy:hover {
+  padding: 4px;
+  cursor: cell;
+  box-shadow: inset 0 8px 16px rgba(58, 55, 224, 0.3);
+  // border: 1px solid #eaeaea;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.error {
+  box-shadow: inset 0 8px 8px rgb(255, 0, 0, 0.8);
+}
+
+.warn {
+  padding: 0px;
+  margin: 1px 0 0 5px;
+  // background-color: yellow;
+  border-right: 5px solid yellow;
+  background-color: yellow;
+  color: black;
+  font-weight: 500;
+}
+
+.approved {
+  border: 2px solid green;
+  padding: 1px;
+}
+
+.status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 11px;
+  margin: 1px 5px;
+  padding: 4px 3px;
+  border-radius: 10px;
+  width: 85px;
+  text-align: center;
+  align-self: center;
+  height: auto;
+  cursor: pointer;
+  box-shadow: inset 0 -5px 5px rgba(3, 7, 18, 0.4);
+
+  &.parent {
+    &-Driving {
+      padding: 0 !important;
+      margin: 0;
+      height: auto !important;
+      border-radius: 4px 4px 8px 8px;
+      // width: 64px !important;
+      box-shadow: inset 0 -3px 3px -1px rgba(34, 197, 94, 0.7);
+    }
+    &-Sleeper {
+      padding: 0;
+      margin: 0;
+      border-radius: 4px 4px 8px 8px;
+      // width: 64px !important;
+      box-shadow: inset 0 -3px 3px -1px rgba(231, 176, 8, 0.7);
+    }
+    &-Off {
+      padding: 0;
+      margin: 0;
+      border-radius: 4px 4px 8px 8px;
+      // width: 64px !important;
+      box-shadow: inset 0 -5px 5px -1px rgba(3, 7, 18, 0.9);
+    }
+    &-On {
+      padding: 0;
+      margin: 0;
+      border-radius: 4px 4px 8px 8px;
+      // width: 64px !important;
+      box-shadow: inset 0 -3px 3px -1px rgba(59, 130, 246, 0.7);
+    }
+  }
+}
+.status.IntermediateLogConventionalLocationPrecision,
+.status.IntermediateLogReducedLocationPrecision {
+  padding: 0 2px;
+}
+.engine-on {
+  color: #22c55e;
+}
+
+.status.mph {
+  font-weight: 500;
+}
+.status.start-time {
+  font-weight: 700;
+}
+
+.input {
+  border: none;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.status-note {
+  border-radius: 4px;
+  font-weight: 700;
+  margin: 1px 4px;
+  padding: 3px;
+  border: 1px solid #eaeaea;
+}
+
+.duration {
+  justify-self: end;
+}
+
+.note {
+  justify-self: center;
+  line-height: 10px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &.edit {
+    grid-column: 1 / -1;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 160px;
+  }
+}
+
+.note.location:hover {
+  cursor: cell;
+  height: 100%;
+  // border: 1px solid #eaeaea;
+  box-shadow: inset 0 8px 16px rgba(58, 55, 224, 0.3);
+}
+
+.on-hover {
+  display: none;
+}
+
+.ChangeToOnDutyNotDrivingStatus {
+  background-color: rgb(59, 130, 246);
+}
+.ChangeToOnDutyNotDrivingStatus-E,
+.ChangeToOnDutyNotDrivingStatus-CR {
+  border: solid 1px #3b82f6;
+}
+
+.ChangeToDrivingStatus {
+  background-color: hsl(142, 71%, 45%);
+  color: black;
+}
+.ChangeToDrivingStatus-E,
+.ChangeToDrivingStatus-CR {
+  border: solid 1px #22c55e;
+}
+
+.ChangeToSleeperBerthStatus {
+  background-color: #e7b008;
+  color: black;
+}
+
+.ChangeToOffDutyStatus {
+  box-shadow: inset 0 3px 3px 0 #cacaca10 !important;
+  background-color: #030712;
+}
+
+.DataDiagnostic,
+.DataDiagnosticClear,
+.DriverIndicationAuthorizedPersonalUseCmv,
+.DriverIndicationYardMoves,
+.DriverIndicationClear,
+.VehicleStartOfDay {
+  border: solid 1px rgb(107 114 128);
+  padding: 1px;
+}
+
+.green {
+  -webkit-box-shadow: -14px -1px 14px -8px rgba(55, 202, 75, 0.5);
+  box-shadow: -14px -1px 14px -8px rgba(55, 202, 75, 0.5);
+}
+
+.shift {
+  background: linear-gradient(
+    -90deg,
+    hsla(142, 71%, 45%, 0.3) 0%,
+    #ff930f00 30%
+  );
+}
+.ten-hour-break {
+  background: linear-gradient(-90deg, rgb(231, 175, 8, 0.8) 0%, #fbff0b00 30%);
+}
+.cycle-break {
+  background: linear-gradient(-90deg, rgb(0, 0, 0) 0%, #00000000 36%);
+}
+.violation {
+  background: linear-gradient(-90deg, red 0%, rgba(255, 255, 255, 0) 30%);
+}

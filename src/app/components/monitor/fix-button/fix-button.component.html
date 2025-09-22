@@ -1,0 +1,15 @@
+<div class="fix-error">
+    @if (button(); as btn ) {
+    <button (click)="handleAction()" [disabled]="isDisabled()" class="fix-error__button wide" matRipple tabindex="0">
+        @if (isDisabled()) {
+        <div class="fix-error__button__spinner">
+            <mat-spinner [diameter]="17"></mat-spinner>
+        </div>
+        } @else {
+        <mat-icon [class]="btn.iconClass">{{btn.icon}}</mat-icon>
+        }
+        <span class="fix-error__button__name">{{btn.name}}</span>
+    </button>
+    }
+
+</div>

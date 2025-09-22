@@ -1,489 +1,423 @@
 <div class="content" id="monitor">
   @if (monitorService.driverDailyLog(); as ddle) {
-  <button mat-icon-button matTooltip="Refresh" matTooltipPosition="left" class="absolute refresh" (click)="refresh()"
-    [disabled]="refreshBtnDisabled()">
-    <mat-icon>refresh</mat-icon>
-  </button>
+    <button
+      mat-icon-button
+      matTooltip="Refresh"
+      matTooltipPosition="left"
+      class="absolute refresh"
+      (click)="refresh()"
+      [disabled]="refreshBtnDisabled()"
+    >
+      <mat-icon>refresh</mat-icon>
+    </button>
 
-  <div class="absolute menu">
-    @if (monitorService.selectedEvents().length) {
-    <button mat-icon-button matTooltip="Deselect all Events" matTooltipPosition="left" (click)="deselectAllEvents()">
-      @if (monitorService.isShifting()) {
-      <div class="spinner">
-        <mat-spinner [diameter]="17"></mat-spinner>
-      </div>
-      } @else {
-      <mat-icon>deselect</mat-icon>
+    <div class="absolute menu">
+      @if (monitorService.selectedEvents().length) {
+        <button
+          mat-icon-button
+          matTooltip="Deselect all Events"
+          matTooltipPosition="left"
+          (click)="deselectAllEvents()"
+        >
+          @if (monitorService.isShifting()) {
+            <div class="spinner">
+              <mat-spinner [diameter]="17"></mat-spinner>
+            </div>
+          } @else {
+            <mat-icon>deselect</mat-icon>
+          }
+        </button>
+        <div
+          class="mat-badge-custom err-custom"
+          matBadge="{{ monitorService.selectedEvents().length }}"
+          [matBadgeHidden]="!monitorService.selectedEvents().length"
+          matBadgeColor="primary"
+          matBadgePosition="above"
+          matBadgeSize="medium"
+        ></div>
       }
-    </button>
-    <div class="mat-badge-custom err-custom" matBadge="{{ monitorService.selectedEvents().length }}"
-      [matBadgeHidden]="!monitorService.selectedEvents().length" matBadgeColor="primary" matBadgePosition="above"
-      matBadgeSize="medium"></div>
-    }
 
-    <button [cdkMenuTriggerFor]="menu" mat-icon-button>
-      <mat-icon>more_vert</mat-icon>
-    </button>
-  </div>
+      <button [cdkMenuTriggerFor]="menu" mat-icon-button>
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </div>
 
-  <ng-template #menu>
-    <app-monitor-menu [selectedEvents]="monitorService.selectedEvents()"></app-monitor-menu>
-  </ng-template>
+    <ng-template #menu>
+      <app-monitor-menu
+        [selectedEvents]="monitorService.selectedEvents()"
+      ></app-monitor-menu>
+    </ng-template>
 
-  <app-monitor-header [driverDailyLog]="ddle"
-    (changeLogDate)="onChangeLogDate($event, ddle.driverId)"></app-monitor-header>
+    <app-monitor-header
+      [driverDailyLog]="ddle"
+      (changeLogDate)="onChangeLogDate($event, ddle.driverId)"
+    ></app-monitor-header>
 
-  <div class="event-list">
-    @if (ddle.coDrivers.length === 0) {
-    <hr />
-    }
-    <ul>
-      @if ( monitorService.computedDailyLogEvents(); as computedEvents) {
-      @for (
-      event of computedEvents;
-      track event.id
-      ) {
-      @if (event.shift && ddle.coDrivers.length !== 0) {
-      <div class="co-drivers">
-        <span [ngClass]="
-                  event.driver.id === event.driver.viewId ? `left` : `right`
-                ">
-          {{ event.driver.name }}
-        </span>
+    <div class="event-list">
+      @if (ddle.coDrivers.length === 0) {
         <hr />
-      </div>
       }
-      <!-- [FIX] add Pre-Trip Inspection -->
-      @if (event.pti === 0) {
-      <li>
-        <div class="fix-error">
-          <button (click)="handleContextMenuAction('ADD_PTI', event)" [disabled]="addPTIBtnDisabled() || isUpdating()"
-            class="fix-error__button wide" matRipple tabindex="0">
-            @if (addPTIBtnDisabled()) {
-            <div class="fix-error__button__spinner">
-              <mat-spinner [diameter]="17"></mat-spinner>
-            </div>
-            } @else {
-            <mat-icon class="fix-error__button__icon">playlist_add</mat-icon>
+      <ul>
+        @if (monitorService.computedDailyLogEvents(); as computedEvents) {
+          @for (event of computedEvents; track event.id) {
+            @if (event.shift && ddle.coDrivers.length !== 0) {
+              <div class="co-drivers">
+                <span
+                  [ngClass]="
+                    event.driver.id === event.driver.viewId ? `left` : `right`
+                  "
+                >
+                  {{ event.driver.name }}
+                </span>
+                <hr />
+              </div>
             }
-            <span class="fix-error__button__name">add Pre-Trip Inspection</span>
-          </button>
-        </div>
-      </li>
-      }
-
-      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-      <li (contextmenu)="onContextMenu($event, event)"
-        class="{{ selectedEventsIds().includes(event.id) && 'selected' }}" (click)="selectEvent(event)">
-        <div [ngClass]="
-                'event' +
-                (event.id === selectedEvent?.id && contextMenuVisible()
-                  ? ' highlighted'
-                  : '') +
-                (event.occurredDuringDriving ? ' driving-group ' : '') +
-                (currentEditEvent()?.id === event.id ||
-                currentResizeDriving()?.id === event.id
-                  ? ' editing'
-                  : '')
-              " (mouseenter)="focusElement(event, 'FOCUS_TACHOGRAPH_START')"
-          (mouseleave)="focusElement(event, 'FOCUS_TACHOGRAPH_STOP')" (click)="focusElement(event, 'ELEMENT_ON_CLICK')"
-          matRipple id="{{ event.id }}">
-          @if (currentEditEvent()?.id === event.id) {
-          <span></span>
-          <input [(ngModel)]="newOdometer" #updateOdometer id="updateOdometer" type="number"
-            (keydown.enter)="triggerButtonClick()" (keydown.esc)="cancelEventEdit()" [ngClass]="
-                    'odometer ' +
-                    (event.isTeleport || event.error ? 'error' : '') +
-                    (event.truckChange ? 'approved' : '') +
-                    ' input'
-                  " tabindex="0" />
-          <!--(clickOutside)="cancelEventEdit()"  -->
-          <!-- [clickOutsideIgnore]="['#updateChangesButton', '#updateOdometer']" -->
-
-          @if (
-          [
-          "ChangeToOffDutyStatus",
-          "ChangeToSleeperBerthStatus",
-          "ChangeToOnDutyNotDrivingStatus",
-          ].includes(monitorService.newEventType())
-          ) {
-          <input [(ngModel)]="newNote" appAutofocusAndHandleOutsideClick (keydown.enter)="triggerButtonClick()"
-            (keydown.esc)="cancelEventEdit()" (wheel)="onEditStatusWheel($event)" [ngClass]="
-                      'status ' +
-                      monitorService.newEventType() +
-                      ' input' +
-                      (event.notes && getNoSpaceNote(event.notes)
-                        ? ` status-note`
-                        : '')
-                    " type="text" tabindex="0" />
-          } @else {
-          <input [ngModel]="newStatusName()" appAutofocusAndHandleOutsideClick (keydown.enter)="triggerButtonClick()"
-            (keydown.esc)="cancelEventEdit()" (wheel)="onEditStatusWheel($event)" [ngClass]="
-                      'status ' +
-                      monitorService.newEventType() +
-                      ' input' +
-                      (event.notes && getNoSpaceNote(event.notes)
-                        ? ` status-note`
-                        : '')
-                    " type="text" tabindex="0" disabled />
-          }
-          }
-          <!--  -->
-          @else if (currentResizeDriving()?.id === event.id) {
-          <span [ngClass]="
-                    'view-id ' +
-                    (event.errorMessages && event.errorMessages.length
-                      ? ' error'
-                      : '') +
-                    (event.manualDriving ||
-                    event.malf ||
-                    event.statusName === 'Fleet manager' ||
-                    event.refuel
-                      ? ' warn'
-                      : '')
-                  ">{{ event.viewId }}.</span>
-          <span [ngClass]="
-                    'odometer ' +
-                    (event.isTeleport || event.error ? 'error' : '') +
-                    (event.truckChange ? 'approved' : '')
-                  ">{{
-            event.truckChange
-            ? "truck change"
-            : event.odometer && event.odometer.toLocaleString()
-            }}</span>
-          <span (dblclick)="handleDoubleClick(event)" [ngClass]="
-                    'status ' +
-                    (event.statusName === 'Driving' && event.averageSpeed
-                      ? 'mph '
-                      : '') +
-                    event.dutyStatus +
-                    (event.notes && getNoSpaceNote(event.notes)
-                      ? ` status-note`
-                      : '') +
-                    (event.eventType ===
-                    'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
-                      ? ' dotted'
-                      : '')
-                  ">
-            @if (event.statusName === "Driving" && event.averageSpeed) {
-            @if (
-            newResizeSpeed() &&
-            currentResizeDriving()?.id === event.id
-            ) {
-            {{ newResizeSpeed().toFixed(2) }}
-            } @else {
-            {{ event.averageSpeed.toFixed(2) }}
+            <!-- [FIX-BUTTON] add Pre-Trip Inspection -->
+            @if (event.pti === 0) {
+              <li>
+                <app-fix-button
+                  [event]="event"
+                  action="ADD_PTI"
+                ></app-fix-button>
+              </li>
             }
-            mph
-            }
-            @else {
-            {{
-            event.notes && getNoSpaceNote(event.notes)
-            ? event.notes.trim()
-            : event.statusName
-            }}
-            }
-          </span>
-          } @else {
-          <span [ngClass]="
-                    markBreaksAndShift(event) +
-                    (addViolationClass(event, ddle.violations)
-                      ? ' violation'
-                      : '') +
-                    ' view-id ' +
-                    (event.errorMessages && event.errorMessages.length
-                      ? ' err'
-                      : '') +
-                    (event.manualDriving ||
-                    event.malf ||
-                    event.statusName === 'Fleet manager' ||
-                    event.refuel
-                      ? ' war'
-                      : '')
-                  ">{{ event.viewId }}.</span>
-          <span (click)="copyValue(event.odometer.toFixed(0))" [ngClass]="
-                    'odometer ' +
-                    (keyboardService.ctrlPressed() ? ' copy ' : '') +
-                    (event.isTeleport || event.error ? 'error' : '') +
-                    (event.truckChange ? 'approved' : '')
-                  ">{{
-            event.truckChange
-            ? "truck change"
-            : event.odometer && event.odometer.toLocaleString()
-            }}</span>
 
-          <span (dblclick)="handleDoubleClick(event)" tabindex="0" [ngClass]="
-                    'status ' + ((event.parentId !== event.computeIndex) ? ` parent-${computedEvents[event.parentId].statusName} ` : '') +
-                    (event.statusName === 'Driving' && event.averageSpeed
-                      ? 'mph '
-                      : '') +
-                    event.dutyStatus +
-                    (event.notes && getNoSpaceNote(event.notes)
-                      ? ` status-note`
-                      : '') +
-                    (event.eventType ===
-                    'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
-                      ? ' dotted'
-                      : '') + (this.keyboardService.ctrlPressed() ? ' start-time' : '')
-                  ">
+            <!--  -->
+            <!-- event -->
+            <li
+              (contextmenu)="onContextMenu($event, event)"
+              [class.selected]="selectedEventsIds().includes(event.id)"
+              (click)="selectEvent(event)"
+            >
+              <div
+                [class]="'event'"
+                [class.highlighted]="
+                  event.id === selectedEvent?.id && contextMenuVisible()
+                "
+                [class.editing]="
+                  currentEditEvent()?.id === event.id ||
+                  currentResizeDriving()?.id === event.id
+                "
+                (mouseenter)="focusElement(event, 'FOCUS_TACHOGRAPH_START')"
+                (mouseleave)="focusElement(event, 'FOCUS_TACHOGRAPH_STOP')"
+                (click)="focusElement(event, 'ELEMENT_ON_CLICK')"
+                matRipple
+                id="{{ event.id }}"
+              >
+                @if (currentEditEvent()?.id === event.id) {
+                  <span></span>
+                  <input
+                    [(ngModel)]="newOdometer"
+                    #updateOdometer
+                    id="updateOdometer"
+                    type="number"
+                    (keydown.enter)="triggerButtonClick()"
+                    (keydown.esc)="monitorService.cancelEventEdit()"
+                    [class]="['odometer', 'input']"
+                    [class.error]="event.isTeleport || event.error"
+                    [class.approved]="event.truckChange"
+                    tabindex="0"
+                  />
 
-            @if (keyboardService.ctrlPressed()) {
-            {{event.realStartTime | date:'shortTime' }}
-            }@else {
-            @if (event.statusName === "Driving" && event.averageSpeed) {
-            @if (
-            newResizeSpeed() &&
-            currentResizeDriving()?.id === event.id
-            ) {
-            {{ newResizeSpeed().toFixed(2) }}
-            } @else {
-            {{ event.averageSpeed.toFixed(2) }}
-            }
-            mph
-            }
-            @else if (event.statusName === 'Intermediate') {
-            <app-intermediate></app-intermediate>
-            }
-            @else if (event.statusName === 'Engine On') {
-
-            <app-engine-on></app-engine-on>
-
-            }
-            @else if (event.statusName === 'Engine Off') {
-
-            <app-engine></app-engine>
-
-
-            }
-            @else {
-            {{
-            event.notes && getNoSpaceNote(event.notes)
-            ? event.notes.trim()
-            : event.statusName
-            }}
-            }
-            }
-          </span>
-          }
-
-          <!-- ~ -->
-
-          @if (currentEditEvent()?.id === event.id) {
-          <span class="note edit">
-            <div class="note__form">
-              <app-time-input [date]="event.realStartTime" [zone]="ddle.homeTerminalTimeZone"></app-time-input>
-              <app-location-input [event]="event"></app-location-input>
-            </div>
-
-            <div class="fix-error">
-              <button #updateChangesButton id="updateChangesButton" class="fix-error__button" matRipple
-                (click)="updateChanges()"
-                [disabled]="isUpdatingEvent() || !formInputService.isLatValid() || !formInputService.isLongValid() || (formInputService.locationDisplayName() === 'E R R O R')"
-                tabindex="0">
-                @if (isUpdatingEvent()) {
-                <div class="fix-error__button__spinner">
-                  <mat-spinner [diameter]="17"></mat-spinner>
-                </div>
-                } @else {
-                <app-save class="fix-error__button__icon"></app-save>
+                  @if (monitorService.newEventType(); as newEventType) {
+                    @if (
+                      [
+                        "ChangeToOffDutyStatus",
+                        "ChangeToSleeperBerthStatus",
+                        "ChangeToOnDutyNotDrivingStatus",
+                      ].includes(monitorService.newEventType())
+                    ) {
+                      <input
+                        [(ngModel)]="newNote"
+                        appAutofocusAndHandleOutsideClick
+                        (keydown.enter)="triggerButtonClick()"
+                        (keydown.esc)="monitorService.cancelEventEdit()"
+                        (wheel)="onEditStatusWheel($event)"
+                        [ngClass]="
+                          'status ' +
+                          monitorService.newEventType() +
+                          ' input' +
+                          (event.notes && getNoSpaceNote(event.notes)
+                            ? ` status-note`
+                            : '')
+                        "
+                        type="text"
+                        tabindex="0"
+                      />
+                    } @else {
+                      @if (newStatusName(); as newStatusName) {
+                        <span
+                          [ngModel]="newStatusName"
+                          appAutofocusAndHandleOutsideClick
+                          (keydown.enter)="triggerButtonClick()"
+                          (keydown.esc)="monitorService.cancelEventEdit()"
+                          (wheel)="onEditStatusWheel($event)"
+                          [ngClass]="
+                            'status ' +
+                            monitorService.newEventType() +
+                            ' input' +
+                            (event.notes && getNoSpaceNote(event.notes)
+                              ? ` status-note`
+                              : '')
+                          "
+                          tabindex="0"
+                        >
+                          @if (newStatusName === "Driving") {
+                            @if (event.averageSpeed) {
+                              @if (
+                                newResizeSpeed() &&
+                                currentResizeDriving()?.id === event.id
+                              ) {
+                                {{ newResizeSpeed().toFixed(2) }}
+                              } @else {
+                                {{ event.averageSpeed.toFixed(2) }}
+                              }
+                              mph
+                            } @else {
+                              Driving
+                            }
+                          } @else if (newStatusName === "Intermediate") {
+                            <app-intermediate></app-intermediate>
+                          } @else if (newStatusName === "Engine On") {
+                            <app-engine-on></app-engine-on>
+                          } @else if (newStatusName === "Engine Off") {
+                            <app-engine></app-engine>
+                          } @else {
+                            {{
+                              event.notes && getNoSpaceNote(event.notes)
+                                ? event.notes.trim()
+                                : newStatusName
+                            }}
+                          }
+                        </span>
+                      }
+                    }
+                  }
                 }
-                <span class="fix-error__button__name">Update</span>
-              </button>
+                <!--  -->
+                @else if (currentResizeDriving()?.id === event.id) {
+                  <span
+                    [ngClass]="
+                      'view-id ' +
+                      (event.errorMessages && event.errorMessages.length
+                        ? ' error'
+                        : '') +
+                      (event.manualDriving ||
+                      event.malf ||
+                      event.statusName === 'Fleet manager' ||
+                      event.refuel
+                        ? ' warn'
+                        : '')
+                    "
+                    >{{ event.viewId }}.</span
+                  >
+                  <span
+                    [ngClass]="
+                      'odometer ' +
+                      (event.isTeleport || event.error ? 'error' : '') +
+                      (event.truckChange ? 'approved' : '')
+                    "
+                    >{{
+                      event.truckChange
+                        ? "truck change"
+                        : event.odometer && event.odometer.toLocaleString()
+                    }}</span
+                  >
+                  <span
+                    [ngClass]="
+                      'status ' +
+                      (event.statusName === 'Driving' && event.averageSpeed
+                        ? 'mph '
+                        : '') +
+                      event.dutyStatus +
+                      (event.notes && getNoSpaceNote(event.notes)
+                        ? ` status-note`
+                        : '') +
+                      (event.eventType ===
+                      'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
+                        ? ' dotted'
+                        : '')
+                    "
+                  >
+                    @if (event.statusName === "Driving" && event.averageSpeed) {
+                      @if (
+                        newResizeSpeed() &&
+                        currentResizeDriving()?.id === event.id
+                      ) {
+                        {{ newResizeSpeed().toFixed(2) }}
+                      } @else {
+                        {{ event.averageSpeed.toFixed(2) }}
+                      }
+                      mph
+                    } @else {
+                      {{
+                        event.notes && getNoSpaceNote(event.notes)
+                          ? event.notes.trim()
+                          : event.statusName
+                      }}
+                    }
+                  </span>
+                } @else {
+                  <app-event
+                    [event]="event"
+                    [violations]="ddle.violations"
+                    [parentName]="computedEvents[event.parentId].statusName"
+                  ></app-event>
+                }
 
-              <button class="fix-error__red-button" matRipple (click)="cancelEventEdit()" [disabled]="isUpdatingEvent()"
-                tabindex="0">
-                <app-cancel class="fix-error__button__icon"> </app-cancel>
+                <!-- ~ -->
 
-                <span class="fix-error__button__name">Cancel</span>
-              </button>
-            </div>
-          </span>
-          } @else {
-          <!-- <span [ngClass]="markBreaksAndShift(event, true) + ' duration'"> -->
-          <span class="duration">
-            @if (
-            currentResizeDriving()?.id === event.id &&
-            newResizeDuration();
-            as newResizeDuration
-            ) {
-            {{ newResizeDuration | duration }}
-            } @else {
-            {{ getStatusDuration(event) | duration }}
+                @if (currentEditEvent()?.id === event.id) {
+                  <span class="note edit">
+                    <app-edit-form
+                      [event]="event"
+                      [zone]="ddle.homeTerminalTimeZone"
+                    ></app-edit-form>
+                  </span>
+                } @else {
+                  <!-- <span [ngClass]="markBreaksAndShift(event, true) + ' duration'"> -->
+                  <span class="duration">
+                    @if (
+                      currentResizeDriving()?.id === event.id &&
+                        newResizeDuration();
+                      as newResizeDuration
+                    ) {
+                      {{ newResizeDuration | duration }}
+                    } @else {
+                      {{ getStatusDuration(event) | duration }}
+                    }
+                  </span>
+                }
+
+                @if (
+                  keyboardService.ctrlPressed() &&
+                  currentEditEvent()?.id !== event.id
+                ) {
+                  <span
+                    (click)="copyLocation(event)"
+                    class="note location"
+                    [style]="event.locationMismatch ? 'color: red' : ''"
+                    >{{ event.locationDisplayName }}</span
+                  >
+                } @else {
+                  @if (
+                    !(currentEditEvent()?.id === event.id) &&
+                    (event.isTeleport ||
+                      (event.errorMessages && event.errorMessages.length > 0) ||
+                      event.manualDriving ||
+                      event.refuel ||
+                      event.locationMismatch)
+                  ) {
+                    <span class="note" style="color: red">
+                      <!-- [teleport] message-->
+                      {{
+                        event.isTeleport
+                          ? event.isTeleport > 0
+                            ? "teleport [ " + event.isTeleport + " miles ]"
+                            : "odometer decreased"
+                          : ""
+                      }}
+                      @if (event.locationMismatch) {
+                        @if (event.isTeleport) {
+                          <br />
+                        }
+                        location mismatch
+                      }
+                      @if (
+                        (event.isTeleport || event.locationMismatch) &&
+                        event.errorMessages &&
+                        event.errorMessages.length > 0
+                      ) {
+                        <br />
+                      }
+                      <!-- [eventErrors] message-->
+                      {{
+                        event.errorMessages && event.errorMessages.length > 0
+                          ? event.errorMessages[0]
+                          : ""
+                      }}
+                      <!-- warnings -->
+                      @if (event.refuel) {
+                        @if (
+                          event.isTeleport ||
+                          event.locationMismatch ||
+                          (event.errorMessages &&
+                            event.errorMessages.length > 0)
+                        ) {
+                          <br />
+                        }
+                        <span class="note" style="color: yellow"
+                          >potential unrecorded driving</span
+                        >
+                      }
+                      @if (event.manualDriving) {
+                        @if (
+                          event.isTeleport ||
+                          (event.errorMessages &&
+                            event.errorMessages.length > 0)
+                        ) {
+                          <br />
+                        }
+                        <span class="note" style="color: yellow">
+                          manual origin
+                        </span>
+                      }
+                    </span>
+                  } @else {
+                    <span class="note"> </span>
+                  }
+                }
+              </div>
+            </li>
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            @if (showResize() === event.id) {
+              <li>
+                <app-resize-form></app-resize-form>
+              </li>
             }
-          </span>
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+            <!-- / -->
+            <!-- show update event -->
+            <!-- / -->
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+            @if (event.pti > 0) {
+              <li>
+                <app-fix-button
+                  [event]="event"
+                  action="EXTEND_PTI"
+                ></app-fix-button>
+              </li>
+            }
           }
-
-          @if (keyboardService.ctrlPressed() && (currentEditEvent()?.id !== event.id)) {
-          <span (click)="copyLocation(event)" class="note location"
-            [style]="event.locationMismatch ? 'color: red' : ''">{{ event.locationDisplayName }}</span>
-          } @else {
-          @if (
-          !(currentEditEvent()?.id === event.id) &&
-          (event.isTeleport ||
-          (event.errorMessages && event.errorMessages.length > 0) ||
-          event.manualDriving ||
-          event.refuel ||
-          event.locationMismatch)
-          ) {
-          <span class="note" style="color: red">
-            <!-- [teleport] message-->
-            {{
-            event.isTeleport
-            ? event.isTeleport > 0
-            ? "teleport [ " + event.isTeleport + " miles ]"
-            : "odometer decreased"
-            : ""
-            }}
-            @if (event.locationMismatch) {
-            @if (event.isTeleport) {
-            <br />
-            }
-            location mismatch
-            }
-            @if (
-            (event.isTeleport || event.locationMismatch) &&
-            event.errorMessages &&
-            event.errorMessages.length > 0
-            ) {
-            <br />
-            }
-            <!-- [eventErrors] message-->
-            {{
-            event.errorMessages && event.errorMessages.length > 0
-            ? event.errorMessages[0]
-            : ""
-            }}
-            <!-- warnings -->
-            @if (event.refuel) {
-            @if (
-            event.isTeleport ||
-            event.locationMismatch ||
-            (event.errorMessages && event.errorMessages.length > 0)
-            ) {
-            <br />
-            }
-            <span class="note" style="color: yellow">potential unrecorded driving</span>
-            }
-            @if (event.manualDriving) {
-            @if (
-            event.isTeleport ||
-            (event.errorMessages && event.errorMessages.length > 0)
-            ) {
-            <br />
-            }
-            <span class="note" style="color: yellow">
-              manual origin
-            </span>
-            }
-          </span>
-          } @else {
-          <span class="note"> </span>
-          }
-          }
-        </div>
-      </li>
-
-      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-      @if (showResize() === event.id) {
-      <li class="highlighted resize" #resizeContainer id="resizeContainer">
-        <div class="slider">
-          <div class="mph">
-            <span class="mph__col-0">0</span>
-            <span class="mph__col-25">25</span>
-            <span class="mph__col-50">50</span>
-            <span class="mph__col-75">75</span>
-            <span class="mph__col-100">100</span>
-          </div>
-          <mat-slider [min]="0" [max]="100" [step]="0.01" (wheel)="onWheel($event)" [disabled]="isResizingEvent()">
-            <input matSliderThumb [(ngModel)]="newResizeSpeed" appAutofocusAndHandleOutsideClick tabindex="0" />
-          </mat-slider>
-          <span></span>
-        </div>
-        @if (showAdvancedResize(); as advancedResize) {
-        <div class="advanced" #resizeError id="resizeError">
-          <span>[Resize Error]</span>
-          <span>
-            > failed due to a mileage difference:
-            {{ advancedResize.comparison === "smaller" ? "-" : ""
-            }}{{ advancedResize.miles }}</span>
-          <br />
-          <span>Proceed with an advanced resize?</span>
-          <br />
-        </div>
         }
-        <div class="fix-error">
-          <button id="resizeButton" class="fix-error__button" matRipple (click)="resize()"
-            [disabled]="isResizingEvent()" #resizeButton tabindex="0">
-            @if (isResizingEvent()) {
-            <div class="fix-error__button__spinner">
-              <mat-spinner [diameter]="17"></mat-spinner>
-            </div>
-            } @else {
-            <app-save class="fix-error__button__icon"></app-save>
-            }
-            <span class="fix-error__button__name">
-              {{ showAdvancedResize() ? "Yes" : "Resize" }}</span>
-          </button>
+      </ul>
 
-          <button class="fix-error__red-button" matRipple (click)="cancelResize()" [disabled]="isResizingEvent()"
-            tabindex="0">
-            <app-cancel class="fix-error__button__icon"> </app-cancel>
-
-            <span class="fix-error__button__name">Cancel</span>
-          </button>
-        </div>
-      </li>
+      @if (contextMenuVisible()) {
+        <app-context-menu
+          [x]="contextMenuX"
+          [y]="contextMenuY"
+          [event]="selectedEvent"
+          (menuAction)="onMenuAction($event)"
+        >
+        </app-context-menu>
       }
-      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-      <!-- / -->
-      <!-- show update event -->
-      <!-- / -->
-
-      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-      <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-      @if (event.pti > 0) {
-      <li>
-        <div class="fix-error">
-          <button (click)="handleContextMenuAction('EXTEND_PTI', event)"
-            [disabled]="extendPTIBtnDisabled() || isUpdating()" class="fix-error__button wide" matRipple tabindex="0">
-            @if (extendPTIBtnDisabled()) {
-            <div class="fix-error__button__spinner">
-              <mat-spinner [diameter]="17"></mat-spinner>
-            </div>
-            } @else {
-            <mat-icon class="fix-error__button__icon-rotate">expand_content</mat-icon>
-            }
-
-            <span class="fix-error__button__name">extend Pre-Trip Inspection</span>
-          </button>
-        </div>
-      </li>
-      }
-      }
-      }
-
-    </ul>
-
-    @if (contextMenuVisible()) {
-    <app-context-menu [x]="contextMenuX" [y]="contextMenuY" [event]="selectedEvent" (menuAction)="onMenuAction($event)">
-    </app-context-menu>
-    }
-  </div>
+    </div>
   } @else {
-  <div class="info">
-    <p class="info__not-live">
-      Live monitoring is only available after the driver's daily logs are
-      accessed.
-    </p>
-  </div>
+    <div class="info">
+      <p class="info__not-live">
+        Live monitoring is only available after the driver's daily logs are
+        accessed.
+      </p>
+    </div>
   }
 </div>

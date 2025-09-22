@@ -1,0 +1,51 @@
+<div class="highlighted resize" #resizeContainer id="resizeContainer">
+    <div class="slider">
+        <div class="mph">
+            <span class="mph__col-0">0</span>
+            <span class="mph__col-25">25</span>
+            <span class="mph__col-50">50</span>
+            <span class="mph__col-75">75</span>
+            <span class="mph__col-100">100</span>
+        </div>
+        <mat-slider [min]="0" [max]="100" [step]="0.01" (wheel)="onWheel($event)"
+            [disabled]="monitorService.isResizingEvent()">
+            <input matSliderThumb [(ngModel)]="this.monitorService.newResizeSpeed" appAutofocusAndHandleOutsideClick
+                tabindex="0" />
+        </mat-slider>
+        <span></span>
+    </div>
+    @if (monitorService.showAdvancedResize(); as advancedResize) {
+    <div class="advanced" #resizeError id="resizeError">
+        <span>[Resize Error]</span>
+        <span>
+            > failed due to a mileage difference:
+            {{ advancedResize.comparison === "smaller" ? "-" : ""
+            }}{{ advancedResize.miles }}</span>
+        <br />
+        <span>Proceed with an advanced resize?</span>
+        <br />
+    </div>
+    }
+    <div class="fix-error">
+        <button id="resizeButton" class="fix-error__button" matRipple (click)="resize()"
+            [disabled]="monitorService.isResizingEvent()" #resizeButton tabindex="0">
+            @if (monitorService.isResizingEvent()) {
+            <div class="fix-error__button__spinner">
+                <mat-spinner [diameter]="17"></mat-spinner>
+            </div>
+            } @else {
+            <app-save class="fix-error__button__icon"></app-save>
+            }
+            <span class="fix-error__button__name">
+                {{ monitorService.showAdvancedResize() ? "Yes" : "Resize" }}</span>
+        </button>
+
+        <button class="fix-error__red-button" matRipple (click)="cancelResize()"
+            [disabled]="monitorService.isResizingEvent()" tabindex="0">
+            <app-cancel class="fix-error__button__icon"> </app-cancel>
+
+            <span class="fix-error__button__name">Cancel</span>
+        </button>
+    </div>
+
+</div>

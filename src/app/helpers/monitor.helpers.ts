@@ -43,3 +43,7 @@ export const getHoursAndMinutes = (date: string, zone: string) => {
     +DateTime.fromISO(date).setZone(zone).toFormat("HH") >= 12 ? "PM" : "AM";
   return { hh, mm, ss, period };
 };
+
+export const getNoSpaceNote = (note: string) => {
+  return note.replace(/\s/g, "");
+};

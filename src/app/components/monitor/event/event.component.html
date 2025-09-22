@@ -1,0 +1,66 @@
+@if (event(); as event) {
+  <span
+    [class]="[markBreaksAndShift(event), 'view-id']"
+    [class.violation]="addViolationClass(event, violations())"
+    [class.err]="event.errorMessages && event.errorMessages.length"
+    [class.war]="
+      event.manualDriving ||
+      event.malf ||
+      event.statusName === 'Fleet manager' ||
+      event.refuel
+    "
+    >{{ event.viewId }}.</span
+  >
+  <span
+    (click)="copyValue(event.odometer.toFixed(0))"
+    [class]="'odometer'"
+    [class.copy]="keyboardService.ctrlPressed()"
+    [class.error]="event.isTeleport || event.error"
+    [class.approved]="event.truckChange"
+    >{{
+      event.truckChange
+        ? "truck change"
+        : event.odometer && event.odometer.toLocaleString()
+    }}</span
+  >
+
+  <span
+    (dblclick)="handleDoubleClick(event)"
+    tabindex="0"
+    [class]="['status', event.dutyStatus]"
+    [class]="
+      event.parentId !== event.computeIndex ? 'parent-' + parentName : ''
+    "
+    [class.mph]="event.statusName === 'Driving' && event.averageSpeed"
+    [class.status-note]="event.notes && getNoSpaceNote(event.notes)"
+    [class.start-time]="this.keyboardService.ctrlPressed()"
+  >
+    @if (keyboardService.ctrlPressed()) {
+      {{ event.realStartTime | date: "shortTime" }}
+    } @else {
+      @if (event.statusName === "Driving" && event.averageSpeed) {
+        @if (
+          monitorService.newResizeSpeed() &&
+          monitorService.currentResizeDriving()?.id === event.id
+        ) {
+          {{ monitorService.newResizeSpeed().toFixed(2) }}
+        } @else {
+          {{ event.averageSpeed.toFixed(2) }}
+        }
+        mph
+      } @else if (event.statusName === "Intermediate") {
+        <app-intermediate></app-intermediate>
+      } @else if (event.statusName === "Engine On") {
+        <app-engine-on></app-engine-on>
+      } @else if (event.statusName === "Engine Off") {
+        <app-engine></app-engine>
+      } @else {
+        {{
+          event.notes && getNoSpaceNote(event.notes)
+            ? event.notes.trim()
+            : event.statusName
+        }}
+      }
+    }
+  </span>
+}

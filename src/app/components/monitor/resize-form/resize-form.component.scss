@@ -1,0 +1,104 @@
+.highlighted {
+  background-color: rgba(49, 49, 54, 0.333);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  &.resize {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    .mph {
+      display: grid;
+      width: 100%;
+      margin: 1px 0px;
+
+      font-size: 9px;
+      grid-template-columns: 3fr 8fr 3fr 8fr 3fr;
+      align-items: center;
+      justify-items: center;
+
+      &__col {
+        text-align: center !important;
+      }
+    }
+  }
+
+  .advanced {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 36px;
+  }
+
+  .slider {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    mat-slider {
+      width: 90%;
+    }
+  }
+
+  .fix-error {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+    justify-content: space-around;
+
+    &__icon {
+      transform: scale(0.8);
+      align-self: center;
+    }
+    &__button,
+    &__red-button {
+      width: 36%;
+      display: grid;
+      grid-template-columns: 30px auto;
+      align-items: center;
+      justify-items: start;
+      font-size: 12px;
+      border-radius: 4px;
+      background-color: rgb(33, 33, 36);
+      margin: 20px 5px;
+      padding: 2px 4px;
+      border: 1px solid rgb(82, 82, 82);
+
+      &.wide {
+        width: 60%;
+        padding: 0 4px;
+        margin: 2px auto 2px 33px;
+      }
+
+      &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &-rotate {
+          transform: rotate(90deg);
+        }
+      }
+      &__spinner {
+        padding: 3.5px;
+      }
+      &__name {
+        align-self: center;
+        text-align: left;
+      }
+    }
+    &__button:hover {
+      background-color: rgb(63, 63, 68);
+      border-left: 1px solid rgb(1, 134, 50);
+      -webkit-box-shadow: -14px -1px 14px -6px rgba(55, 202, 75, 0.5);
+      box-shadow: -14px -1px 14px -6px rgba(55, 202, 75, 0.5);
+      cursor: pointer;
+    }
+
+    &__red-button:hover {
+      background-color: rgb(63, 63, 68);
+      border-right: 1px solid #ef4444;
+      cursor: pointer;
+    }
+  }
+}

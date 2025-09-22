@@ -61,6 +61,16 @@ export class MonitorService {
   showAdvancedResize = signal<IParsedErrorInfo | null>(null);
   currentResizeDriving = signal<null | IEvent>(null);
   newResizeSpeed = signal(0);
+  newResizeDuration = computed(() => {
+    const resizeEvent = this.currentResizeDriving();
+    const newSpeed = this.newResizeSpeed();
+    if (!resizeEvent || !newSpeed) return;
+    const originalSpeed = resizeEvent.averageSpeed * 10000; // upscale x 1000
+    const originalDuration = resizeEvent.realDurationInSeconds;
+    const distance = originalSpeed * (originalDuration / 3600);
+
+    return ((distance / newSpeed) * 3600) / 10000; // downscale x 1000
+  });
 
   isShifting = signal(false);
   isShiftingDialogOpen = signal(false);
@@ -252,5 +262,17 @@ export class MonitorService {
       this.showResize.set(event.id);
       this.newResizeSpeed.set(event.averageSpeed);
     }
+  }
+
+  cancelEventEdit() {
+    this.currentEditEvent.set(null);
+    this.showUpdateEvent.set(null);
+    this.newNote.set("");
+
+    setTimeout(() => this.selectedEvents.set([]), 0);
+
+    this.computedDailyLogEvents.update((events) =>
+      events ? events.filter((ev) => ev.id !== 0) : [],
+    );
   }
 }
