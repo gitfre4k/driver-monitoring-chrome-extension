@@ -38,8 +38,9 @@
     <hr />
     }
     <ul>
+      @if ( monitorService.computedDailyLogEvents(); as computedEvents) {
       @for (
-      event of monitorService.computedDailyLogEvents();
+      event of computedEvents;
       track event.id
       ) {
       @if (event.shift && ddle.coDrivers.length !== 0) {
@@ -176,7 +177,8 @@
             {{ event.averageSpeed.toFixed(2) }}
             }
             mph
-            } @else {
+            }
+            @else {
             {{
             event.notes && getNoSpaceNote(event.notes)
             ? event.notes.trim()
@@ -213,7 +215,7 @@
             }}</span>
 
           <span (dblclick)="handleDoubleClick(event)" tabindex="0" [ngClass]="
-                    'status ' +
+                    'status ' + ((event.parentId !== event.computeIndex) ? ` parent-${computedEvents[event.parentId].statusName} ` : '') +
                     (event.statusName === 'Driving' && event.averageSpeed
                       ? 'mph '
                       : '') +
@@ -240,7 +242,22 @@
             {{ event.averageSpeed.toFixed(2) }}
             }
             mph
-            } @else {
+            }
+            @else if (event.statusName === 'Intermediate') {
+            <app-intermediate></app-intermediate>
+            }
+            @else if (event.statusName === 'Engine On') {
+
+            <app-engine-on></app-engine-on>
+
+            }
+            @else if (event.statusName === 'Engine Off') {
+
+            <app-engine></app-engine>
+
+
+            }
+            @else {
             {{
             event.notes && getNoSpaceNote(event.notes)
             ? event.notes.trim()
@@ -452,6 +469,8 @@
       </li>
       }
       }
+      }
+
     </ul>
 
     @if (contextMenuVisible()) {

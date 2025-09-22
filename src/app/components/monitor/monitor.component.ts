@@ -47,6 +47,9 @@ import { KeyboardService } from "../../@services/keyboard.service";
 import { DateTime, Duration } from "luxon";
 import { FormInputService } from "../../@services/form-input.service";
 import { LocationInputComponent } from "../UI/location-input/location-input.component";
+import { IntermediateComponent } from "../UI/intermediate/intermediate.component";
+import { EngineComponent } from "../UI/engine/engine.component";
+import { EngineOnComponent } from "../UI/engine-on/engine-on.component";
 
 @Component({
   selector: "app-monitor",
@@ -69,7 +72,10 @@ import { LocationInputComponent } from "../UI/location-input/location-input.comp
     MatBadgeModule,
     MonitorMenuComponent,
     TimeInputComponent,
+    IntermediateComponent,
     LocationInputComponent,
+    EngineComponent,
+    EngineOnComponent,
   ],
   templateUrl: "./monitor.component.html",
   styleUrl: "./monitor.component.scss",
@@ -523,12 +529,26 @@ export class MonitorComponent {
 
   onEditStatusWheel(wheelEvent: WheelEvent) {
     wheelEvent.preventDefault();
-    const maxToggle = this.monitorService.eventTypes.length - 1;
     let toggle = this.monitorService.newEventTypeId();
-    if (wheelEvent.deltaY > 0) {
-      toggle === maxToggle ? (toggle = 0) : toggle++;
+    if (wheelEvent.deltaY < 0) {
+      switch (toggle) {
+        case 0:
+        case 1:
+        case 2:
+          toggle++;
+          break;
+        default:
+          toggle = 0;
+      }
     } else {
-      toggle === 0 ? (toggle = maxToggle) : toggle--;
+      switch (toggle) {
+        case 4:
+        case 5:
+          toggle++;
+          break;
+        default:
+          toggle = 4;
+      }
     }
 
     this.monitorService.newEventTypeId.set(toggle);

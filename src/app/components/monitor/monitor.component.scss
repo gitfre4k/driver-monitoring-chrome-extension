@@ -201,6 +201,53 @@
             align-self: center;
             height: auto;
             cursor: pointer;
+
+            &.parent {
+              &-Driving {
+                padding: 0;
+                margin: 0;
+                border-radius: 0 0 4px 4px;
+                width: 44px !important;
+                // border-right: solid 3px #22c55e;
+                // border-left: solid 3px #22c55e;
+                border-bottom: solid 1px #22c55e;
+                box-shadow: inset 0 -1.5px 0.5px rgba(34, 197, 94, 0.8);
+              }
+              &-Sleeper {
+                padding: 0;
+                margin: 0;
+                border-radius: 6px;
+                width: 44px !important;
+
+                border-bottom: solid 1px rgba(231, 176, 8, 0.8);
+                box-shadow: inset 0 -1.5px 0.5px rgba(231, 176, 8, 0.8);
+              }
+              &-Off {
+                padding: 0;
+                margin: 0;
+                border-radius: 6px;
+                width: 44px !important;
+
+                border-bottom: solid 1px rgba(3, 7, 18);
+                box-shadow: inset 0 -1.5px 0.5px rgba(3, 7, 18, 0.8);
+              }
+              &-On {
+                padding: 0;
+                margin: 0;
+                border-radius: 6px;
+                width: 44px !important;
+
+                border-bottom: solid 1px rgb(59, 130, 246);
+                box-shadow: inset 0 -1.5px 0.5px rgba(59, 130, 246, 0.8);
+              }
+            }
+          }
+          .status.IntermediateLogConventionalLocationPrecision,
+          .status.IntermediateLogReducedLocationPrecision {
+            padding: 0 2px;
+          }
+          .engine-on {
+            color: #22c55e;
           }
 
           .status.mph {
@@ -382,14 +429,6 @@
   background-color: #030712;
 }
 
-.IntermediateLogConventionalLocationPrecision,
-.IntermediateLogReducedLocationPrecision,
-.EnginePowerUpConventionalLocationPrecision,
-.EnginePowerUpReducedLocationPrecision,
-.EngineShutDownConventionalLocationPrecision,
-.EngineShutDownReducedLocationPrecision {
-  background-color: rgb(107 114 128);
-}
 .DataDiagnostic,
 .DataDiagnosticClear,
 .DriverIndicationAuthorizedPersonalUseCmv,
