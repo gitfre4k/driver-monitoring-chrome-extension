@@ -13,6 +13,9 @@ import { IntermediateComponent } from "../../UI/intermediate/intermediate.compon
 import { EngineOnComponent } from "../../UI/engine-on/engine-on.component";
 import { EngineComponent } from "../../UI/engine/engine.component";
 import { getNoSpaceNote } from "../../../helpers/monitor.helpers";
+import { getStatusDuration } from "../../../helpers/app.helpers";
+import { DurationPipe } from "../../../pipes/duration.pipe";
+import { ContextMenuService } from "../../../@services/context-menu.service";
 
 @Component({
   selector: "app-event",
@@ -21,6 +24,7 @@ import { getNoSpaceNote } from "../../../helpers/monitor.helpers";
     IntermediateComponent,
     EngineOnComponent,
     EngineComponent,
+    DurationPipe,
   ],
   templateUrl: "./event.component.html",
   styleUrl: "./event.component.scss",
@@ -33,9 +37,12 @@ export class EventComponent {
   monitorService = inject(MonitorService);
   keyboardService = inject(KeyboardService);
   formInputService = inject(FormInputService);
+  contextMenuService = inject(ContextMenuService);
+
   private _snackBar = inject(MatSnackBar);
 
   getNoSpaceNote = getNoSpaceNote;
+  getStatusDuration = getStatusDuration;
 
   handleDoubleClick(event: IEvent) {
     this.monitorService.selectedEvents.set([]);
@@ -110,5 +117,8 @@ export class EventComponent {
     if (!this.keyboardService.ctrlPressed()) return;
     navigator.clipboard.writeText(value);
     this._snackBar.open(`Copied: ${value}`, "OK", { duration: 1500 });
+  }
+  copyLocation(event: IEvent) {
+    this.contextMenuService.handleAction("COPY_LOCATION", event);
   }
 }

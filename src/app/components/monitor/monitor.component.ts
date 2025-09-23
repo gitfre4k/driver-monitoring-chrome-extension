@@ -65,7 +65,6 @@ import { EventComponent } from "./event/event.component";
     ContextMenuComponent,
     MatRippleModule,
     CdkMenuModule,
-    DurationPipe,
     AutofocusAndHandleOutsideClickDirective,
     MatSliderModule,
     MonitorHeaderComponent,
@@ -306,9 +305,5 @@ export class MonitorComponent {
     }
 
     this.monitorService.newEventTypeId.set(toggle);
-  }
-
-  copyLocation(event: IEvent) {
-    this.contextMenuService.handleAction("COPY_LOCATION", event);
   }
 }

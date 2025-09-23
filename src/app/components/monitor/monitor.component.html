@@ -60,6 +60,11 @@
       <ul>
         @if (monitorService.computedDailyLogEvents(); as computedEvents) {
           @for (event of computedEvents; track event.id) {
+            <app-event
+              [event]="event"
+              [violations]="ddle.violations"
+              [parentName]="computedEvents[event.parentId].statusName"
+            ></app-event>
             @if (event.shift && ddle.coDrivers.length !== 0) {
               <div class="co-drivers">
                 <span
@@ -90,7 +95,6 @@
               (click)="selectEvent(event)"
             >
               <div
-                [class]="'event'"
                 [class.highlighted]="
                   event.id === selectedEvent?.id && contextMenuVisible()
                 "
@@ -258,11 +262,7 @@
                     }
                   </span>
                 } @else {
-                  <app-event
-                    [event]="event"
-                    [violations]="ddle.violations"
-                    [parentName]="computedEvents[event.parentId].statusName"
-                  ></app-event>
+                  <!-- app-event -->
                 }
 
                 <!-- ~ -->
@@ -276,96 +276,7 @@
                   </span>
                 } @else {
                   <!-- <span [ngClass]="markBreaksAndShift(event, true) + ' duration'"> -->
-                  <span class="duration">
-                    @if (
-                      currentResizeDriving()?.id === event.id &&
-                        newResizeDuration();
-                      as newResizeDuration
-                    ) {
-                      {{ newResizeDuration | duration }}
-                    } @else {
-                      {{ getStatusDuration(event) | duration }}
-                    }
-                  </span>
-                }
-
-                @if (
-                  keyboardService.ctrlPressed() &&
-                  currentEditEvent()?.id !== event.id
-                ) {
-                  <span
-                    (click)="copyLocation(event)"
-                    class="note location"
-                    [style]="event.locationMismatch ? 'color: red' : ''"
-                    >{{ event.locationDisplayName }}</span
-                  >
-                } @else {
-                  @if (
-                    !(currentEditEvent()?.id === event.id) &&
-                    (event.isTeleport ||
-                      (event.errorMessages && event.errorMessages.length > 0) ||
-                      event.manualDriving ||
-                      event.refuel ||
-                      event.locationMismatch)
-                  ) {
-                    <span class="note" style="color: red">
-                      <!-- [teleport] message-->
-                      {{
-                        event.isTeleport
-                          ? event.isTeleport > 0
-                            ? "teleport [ " + event.isTeleport + " miles ]"
-                            : "odometer decreased"
-                          : ""
-                      }}
-                      @if (event.locationMismatch) {
-                        @if (event.isTeleport) {
-                          <br />
-                        }
-                        location mismatch
-                      }
-                      @if (
-                        (event.isTeleport || event.locationMismatch) &&
-                        event.errorMessages &&
-                        event.errorMessages.length > 0
-                      ) {
-                        <br />
-                      }
-                      <!-- [eventErrors] message-->
-                      {{
-                        event.errorMessages && event.errorMessages.length > 0
-                          ? event.errorMessages[0]
-                          : ""
-                      }}
-                      <!-- warnings -->
-                      @if (event.refuel) {
-                        @if (
-                          event.isTeleport ||
-                          event.locationMismatch ||
-                          (event.errorMessages &&
-                            event.errorMessages.length > 0)
-                        ) {
-                          <br />
-                        }
-                        <span class="note" style="color: yellow"
-                          >potential unrecorded driving</span
-                        >
-                      }
-                      @if (event.manualDriving) {
-                        @if (
-                          event.isTeleport ||
-                          (event.errorMessages &&
-                            event.errorMessages.length > 0)
-                        ) {
-                          <br />
-                        }
-                        <span class="note" style="color: yellow">
-                          manual origin
-                        </span>
-                      }
-                    </span>
-                  } @else {
-                    <span class="note"> </span>
-                  }
+                  <!-- ...duration -->
                 }
               </div>
             </li>
