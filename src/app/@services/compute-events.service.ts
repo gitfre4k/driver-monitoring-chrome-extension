@@ -537,6 +537,7 @@ export class ComputeEventsService {
             const speed = +(
               arr[index + 1].odometer - arr[index].odometer
             ).toFixed(2);
+            events[arr[index + 1].computeIndex].averageSpeed = speed;
             speed > this.speeding() &&
               events[arr[index + 1].computeIndex].errorMessages.push(
                 `speeding [${speed} mph]`,

@@ -31,12 +31,7 @@ import { ContextMenuComponent } from "../context-menu/context-menu.component";
 import { MonitorHeaderComponent } from "./monitor-header/monitor-header.component";
 import { MonitorMenuComponent } from "./monitor-menu/monitor-menu.component";
 
-import { DurationPipe } from "../../pipes/duration.pipe";
-
-import {
-  IDriverLogViolation,
-  IEvent,
-} from "../../interfaces/driver-daily-log-events.interface";
+import { IEvent } from "../../interfaces/driver-daily-log-events.interface";
 import { TContextMenuAction, TFocusElementAction } from "../../types";
 import {
   getHoursAndMinutes,

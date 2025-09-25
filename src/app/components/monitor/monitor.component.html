@@ -63,7 +63,11 @@
             <app-event
               [event]="event"
               [violations]="ddle.violations"
-              [parentName]="computedEvents[event.parentId].statusName"
+              [parentClass]="
+                event.parentId !== event.computeIndex
+                  ? `parent-${computedEvents[event.parentId].statusName}`
+                  : ''
+              "
             ></app-event>
             @if (event.shift && ddle.coDrivers.length !== 0) {
               <div class="co-drivers">

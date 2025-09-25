@@ -32,11 +32,7 @@
     <span
       (dblclick)="handleDoubleClick(event)"
       tabindex="0"
-      [class]="[
-        'status',
-        event.dutyStatus,
-        event.parentId !== event.id ? 'parent-' + parentName : '',
-      ]"
+      [class]="['status', event.dutyStatus]"
       [class.mph]="event.statusName === 'Driving' && event.averageSpeed"
       [class.status-note]="event.notes && getNoSpaceNote(event.notes)"
       [class.start-time]="this.keyboardService.ctrlPressed()"
@@ -56,6 +52,10 @@
           mph
         } @else if (event.statusName === "Intermediate") {
           <app-intermediate></app-intermediate>
+          @if (event.averageSpeed) {
+            |
+            <span [class]="getClassName()"> {{ event.averageSpeed }} mph </span>
+          }
         } @else if (event.statusName === "Engine On") {
           <app-engine-on></app-engine-on>
         } @else if (event.statusName === "Engine Off") {

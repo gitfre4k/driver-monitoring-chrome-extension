@@ -1,4 +1,9 @@
-import { Component, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+} from "@angular/core";
 import {
   IDriverLogViolation,
   IEvent,
@@ -28,11 +33,12 @@ import { ContextMenuService } from "../../../@services/context-menu.service";
   ],
   templateUrl: "./event.component.html",
   styleUrl: "./event.component.scss",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventComponent {
   event = input.required<IEvent>();
   violations = input.required<IDriverLogViolation[]>();
-  parentName = input.required<string>();
+  parentClass = input.required<string>();
 
   monitorService = inject(MonitorService);
   keyboardService = inject(KeyboardService);
@@ -43,6 +49,11 @@ export class EventComponent {
 
   getNoSpaceNote = getNoSpaceNote;
   getStatusDuration = getStatusDuration;
+
+  ngAfterViewInit() {
+    const qwe = this.parentClass();
+    if (qwe) console.log(qwe);
+  }
 
   handleDoubleClick(event: IEvent) {
     this.monitorService.selectedEvents.set([]);
@@ -120,5 +131,10 @@ export class EventComponent {
   }
   copyLocation(event: IEvent) {
     this.contextMenuService.handleAction("COPY_LOCATION", event);
+  }
+
+  getClassName() {
+    const parentClass = this.parentClass();
+    return parentClass.replace(/\s/g, "");
   }
 }

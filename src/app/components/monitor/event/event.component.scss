@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: 30px 58px 100px 36px 1fr;
   width: 100%;
+  height: 25px;
   align-items: center;
   justify-items: center;
 
@@ -16,41 +17,51 @@
     width: 85px;
     text-align: center;
     align-self: center;
-    height: auto;
+
     cursor: pointer;
     box-shadow: inset 0 -5px 5px rgba(3, 7, 18, 0.4);
 
+    .parent-Driving {
+      border-radius: 0 0 6px 6px;
+      padding: 1px 7px !important;
+      margin: 0 5px;
+      box-shadow: inset 0 -5px 3px -1px rgba(34, 197, 94, 0.2);
+      border-bottom: 0.5px solid rgba(34, 197, 94, 0.5);
+    }
+
+    &.parent-SleeperBerth,
+    &.parent-OffDuty,
+    &.parent-OnDuty {
+      border-radius: 0 0 6px 6px;
+      padding: 0 3px;
+      margin: 0 5px;
+    }
     &.parent {
-      &-Driving {
-        padding: 0 !important;
-        margin: 0;
-        height: auto !important;
-        border-radius: 4px 4px 8px 8px;
-        // width: 64px !important;
-        box-shadow: inset 0 -3px 3px -1px rgba(34, 197, 94, 0.7);
+      &-SleeperBerth {
+        box-shadow: inset 0 -7px 3px -1px rgba(231, 176, 8, 0.2);
+        border-bottom: 0.5px solid rgba(231, 176, 8, 0.5);
       }
-      &-Sleeper {
-        padding: 0;
-        margin: 0;
-        border-radius: 4px 4px 8px 8px;
-        // width: 64px !important;
-        box-shadow: inset 0 -3px 3px -1px rgba(231, 176, 8, 0.7);
+      &-OffDuty {
+        box-shadow: inset 0 -3px 3px -10px rgba(3, 7, 18, 0.24);
+        border-bottom: 0.5px solid rgba(3, 7, 18, 0.9);
       }
-      &-Off {
-        padding: 0;
-        margin: 0;
-        border-radius: 4px 4px 8px 8px;
-        // width: 64px !important;
-        box-shadow: inset 0 -5px 5px -1px rgba(3, 7, 18, 0.9);
-      }
-      &-On {
-        padding: 0;
-        margin: 0;
-        border-radius: 4px 4px 8px 8px;
-        // width: 64px !important;
-        box-shadow: inset 0 -3px 3px -1px rgba(59, 130, 246, 0.7);
+      &-OnDuty {
+        box-shadow: inset 0 -7px 3px -1px rgba(59, 130, 246, 0.2);
+        border-bottom: 0.5px solid rgba(59, 130, 246, 0.5);
       }
     }
+
+    &.status-note {
+      border-radius: 4px;
+      font-weight: 700;
+      padding: 3px 2px !important;
+      border: 1px solid #eaeaea08;
+    }
+  }
+
+  .status.ChangeToOffDutyStatus {
+    box-shadow: inset 0 -7px 3px -1px #000000 !important;
+    background-color: #030712;
   }
 }
 
@@ -69,7 +80,7 @@
 
 .view-id {
   width: 100%;
-  height: 100%;
+  height: 14px;
   display: flex;
   align-items: center;
   padding: 4.6px 1px 4.6px 8px;
@@ -122,10 +133,6 @@ input::-webkit-inner-spin-button {
   padding: 1px;
 }
 
-.status.IntermediateLogConventionalLocationPrecision,
-.status.IntermediateLogReducedLocationPrecision {
-  padding: 0 2px;
-}
 .engine-on {
   color: #22c55e;
 }
@@ -143,14 +150,6 @@ input::-webkit-inner-spin-button {
 
 .input:focus {
   outline: none;
-}
-
-.status-note {
-  border-radius: 4px;
-  font-weight: 700;
-  margin: 1px 4px;
-  padding: 3px;
-  border: 1px solid #eaeaea;
 }
 
 .duration {
@@ -185,6 +184,16 @@ input::-webkit-inner-spin-button {
   display: none;
 }
 
+.IntermediateLogConventionalLocationPrecision,
+.IntermediateLogReducedLocationPrecision {
+  display: flex;
+  width: 100%;
+  gap: 2px;
+  .inter-speed {
+    font-size: 10px;
+  }
+}
+
 .ChangeToOnDutyNotDrivingStatus {
   background-color: rgb(59, 130, 246);
 }
@@ -205,11 +214,6 @@ input::-webkit-inner-spin-button {
 .ChangeToSleeperBerthStatus {
   background-color: #e7b008;
   color: black;
-}
-
-.ChangeToOffDutyStatus {
-  box-shadow: inset 0 3px 3px 0 #cacaca10 !important;
-  background-color: #030712;
 }
 
 .DataDiagnostic,
