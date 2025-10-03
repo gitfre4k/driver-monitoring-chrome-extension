@@ -49,6 +49,7 @@ import { CertificationsScanService } from "../../@services/certifications-scan.s
 import { AppService } from "../../@services/app.service";
 import { UnidentifiedEventsService } from "../../@services/unidentified-events.service";
 import { ApiPrologsAdminService } from "../../@services/api-prologs-admin.service";
+import { BackgroundJsService } from "../../@services/background-js.service";
 
 @Component({
   selector: "app-scan",
@@ -84,6 +85,7 @@ export class ScanComponent {
   appService = inject(AppService);
   unidentifiedEventsService = inject(UnidentifiedEventsService);
   prologsAdminService = inject(ApiPrologsAdminService);
+  apiProLogsAdminService = inject(ApiPrologsAdminService);
   private advancedScanService = inject(AdvancedScanService);
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
@@ -255,9 +257,9 @@ export class ScanComponent {
   }
 
   getDashboardLocationsData() {
-    this.prologsAdminService
+    this.apiProLogsAdminService
       .getDashboardLocationsData()
-      .subscribe({ next: (prologs) => console.log(prologs) });
+      .subscribe({ next: (data) => console.log(data) });
   }
 
   deleteUnidentifiedEvents() {

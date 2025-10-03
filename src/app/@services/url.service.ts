@@ -4,6 +4,7 @@ import { ICompany } from "../interfaces";
 import { ExtensionTabNavigationService } from "./extension-tab-navigation.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { TFocusElementAction } from "../types";
+import { tap } from "rxjs";
 
 @Injectable({ providedIn: "root" })
 export class UrlService {
@@ -155,5 +156,9 @@ export class UrlService {
           chrome.tabs.update(tabId, { url });
         },
       });
+  };
+
+  onGetAdminProLogsToken = () => {
+    return this.backgroundJsService.getAdminProLogsToken();
   };
 }

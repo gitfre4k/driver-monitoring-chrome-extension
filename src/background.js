@@ -32,6 +32,54 @@ async function getMasterToolsProviderTenant(tabId) {
 }
 
 ///////////////////
+// find admin.prologs.us chrome tab and retrieve its session storage
+async function findPrologTabAndGetAuthToken() {
+  const targetUrl = "https://admin.prologs.us/*";
+
+  try {
+    const tabs = await chrome.tabs.query({
+      url: targetUrl,
+    });
+
+    if (tabs.length === 0) {
+      console.log(">> [background.js] Admin tab not found.");
+      return null;
+    }
+
+    const tabId = tabs[0].id;
+    console.log(`>> [background.js] Found Admin tab ID: ${tabId}`);
+
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      func: (key) => {
+        return sessionStorage.getItem(key);
+      },
+      args: ["oidc.user:https://identity.prologs.us:ProLogs_Admin"],
+    });
+
+    const authToken = results[0]?.result;
+
+    if (authToken) {
+      console.log(
+        ">> [background.js] Successfully retrieved token from admin.prologs.us session storage.",
+      );
+      return authToken;
+    } else {
+      console.warn(
+        ">> [background.js] 'token from admin.prologs.us session storage' not found in sessionStorage.",
+      );
+      return null;
+    }
+  } catch (error) {
+    console.error(
+      `>> [background.js] Error finding tab or getting token from admin.prologs.us session storage:`,
+      error,
+    );
+    return null;
+  }
+}
+
+///////////////////
 // sendMessageToContentScript
 function sendMessageToContentScript(tabId, url, tenantData) {
   chrome.runtime.sendMessage(
@@ -169,6 +217,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     return true;
   }
+
+  ///////////////////
+  // get token from admin.prologs.us session storage
+  if (message.action === "GET_ADMIN_PROLOGS_TOKEN") {
+    findPrologTabAndGetAuthToken()
+      .then((token) => {
+        sendResponse({
+          success: token !== null,
+          authToken: token,
+        });
+      })
+      .catch((error) => {
+        console.error(
+          ">> [background.js] Failed to get admin auth token:",
+          error,
+        );
+        sendResponse({ success: false, error: "Failed to retrieve token." });
+      });
+    return true;
+  }
+
   /////////////////////////////////////////
   // focus webApp's event on chromeExt click
   if (
