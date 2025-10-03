@@ -32,7 +32,7 @@
     <span
       (dblclick)="handleDoubleClick(event)"
       tabindex="0"
-      [class]="['status', event.dutyStatus]"
+      [class]="['status', event.dutyStatus, getClassName()]"
       [class.mph]="event.statusName === 'Driving' && event.averageSpeed"
       [class.status-note]="event.notes && getNoSpaceNote(event.notes)"
       [class.start-time]="this.keyboardService.ctrlPressed()"
@@ -65,10 +65,20 @@
             }
           }
           @case ("Engine On") {
-            <app-engine-on></app-engine-on>
+            <div class="engine-group">
+              <app-engine-on></app-engine-on>
+              <span [class]="[getClassName(), 'stats']">
+                {{ event.accumulatedVehicleMiles }} avM
+              </span>
+            </div>
           }
           @case ("Engine Off") {
-            <app-engine></app-engine>
+            <div class="engine-group">
+              <app-engine></app-engine>
+              <span [class]="[getClassName(), 'stats']">
+                {{ event.elapsedEngineHours }} eh
+              </span>
+            </div>
           }
           @default {
             {{
