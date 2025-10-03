@@ -60,15 +60,6 @@
       <ul>
         @if (monitorService.computedDailyLogEvents(); as computedEvents) {
           @for (event of computedEvents; track event.id) {
-            <app-event
-              [event]="event"
-              [violations]="ddle.violations"
-              [parentClass]="
-                event.parentId !== event.computeIndex
-                  ? `parent-${computedEvents[event.parentId].statusName}`
-                  : ''
-              "
-            ></app-event>
             @if (event.shift && ddle.coDrivers.length !== 0) {
               <div class="co-drivers">
                 <span
@@ -266,7 +257,15 @@
                     }
                   </span>
                 } @else {
-                  <!-- app-event -->
+                  <app-event
+                    [event]="event"
+                    [violations]="ddle.violations"
+                    [parentClass]="
+                      event.parentId !== event.computeIndex
+                        ? `parent-${computedEvents[event.parentId].statusName}`
+                        : ''
+                    "
+                  ></app-event>
                 }
 
                 <!-- ~ -->

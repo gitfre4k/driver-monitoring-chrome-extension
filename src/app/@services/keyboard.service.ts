@@ -48,7 +48,8 @@ export class KeyboardService {
           // case "Escape": {
           //   this.monitorService ...
           // }
-          case "Delete": {
+          case "Delete":
+          case "x": {
             const events = this.monitorService.selectedEvents();
             if (events.length === 0) return;
 

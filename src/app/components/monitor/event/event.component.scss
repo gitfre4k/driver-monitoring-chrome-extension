@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 30px 58px 100px 36px 1fr;
   width: 100%;
-  height: 25px;
+  height: 23.85px;
   align-items: center;
   justify-items: center;
 
@@ -11,7 +11,7 @@
     justify-content: center;
     align-items: center;
     font-size: 11px;
-    margin: 1px 5px;
+    margin: 0 5px;
     padding: 4px 3px;
     border-radius: 10px;
     width: 85px;
@@ -22,8 +22,8 @@
     box-shadow: inset 0 -5px 5px rgba(3, 7, 18, 0.4);
 
     .parent-Driving {
-      border-radius: 0 0 6px 6px;
-      padding: 1px 7px !important;
+      border-radius: 4px;
+      padding: 0px 7px !important;
       margin: 0 5px;
       box-shadow: inset 0 -5px 3px -1px rgba(34, 197, 94, 0.2);
       border-bottom: 0.5px solid rgba(34, 197, 94, 0.5);
@@ -57,12 +57,47 @@
       padding: 3px 2px !important;
       border: 1px solid #eaeaea08;
     }
+
+    &.IntermediateLogConventionalLocationPrecision,
+    &.IntermediateLogReducedLocationPrecision,
+    &.EnginePowerUpConventionalLocationPrecision,
+    &.EnginePowerUpReducedLocationPrecision,
+    &.EngineShutDownConventionalLocationPrecision,
+    &.EngineShutDownReducedLocationPrecision {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 11px;
+      margin: 1 5px;
+      padding: 0;
+      border-radius: 10px;
+      width: 85px;
+      text-align: center;
+      align-self: center;
+    }
   }
 
   .status.ChangeToOffDutyStatus {
     box-shadow: inset 0 -7px 3px -1px #000000 !important;
     background-color: #030712;
   }
+}
+
+.event:has(
+  .IntermediateLogConventionalLocationPrecision,
+  .IntermediateLogReducedLocationPrecision,
+  .EnginePowerUpConventionalLocationPrecision,
+  .EnginePowerUpReducedLocationPrecision,
+  .EngineShutDownConventionalLocationPrecision,
+  .EngineShutDownReducedLocationPrecision
+) {
+  display: grid;
+  grid-template-columns: 30px 58px 100px 36px 1fr;
+  width: 100%;
+  height: 18.4px;
+  align-items: center;
+  justify-items: center;
+  margin-top: -5.4px;
 }
 
 .event .note.edit:host {
@@ -80,7 +115,7 @@
 
 .view-id {
   width: 100%;
-  height: 14px;
+  height: calc(100% - 9.2px);
   display: flex;
   align-items: center;
   padding: 4.6px 1px 4.6px 8px;
@@ -158,7 +193,7 @@ input::-webkit-inner-spin-button {
 
 .note {
   justify-self: center;
-  line-height: 10px;
+  // line-height: 10px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -188,7 +223,7 @@ input::-webkit-inner-spin-button {
 .IntermediateLogReducedLocationPrecision {
   display: flex;
   width: 100%;
-  gap: 2px;
+  gap: 1px;
   .inter-speed {
     font-size: 10px;
   }

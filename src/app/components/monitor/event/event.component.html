@@ -40,32 +40,43 @@
       @if (keyboardService.ctrlPressed()) {
         {{ event.realStartTime | date: "shortTime" }}
       } @else {
-        @if (event.statusName === "Driving" && event.averageSpeed) {
-          @if (
-            monitorService.newResizeSpeed() &&
-            monitorService.currentResizeDriving()?.id === event.id
-          ) {
-            {{ monitorService.newResizeSpeed().toFixed(2) }}
-          } @else {
-            {{ event.averageSpeed.toFixed(2) }}
+        @switch (event.statusName) {
+          @case ("Driving") {
+            @if (event.averageSpeed) {
+              @if (
+                monitorService.newResizeSpeed() &&
+                monitorService.currentResizeDriving()?.id === event.id
+              ) {
+                {{ monitorService.newResizeSpeed().toFixed(2) }}
+              } @else {
+                {{ event.averageSpeed.toFixed(2) }}
+              }
+              mph
+            } @else {
+              Driving
+            }
           }
-          mph
-        } @else if (event.statusName === "Intermediate") {
-          <app-intermediate></app-intermediate>
-          @if (event.averageSpeed) {
-            |
-            <span [class]="getClassName()"> {{ event.averageSpeed }} mph </span>
+          @case ("Intermediate") {
+            <app-intermediate></app-intermediate>
+            @if (event.averageSpeed) {
+              <span [class]="getClassName()">
+                {{ event.averageSpeed }} mph
+              </span>
+            }
           }
-        } @else if (event.statusName === "Engine On") {
-          <app-engine-on></app-engine-on>
-        } @else if (event.statusName === "Engine Off") {
-          <app-engine></app-engine>
-        } @else {
-          {{
-            event.notes && getNoSpaceNote(event.notes)
-              ? event.notes.trim()
-              : event.statusName
-          }}
+          @case ("Engine On") {
+            <app-engine-on></app-engine-on>
+          }
+          @case ("Engine Off") {
+            <app-engine></app-engine>
+          }
+          @default {
+            {{
+              event.notes && getNoSpaceNote(event.notes)
+                ? event.notes.trim()
+                : event.statusName
+            }}
+          }
         }
       }
     </span>
