@@ -47,7 +47,7 @@ async function findPrologTabAndGetAuthToken() {
     }
 
     const tabId = tabs[0].id;
-    console.log(`>> [background.js] Found Admin tab ID: ${tabId}`);
+    // console.log(`>> [background.js] Found Admin tab ID: ${tabId}`);
 
     const results = await chrome.scripting.executeScript({
       target: { tabId: tabId },
@@ -60,9 +60,9 @@ async function findPrologTabAndGetAuthToken() {
     const authToken = results[0]?.result;
 
     if (authToken) {
-      console.log(
-        ">> [background.js] Successfully retrieved token from admin.prologs.us session storage.",
-      );
+      // console.log(
+      //   ">> [background.js] Successfully retrieved token from admin.prologs.us session storage.",
+      // );
       return authToken;
     } else {
       console.warn(

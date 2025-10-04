@@ -187,6 +187,19 @@
       </fieldset>
 
       <!--////////////////////  -->
+      <!-- Admin Portal -->
+      <fieldset class="scan__admin">
+        <legend>Admin Portal</legend>
+        <span>
+          Scan for vehicles that are currently moving outside Driving duty
+          status
+        </span>
+        <button matButton="tonal" (click)="getDashboardLocationsData()">
+          Scan
+        </button>
+      </fieldset>
+
+      <!--////////////////////  -->
       <!-- DOT Inspections -->
       <div class="scan__group">
         <fieldset class="scan__group__dot">
@@ -203,12 +216,12 @@
           </mat-form-field>
 
           <div class="scan__group__dot__form">
-            <div class="scan__log-analysis__form-date">
+            <div class="scan__log-analysis__form-date dot-date">
+              <span>{{ date2.value | date: "mediumDate" }}</span>
               <mat-datepicker-toggle
                 matIconSuffix
                 [for]="pickerDOT"
               ></mat-datepicker-toggle>
-              <span>{{ date2.value | date: "mediumDate" }}</span>
             </div>
             <div class="scan__log-analysis__form-submit">
               <button
@@ -291,10 +304,6 @@
 
         <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
           delete Unidentified Events
-        </button>
-
-        <button matButton="tonal" (click)="getDashboardLocationsData()">
-          GET_ADMIN_PROLOGS_TOKEN
         </button>
       </fieldset>
     </div>

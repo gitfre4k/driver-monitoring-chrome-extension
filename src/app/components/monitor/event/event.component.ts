@@ -38,7 +38,6 @@ import { ContextMenuService } from "../../../@services/context-menu.service";
 export class EventComponent {
   event = input.required<IEvent>();
   violations = input.required<IDriverLogViolation[]>();
-  parentClass = input.required<string>();
 
   monitorService = inject(MonitorService);
   keyboardService = inject(KeyboardService);
@@ -49,11 +48,6 @@ export class EventComponent {
 
   getNoSpaceNote = getNoSpaceNote;
   getStatusDuration = getStatusDuration;
-
-  ngAfterViewInit() {
-    const qwe = this.parentClass();
-    if (qwe) console.log(qwe);
-  }
 
   handleDoubleClick(event: IEvent) {
     this.monitorService.selectedEvents.set([]);
@@ -87,6 +81,10 @@ export class EventComponent {
     }
 
     return;
+  }
+
+  ngAfterViewInit() {
+    console.log(this.event().viewId, this.event().parentClass);
   }
 
   markBreaksAndShift(event: IEvent) {
@@ -131,10 +129,5 @@ export class EventComponent {
   }
   copyLocation(event: IEvent) {
     this.contextMenuService.handleAction("COPY_LOCATION", event);
-  }
-
-  getClassName() {
-    const parentClass = this.parentClass();
-    return parentClass.replace(/\s/g, "");
   }
 }

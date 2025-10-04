@@ -60,7 +60,7 @@ export interface IEvent {
   intermediatesInfo: IStatusInfo[];
   custom: boolean;
   coDriverLastBreakStatus: number | null;
-  parentId: number;
+  parentClass: string;
 }
 
 export interface IStatusInfo {

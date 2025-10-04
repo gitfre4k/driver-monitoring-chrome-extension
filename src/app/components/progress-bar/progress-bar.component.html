@@ -1,23 +1,38 @@
 <div class="container">
   <mat-card id="mat-card-wrapper-2">
     <mat-card-content>
-      @if (scanMode === "advanced") {
-      <h2>Driver Log Analysis in progress...</h2>
-      } @else { @if (scanMode === 'deleteUE') {
-      <h2>Detecting and deleting unidentified events...</h2>
+      @if (scanMode === "admin") {
+        <h2>Admin Portal Scan in progress...</h2>
+      } @else if (scanMode === "advanced") {
+        <h2>Driver Log Analysis in progress...</h2>
       } @else {
-      <h2>
-        Scanning for {{ " " }}
+        @if (scanMode === "deleteUE") {
+          <h2>Detecting and deleting unidentified events...</h2>
+        } @else {
+          <h2>
+            Scanning for {{ " " }}
 
-        @switch (scanMode) { @case ("cert") { driver certifications } @case
-        ("violations") { Violations } @case ("dot") { FMCSA inspections } @case
-        ("pre") { alerts } }
-      </h2>
-      } }
+            @switch (scanMode) {
+              @case ("cert") {
+                driver certifications
+              }
+              @case ("violations") {
+                Violations
+              }
+              @case ("dot") {
+                FMCSA inspections
+              }
+              @case ("pre") {
+                alerts
+              }
+            }
+          </h2>
+        }
+      }
 
       <p>{{ currentCompany() }}</p>
       @if (currentDriver()) {
-      <p>{{ currentDriver() }}</p>
+        <p>{{ currentDriver() }}</p>
       }
       <section>
         <mat-progress-bar
@@ -29,28 +44,49 @@
       </section>
       <button mat-button (click)="stopScan()">Stop</button>
     </mat-card-content>
-    @if (scanMode !== 'deleteUE') {
-    <p class="total-count">
-      {{
-        scanMode === "advanced" || scanMode === "cert"
-          ? "Active drivers: " + activeDriversCount()
-          : "Total count: " +
-            (scanMode === "pre" ? preVCount() + lowCCount() : totalCount())
-      }}
-    </p>
+    @if (scanMode !== "deleteUE") {
+      <p class="total-count">
+        @switch (scanMode) {
+          @case ("admin") {
+            Total count: {{ adminPortalResultsCount() }}
+          }
+
+          @case ("violations") {
+            Total count: {{ totalCount() }};
+          }
+
+          @case ("dot") {
+            Total count: {{ totalCount() }};
+          }
+
+          @case ("cert") {
+            Active drivers: {{ activeDriversCount() }};
+          }
+
+          @case ("advanced") {
+            Active drivers: {{ activeDriversCount() }};
+          }
+
+          @case ("pre") {
+            Total count: {{ preVCount() + lowCCount() }};
+          }
+        }
+      </p>
     }
   </mat-card>
 
   <div class="errors" style="text-align: left">
-    @if (scanMode === 'violations') { } @for (err of errors(); track
-    (err.driverName ? err.driverName : err.company.id)) {
-    <span class="errors-company"
-      >[{{ err.error.name }}] {{ err.company.name }}
-      {{ err.driverName ? " - " + err.driverName : "" }}</span
-    >
-    <span style="font-size: 10px">- {{ err.error.message }}</span>
-    <br />
-
+    @if (scanMode === "violations") {}
+    @for (
+      err of errors();
+      track err.driverName ? err.driverName : err.company.id
+    ) {
+      <span class="errors-company"
+        >[{{ err.error.name }}] {{ err.company.name }}
+        {{ err.driverName ? " - " + err.driverName : "" }}</span
+      >
+      <span style="font-size: 10px">- {{ err.error.message }}</span>
+      <br />
     }
   </div>
 </div>

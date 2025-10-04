@@ -5,4 +5,5 @@ import { Injectable, signal } from "@angular/core";
 })
 export class ConstantsService {
   httpLimit = signal(8);
+  extensionVersion = signal("0.0.5");
 }

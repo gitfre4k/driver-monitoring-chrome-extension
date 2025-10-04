@@ -50,6 +50,7 @@ import { AppService } from "../../@services/app.service";
 import { UnidentifiedEventsService } from "../../@services/unidentified-events.service";
 import { ApiPrologsAdminService } from "../../@services/api-prologs-admin.service";
 import { BackgroundJsService } from "../../@services/background-js.service";
+import { AdminPortalService } from "../../@services/admin-portal.service";
 
 @Component({
   selector: "app-scan",
@@ -84,8 +85,7 @@ export class ScanComponent {
   certScanService = inject(CertificationsScanService);
   appService = inject(AppService);
   unidentifiedEventsService = inject(UnidentifiedEventsService);
-  prologsAdminService = inject(ApiPrologsAdminService);
-  apiProLogsAdminService = inject(ApiPrologsAdminService);
+  adminPortalsService = inject(AdminPortalService);
   private advancedScanService = inject(AdvancedScanService);
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
@@ -257,9 +257,8 @@ export class ScanComponent {
   }
 
   getDashboardLocationsData() {
-    this.apiProLogsAdminService
-      .getDashboardLocationsData()
-      .subscribe({ next: (data) => console.log(data) });
+    this.scanMode.setValue("admin");
+    this.startScan();
   }
 
   deleteUnidentifiedEvents() {
@@ -274,6 +273,19 @@ export class ScanComponent {
     setTimeout(() => (this.disableScan = false), 2000);
 
     switch (this.scanMode.value) {
+      // Admin Portal
+      case "admin":
+        this.scanSubscribtion = this.adminPortalsService
+          .scanAdminPortal()
+          .subscribe({
+            complete: () => {
+              console.log(this.progressBarService.adminPortalResults());
+              this.progressBarService.initializeProgressBar();
+              this.scanMode.setValue("violations");
+            },
+          });
+        return;
+
       // Analyze Driver Logs
       case "advanced":
         const date = this.analyzeDate();

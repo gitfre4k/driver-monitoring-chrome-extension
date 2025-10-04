@@ -3,28 +3,27 @@ import {
   computed,
   inject,
   Input,
-  signal,
   WritableSignal,
-} from '@angular/core';
-import { Subscription } from 'rxjs';
+} from "@angular/core";
+import { Subscription } from "rxjs";
 
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from "@angular/material/card";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { MatButtonModule } from "@angular/material/button";
 
-import { ProgressBarService } from '../../@services/progress-bar.service';
-import { TScanMode } from '../../types';
-import { IScanErrors } from '../../interfaces';
+import { ProgressBarService } from "../../@services/progress-bar.service";
+import { TScanMode } from "../../types";
+import { IScanErrors } from "../../interfaces";
 
 @Component({
-  selector: 'app-progress-bar',
+  selector: "app-progress-bar",
   imports: [MatCardModule, MatProgressBarModule, MatButtonModule],
-  templateUrl: './progress-bar.component.html',
-  styleUrl: './progress-bar.component.scss',
+  templateUrl: "./progress-bar.component.html",
+  styleUrl: "./progress-bar.component.scss",
 })
 export class ProgressBarComponent {
   @Input({ required: true }) scanSubscription!: Subscription;
-  @Input({ required: true }) scanMode: TScanMode = 'violations';
+  @Input({ required: true }) scanMode: TScanMode = "violations";
 
   private progressBarService = inject(ProgressBarService);
 
@@ -40,32 +39,33 @@ export class ProgressBarComponent {
   currentDriver = this.progressBarService.currentDriver;
   totalCount = computed(() =>
     this.progressBarService[
-      this.scanMode === 'violations'
-        ? 'totalVCount'
-        : this.scanMode === 'dot'
-        ? 'totalDCount'
-        : 'preViolationsCount'
-    ]()
+      this.scanMode === "violations"
+        ? "totalVCount"
+        : this.scanMode === "dot"
+          ? "totalDCount"
+          : "preViolationsCount"
+    ](),
   );
   preVCount = this.progressBarService.preViolationsCount;
   lowCCount = this.progressBarService.cycleHoursCount;
 
   activeDriversCount = this.progressBarService.activeDriversCount;
+  adminPortalResultsCount = this.progressBarService.adminPortalResultsCount;
 
   constructor() {}
 
   ngOnInit() {
     switch (this.scanMode) {
-      case 'violations':
+      case "violations":
         this.errors = this.progressBarService.vErrors;
         break;
-      case 'pre':
+      case "pre":
         this.errors = this.progressBarService.pErrors;
         break;
-      case 'dot':
+      case "dot":
         this.errors = this.progressBarService.dErrors;
         break;
-      case 'advanced':
+      case "advanced":
         this.errors = this.progressBarService.aErrors;
         break;
       default:

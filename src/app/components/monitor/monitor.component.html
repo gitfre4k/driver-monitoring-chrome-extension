@@ -260,11 +260,6 @@
                   <app-event
                     [event]="event"
                     [violations]="ddle.violations"
-                    [parentClass]="
-                      event.parentId !== event.computeIndex
-                        ? `parent-${computedEvents[event.parentId].statusName}`
-                        : ''
-                    "
                   ></app-event>
                 }
 

@@ -1,4 +1,4 @@
-interface DriverVehicleStatus {
+export interface IDriverVehicleStatus {
   ignitionStatus: "IgnitionOnIdle" | "IgnitionOnDriving";
   safetyStatus: boolean;
   healthStatus: boolean;
@@ -14,7 +14,7 @@ interface DriverVehicleStatus {
   dutyStatus: string;
   headingDirection: number | null;
   eldConnected: boolean | null;
-  hosDetails: HosDetails;
+  hosDetails: IHosDetails;
   companyId: number;
   mobileAppType: string;
   mobileAppVersion: string;
@@ -31,7 +31,7 @@ interface DriverVehicleStatus {
   attachedTrailer: string;
 }
 
-interface HosDetails {
+export interface IHosDetails {
   maxDrive: number;
   maxShift: number;
   maxCycle: number;

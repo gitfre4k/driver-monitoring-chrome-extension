@@ -1,30 +1,31 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from "@angular/core";
 
-import { AppService } from './app.service';
+import { AppService } from "./app.service";
 
 import {
   ICertStatus,
+  IScanAdminPortalResult,
   IScanDOTInspections,
   IScanErrors,
   IScanResult,
   IScanViolations,
-} from '../interfaces';
-import { TProgressMode, TScanMode, TScanResult } from '../types';
-import { IScanPreViolations } from '../interfaces/drivers.interface';
+} from "../interfaces";
+import { TProgressMode, TScanMode, TScanResult } from "../types";
+import { IScanPreViolations } from "../interfaces/drivers.interface";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ProgressBarService {
   private appService = inject(AppService);
 
   scanning = signal(false);
   bufferValue = signal(0);
-  progressMode = signal<TProgressMode>('determinate');
+  progressMode = signal<TProgressMode>("determinate");
   constant = computed(() => 100 / this.appService.tenantsSignal().length);
   progressValue = signal(0);
-  currentDriver = signal('');
-  currentCompany = signal('Dex Solutions');
+  currentDriver = signal("");
+  currentCompany = signal("Dex Solutions");
   activeDriversCount = signal(0);
 
   violations = signal<IScanViolations[]>([]);
@@ -36,7 +37,7 @@ export class ProgressBarService {
 
     return totalVCount;
   });
-  violationsLastSync = signal('');
+  violationsLastSync = signal("");
 
   preViolations = signal<IScanPreViolations>({});
   preViolationsSlider = signal(20);
@@ -79,19 +80,31 @@ export class ProgressBarService {
   truckChange = signal<IScanResult>({});
   refuelWarning = signal<IScanResult>({});
 
+  adminPortalResults = signal<IScanAdminPortalResult>({});
+  adminPortalResultsCount = computed(() => {
+    const adminPortalResults = this.adminPortalResults();
+    let count = 0;
+    for (const company in adminPortalResults) {
+      count = count + adminPortalResults[company].length;
+    }
+    return count;
+  });
+
   showErrors = signal(false);
   vErrors = signal([] as IScanErrors[]);
   pErrors = signal([] as IScanErrors[]);
   dErrors = signal([] as IScanErrors[]);
   aErrors = signal([] as IScanErrors[]);
   cErrors = signal([] as IScanErrors[]);
+  adminErrors = signal([] as IScanErrors[]);
   errorCount = computed(
     () =>
       this.vErrors().length +
       this.pErrors().length +
       this.dErrors().length +
       this.aErrors().length +
-      this.cErrors().length,
+      this.cErrors().length +
+      this.adminErrors().length,
   );
   resultsAreReady = computed(
     () =>
@@ -133,9 +146,9 @@ export class ProgressBarService {
   }
 
   removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
-    if (scanResult === 'certStatus') return;
+    if (scanResult === "certStatus") return;
 
-    if (scanResult === 'preViolations' || scanResult === 'cycleHours') {
+    if (scanResult === "preViolations" || scanResult === "cycleHours") {
       const index = this[scanResult]()[companyName].items.findIndex(
         (driver) => driver.driverDisplayName === driverName,
       );
@@ -166,31 +179,32 @@ export class ProgressBarService {
     this.dErrors.set([]);
     this.aErrors.set([]);
     this.cErrors.set([]);
+    this.adminErrors.set([]);
   }
 
   initializeProgressBar() {
     this.scanning.set(false);
     this.progressValue.set(0);
     this.bufferValue.set(0);
-    this.currentCompany.set('');
+    this.currentCompany.set("");
   }
 
   initializeState(scanMode: TScanMode) {
     this.initializeProgressBar();
 
     switch (scanMode) {
-      case 'violations':
+      case "violations":
         this.violations.set([]);
         this.vErrors.set([]);
-        this.progressMode.set('determinate');
+        this.progressMode.set("determinate");
         break;
-      case 'dot':
+      case "dot":
         this.totalDCount.set(0);
         this.inspections.set([]);
         this.dErrors.set([]);
-        this.progressMode.set('determinate');
+        this.progressMode.set("determinate");
         break;
-      case 'advanced':
+      case "advanced":
         this.activeDriversCount.set(0);
         this.teleports.set({});
         this.locationMismatch.set({});
@@ -207,22 +221,27 @@ export class ProgressBarService {
         this.fleetManager.set({});
         this.refuelWarning.set({});
         this.aErrors.set([]);
-        this.progressMode.set('determinate');
+        this.progressMode.set("determinate");
         break;
-      case 'pre':
+      case "pre":
         this.preViolations.set({});
         this.cycleHours.set({});
         this.pErrors.set([]);
-        this.progressMode.set('determinate');
+        this.progressMode.set("determinate");
         break;
-      case 'cert':
+      case "cert":
         this.activeDriversCount.set(0);
         this.certStatus.set({});
         this.cErrors.set([]);
-        this.progressMode.set('indeterminate');
+        this.progressMode.set("indeterminate");
         break;
-      case 'deleteUE':
-        this.progressMode.set('indeterminate');
+      case "deleteUE":
+        this.progressMode.set("indeterminate");
+        break;
+      case "admin":
+        this.adminPortalResults.set({});
+        this.adminErrors.set([]);
+        this.progressMode.set("determinate");
         break;
       default:
         return;

@@ -1,7 +1,7 @@
-import { ProgressBarMode } from '@angular/material/progress-bar';
-import { IEvent as ICEvent } from '../interfaces/driver-daily-log-events.interface';
-import { IDailyLog } from './daily-log.interface';
-import { TEventTypeCode } from '../types';
+import { ProgressBarMode } from "@angular/material/progress-bar";
+import { IEvent as ICEvent } from "../interfaces/driver-daily-log-events.interface";
+import { IDailyLog } from "./daily-log.interface";
+import { TEventTypeCode } from "../types";
 
 export interface IViolations {
   company: ITenant;
@@ -121,6 +121,20 @@ export interface IScanResult {
 export interface IScanResultDriver {
   driverName: string;
   events: ICEvent[];
+}
+export interface IScanAdminPortalResult {
+  [company: string]: IScanAdminPortalResultDriver[];
+}
+
+export interface IScanAdminPortalResultDriver {
+  driverName: string;
+  driverId: number;
+  tenant: ITenant;
+  dutyStatus: string;
+  drivingSpeed: number;
+  drivingSpeedUnit: string;
+  location: string;
+  vehicleName: string;
 }
 
 export interface IEventDetails {

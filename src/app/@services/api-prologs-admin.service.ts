@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { DateTime } from "luxon";
 import { UrlService } from "./url.service";
 import { switchMap } from "rxjs";
+import { IDriverVehicleStatus } from "../interfaces/dashboard-locations-data.interface";
 
 @Injectable({
   providedIn: "root",
@@ -11,9 +12,7 @@ export class ApiPrologsAdminService {
   private http: HttpClient = inject(HttpClient);
   private urlService = inject(UrlService);
 
-  getDashboardLocationsData(
-    tenantId: string = "3a1407a2-e95e-d3a3-1422-2251d0038a0e",
-  ) {
+  getDashboardLocationsData(tenantId: string) {
     const urlAdminTenantToken = `https://api.prologs.us/api/app/tenant/acquiretenantadminaccesstoken`;
     const url = `https://api.prologs.us/api/app/dashboard/dashboardlocationsdata`;
 
@@ -43,7 +42,7 @@ export class ApiPrologsAdminService {
         );
       }),
       switchMap(({ accessToken }) => {
-        return this.http.get(url, {
+        return this.http.get<IDriverVehicleStatus[]>(url, {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${accessToken}`,

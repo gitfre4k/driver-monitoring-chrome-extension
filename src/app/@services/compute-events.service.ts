@@ -305,8 +305,12 @@ export class ComputeEventsService {
         } else currentDutyStatus = events[i];
       }
 
-      // assing parent duty status
-      events[i].parentId = currentDutyStatus.computeIndex;
+      /////////////////
+      // passing parent duty status
+      events[i].id === currentDutyStatus.id
+        ? ""
+        : (events[i].parentClass =
+            "parent-" + currentDutyStatus.statusName.replace(/\s/g, ""));
 
       ////////////////////////////// mark break //////////////////////////////
       events[i].break = currentDutyStatus.break ? currentDutyStatus.break : 0;

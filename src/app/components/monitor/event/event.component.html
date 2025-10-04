@@ -32,7 +32,7 @@
     <span
       (dblclick)="handleDoubleClick(event)"
       tabindex="0"
-      [class]="['status', event.dutyStatus, getClassName()]"
+      [class]="['status', event.dutyStatus, event.parentClass]"
       [class.mph]="event.statusName === 'Driving' && event.averageSpeed"
       [class.status-note]="event.notes && getNoSpaceNote(event.notes)"
       [class.start-time]="this.keyboardService.ctrlPressed()"
@@ -57,17 +57,25 @@
             }
           }
           @case ("Intermediate") {
-            <app-intermediate></app-intermediate>
-            @if (event.averageSpeed) {
-              <span [class]="getClassName()">
-                {{ event.averageSpeed }} mph
-              </span>
-            }
+            <span class="inter-group">
+              <app-intermediate></app-intermediate>
+              @if (event.averageSpeed) {
+                <span
+                  [class]="[event.parentClass, 'stats']"
+                  [class.speeding]="event.averageSpeed > 74.99"
+                >
+                  {{ event.averageSpeed }} mph
+                </span>
+              }
+            </span>
           }
           @case ("Engine On") {
             <div class="engine-group">
               <app-engine-on></app-engine-on>
-              <span [class]="[getClassName(), 'stats']">
+              <span
+                [class]="[event.parentClass, 'stats']"
+                [class.high-avm]="event.accumulatedVehicleMiles > 600"
+              >
                 {{ event.accumulatedVehicleMiles }} avM
               </span>
             </div>
@@ -75,7 +83,10 @@
           @case ("Engine Off") {
             <div class="engine-group">
               <app-engine></app-engine>
-              <span [class]="[getClassName(), 'stats']">
+              <span
+                [class]="[event.parentClass, 'stats']"
+                [class.high-eh]="event.elapsedEngineHours > 10"
+              >
                 {{ event.elapsedEngineHours }} eh
               </span>
             </div>

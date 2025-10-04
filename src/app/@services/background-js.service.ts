@@ -47,7 +47,7 @@ export class BackgroundJsService {
                 error?: string;
               }) => {
                 if (response && response.success) {
-                  console.log("Admin token retrieval successful.");
+                  // console.log("Admin token retrieval successful.");
                   if (response.authToken) {
                     return response.authToken;
                   } else {

@@ -107,6 +107,7 @@
   grid-template-columns: 30px 58px 100px auto;
 }
 
+.inter-group,
 .engine-group {
   display: grid;
   grid-template-columns: 23px 20px;
@@ -300,4 +301,11 @@ input::-webkit-inner-spin-button {
 }
 .violation {
   background: linear-gradient(-90deg, red 0%, rgba(255, 255, 255, 0) 30%);
+}
+
+.speeding,
+.high-eh,
+.high-avm {
+  color: red;
+  font-weight: 800;
 }
