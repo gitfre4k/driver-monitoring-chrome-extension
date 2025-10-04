@@ -1,8 +1,9 @@
 <div class="scan-results">
   <div class="scan-results__count-n-errors">
     <span class="scan-results__count-n-errors__driver-count">
-      @if (activeDriverCount(); as activeDriverCount) { Active Driver count:
-      {{ activeDriverCount }}
+      @if (activeDriverCount(); as activeDriverCount) {
+        Active Driver count:
+        {{ activeDriverCount }}
       }
     </span>
     <div class="scan-results__count-n-errors__scan-errors">
@@ -24,421 +25,601 @@
       ></div>
     </div>
   </div>
-  @if (!progressBarService.resultsAreReady() && !violations().length &&
-  !inspections().length && isEmpty(progressBarService.preViolations()) &&
-  isEmpty(progressBarService.cycleHours()) &&
-  isEmpty(progressBarService.certStatus())) {
-  <span style="text-align: center; margin-top: 16px">
-    Scan results will appear here.
-    <br />
-    Get started by performing a scan.
-  </span>
+  @if (
+    !progressBarService.resultsAreReady() &&
+    !violations().length &&
+    !inspections().length &&
+    isEmpty(progressBarService.preViolations()) &&
+    isEmpty(progressBarService.cycleHours()) &&
+    isEmpty(progressBarService.certStatus()) &&
+    isEmpty(progressBarService.adminPortalResults())
+  ) {
+    <span style="text-align: center; margin-top: 16px">
+      Scan results will appear here.
+      <br />
+      Get started by performing a scan.
+    </span>
 
-  <a
-    mat-icon-button
-    matTooltip="Perform a scan"
-    (click)="extensionNavigation.selectedTabIndex.set(0)"
-    style="margin-top: 6px"
-  >
-    <mat-icon>radar</mat-icon>
-  </a>
+    <a
+      mat-icon-button
+      matTooltip="Perform a scan"
+      (click)="extensionNavigation.selectedTabIndex.set(0)"
+      style="margin-top: 6px"
+    >
+      <mat-icon>radar</mat-icon>
+    </a>
   }
   <div class="scan-results__content">
     <mat-accordion>
       <!-- //////////////////////////////////  -->
       <!-- Violations -->
       @if (violations().length) {
-      <mat-expansion-panel
-        [expanded]="extensionNavigation.violationPanelIsOpened()"
-        (opened)="extensionNavigation.violationPanelIsOpened.set(true)"
-        (closed)="extensionNavigation.violationPanelIsOpened.set(false)"
-      >
-        <mat-expansion-panel-header>
-          <mat-panel-title
-            >Violations
-            <div
-              style="margin-left: auto"
-              matBadge="{{ vCount() }}"
-              [matBadgeHidden]="vCount() === 0"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div
-          ></mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          <ul class="list-of-tenants">
-            @for (violation of violations(); track
-            violation.violations.company.id) {
-            <li class="company">
-              <span class="company-name">{{
-                violation.violations.company.name
-              }}</span>
+        <mat-expansion-panel
+          [expanded]="extensionNavigation.violationPanelIsOpened()"
+          (opened)="extensionNavigation.violationPanelIsOpened.set(true)"
+          (closed)="extensionNavigation.violationPanelIsOpened.set(false)"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title
+              >Violations
+              <div
+                style="margin-left: auto"
+                matBadge="{{ vCount() }}"
+                [matBadgeHidden]="vCount() === 0"
+                matBadgePosition="below after"
+                matBadgeSize="medium"
+              ></div
+            ></mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="scan-results__content__result">
+            <ul class="list-of-tenants">
+              @for (
+                violation of violations();
+                track violation.violations.company.id
+              ) {
+                <li class="company">
+                  <span class="company-name">{{
+                    violation.violations.company.name
+                  }}</span>
 
-              @for (item of violation.violations.items; track item.id) {
+                  @for (item of violation.violations.items; track item.id) {
+                    <div class="driver">
+                      <div class="btns">
+                        <a
+                          mat-icon-button
+                          matTooltip="Open driver daily logs in web app"
+                          (click)="
+                            openLogs(
+                              item.id,
+                              item.violations[0].logDate,
+                              violation.violations.company
+                            )
+                          "
+                        >
+                          <mat-icon>open_in_browser</mat-icon>
+                        </a>
+                        <a
+                          mat-icon-button
+                          (click)="copyDriverName(item.driverName)"
+                          matTooltip="Copy to clipboard"
+                        >
+                          <mat-icon>content_copy</mat-icon>
+                        </a>
+                      </div>
 
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        item.id,
-                        item.violations[0].logDate,
-                        violation.violations.company
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(item.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
-                </div>
+                      <span class="bold">{{ item.driverName }}</span>
 
-                <span class="bold">{{ item.driverName }}</span>
+                      <a
+                        mat-icon-button
+                        matTooltip="Done"
+                        class="on-hover"
+                        (click)="progressBarService.deleteViolation(item.id)"
+                        ><span class="material-icons"> clear </span></a
+                      >
+                    </div>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="progressBarService.deleteViolation(item.id)"
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-
-              <ul class="inner-ul">
-                @for (v of item.violations | slice:0:3; track v.violationId; let
-                i = $index ){ @if(i === 2 && item.violations.length > 3) {
-                <li class="event-violation">
-                  <span>...and {{ item.violations.length - 3 }} more</span>
+                    <ul class="inner-ul">
+                      @for (
+                        v of item.violations | slice: 0 : 3;
+                        track v.violationId;
+                        let i = $index
+                      ) {
+                        @if (i === 2 && item.violations.length > 3) {
+                          <li class="event-violation">
+                            <span
+                              >...and
+                              {{ item.violations.length - 3 }} more</span
+                            >
+                          </li>
+                        } @else {
+                          <li class="event-violation">
+                            <span
+                              >[{{
+                                v.logDate
+                                  | date: "MMM d" : v.homeTerminalTimeZone
+                              }}]
+                              <span style="color: rgb(236, 103, 55)">
+                                @switch (v.type) {
+                                  @case ("FourteenHoursViolation") {
+                                    14-hour violation
+                                  }
+                                  @case ("ThirtyMinutesBreakViolation") {
+                                    30-min break violation
+                                  }
+                                  @case ("ElevenHoursViolation") {
+                                    11-hour violation
+                                  }
+                                  @case ("ThirtyFourHoursResetViolation") {
+                                    34-hour reset violation
+                                  }
+                                  @default {
+                                    'unknon violation'
+                                  }
+                                }
+                              </span>
+                            </span>
+                          </li>
+                        }
+                      }
+                    </ul>
+                  }
                 </li>
-                } @else {
-                <li class="event-violation">
-                  <span
-                    >[{{ v.logDate | date : "MMM d" : v.homeTerminalTimeZone }}]
-                    <span style="color: rgb(236, 103, 55)">
-                      @switch (v.type) { @case ('FourteenHoursViolation')
-                      {14-hour violation} @case ('ThirtyMinutesBreakViolation')
-                      {30-min break violation} @case ('ElevenHoursViolation') {
-                      11-hour violation} @case ('ThirtyFourHoursResetViolation')
-                      {34-hour reset violation} @default {'unknon violation'} }
-                    </span>
-                  </span>
-                </li>
-                } }
-              </ul>
               }
-            </li>
-            }
-          </ul>
-        </div>
-      </mat-expansion-panel>
+            </ul>
+          </div>
+        </mat-expansion-panel>
       }
 
       <!--  -->
       <!-- Pre-Violation Alert  -->
-      @if (progressBarService.preViolations(); as preViolations) { @if
-      (!isEmpty(preViolations)) {
-      <mat-expansion-panel
-        [expanded]="extensionNavigation.prePanelIsOpened()"
-        (opened)="extensionNavigation.prePanelIsOpened.set(true)"
-        (closed)="extensionNavigation.prePanelIsOpened.set(false)"
-      >
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            pre-Violation alert
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ progressBarService.preViolationsCount() }}"
-              [matBadgeHidden]="progressBarService.preViolationsCount() === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(preViolations)) {
-          <div class="scan-results__content__result__empty">
-            No pre-violation alert detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of preViolations | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value.items; track
-              driver.driverDisplayName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.driverIntId,
-                        company.value.date,
-                        company.value.tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverDisplayName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
-                </div>
-
-                <span class="bold">{{ driver.driverDisplayName }}</span>
-
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'preViolations',
-                      company.key,
-                      driver.driverDisplayName
-                    )
+      @if (progressBarService.preViolations(); as preViolations) {
+        @if (!isEmpty(preViolations)) {
+          <mat-expansion-panel
+            [expanded]="extensionNavigation.prePanelIsOpened()"
+            (opened)="extensionNavigation.prePanelIsOpened.set(true)"
+            (closed)="extensionNavigation.prePanelIsOpened.set(false)"
+          >
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                pre-Violation alert
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ progressBarService.preViolationsCount() }}"
+                  [matBadgeHidden]="
+                    progressBarService.preViolationsCount() === 0
                   "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @if (driver.preViolationShiftDrive) {
-                <li class="event-error">
-                  <span></span>
-                  <span
-                    style="
-                      text-align: right;
-                      font-weight: 600;
-                      padding-right: 4px;
-                    "
-                    >{{ driver.preViolationShiftDrive | number : "1.0-0" }}min
-                  </span>
-                  <span> until 11-hour violation </span>
-                </li>
-                } @if (driver.preViolationShiftWork) {
-                <li class="event-error">
-                  <span></span>
-                  <span
-                    style="
-                      text-align: right;
-                      font-weight: 600;
-                      padding-right: 4px;
-                    "
-                    >{{ driver.preViolationShiftWork | number : "1.0-0" }}min
-                  </span>
-                  <span> until 14-hour violation </span>
-                </li>
-                } @if (driver.preViolationBreak) {
-                <li class="event-error">
-                  <span></span>
-                  <span
-                    style="
-                      text-align: right;
-                      font-weight: 600;
-                      padding-right: 4px;
-                    "
-                    >{{ driver.preViolationBreak | number : "1.0-0" }}min
-                  </span>
-                  <span> until 30-min break violation </span>
-                </li>
-                } @if (driver.preViolationCycleWork) {
-                <li class="event-error">
-                  <span></span>
-                  <span
-                    style="
-                      text-align: right;
-                      font-weight: 600;
-                      padding-right: 4px;
-                    "
-                    >{{ driver.preViolationCycleWork | number : "1.0-0" }}min
-                  </span>
-                  <span> until 34-hour break violation </span>
-                </li>
-                }
-              </ul>
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(preViolations)) {
+                <div class="scan-results__content__result__empty">
+                  No pre-violation alert detected.
+                </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of preViolations | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (
+                        driver of company.value.items;
+                        track driver.driverDisplayName
+                      ) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.driverIntId,
+                                  company.value.date,
+                                  company.value.tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverDisplayName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
+
+                          <span class="bold">{{
+                            driver.driverDisplayName
+                          }}</span>
+
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'preViolations',
+                                company.key,
+                                driver.driverDisplayName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @if (driver.preViolationShiftDrive) {
+                            <li class="event-error">
+                              <span></span>
+                              <span
+                                style="
+                                  text-align: right;
+                                  font-weight: 600;
+                                  padding-right: 4px;
+                                "
+                                >{{
+                                  driver.preViolationShiftDrive
+                                    | number: "1.0-0"
+                                }}min
+                              </span>
+                              <span> until 11-hour violation </span>
+                            </li>
+                          }
+                          @if (driver.preViolationShiftWork) {
+                            <li class="event-error">
+                              <span></span>
+                              <span
+                                style="
+                                  text-align: right;
+                                  font-weight: 600;
+                                  padding-right: 4px;
+                                "
+                                >{{
+                                  driver.preViolationShiftWork
+                                    | number: "1.0-0"
+                                }}min
+                              </span>
+                              <span> until 14-hour violation </span>
+                            </li>
+                          }
+                          @if (driver.preViolationBreak) {
+                            <li class="event-error">
+                              <span></span>
+                              <span
+                                style="
+                                  text-align: right;
+                                  font-weight: 600;
+                                  padding-right: 4px;
+                                "
+                                >{{
+                                  driver.preViolationBreak | number: "1.0-0"
+                                }}min
+                              </span>
+                              <span> until 30-min break violation </span>
+                            </li>
+                          }
+                          @if (driver.preViolationCycleWork) {
+                            <li class="event-error">
+                              <span></span>
+                              <span
+                                style="
+                                  text-align: right;
+                                  font-weight: 600;
+                                  padding-right: 4px;
+                                "
+                                >{{
+                                  driver.preViolationCycleWork
+                                    | number: "1.0-0"
+                                }}min
+                              </span>
+                              <span> until 34-hour break violation </span>
+                            </li>
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      } }
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- low Cycle hours alert  -->
-      @if (progressBarService.cycleHours(); as cycleHours) { @if
-      (!isEmpty(cycleHours)) {
-      <mat-expansion-panel
-        [expanded]="extensionNavigation.cyclePanelIsOpened()"
-        (opened)="extensionNavigation.cyclePanelIsOpened.set(true)"
-        (closed)="extensionNavigation.cyclePanelIsOpened.set(false)"
-      >
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            low Cycle hours
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ progressBarService.cycleHoursCount() }}"
-              [matBadgeHidden]="progressBarService.cycleHoursCount() === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(cycleHours)) {
-          <div class="scan-results__content__result__empty">
-            No pre-violation alert detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of cycleHours | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value.items; track
-              driver.driverDisplayName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.driverIntId,
-                        company.value.date,
-                        company.value.tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverDisplayName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.cycleHours(); as cycleHours) {
+        @if (!isEmpty(cycleHours)) {
+          <mat-expansion-panel
+            [expanded]="extensionNavigation.cyclePanelIsOpened()"
+            (opened)="extensionNavigation.cyclePanelIsOpened.set(true)"
+            (closed)="extensionNavigation.cyclePanelIsOpened.set(false)"
+          >
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                low Cycle hours
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ progressBarService.cycleHoursCount() }}"
+                  [matBadgeHidden]="progressBarService.cycleHoursCount() === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(cycleHours)) {
+                <div class="scan-results__content__result__empty">
+                  No pre-violation alert detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (company of cycleHours | keyvalue; track company.key) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (
+                        driver of company.value.items;
+                        track driver.driverDisplayName
+                      ) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.driverIntId,
+                                  company.value.date,
+                                  company.value.tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverDisplayName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverDisplayName }}</span>
+                          <span class="bold">{{
+                            driver.driverDisplayName
+                          }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'cycleHours',
-                      company.key,
-                      driver.driverDisplayName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @if (driver.lowCycleHours) {
-                <li class="event-error">
-                  <span></span>
-                  <span
-                    style="
-                      text-align: right;
-                      font-weight: 600;
-                      padding-right: 4px;
-                    "
-                    >~ {{ driver.lowCycleHours / 60 | number : "1.0-0" }}
-                    {{
-                      +(driver.lowCycleHours / 60 | number : "1.0-0")! === 1
-                        ? "hour"
-                        : "hours"
-                    }}
-                  </span>
-                  <span> remaining in cycle </span>
-                </li>
-                }
-              </ul>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'cycleHours',
+                                company.key,
+                                driver.driverDisplayName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @if (driver.lowCycleHours) {
+                            <li class="event-error">
+                              <span></span>
+                              <span
+                                style="
+                                  text-align: right;
+                                  font-weight: 600;
+                                  padding-right: 4px;
+                                "
+                                >~
+                                {{
+                                  driver.lowCycleHours / 60 | number: "1.0-0"
+                                }}
+                                {{
+                                  +(driver.lowCycleHours / 60
+                                    | number: "1.0-0")! === 1
+                                    ? "hour"
+                                    : "hours"
+                                }}
+                              </span>
+                              <span> remaining in cycle </span>
+                            </li>
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      } }
+            </div>
+          </mat-expansion-panel>
+        }
+      }
+
+      <!--  -->
+      <!-- [Admin Portal] vehicles dashboard  -->
+      @if (progressBarService.adminPortalResults(); as adminPortalResults) {
+        @if (!isEmpty(adminPortalResults)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                disconnected driving
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ progressBarService.adminPortalResultsCount() }}"
+                  [matBadgeHidden]="
+                    progressBarService.adminPortalResultsCount() === 0
+                  "
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(adminPortalResults)) {
+                <div class="scan-results__content__result__empty">
+                  No disconnected driving detected.
+                </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of adminPortalResults | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (truck of company.value; track truck.vehicleName) {
+                        <div class="driver">
+                          @if (truck.driverId) {
+                            <div class="btns">
+                              <a
+                                mat-icon-button
+                                matTooltip="Open driver daily logs in web app"
+                                (click)="
+                                  openLogs(
+                                    truck.driverId,
+                                    dateService.startOfToday.toUTC().toISO(),
+                                    truck.tenant
+                                  )
+                                "
+                              >
+                                <mat-icon>open_in_browser</mat-icon>
+                              </a>
+                              <a
+                                mat-icon-button
+                                (click)="copyDriverName(truck.driverName)"
+                                matTooltip="Copy to clipboard"
+                              >
+                                <mat-icon>content_copy</mat-icon>
+                              </a>
+                            </div>
+
+                            <span class="bold">{{ truck.driverName }}</span>
+                          }
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeAdminPortalResult(
+                                company.key,
+                                truck.vehicleName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul add-margin">
+                          <li style="font-size: 12px">
+                            truckID:
+                            <span style="font-weight: 700">{{
+                              truck.vehicleName
+                            }}</span>
+                          </li>
+                          <li style="font-size: 12px">
+                            duty status:
+                            <span style="font-weight: 700">{{
+                              truck.dutyStatus
+                            }}</span>
+                          </li>
+                          <li style="font-size: 12px">
+                            location:
+                            <span style="font-weight: 700">{{
+                              truck.location
+                            }}</span>
+                          </li>
+                          <li style="font-size: 12px">
+                            driving speed:
+                            <span style="font-weight: 700"
+                              >{{ truck.drivingSpeed }}
+                              {{ truck.drivingSpeedUnit }}</span
+                            >
+                          </li>
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- Uncertified Driver Logs -->
-      @if (progressBarService.certStatus(); as certStatus) { @if
-      (!isEmpty(certStatus)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Uncertified Driver Logs
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(certStatus) }}"
-              [matBadgeHidden]="driverCount(certStatus) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(certStatus)) {
-          <div class="scan-results__content__result__empty">
-            No driver with uncertified daily log detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of certStatus | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(driver.driverId, 'openLogs', driver.tenant, true)
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.certStatus(); as certStatus) {
+        @if (!isEmpty(certStatus)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Uncertified Driver Logs
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(certStatus) }}"
+                  [matBadgeHidden]="driverCount(certStatus) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(certStatus)) {
+                <div class="scan-results__content__result__empty">
+                  No driver with uncertified daily log detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (company of certStatus | keyvalue; track company.key) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.driverId,
+                                  'openLogs',
+                                  driver.tenant,
+                                  true
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <!-- <a
+                          <!-- <a
                   mat-icon-button
                   matTooltip="Done"
                   class="on-hover"
@@ -451,1565 +632,1766 @@
                   "
                   ><span class="material-icons"> clear </span></a
                 > -->
-              </div>
-              <ul class="inner-ul">
-                @for (log of driver.uncertifiedDays; track log.id; let i =
-                $index) {
-                <li class="event-error">
-                  <span class="view-id">#{{ i + 1 }}</span>
-                  <span style="width: fit-content">{{
-                    getDate(log.id, driver.zone) | date : "MMM dd, yyyy"
-                  }}</span>
-                </li>
-                }
-              </ul>
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            log of driver.uncertifiedDays;
+                            track log.id;
+                            let i = $index
+                          ) {
+                            <li class="event-error">
+                              <span class="view-id">#{{ i + 1 }}</span>
+                              <span style="width: fit-content">{{
+                                getDate(log.id, driver.zone)
+                                  | date: "MMM dd, yyyy"
+                              }}</span>
+                            </li>
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- Teleports -->
-      @if (progressBarService.teleports(); as teleports) { @if
-      (!isEmpty(teleports)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            teleports
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ resultCount(teleports) }}"
-              [matBadgeHidden]="resultCount(teleports) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(teleports)) {
-          <div class="scan-results__content__result__empty">
-            No teleports detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of teleports | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.teleports(); as teleports) {
+        @if (!isEmpty(teleports)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                teleports
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ resultCount(teleports) }}"
+                  [matBadgeHidden]="resultCount(teleports) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(teleports)) {
+                <div class="scan-results__content__result__empty">
+                  No teleports detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (company of teleports | keyvalue; track company.key) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'teleports',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'teleports',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg">
-                    {{
-                      event.isTeleport > 0
-                        ? "teleport [ " + event.isTeleport + " miles ]"
-                        : "odometer decreased"
-                    }}
-                  </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  {{
+                                    event.isTeleport > 0
+                                      ? "teleport [ " +
+                                        event.isTeleport +
+                                        " miles ]"
+                                      : "odometer decreased"
+                                  }}
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- Teleports -->
-      @if (progressBarService.locationMismatch(); as locationMismatch) { @if
-      (!isEmpty(locationMismatch)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Location Mismatch
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ resultCount(locationMismatch) }}"
-              [matBadgeHidden]="resultCount(locationMismatch) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(locationMismatch)) {
-          <div class="scan-results__content__result__empty">
-            No Location Mismatch detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of locationMismatch | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.locationMismatch(); as locationMismatch) {
+        @if (!isEmpty(locationMismatch)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Location Mismatch
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ resultCount(locationMismatch) }}"
+                  [matBadgeHidden]="resultCount(locationMismatch) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(locationMismatch)) {
+                <div class="scan-results__content__result__empty">
+                  No Location Mismatch detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of locationMismatch | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'locationMismatch',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'locationMismatch',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg"> location mismatch </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  location mismatch
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- event errors  -->
-      @if (progressBarService.eventErrors(); as eventErrors) { @if
-      (!isEmpty(eventErrors)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            event errors
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ resultCount(eventErrors) }}"
-              [matBadgeHidden]="resultCount(eventErrors) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(eventErrors)) {
-          <div class="scan-results__content__result__empty">
-            No event errors.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of eventErrors | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.eventErrors(); as eventErrors) {
+        @if (!isEmpty(eventErrors)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                event errors
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ resultCount(eventErrors) }}"
+                  [matBadgeHidden]="resultCount(eventErrors) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(eventErrors)) {
+                <div class="scan-results__content__result__empty">
+                  No event errors.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (company of eventErrors | keyvalue; track company.key) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'eventErrors',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'eventErrors',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg">
-                    @for(message of event.errorMessages; track $index) {
-                    {{ message }} }
-                  </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  @for (
+                                    message of event.errorMessages;
+                                    track $index
+                                  ) {
+                                    {{ message }}
+                                  }
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- prolonged On Duty  -->
-      @if (progressBarService.prolongedOnDuty(); as prolongedOnDuty) { @if
-      (!isEmpty(prolongedOnDuty)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            {{ prolongedOnDutiesTitle }}
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ resultCount(prolongedOnDuty) }}"
-              [matBadgeHidden]="resultCount(prolongedOnDuty) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(prolongedOnDuty)) {
-          <div class="scan-results__content__result__empty">
-            No prolonged On Duty event detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of prolongedOnDuty | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.prolongedOnDuty(); as prolongedOnDuty) {
+        @if (!isEmpty(prolongedOnDuty)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ prolongedOnDutiesTitle }}
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ resultCount(prolongedOnDuty) }}"
+                  [matBadgeHidden]="resultCount(prolongedOnDuty) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(prolongedOnDuty)) {
+                <div class="scan-results__content__result__empty">
+                  No prolonged On Duty event detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of prolongedOnDuty | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'prolongedOnDuty',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'prolongedOnDuty',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg">
-                    duration:
-                    {{ event.onDutyDuration * 1000 | date : "H:mm" : "UTC" }}
-                  </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  duration:
+                                  {{
+                                    event.onDutyDuration * 1000
+                                      | date: "H:mm" : "UTC"
+                                  }}
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- Refuel Marker Warning  -->
-      @if (progressBarService.refuelWarning(); as refuelWarning) { @if
-      (!isEmpty(refuelWarning)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Refuel Marker Warning
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(refuelWarning) }}"
-              [matBadgeHidden]="driverCount(refuelWarning) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(refuelWarning)) {
-          <div class="scan-results__content__result__empty">
-            No Fueling Marker warning detected
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of refuelWarning | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.refuelWarning(); as refuelWarning) {
+        @if (!isEmpty(refuelWarning)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Refuel Marker Warning
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(refuelWarning) }}"
+                  [matBadgeHidden]="driverCount(refuelWarning) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(refuelWarning)) {
+                <div class="scan-results__content__result__empty">
+                  No Fueling Marker warning detected
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of refuelWarning | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'refuelWarning',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'refuelWarning',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg"> potential unrecorded driving </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  potential unrecorded driving
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- malf or data diag  -->
-      @if (progressBarService.malfOrDataDiag(); as malfOrDataDiag) { @if
-      (!isEmpty(malfOrDataDiag)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            {{ malfTitle }}
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(malfOrDataDiag) }}"
-              [matBadgeHidden]="driverCount(malfOrDataDiag) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(malfOrDataDiag)) {
-          <div class="scan-results__content__result__empty">
-            No Malfunction / DataDiagnostic events.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of malfOrDataDiag | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.malfOrDataDiag(); as malfOrDataDiag) {
+        @if (!isEmpty(malfOrDataDiag)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ malfTitle }}
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(malfOrDataDiag) }}"
+                  [matBadgeHidden]="driverCount(malfOrDataDiag) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(malfOrDataDiag)) {
+                <div class="scan-results__content__result__empty">
+                  No Malfunction / DataDiagnostic events.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of malfOrDataDiag | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'malfOrDataDiag',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'malfOrDataDiag',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg">
-                    @for(message of event.errorMessages; track $index) {
-                    {{ message }} }
-                  </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  @for (
+                                    message of event.errorMessages;
+                                    track $index
+                                  ) {
+                                    {{ message }}
+                                  }
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- PC/YM  -->
-      @if (progressBarService.pcYm(); as pcYm) { @if (!isEmpty(pcYm)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            PC/YM
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(pcYm) }}"
-              [matBadgeHidden]="driverCount(pcYm) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(pcYm)) {
-          <div class="scan-results__content__result__empty">
-            No PC/YM events.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of pcYm | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.pcYm(); as pcYm) {
+        @if (!isEmpty(pcYm)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                PC/YM
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(pcYm) }}"
+                  [matBadgeHidden]="driverCount(pcYm) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(pcYm)) {
+                <div class="scan-results__content__result__empty">
+                  No PC/YM events.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (company of pcYm | keyvalue; track company.key) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'pcYm',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'pcYm',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg"></span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg"></span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- missing Engine On  -->
-      @if (progressBarService.missingEngineOn(); as missingEngineOn) { @if
-      (!isEmpty(missingEngineOn)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            missing Engine On
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(missingEngineOn) }}"
-              [matBadgeHidden]="driverCount(missingEngineOn) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(missingEngineOn)) {
-          <div class="scan-results__content__result__empty">
-            No missing Engine On events.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of missingEngineOn | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.missingEngineOn(); as missingEngineOn) {
+        @if (!isEmpty(missingEngineOn)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                missing Engine On
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(missingEngineOn) }}"
+                  [matBadgeHidden]="driverCount(missingEngineOn) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(missingEngineOn)) {
+                <div class="scan-results__content__result__empty">
+                  No missing Engine On events.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of missingEngineOn | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'missingEngineOn',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'missingEngineOn',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg"> missing Engine On </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  missing Engine On
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- high elapsed EH  -->
-      @if (progressBarService.highEngineHours(); as highEngineHours) { @if
-      (!isEmpty(highEngineHours)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            {{ elapsedEHTitle }}
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(highEngineHours) }}"
-              [matBadgeHidden]="driverCount(highEngineHours) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(highEngineHours)) {
-          <div class="scan-results__content__result__empty">
-            No high elapsed Engine Hours events.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of highEngineHours | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.highEngineHours(); as highEngineHours) {
+        @if (!isEmpty(highEngineHours)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ elapsedEHTitle }}
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(highEngineHours) }}"
+                  [matBadgeHidden]="driverCount(highEngineHours) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(highEngineHours)) {
+                <div class="scan-results__content__result__empty">
+                  No high elapsed Engine Hours events.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of highEngineHours | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'highEngineHours',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'highEngineHours',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg">
-                    elapsed Engine Hours: {{ event.elapsedEngineHours }}
-                  </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  elapsed Engine Hours:
+                                  {{ event.elapsedEngineHours }}
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- manuel Driving  -->
-      @if (progressBarService.manualDriving(); as manualDriving) { @if
-      (!isEmpty(manualDriving)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            manuel Driving
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(manualDriving) }}"
-              [matBadgeHidden]="driverCount(manualDriving) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(manualDriving)) {
-          <div class="scan-results__content__result__empty">
-            No manual Driving events detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of manualDriving | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.manualDriving(); as manualDriving) {
+        @if (!isEmpty(manualDriving)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                manuel Driving
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(manualDriving) }}"
+                  [matBadgeHidden]="driverCount(manualDriving) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(manualDriving)) {
+                <div class="scan-results__content__result__empty">
+                  No manual Driving events detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of manualDriving | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'manualDriving',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'manualDriving',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg"> manual origin </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg"> manual origin </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      } }
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- low total EH  -->
       @if (progressBarService.lowTotalEngineHours(); as lowTotalEngineHours) {
-      @if (!isEmpty(lowTotalEngineHours)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            {{ lowTotalEHTitle }}
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(lowTotalEngineHours) }}"
-              [matBadgeHidden]="driverCount(lowTotalEngineHours) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(lowTotalEngineHours)) {
-          <div class="scan-results__content__result__empty">
-            No event with low total Engine Hours detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of lowTotalEngineHours | keyvalue; track company.key)
-            {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+        @if (!isEmpty(lowTotalEngineHours)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ lowTotalEHTitle }}
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(lowTotalEngineHours) }}"
+                  [matBadgeHidden]="driverCount(lowTotalEngineHours) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(lowTotalEngineHours)) {
+                <div class="scan-results__content__result__empty">
+                  No event with low total Engine Hours detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of lowTotalEngineHours | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'lowTotalEngineHours',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'lowTotalEngineHours',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg">
-                    total Engine Hours: {{ event.engineMinutes }}
-                  </span>
-                </li>
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  total Engine Hours: {{ event.engineMinutes }}
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- Fleet Manager Events  -->
-      @if (progressBarService.fleetManager(); as fleetManager) { @if
-      (!isEmpty(fleetManager)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Fleet manager events
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ resultCount(fleetManager) }}"
-              [matBadgeHidden]="resultCount(fleetManager) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(fleetManager)) {
-          <div class="scan-results__content__result__empty">
-            No fleet manager events detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of fleetManager | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.fleetManager(); as fleetManager) {
+        @if (!isEmpty(fleetManager)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Fleet manager events
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ resultCount(fleetManager) }}"
+                  [matBadgeHidden]="resultCount(fleetManager) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(fleetManager)) {
+                <div class="scan-results__content__result__empty">
+                  No fleet manager events detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (company of fleetManager | keyvalue; track company.key) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'fleetManager',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span class="view-id">#{{ event.viewId }}</span>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'fleetManager',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
 
-                  <span [ngClass]="'status ' + event.dutyStatus">{{
-                    event.statusName
-                  }}</span>
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
 
-                  <span class="error-msg">
-                    total Engine Hours: {{ event.engineMinutes }}
-                  </span>
-                </li>
-
-                } }
-              </ul>
+                                <span class="error-msg">
+                                  total Engine Hours: {{ event.engineMinutes }}
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- truck change -->
-      @if (progressBarService.truckChange(); as truckChange) { @if
-      (!isEmpty(truckChange)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            truck change
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(truckChange) }}"
-              [matBadgeHidden]="driverCount(truckChange) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(truckChange)) {
-          <div class="scan-results__content__result__empty">
-            No truck change detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of truckChange | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.truckChange(); as truckChange) {
+        @if (!isEmpty(truckChange)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                truck change
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(truckChange) }}"
+                  [matBadgeHidden]="driverCount(truckChange) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(truckChange)) {
+                <div class="scan-results__content__result__empty">
+                  No truck change detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (company of truckChange | keyvalue; track company.key) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'truckChange',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                <li style="margin-left: 12px">
-                  <span
-                    style="
-                      color: black;
-                      font-weight: 600;
-                      background-color: whitesmoke;
-                    "
-                    >##</span
-                  ><span
-                    style="
-                      color: green;
-                      font-weight: 600;
-                      background-color: whitesmoke;
-                      padding-right: 8px;
-                    "
-                  >
-                    truck change</span
-                  >
-                </li>
-                @for (event of driver.events | slice:0:3; track event.id; let i
-                = $index) { @if(i === 2 && driver.events.length > 3) {
-                <li class="event-error">
-                  <span></span>
-                  <span></span>
-                  <span>...and {{ driver.events.length - 3 }} more</span>
-                </li>
-                } @else {
-                <li class="event-error">
-                  <span></span>
-                  <span>
-                    {{ event.truckChangeFrom }} -> {{ event.vehicleName }}
-                  </span>
-                  <span></span>
-                </li>
-                } }
-              </ul>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'truckChange',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          <li style="margin-left: 12px">
+                            <span
+                              style="
+                                color: black;
+                                font-weight: 600;
+                                background-color: whitesmoke;
+                              "
+                              >##</span
+                            ><span
+                              style="
+                                color: green;
+                                font-weight: 600;
+                                background-color: whitesmoke;
+                                padding-right: 8px;
+                              "
+                            >
+                              truck change</span
+                            >
+                          </li>
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span></span>
+                                <span>
+                                  {{ event.truckChangeFrom }} ->
+                                  {{ event.vehicleName }}
+                                </span>
+                                <span></span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!--  -->
       <!-- new Drivers -->
-      @if (progressBarService.newDrivers(); as newDrivers) { @if
-      (!isEmpty(newDrivers)) {
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            new Drivers
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ driverCount(newDrivers) }}"
-              [matBadgeHidden]="driverCount(newDrivers) === 0"
-              matBadgeColor="primary"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          @if (isEmpty(newDrivers)) {
-          <div class="scan-results__content__result__empty">
-            No new drivers detected.
-          </div>
-          } @else {
-          <ul class="list-of-tenants">
-            @for (company of newDrivers | keyvalue; track company.key) {
-            <li class="company">
-              <span class="company-name">{{ company.key }}</span>
-              @for (driver of company.value; track driver.driverName) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        driver.events[0].driver.id,
-                        driver.events[0].date,
-                        driver.events[0].tenant
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(driver.driverName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
+      @if (progressBarService.newDrivers(); as newDrivers) {
+        @if (!isEmpty(newDrivers)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                new Drivers
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(newDrivers) }}"
+                  [matBadgeHidden]="driverCount(newDrivers) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(newDrivers)) {
+                <div class="scan-results__content__result__empty">
+                  No new drivers detected.
                 </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (company of newDrivers | keyvalue; track company.key) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
 
-                <span class="bold">{{ driver.driverName }}</span>
+                          <span class="bold">{{ driver.driverName }}</span>
 
-                <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'newDrivers',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                >
-              </div>
-              <ul class="inner-ul">
-                <li style="margin-left: 12px">
-                  <span
-                    style="
-                      color: black;
-                      font-weight: 600;
-                      background-color: whitesmoke;
-                    "
-                    >##</span
-                  ><span
-                    style="
-                      color: green;
-                      font-weight: 600;
-                      background-color: whitesmoke;
-                      padding-right: 8px;
-                    "
-                  >
-                    New Driver!</span
-                  >
-                </li>
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'newDrivers',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          <li style="margin-left: 12px">
+                            <span
+                              style="
+                                color: black;
+                                font-weight: 600;
+                                background-color: whitesmoke;
+                              "
+                              >##</span
+                            ><span
+                              style="
+                                color: green;
+                                font-weight: 600;
+                                background-color: whitesmoke;
+                                padding-right: 8px;
+                              "
+                            >
+                              New Driver!</span
+                            >
+                          </li>
 
-                <li style="font-size: 12px">
-                  - @if (driver.events[driver.events.length - 1].vehicleName; as
-                  truckID) { <span> truck ID [{{ truckID }}] selected </span> }
-                  @else { <span> truck not selected </span> }
-                </li>
-                <li style="font-size: 12px">
-                  - @if (driver.events[driver.events.length - 1].odometer; as
-                  odometer) {
-                  <span> last recorded odometar value: [{{ odometer }}] </span>
-                  } @else {<span> undifined odometar value </span>}
-                </li>
-                <li style="font-size: 12px">
-                  - @if (driver.events[driver.events.length - 1].engineMinutes;
-                  as engineHours) {
-                  <span> engine hours count: {{ engineHours }} </span> } @else {
-                  <span> undifined engine hours </span>}
-                </li>
-              </ul>
+                          <li style="font-size: 12px">
+                            -
+                            @if (
+                              driver.events[driver.events.length - 1]
+                                .vehicleName;
+                              as truckID
+                            ) {
+                              <span> truck ID [{{ truckID }}] selected </span>
+                            } @else {
+                              <span> truck not selected </span>
+                            }
+                          </li>
+                          <li style="font-size: 12px">
+                            -
+                            @if (
+                              driver.events[driver.events.length - 1].odometer;
+                              as odometer
+                            ) {
+                              <span>
+                                last recorded odometar value: [{{ odometer }}]
+                              </span>
+                            } @else {
+                              <span> undifined odometar value </span>
+                            }
+                          </li>
+                          <li style="font-size: 12px">
+                            -
+                            @if (
+                              driver.events[driver.events.length - 1]
+                                .engineMinutes;
+                              as engineHours
+                            ) {
+                              <span>
+                                engine hours count: {{ engineHours }}
+                              </span>
+                            } @else {
+                              <span> undifined engine hours </span>
+                            }
+                          </li>
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
               }
-              <hr />
-            </li>
-            }
-          </ul>
-          }
-        </div>
-      </mat-expansion-panel>
-      }}
+            </div>
+          </mat-expansion-panel>
+        }
+      }
 
       <!-- //////////////////////////////////  -->
       <!-- DOT Inspections -->
       @if (inspections().length) {
-      <mat-expansion-panel
-        [expanded]="extensionNavigation.dotPanelIsOpened()"
-        (opened)="extensionNavigation.dotPanelIsOpened.set(true)"
-        (closed)="extensionNavigation.dotPanelIsOpened.set(false)"
-      >
-        <mat-expansion-panel-header>
-          <mat-panel-title
-            >FMCSA Inpsections
-            <div
-              class="mat-badge-custom"
-              style="margin-left: auto"
-              matBadge="{{ inspectionsCount() ? inspectionsCount() : null }}"
-              matBadgePosition="below after"
-              matBadgeSize="medium"
-            ></div
-          ></mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="scan-results__content__result">
-          <ul class="list-of-tenants">
-            @for (dot of inspections(); track dot.inspections.company.id) {
-            <li class="company">
-              <span class="company-name">{{
-                dot.inspections.company.name
-              }}</span>
+        <mat-expansion-panel
+          [expanded]="extensionNavigation.dotPanelIsOpened()"
+          (opened)="extensionNavigation.dotPanelIsOpened.set(true)"
+          (closed)="extensionNavigation.dotPanelIsOpened.set(false)"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title
+              >FMCSA Inpsections
+              <div
+                class="mat-badge-custom"
+                style="margin-left: auto"
+                matBadge="{{ inspectionsCount() ? inspectionsCount() : null }}"
+                matBadgePosition="below after"
+                matBadgeSize="medium"
+              ></div
+            ></mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="scan-results__content__result">
+            <ul class="list-of-tenants">
+              @for (dot of inspections(); track dot.inspections.company.id) {
+                <li class="company">
+                  <span class="company-name">{{
+                    dot.inspections.company.name
+                  }}</span>
 
-              @for (item of dot.inspections.items; track item.id) {
-              <div class="driver">
-                <div class="btns">
-                  <a
-                    mat-icon-button
-                    matTooltip="Open driver daily logs in web app"
-                    (click)="
-                      openLogs(
-                        item.driverIntId,
-                        item.time,
-                        dot.inspections.company
-                      )
-                    "
-                  >
-                    <mat-icon>open_in_browser</mat-icon>
-                  </a>
-                  <a
-                    mat-icon-button
-                    (click)="copyDriverName(item.driverFullName)"
-                    matTooltip="Copy to clipboard"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </a>
-                </div>
+                  @for (item of dot.inspections.items; track item.id) {
+                    <div class="driver">
+                      <div class="btns">
+                        <a
+                          mat-icon-button
+                          matTooltip="Open driver daily logs in web app"
+                          (click)="
+                            openLogs(
+                              item.driverIntId,
+                              item.time,
+                              dot.inspections.company
+                            )
+                          "
+                        >
+                          <mat-icon>open_in_browser</mat-icon>
+                        </a>
+                        <a
+                          mat-icon-button
+                          (click)="copyDriverName(item.driverFullName)"
+                          matTooltip="Copy to clipboard"
+                        >
+                          <mat-icon>content_copy</mat-icon>
+                        </a>
+                      </div>
 
-                <span class="bold">{{ item.driverFullName }}</span>
-              </div>
+                      <span class="bold">{{ item.driverFullName }}</span>
+                    </div>
 
-              <ul class="inner-ul">
-                <li class="event-violation">
-                  <span>Vehicle ID: {{ item.vehicleName }}</span>
+                    <ul class="inner-ul">
+                      <li class="event-violation">
+                        <span>Vehicle ID: {{ item.vehicleName }}</span>
+                      </li>
+                      <li class="event-violation">
+                        <span>Timestamp: {{ item.time | date: "long" }}</span>
+                      </li>
+                      <li class="event-violation">
+                        <span>Report Type: {{ item.reportType }}</span>
+                      </li>
+                      <li class="event-violation">
+                        <span>Editable: {{ item.editable }}</span>
+                      </li>
+                      <li class="event-violation">
+                        <span>Official: {{ !item.isUnofficial }}</span>
+                      </li>
+                    </ul>
+                  }
                 </li>
-                <li class="event-violation">
-                  <span>Timestamp: {{ item.time | date : "long" }}</span>
-                </li>
-                <li class="event-violation">
-                  <span>Report Type: {{ item.reportType }}</span>
-                </li>
-                <li class="event-violation">
-                  <span>Editable: {{ item.editable }}</span>
-                </li>
-                <li class="event-violation">
-                  <span>Official: {{ !item.isUnofficial }}</span>
-                </li>
-              </ul>
               }
-            </li>
-            }
-          </ul>
-        </div>
-      </mat-expansion-panel>
+            </ul>
+          </div>
+        </mat-expansion-panel>
       }
     </mat-accordion>
   </div>

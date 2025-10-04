@@ -145,6 +145,18 @@ export class ProgressBarService {
     });
   }
 
+  removeAdminPortalResult(companyName: string, vehicleName: string) {
+    const index = this.adminPortalResults()[companyName].findIndex(
+      (truck) => truck.vehicleName === vehicleName,
+    );
+    this.adminPortalResults.update((prev) => {
+      const newValue = { ...prev };
+      newValue[companyName].splice(index, 1);
+      if (newValue[companyName].length === 0) delete newValue[companyName];
+      return newValue;
+    });
+  }
+
   removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
     if (scanResult === "certStatus") return;
 

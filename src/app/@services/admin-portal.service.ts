@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { finalize, from, map, mergeMap, switchMap, tap } from "rxjs";
+import { from, map, mergeMap, switchMap, tap } from "rxjs";
 import { ApiService } from "./api.service";
 import { ApiPrologsAdminService } from "./api-prologs-admin.service";
 import { ConstantsService } from "./constants.service";
