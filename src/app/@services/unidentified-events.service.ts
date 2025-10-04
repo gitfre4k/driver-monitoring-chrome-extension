@@ -1,25 +1,29 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { ApiService } from './api.service';
-import { AppService } from './app.service';
-import { finalize, from, mergeMap, tap } from 'rxjs';
-import { ProgressBarService } from './progress-bar.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { inject, Injectable, signal } from "@angular/core";
+import { ApiService } from "./api.service";
+import { AppService } from "./app.service";
+import { finalize, from, mergeMap, tap } from "rxjs";
+import { ProgressBarService } from "./progress-bar.service";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { ConstantsService } from "./constants.service";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class UnidentifiedEventsService {
   apiService = inject(ApiService);
   appService = inject(AppService);
   progressBarService = inject(ProgressBarService);
   _snackBar = inject(MatSnackBar);
+  constantService = inject(ConstantsService);
+
+  httpLimit = this.constantService.httpLimit;
 
   totalCount = signal(0);
 
   deleteAllUnidentifiedEvents$() {
     const tenants = this.appService.tenantsSignal();
 
-    this.progressBarService.initializeState('deleteUE');
+    this.progressBarService.initializeState("deleteUE");
     this.progressBarService.scanning.set(true);
 
     return from(tenants)
@@ -39,7 +43,7 @@ export class UnidentifiedEventsService {
               }
             }),
           );
-        }, 10),
+        }, this.httpLimit()),
       )
       .pipe(
         finalize(() => {
@@ -48,11 +52,11 @@ export class UnidentifiedEventsService {
           const count = this.totalCount();
           const message =
             count === 0
-              ? 'No Unidentified Event detected'
+              ? "No Unidentified Event detected"
               : `${count} Unidentified Event${
-                  count > 1 ? 's' : ''
+                  count > 1 ? "s" : ""
                 } detected and deleted`;
-          this._snackBar.open(message, 'OK', {
+          this._snackBar.open(message, "OK", {
             duration: 3000,
           });
 

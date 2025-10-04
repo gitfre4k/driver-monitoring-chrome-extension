@@ -1,23 +1,27 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { AppService } from './app.service';
-import { catchError, from, map, mergeMap, of, switchMap, tap } from 'rxjs';
-import { ApiService } from './api.service';
-import { DateService } from './date.service';
-import { ProgressBarService } from './progress-bar.service';
+import { inject, Injectable, signal } from "@angular/core";
+import { AppService } from "./app.service";
+import { catchError, from, map, mergeMap, of, switchMap, tap } from "rxjs";
+import { ApiService } from "./api.service";
+import { DateService } from "./date.service";
+import { ProgressBarService } from "./progress-bar.service";
+import { ConstantsService } from "./constants.service";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class CertificationsScanService {
   appService = inject(AppService);
   apiService = inject(ApiService);
   dateService = inject(DateService);
   progressBarService = inject(ProgressBarService);
+  constantsService = inject(ConstantsService);
+
+  httpLimit = this.constantsService.httpLimit;
 
   excludeNonWorkDays = signal(true);
 
   get driverLogs$() {
-    this.progressBarService.initializeState('cert');
+    this.progressBarService.initializeState("cert");
     this.progressBarService.scanning.set(true);
 
     const tenants = this.appService.tenantsSignal();
@@ -45,9 +49,9 @@ export class CertificationsScanService {
                 driver.tenant = tenant;
               });
               return drivers;
-            })
+            }),
           );
-      }, 10)
+      }, this.httpLimit()),
     );
 
     return companyLogs$.pipe(
@@ -83,7 +87,7 @@ export class CertificationsScanService {
 
             this.excludeNonWorkDays() &&
               (uncertifiedDays = uncertifiedDays.filter(
-                (day) => day.minutesWorked
+                (day) => day.minutesWorked,
               ));
 
             newLogs.tenant = driver.tenant!;
@@ -92,9 +96,9 @@ export class CertificationsScanService {
             newLogs.zone = driver.homeTerminalTimeZone;
             newLogs.items = uncertifiedDays;
             return newLogs;
-          })
+          }),
         );
-      }, 10)
+      }, this.httpLimit()),
     );
   }
 }

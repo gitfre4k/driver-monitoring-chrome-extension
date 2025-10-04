@@ -1,20 +1,21 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { ApiService } from './api.service';
-import { catchError, concatMap, from, mergeMap, of, tap, toArray } from 'rxjs';
-import { IDriver, IScanResultDriver, ITenant } from '../interfaces';
+import { inject, Injectable, signal } from "@angular/core";
+import { ApiService } from "./api.service";
+import { catchError, concatMap, from, mergeMap, of, tap, toArray } from "rxjs";
+import { IDriver, IScanResultDriver, ITenant } from "../interfaces";
 import {
   IDailyLogs,
   IEvent,
-} from '../interfaces/driver-daily-log-events.interface';
-import { ProgressBarService } from './progress-bar.service';
-import { AppService } from './app.service';
-import { ComputeEventsService } from './compute-events.service';
-import { DateService } from './date.service';
-import { isPcOrYm } from '../helpers/app.helpers';
-import { DateTime } from 'luxon';
+} from "../interfaces/driver-daily-log-events.interface";
+import { ProgressBarService } from "./progress-bar.service";
+import { AppService } from "./app.service";
+import { ComputeEventsService } from "./compute-events.service";
+import { DateService } from "./date.service";
+import { isPcOrYm } from "../helpers/app.helpers";
+import { DateTime } from "luxon";
+import { ConstantsService } from "./constants.service";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class AdvancedScanService {
   private appService = inject(AppService);
@@ -22,6 +23,9 @@ export class AdvancedScanService {
   private computeEventsService = inject(ComputeEventsService);
   private progressBarService = inject(ProgressBarService);
   private dateService = inject(DateService);
+  constantService = inject(ConstantsService);
+
+  httpLimit = this.constantService.httpLimit;
 
   ptiDuration = signal(781);
   prolongedOnDutiesDuration = signal(4200); // 1h10min
@@ -33,7 +37,7 @@ export class AdvancedScanService {
 
   getDriversDailyLogs(date: string) {
     const tenants = this.appService.tenantsSignal();
-    this.progressBarService.initializeState('advanced');
+    this.progressBarService.initializeState("advanced");
     this.progressBarService.scanning.set(true);
 
     return from(tenants).pipe(
@@ -73,7 +77,7 @@ export class AdvancedScanService {
                 tenant,
                 this.dateService.analyzeCustomDate(qDate),
               );
-            }, 10),
+            }, this.httpLimit()),
             toArray(),
           );
       }),
@@ -175,7 +179,7 @@ export class AdvancedScanService {
 
     computedEvents.forEach((event) => {
       if (event.driver.id === driverDailyLog.driverId) {
-        if (event.isTeleport || event.dutyStatus === 'refuel') {
+        if (event.isTeleport || event.dutyStatus === "refuel") {
           detectedTeleportEvents.push(event);
         }
         if (event.locationMismatch) {
@@ -207,7 +211,7 @@ export class AdvancedScanService {
         }
         if (
           event.origin ===
-          'EditRequestedByAnAuthenticatedUserOtherThanTheDriver'
+          "EditRequestedByAnAuthenticatedUserOtherThanTheDriver"
         ) {
           fleetManagerEvents.push(event);
         }

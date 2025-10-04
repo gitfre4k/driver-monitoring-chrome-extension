@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from "@angular/core";
 import {
   catchError,
   from,
@@ -8,22 +8,23 @@ import {
   switchMap,
   tap,
   toArray,
-} from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
+} from "rxjs";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatDialog } from "@angular/material/dialog";
 
-import { ApiService } from './api.service';
-import { ProgressBarService } from './progress-bar.service';
+import { ApiService } from "./api.service";
+import { ProgressBarService } from "./progress-bar.service";
 
-import { IDOTInspections, IISODateRange, IViolations } from '../interfaces';
-import { TScanMode } from '../types';
-import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
-import { DateTime } from 'luxon';
-import { DateService } from './date.service';
-import { IDriverItem, IDrivers } from '../interfaces/drivers.interface';
+import { IDOTInspections, IISODateRange, IViolations } from "../interfaces";
+import { TScanMode } from "../types";
+import { ExtensionTabNavigationService } from "./extension-tab-navigation.service";
+import { DateTime } from "luxon";
+import { DateService } from "./date.service";
+import { IDriverItem, IDrivers } from "../interfaces/drivers.interface";
+import { ConstantsService } from "./constants.service";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ScanService {
   private apiService: ApiService = inject(ApiService);
@@ -31,12 +32,15 @@ export class ScanService {
   private extensionTabNavService = inject(ExtensionTabNavigationService);
   private dateService = inject(DateService);
   private _snackBar = inject(MatSnackBar);
+  private constantsService = inject(ConstantsService);
+
+  httpLimit = this.constantsService.httpLimit;
 
   readonly dialog = inject(MatDialog);
 
   autoScan = signal(true);
   autofocus = signal(true);
-  selectedRange = signal<'week' | 'month' | 'custom'>('week');
+  selectedRange = signal<"week" | "month" | "custom">("week");
   cycleAlertExcludeNonWorking = signal(true);
 
   constructor() {}
@@ -56,7 +60,7 @@ export class ScanService {
         (item.lowCycleHours = hos.cycleWork);
 
       //pre-violations
-      if (['D', 'ON'].includes(item.driverDutyStatus)) {
+      if (["D", "ON"].includes(item.driverDutyStatus)) {
         // cycle
         hos.cycleWork < this.progressBarService.preViolationsSlider() &&
           hos.cycleWork !== 0 &&
@@ -105,7 +109,7 @@ export class ScanService {
 
     this.cycleAlertExcludeNonWorking() &&
       (cycleHours = cycleHours.filter(
-        (driver) => !['OFF', 'SB'].includes(driver.driverDutyStatus),
+        (driver) => !["OFF", "SB"].includes(driver.driverDutyStatus),
       ));
     cycleHours.length &&
       this.progressBarService.cycleHours.update((prev) => ({
@@ -117,7 +121,7 @@ export class ScanService {
   handleScanData(data: IViolations[] | IDOTInspections[], scanMode: TScanMode) {
     data.forEach((result) => {
       if (result.totalCount > 0) {
-        scanMode === 'violations'
+        scanMode === "violations"
           ? this.progressBarService.violations.update((v) => [
               ...v,
               {
@@ -136,7 +140,7 @@ export class ScanService {
 
   handleError(error: any) {
     this._snackBar
-      .open(`An error occurred: ${error.message}`, 'Close')
+      .open(`An error occurred: ${error.message}`, "Close")
       .afterDismissed()
       .pipe(tap(() => this.progressBarService.initializeProgressBar()))
       .subscribe();
@@ -144,8 +148,8 @@ export class ScanService {
 
   violationsDetected = (v: number) => {
     this._snackBar.open(
-      `Scan compete: ${v} violation${v > 1 ? 's' : ''} detected`,
-      'OK',
+      `Scan compete: ${v} violation${v > 1 ? "s" : ""} detected`,
+      "OK",
       {
         duration: 3000,
       },
@@ -159,8 +163,8 @@ export class ScanService {
 
   dotInspectionsDetected = (d: number) => {
     this._snackBar.open(
-      `Scan compete: ${d} DOT Inspection${d > 1 ? 's' : ''} detected`,
-      'OK',
+      `Scan compete: ${d} DOT Inspection${d > 1 ? "s" : ""} detected`,
+      "OK",
       {
         duration: 3000,
       },
@@ -172,28 +176,28 @@ export class ScanService {
   handleScanComplete(scanMode: TScanMode) {
     this.progressBarService.initializeProgressBar();
     switch (scanMode) {
-      case 'violations':
+      case "violations":
         const v = this.progressBarService.totalVCount();
         v > 0
           ? this.violationsDetected(v)
-          : this._snackBar.open(`Scan complete: no violations detected`, 'OK', {
+          : this._snackBar.open(`Scan complete: no violations detected`, "OK", {
               duration: 3000,
             });
         this.progressBarService.violationsLastSync.set(DateTime.now().toISO());
         break;
 
-      case 'pre':
+      case "pre":
         const count = this.progressBarService.preViolationsCount();
         this._snackBar.open(
           `Scan complete: ${
             count > 0
               ? count +
-                ' pre violation alert' +
-                (count > 1 ? 's' : '') +
-                ' detected'
-              : 'no pre violation alert detected'
+                " pre violation alert" +
+                (count > 1 ? "s" : "") +
+                " detected"
+              : "no pre violation alert detected"
           }`,
-          'OK',
+          "OK",
           {
             duration: 3000,
           },
@@ -204,20 +208,20 @@ export class ScanService {
             this.extensionTabNavService.prePanelIsOpened.set(true);
           })();
         break;
-      case 'dot':
+      case "dot":
         const dot = this.progressBarService.totalDCount();
         dot > 0
           ? this.dotInspectionsDetected(dot)
           : this._snackBar.open(
               `Scan complete: no DOT Inspections detected`,
-              'OK',
+              "OK",
               {
                 duration: 3000,
               },
             );
         break;
-      case 'cert':
-        this._snackBar.open(`Scan complete`, 'OK', {
+      case "cert":
+        this._snackBar.open(`Scan complete`, "OK", {
           duration: 3000,
         });
         break;
@@ -229,7 +233,7 @@ export class ScanService {
   //////////////////////
   // Pre Violation Alert
   getPreViolationAlert() {
-    this.progressBarService.initializeState('pre');
+    this.progressBarService.initializeState("pre");
     this.progressBarService.scanning.set(true);
     return this.apiService.getAccessibleTenants().pipe(
       switchMap((tenants) => from(tenants)),
@@ -263,12 +267,12 @@ export class ScanService {
               return drivers;
             }),
           );
-      }, 10),
+      }, this.httpLimit()),
     );
   }
 
   getAllViolations(range: IISODateRange) {
-    this.progressBarService.initializeState('violations');
+    this.progressBarService.initializeState("violations");
     this.progressBarService.scanning.set(true);
 
     return this.apiService
@@ -277,7 +281,7 @@ export class ScanService {
         tap(
           (tenants) =>
             !tenants.find(
-              (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+              (t) => t.id === "3a0e2d3b-8214-edb4-c139-0d55051fc170",
             ) && window.close(),
         ),
         switchMap((tenants) => from(tenants)),
@@ -313,13 +317,13 @@ export class ScanService {
                 return v;
               }),
             );
-        }, 10),
+        }, this.httpLimit()),
         toArray(),
       );
   }
 
   getAllDOTInspections(range: IISODateRange) {
-    this.progressBarService.initializeState('dot');
+    this.progressBarService.initializeState("dot");
     this.progressBarService.scanning.set(true);
 
     return this.apiService
@@ -328,7 +332,7 @@ export class ScanService {
         tap(
           (tenants) =>
             !tenants.find(
-              (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+              (t) => t.id === "3a0e2d3b-8214-edb4-c139-0d55051fc170",
             ) && window.close(),
         ),
         switchMap((tenants) => from(tenants)),
@@ -371,7 +375,7 @@ export class ScanService {
                 return dot;
               }),
             );
-        }, 10),
+        }, this.httpLimit()),
         toArray(),
       );
   }

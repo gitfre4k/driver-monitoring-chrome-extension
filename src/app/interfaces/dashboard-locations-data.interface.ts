@@ -1,0 +1,68 @@
+interface DriverVehicleStatus {
+  ignitionStatus: "IgnitionOnIdle" | "IgnitionOnDriving";
+  safetyStatus: boolean;
+  healthStatus: boolean;
+  violationsCount: number;
+  geometrisSafetyEventsCount: number;
+  diagnosticRecordsCount: number;
+  isPlugged: boolean;
+  ignitionStatusUpdateTime: string;
+  isPluggedUpdateTime: string;
+  eldSerialNumber: string;
+  fuelLevel: string;
+  fuelLevelUpdateTime: string;
+  dutyStatus: string;
+  headingDirection: number | null;
+  eldConnected: boolean | null;
+  hosDetails: HosDetails;
+  companyId: number;
+  mobileAppType: string;
+  mobileAppVersion: string;
+  id: number;
+  driverId: number;
+  vehicleName: string;
+  driverFullName: string;
+  lat: number;
+  lng: number;
+  bearing: number;
+  drivingSpeed: number | null;
+  drivingSpeedUnit: string;
+  location: string;
+  attachedTrailer: string;
+}
+
+interface HosDetails {
+  maxDrive: number;
+  maxShift: number;
+  maxCycle: number;
+  shiftResetTime: string | null;
+  cycleResetTime: string | null;
+  mustEndShiftBy: string;
+  mustEndRegularShiftBy: string;
+  shiftWorkTimeAsTimeSpan: string;
+  shiftWorkTime: number;
+  regularShiftWorkTimeAsTimeSpan: string;
+  regularShiftWorkTime: number;
+  mustEndShiftDrivingBy: string | null;
+  shiftDriveTimeAsTimeSpan: string;
+  shiftDriveTime: number;
+  mustEndCycleDrivingBy: string | null;
+  cycleDriveTimeAsTimeSpan: string;
+  cycleDriveTime: number;
+  driverDutyStatus: string;
+  driverDutyStatusStartTime: string;
+  cycleWorkTimeAsTimeSpan: string;
+  cycleWorkTime: number;
+  eligibleForFirstSplitOffDutyBreakAt: string | null;
+  eligibleForFirstSplitSleeperBreakAt: string | null;
+  completesSplitSleeperBreakAt: string | null;
+  firstSplitBreakStartTime: string;
+  shiftStartTime: string;
+  shiftDriveTimeAtFirstSplitBreakAsTimeSpan: string;
+  shiftDriveTimeAtFirstSplitBreak: number;
+  isPending: boolean;
+  isError: boolean;
+  mustHaveBreakBy: string | null;
+  mustEndCycleBy: string | null;
+  mustEndCycleWorkBy: string | null;
+}

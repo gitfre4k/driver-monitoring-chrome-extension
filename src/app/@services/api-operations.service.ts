@@ -459,7 +459,7 @@ export class ApiOperationsService {
             "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
-      }, 10),
+      }, 8),
     );
   };
 
