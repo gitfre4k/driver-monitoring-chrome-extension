@@ -1,12 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { ProgressBarService } from '../../@services/progress-bar.service';
-import { MatButtonModule } from '@angular/material/button';
+import { Component, inject } from "@angular/core";
+import { ProgressBarService } from "../../@services/progress-bar.service";
+import { MatButtonModule } from "@angular/material/button";
 
 @Component({
-  selector: 'app-errors',
+  selector: "app-errors",
   imports: [MatButtonModule],
-  templateUrl: './errors.component.html',
-  styleUrl: './errors.component.scss',
+  templateUrl: "./errors.component.html",
+  styleUrl: "./errors.component.scss",
 })
 export class ErrorsComponent {
   private progressBarService = inject(ProgressBarService);
@@ -16,6 +16,7 @@ export class ErrorsComponent {
   pErrors = this.progressBarService.pErrors;
   aErrors = this.progressBarService.aErrors;
   cErrors = this.progressBarService.cErrors;
+  adminErrors = this.progressBarService.adminErrors;
 
   constructor() {}
 

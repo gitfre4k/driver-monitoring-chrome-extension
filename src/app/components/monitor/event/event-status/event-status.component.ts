@@ -1,0 +1,92 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+} from "@angular/core";
+import { IEvent } from "../../../../interfaces/driver-daily-log-events.interface";
+import { KeyboardService } from "../../../../@services/keyboard.service";
+import { MonitorService } from "../../../../@services/monitor.service";
+import { CommonModule } from "@angular/common";
+import { FormInputService } from "../../../../@services/form-input.service";
+import { IntermediateComponent } from "../../../UI/intermediate/intermediate.component";
+import { EngineOnComponent } from "../../../UI/engine-on/engine-on.component";
+import { EngineComponent } from "../../../UI/engine/engine.component";
+import { getNoSpaceNote } from "../../../../helpers/monitor.helpers";
+import { FormsModule } from "@angular/forms";
+import { getStatusName } from "../../../../helpers/app.helpers";
+
+@Component({
+  selector: "app-event-status",
+  imports: [
+    CommonModule,
+    IntermediateComponent,
+    EngineOnComponent,
+    EngineComponent,
+    FormsModule,
+  ],
+  templateUrl: "./event-status.component.html",
+  styleUrl: "./event-status.component.scss",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class EventStatusComponent {
+  event = input.required<IEvent>();
+
+  keyboardService = inject(KeyboardService);
+  monitorService = inject(MonitorService);
+  formInputService = inject(FormInputService);
+
+  newStatusName = computed(() => {
+    return getStatusName(this.monitorService.newEventType());
+  });
+
+  getNoSpaceNote = getNoSpaceNote;
+
+  handleDoubleClick(event: IEvent) {
+    this.monitorService.selectedEvents.set([]);
+
+    this.monitorService.currentResizeDriving.set(null);
+    this.monitorService.showResize.set(null);
+    this.monitorService.newResizeSpeed.set(0);
+
+    this.monitorService.currentEditEvent.set(event);
+    this.monitorService.showUpdateEvent.set(event.id);
+    this.monitorService.newOdometer.set(event.odometer);
+
+    this.formInputService.geolocation.set(null);
+    this.formInputService.latitude.set("");
+    this.formInputService.longitude.set("");
+
+    this.monitorService.newEventTypeId.set(
+      this.monitorService.eventTypes.findIndex(
+        (type) => type === event.dutyStatus,
+      ),
+    );
+    this.monitorService.newNote.set("");
+    if (
+      [
+        "ChangeToOffDutyStatus",
+        "ChangeToSleeperBerthStatus",
+        "ChangeToOnDutyNotDrivingStatus",
+      ].includes(event.dutyStatus)
+    ) {
+      this.monitorService.newNote.set(event.notes);
+    }
+
+    return;
+  }
+
+  onEditStatusWheel(wheelEvent: WheelEvent) {
+    wheelEvent.preventDefault();
+    const maxToggle = this.monitorService.eventTypes.length - 1;
+    let toggle = this.monitorService.newEventTypeId();
+    if (wheelEvent.deltaY > 0) {
+      toggle === maxToggle ? (toggle = 0) : toggle++;
+    } else {
+      toggle === 0 ? (toggle = maxToggle) : toggle--;
+    }
+
+    this.monitorService.newEventTypeId.set(toggle);
+  }
+}

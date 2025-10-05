@@ -251,18 +251,15 @@
 
       &__options {
         display: flex;
-        margin-top: -8px;
         &-radio {
+          margin-top: -8px;
           display: flex;
           min-width: 35%;
           flex-direction: column;
-          margin: 0;
-          align-items: flex-start;
-          margin-left: 5px;
 
           &-button {
             transform: scale(0.9);
-            margin-bottom: -6px;
+            margin-bottom: -12px;
           }
         }
         &-daterange {
@@ -271,17 +268,16 @@
           align-items: center;
           text-align: right;
           gap: 5px;
-          margin-left: auto;
-          margin-right: 12px;
           font-size: 12px;
           line-height: 20px;
+          margin: 48px 12px 0 auto !important;
         }
       }
 
       &__autofocus {
         width: 100%;
         text-align: center;
-        margin-bottom: -4px;
+        margin: -4px;
       }
     }
 
@@ -316,13 +312,14 @@
         justify-content: space-between;
         width: 100%;
         border-radius: 12px;
-        // margin-right: -9px;
-        :first-child {
-          margin-left: -16px;
-          width: 60%;
+        margin-right: -9px;
+
+        :nth-child(2) {
+          margin-left: -8px;
+          width: 74%;
         }
         button {
-          width: 80px;
+          width: 64px;
           height: 32px;
         }
       }

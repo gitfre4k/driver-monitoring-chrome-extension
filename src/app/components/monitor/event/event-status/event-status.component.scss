@@ -1,0 +1,174 @@
+.status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 11px;
+  margin: 0.5px 5px;
+  padding: 3.6px 3px;
+  border-radius: 10px;
+  width: 85px;
+  text-align: center;
+  align-self: center;
+  cursor: pointer;
+  box-shadow: inset 0 -5px 5px rgba(3, 7, 18, 0.4);
+
+  .parent-Driving {
+    border-radius: 4px;
+    padding: 0px 7px !important;
+    margin: 0px 5px;
+    box-shadow: inset 0 -4px 2px -1px rgba(34, 197, 94, 0.5);
+    border-bottom: 0.5px solid rgba(34, 197, 94, 0.5);
+  }
+
+  .parent-SleeperBerth,
+  .parent-OffDuty,
+  .parent-OnDuty {
+    border-radius: 4px;
+    padding: 0px 7px !important;
+    margin: 0px 1px;
+    width: 40px;
+    font-size: 10px;
+  }
+
+  .parent-SleeperBerth {
+    box-shadow: inset 0 -4px 2px -1px rgba(231, 176, 8, 0.35);
+    border-bottom: 0.5px solid rgba(231, 176, 8, 0.5);
+  }
+  .parent-OffDuty {
+    box-shadow: inset 0 -6px 3px -1px rgba(2, 4, 10, 0.96);
+    border-bottom: 0.5px solid rgba(71, 71, 71, 0.3);
+  }
+  .parent-OnDuty {
+    box-shadow: inset 0 -4px 2px -1px rgba(59, 130, 246, 0.6);
+    border-bottom: 0.5px solid rgba(59, 130, 246, 0.5);
+  }
+
+  &.status-note {
+    border-radius: 4px;
+    font-weight: 700;
+    padding: 3px 2px;
+  }
+
+  &.IntermediateLogConventionalLocationPrecision:not(.input),
+  &.IntermediateLogReducedLocationPrecision:not(.input),
+  &.EnginePowerUpConventionalLocationPrecision:not(.input),
+  &.EnginePowerUpReducedLocationPrecision:not(.input),
+  &.EngineShutDownConventionalLocationPrecision:not(.input),
+  &.EngineShutDownReducedLocationPrecision:not(.input) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    margin: 1px 5px 3px;
+    padding: 1px 0 0 0;
+    border-radius: 10px;
+    width: 85px;
+    text-align: center;
+    align-self: center;
+    height: 20.4px;
+    box-shadow: none;
+  }
+}
+
+.status.ChangeToOffDutyStatus {
+  box-shadow: inset 0 -7px 3px -1px #000000 !important;
+  background-color: #030712;
+}
+
+.engine-on {
+  color: #22c55e;
+}
+
+.status.mph {
+  font-weight: 500;
+}
+.status.start-time {
+  font-weight: 700;
+}
+
+.IntermediateLogConventionalLocationPrecision,
+.IntermediateLogReducedLocationPrecision {
+  display: flex;
+  width: 100%;
+  gap: 1px;
+  .inter-speed {
+    font-size: 10px;
+  }
+}
+
+.ChangeToOnDutyNotDrivingStatus {
+  background-color: rgb(59, 130, 246);
+}
+.ChangeToOnDutyNotDrivingStatus-E,
+.ChangeToOnDutyNotDrivingStatus-CR {
+  border: solid 1px #3b82f6;
+}
+
+.ChangeToDrivingStatus {
+  background-color: hsl(142, 71%, 45%);
+  color: black;
+}
+.ChangeToDrivingStatus-E,
+.ChangeToDrivingStatus-CR {
+  border: solid 1px #22c55e;
+}
+
+.ChangeToSleeperBerthStatus {
+  background-color: #e7b008;
+  color: black;
+}
+
+.DataDiagnostic,
+.DataDiagnosticClear,
+.DriverIndicationAuthorizedPersonalUseCmv,
+.DriverIndicationYardMoves,
+.DriverIndicationClear,
+.VehicleStartOfDay {
+  border: solid 1px rgb(107 114 128);
+  padding: 1px;
+}
+
+.speeding,
+.high-eh,
+.high-avm {
+  color: red;
+  font-weight: 800;
+}
+
+.inter-group,
+.engine-group {
+  display: grid;
+  grid-template-columns: 23px 20px;
+  justify-items: center;
+  align-items: center;
+  column-gap: 17px;
+  width: 100%;
+  text-wrap: nowrap;
+  .stats {
+    padding: 0;
+    width: 37px;
+  }
+}
+
+.input {
+  border: none;
+  margin: 0;
+  // padding: 4px 3px;
+  padding: 3.6px 3px;
+  border-radius: 10px;
+  border: 0;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.engine {
+  padding: 0 0 2px 0 !important;
+}
+.intermediate {
+  width: 80px;
+  padding: 1px 2.46px 2px 2.46px !important;
+}

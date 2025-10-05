@@ -25,7 +25,7 @@ import { ContextMenuService } from "../../@services/context-menu.service";
 import { ExtensionTabNavigationService } from "../../@services/extension-tab-navigation.service";
 import { MonitorService } from "../../@services/monitor.service";
 import { UrlService } from "../../@services/url.service";
-import { AutofocusAndHandleOutsideClickDirective } from "../../directive/autofocus.directive";
+
 import { getStatusDuration, getStatusName } from "../../helpers/app.helpers";
 import { ContextMenuComponent } from "../context-menu/context-menu.component";
 import { MonitorHeaderComponent } from "./monitor-header/monitor-header.component";
@@ -40,9 +40,6 @@ import {
 import { KeyboardService } from "../../@services/keyboard.service";
 import { DateTime } from "luxon";
 import { FormInputService } from "../../@services/form-input.service";
-import { IntermediateComponent } from "../UI/intermediate/intermediate.component";
-import { EngineComponent } from "../UI/engine/engine.component";
-import { EngineOnComponent } from "../UI/engine-on/engine-on.component";
 import { FixButtonComponent } from "./fix-button/fix-button.component";
 import { ResizeFormComponent } from "./resize-form/resize-form.component";
 import { EditFormComponent } from "./edit-form/edit-form.component";
@@ -60,14 +57,12 @@ import { EventComponent } from "./event/event.component";
     ContextMenuComponent,
     MatRippleModule,
     CdkMenuModule,
-    AutofocusAndHandleOutsideClickDirective,
+
     MatSliderModule,
     MonitorHeaderComponent,
     MatBadgeModule,
     MonitorMenuComponent,
-    IntermediateComponent,
-    EngineComponent,
-    EngineOnComponent,
+
     FixButtonComponent,
     ResizeFormComponent,
     EditFormComponent,
@@ -120,12 +115,9 @@ export class MonitorComponent {
   showUpdateEvent = this.monitorService.showUpdateEvent;
   isUpdatingEvent = this.monitorService.isUpdatingEvent;
   currentEditEvent = this.monitorService.currentEditEvent;
-  newNote = this.monitorService.newNote;
+
   newOdometer = this.monitorService.newOdometer;
   newEventTypeId = this.monitorService.newEventTypeId;
-  newStatusName = computed(() => {
-    return getStatusName(this.monitorService.newEventType());
-  });
 
   showResize = this.monitorService.showResize;
   isResizingEvent = this.monitorService.isResizingEvent;
@@ -190,7 +182,7 @@ export class MonitorComponent {
     this.newResizeSpeed.set(0);
     this.currentEditEvent.set(null);
     this.showUpdateEvent.set(null);
-    this.newNote.set("");
+    this.monitorService.newNote.set("");
     this.newOdometer.set(0);
     this.currentResizeDriving.set(null);
     this.showResize.set(null);
@@ -273,32 +265,5 @@ export class MonitorComponent {
 
   deselectAllEvents() {
     this.monitorService.selectedEvents.set([]);
-  }
-
-  onEditStatusWheel(wheelEvent: WheelEvent) {
-    wheelEvent.preventDefault();
-    let toggle = this.monitorService.newEventTypeId();
-    if (wheelEvent.deltaY < 0) {
-      switch (toggle) {
-        case 0:
-        case 1:
-        case 2:
-          toggle++;
-          break;
-        default:
-          toggle = 0;
-      }
-    } else {
-      switch (toggle) {
-        case 4:
-        case 5:
-          toggle++;
-          break;
-        default:
-          toggle = 4;
-      }
-    }
-
-    this.monitorService.newEventTypeId.set(toggle);
   }
 }

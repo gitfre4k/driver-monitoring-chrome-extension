@@ -493,7 +493,10 @@
                                 (click)="
                                   openLogs(
                                     truck.driverId,
-                                    dateService.startOfToday.toUTC().toISO(),
+                                    dateService.now
+                                      .setZone('America/New_York')
+                                      .toUTC()
+                                      .toISO()!,
                                     truck.tenant
                                   )
                                 "

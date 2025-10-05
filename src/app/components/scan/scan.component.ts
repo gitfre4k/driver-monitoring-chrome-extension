@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { Observable, Subscription } from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatButtonModule } from "@angular/material/button";
@@ -48,9 +48,8 @@ import { IDriverLogs } from "../../interfaces/daily-log.interface";
 import { CertificationsScanService } from "../../@services/certifications-scan.service";
 import { AppService } from "../../@services/app.service";
 import { UnidentifiedEventsService } from "../../@services/unidentified-events.service";
-import { ApiPrologsAdminService } from "../../@services/api-prologs-admin.service";
-import { BackgroundJsService } from "../../@services/background-js.service";
 import { AdminPortalService } from "../../@services/admin-portal.service";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: "app-scan",
@@ -89,6 +88,7 @@ export class ScanComponent {
   private advancedScanService = inject(AdvancedScanService);
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
+  private _snackBar = inject(MatSnackBar);
 
   // Analyze Date
   date = new FormControl<Date>(
@@ -278,10 +278,25 @@ export class ScanComponent {
         this.scanSubscribtion = this.adminPortalsService
           .scanAdminPortal()
           .subscribe({
+            error: (err) =>
+              this._snackBar
+                .open(`An error occurred: ${err.message}`, "Close")
+                .afterDismissed()
+                .pipe(
+                  tap(() => this.progressBarService.initializeProgressBar()),
+                )
+                .subscribe(),
             complete: () => {
               console.log(this.progressBarService.adminPortalResults());
               this.progressBarService.initializeProgressBar();
               this.scanMode.setValue("violations");
+              this._snackBar.open(
+                `Admin Portal scan complete. Results are avaiable in Report tab.`,
+                "OK",
+                {
+                  duration: 3000,
+                },
+              );
             },
           });
         return;

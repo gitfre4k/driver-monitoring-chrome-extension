@@ -1,0 +1,139 @@
+@if (event(); as event) {
+  @if (monitorService.currentEditEvent()?.id === event.id) {
+    @if (monitorService.newEventType(); as newEventType) {
+      @if (
+        [
+          "ChangeToOffDutyStatus",
+          "ChangeToSleeperBerthStatus",
+          "ChangeToOnDutyNotDrivingStatus",
+        ].includes(newEventType)
+      ) {
+        <input
+          [(ngModel)]="this.monitorService.newNote"
+          appAutofocusAndHandleOutsideClick
+          (keydown.esc)="monitorService.cancelEventEdit()"
+          (wheel)="onEditStatusWheel($event)"
+          [class]="['status', newEventType, 'input']"
+          [class.status-note]="event.notes && getNoSpaceNote(event.notes)"
+          type="text"
+          tabindex="0"
+        />
+      } @else {
+        @if (newStatusName(); as newStatusName) {
+          <span
+            appAutofocusAndHandleOutsideClick
+            (keydown.esc)="monitorService.cancelEventEdit()"
+            (wheel)="onEditStatusWheel($event)"
+            [class]="['status', newEventType, 'input']"
+            [class.status-note]="event.notes && getNoSpaceNote(event.notes)"
+            [class.engine]="['Engine Off', 'Engine On'].includes(newStatusName)"
+            [class.intermediate]="newStatusName === 'Intermediate'"
+            tabindex="0"
+          >
+            @if (newStatusName === "Driving") {
+              @if (event.averageSpeed) {
+                @if (
+                  monitorService.newResizeSpeed() &&
+                  monitorService.currentResizeDriving()?.id === event.id
+                ) {
+                  {{ monitorService.newResizeSpeed().toFixed(2) }}
+                } @else {
+                  {{ event.averageSpeed.toFixed(2) }}
+                }
+                mph
+              } @else {
+                Driving
+              }
+            } @else if (newStatusName === "Intermediate") {
+              <app-intermediate></app-intermediate>
+            } @else if (newStatusName === "Engine On") {
+              <app-engine-on></app-engine-on>
+            } @else if (newStatusName === "Engine Off") {
+              <app-engine></app-engine>
+            } @else {
+              {{
+                event.notes && getNoSpaceNote(event.notes)
+                  ? event.notes.trim()
+                  : newStatusName
+              }}
+            }
+          </span>
+        }
+      }
+    }
+  } @else {
+    <span
+      (dblclick)="handleDoubleClick(event)"
+      tabindex="0"
+      [class]="['status', event.dutyStatus, event.parentClass]"
+      [class.mph]="event.statusName === 'Driving' && event.averageSpeed"
+      [class.status-note]="event.notes && getNoSpaceNote(event.notes)"
+      [class.start-time]="this.keyboardService.ctrlPressed()"
+    >
+      @if (keyboardService.ctrlPressed()) {
+        {{ event.realStartTime | date: "shortTime" }}
+      } @else {
+        @switch (event.statusName) {
+          @case ("Driving") {
+            @if (event.averageSpeed) {
+              @if (
+                monitorService.newResizeSpeed() &&
+                monitorService.currentResizeDriving()?.id === event.id
+              ) {
+                {{ monitorService.newResizeSpeed().toFixed(2) }}
+              } @else {
+                {{ event.averageSpeed.toFixed(2) }}
+              }
+              mph
+            } @else {
+              Driving
+            }
+          }
+          @case ("Intermediate") {
+            <span class="inter-group">
+              <app-intermediate></app-intermediate>
+              @if (event.averageSpeed) {
+                <span
+                  [class]="[event.parentClass, 'stats']"
+                  [class.speeding]="event.averageSpeed > 74.99"
+                >
+                  {{ event.averageSpeed }} mph
+                </span>
+              }
+            </span>
+          }
+          @case ("Engine On") {
+            <div class="engine-group">
+              <app-engine-on></app-engine-on>
+              <span
+                [class]="[event.parentClass, 'stats']"
+                [class.high-avm]="event.accumulatedVehicleMiles > 0"
+              >
+                {{ event.accumulatedVehicleMiles }} avM
+              </span>
+            </div>
+          }
+          @case ("Engine Off") {
+            <div class="engine-group">
+              <app-engine></app-engine>
+              <span
+                [class]="[event.parentClass, 'stats']"
+                [class.high-eh]="event.elapsedEngineHours > 10"
+              >
+                {{ event.elapsedEngineHours }}
+                eh
+              </span>
+            </div>
+          }
+          @default {
+            {{
+              event.notes && getNoSpaceNote(event.notes)
+                ? event.notes.trim()
+                : event.statusName
+            }}
+          }
+        }
+      }
+    </span>
+  }
+}

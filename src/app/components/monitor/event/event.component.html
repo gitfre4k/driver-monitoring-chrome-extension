@@ -1,106 +1,57 @@
 @if (event(); as event) {
   <div [class]="'event'">
-    <!-- view-id -->
-    <span
-      [class]="[markBreaksAndShift(event), 'view-id']"
-      [class.violation]="addViolationClass(event, violations())"
-      [class.err]="event.errorMessages && event.errorMessages.length"
-      [class.war]="
-        event.manualDriving ||
-        event.malf ||
-        event.statusName === 'Fleet manager' ||
-        event.refuel
-      "
-      >{{ event.viewId }}.</span
-    >
-    <!-- odometer -->
-    <span
-      (click)="copyValue(event.odometer.toFixed(0))"
-      [class]="'odometer'"
-      [class.copy]="keyboardService.ctrlPressed()"
-      [class.error]="event.isTeleport || event.error"
-      [class.approved]="event.truckChange"
-      >{{
-        event.truckChange
-          ? "truck change"
-          : event.odometer && event.odometer.toLocaleString()
-      }}</span
-    >
-
-    <!-- [class]="" -->
-    <!-- status -->
-    <span
-      (dblclick)="handleDoubleClick(event)"
-      tabindex="0"
-      [class]="['status', event.dutyStatus, event.parentClass]"
-      [class.mph]="event.statusName === 'Driving' && event.averageSpeed"
-      [class.status-note]="event.notes && getNoSpaceNote(event.notes)"
-      [class.start-time]="this.keyboardService.ctrlPressed()"
-    >
-      @if (keyboardService.ctrlPressed()) {
-        {{ event.realStartTime | date: "shortTime" }}
-      } @else {
-        @switch (event.statusName) {
-          @case ("Driving") {
-            @if (event.averageSpeed) {
-              @if (
-                monitorService.newResizeSpeed() &&
-                monitorService.currentResizeDriving()?.id === event.id
-              ) {
-                {{ monitorService.newResizeSpeed().toFixed(2) }}
-              } @else {
-                {{ event.averageSpeed.toFixed(2) }}
-              }
-              mph
-            } @else {
-              Driving
-            }
-          }
-          @case ("Intermediate") {
-            <span class="inter-group">
-              <app-intermediate></app-intermediate>
-              @if (event.averageSpeed) {
-                <span
-                  [class]="[event.parentClass, 'stats']"
-                  [class.speeding]="event.averageSpeed > 74.99"
-                >
-                  {{ event.averageSpeed }} mph
-                </span>
-              }
-            </span>
-          }
-          @case ("Engine On") {
-            <div class="engine-group">
-              <app-engine-on></app-engine-on>
-              <span
-                [class]="[event.parentClass, 'stats']"
-                [class.high-avm]="event.accumulatedVehicleMiles > 600"
-              >
-                {{ event.accumulatedVehicleMiles }} avM
-              </span>
-            </div>
-          }
-          @case ("Engine Off") {
-            <div class="engine-group">
-              <app-engine></app-engine>
-              <span
-                [class]="[event.parentClass, 'stats']"
-                [class.high-eh]="event.elapsedEngineHours > 10"
-              >
-                {{ event.elapsedEngineHours }} eh
-              </span>
-            </div>
-          }
-          @default {
-            {{
-              event.notes && getNoSpaceNote(event.notes)
-                ? event.notes.trim()
-                : event.statusName
-            }}
-          }
-        }
+    @if (monitorService.currentResizeDriving()?.id === event.id) {
+      @if (monitorService.newResizeSpeed(); as newResizeSpeed) {
+        <span></span>
+        <span [class]="'odometer'">{{
+          event.odometer && event.odometer.toLocaleString()
+        }}</span>
       }
-    </span>
+    } @else if (monitorService.currentEditEvent()?.id === event.id) {
+      <span></span>
+      <!-- [edit] odometer -->
+      <input
+        [(ngModel)]="monitorService.newOdometer"
+        #updateOdometer
+        id="updateOdometer"
+        type="number"
+        (keydown.esc)="monitorService.cancelEventEdit()"
+        [class]="['odometer', 'input']"
+        [class.error]="event.isTeleport || event.error"
+        [class.approved]="event.truckChange"
+        tabindex="0"
+      />
+    } @else {
+      <!-- view-id -->
+      <span
+        [class]="[markBreaksAndShift(event), 'view-id']"
+        [class.violation]="addViolationClass(event, violations())"
+        [class.err]="event.errorMessages && event.errorMessages.length"
+        [class.war]="
+          event.manualDriving ||
+          event.malf ||
+          event.statusName === 'Fleet manager' ||
+          event.refuel
+        "
+        >{{ event.viewId }}.</span
+      >
+      <!-- odometer -->
+      <span
+        (click)="copyValue(event.odometer.toFixed(0))"
+        [class]="['odometer']"
+        [class.copy]="keyboardService.ctrlPressed()"
+        [class.error]="event.isTeleport || event.error"
+        [class.approved]="event.truckChange"
+        >{{
+          event.truckChange
+            ? "truck change"
+            : event.odometer && event.odometer.toLocaleString()
+        }}</span
+      >
+    }
+
+    <!-- status -->
+    <app-event-status [event]="event"></app-event-status>
 
     <!-- duration -->
     <span class="duration">
