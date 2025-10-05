@@ -19,13 +19,6 @@
         >
           {{ ddle.driverFullName }}
         </span>
-
-        <span class="info__company-and-driver__1-vehicles">
-          [ truckID ]
-          @for (vehicle of ddle.vehicles; let i = $index; track $index) {
-            {{ $index > 0 ? ", " : "" }}{{ vehicle.name }}
-          }
-        </span>
       </div>
       <div class="info__company-and-driver__2">
         @if (driverInfo(); as driverInfo) {

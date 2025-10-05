@@ -1,0 +1,14 @@
+.maintanence {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 24px;
+  overflow: hidden;
+
+  &__title {
+    margin: 8px;
+    padding: 0;
+  }
+}

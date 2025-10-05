@@ -1,57 +1,14 @@
 <div class="content" id="monitor">
   @if (monitorService.driverDailyLog(); as ddle) {
-    <button
-      mat-icon-button
-      matTooltip="Refresh"
-      matTooltipPosition="left"
-      class="absolute refresh"
-      (click)="refresh()"
-      [disabled]="refreshBtnDisabled()"
-    >
-      <mat-icon>refresh</mat-icon>
-    </button>
-
-    <div class="absolute menu">
-      @if (monitorService.selectedEvents().length) {
-        <button
-          mat-icon-button
-          matTooltip="Deselect all Events"
-          matTooltipPosition="left"
-          (click)="deselectAllEvents()"
-        >
-          @if (monitorService.isShifting()) {
-            <div class="spinner">
-              <mat-spinner [diameter]="17"></mat-spinner>
-            </div>
-          } @else {
-            <mat-icon>deselect</mat-icon>
-          }
-        </button>
-        <div
-          class="mat-badge-custom err-custom"
-          matBadge="{{ monitorService.selectedEvents().length }}"
-          [matBadgeHidden]="!monitorService.selectedEvents().length"
-          matBadgeColor="primary"
-          matBadgePosition="above"
-          matBadgeSize="medium"
-        ></div>
-      }
-
-      <button [cdkMenuTriggerFor]="menu" mat-icon-button>
-        <mat-icon>more_vert</mat-icon>
-      </button>
-    </div>
-
-    <ng-template #menu>
-      <app-monitor-menu
-        [selectedEvents]="monitorService.selectedEvents()"
-      ></app-monitor-menu>
-    </ng-template>
-
     <app-monitor-header
       [driverDailyLog]="ddle"
       (changeLogDate)="onChangeLogDate($event, ddle.driverId)"
     ></app-monitor-header>
+
+    <app-action-btns
+      [vehicles]="ddle.vehicles"
+      [tenantId]="ddle.tenantId"
+    ></app-action-btns>
 
     <div class="event-list">
       @if (ddle.coDrivers.length === 0) {

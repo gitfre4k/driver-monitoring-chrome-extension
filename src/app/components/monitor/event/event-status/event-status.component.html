@@ -10,6 +10,8 @@
       ) {
         <input
           [(ngModel)]="this.monitorService.newNote"
+          #inputRef
+          id="inputRef"
           appAutofocusAndHandleOutsideClick
           (keydown.esc)="monitorService.cancelEventEdit()"
           (wheel)="onEditStatusWheel($event)"

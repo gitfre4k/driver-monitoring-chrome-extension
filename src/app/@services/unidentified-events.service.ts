@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { ApiService } from "./api.service";
 import { AppService } from "./app.service";
-import { finalize, from, mergeMap, tap } from "rxjs";
+import { catchError, finalize, from, mergeMap, of, switchMap, tap } from "rxjs";
 import { ProgressBarService } from "./progress-bar.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ConstantsService } from "./constants.service";
@@ -30,16 +30,31 @@ export class UnidentifiedEventsService {
       .pipe(
         mergeMap((tenant) => {
           return this.apiService.getUnidentifiedEvents(tenant).pipe(
-            tap((data) => {
+            tap({
+              error: (error) => {
+                this.progressBarService.unEvErrors.update((prev) => [
+                  ...prev,
+                  {
+                    error,
+                    company: tenant,
+                  },
+                ]);
+              },
+            }),
+            catchError(() => of()),
+            switchMap((data) => {
               const eventsArray: number[] = [];
               data.totalCount &&
                 data.items.forEach((i) => eventsArray.push(i.id));
 
               if (eventsArray.length) {
                 this.totalCount.update((prev) => prev + eventsArray.length);
-                this.apiService
-                  .deleteUncertifiedEvents(tenant, eventsArray)
-                  .subscribe();
+                return this.apiService.deleteUncertifiedEvents(
+                  tenant,
+                  eventsArray,
+                );
+              } else {
+                return of();
               }
             }),
           );

@@ -109,9 +109,18 @@ export class MonitorService {
 
   constructor() {}
 
-  // getPrevDutyStatus(event: IEvent) {
-  //   this.computedEvents();
-  // }
+  refreshDailyLogs = () => {
+    this.refreshBtnDisabled.set(true);
+    this.refresh.update((value) => value + 1);
+
+    this.newResizeSpeed.set(0);
+    this.currentEditEvent.set(null);
+    this.showUpdateEvent.set(null);
+    this.newNote.set("");
+    this.newOdometer.set(0);
+    this.currentResizeDriving.set(null);
+    this.showResize.set(null);
+  };
 
   selectAllEvents() {
     const allEvents = this.computedDailyLogEvents()?.filter(

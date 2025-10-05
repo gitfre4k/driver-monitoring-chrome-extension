@@ -154,6 +154,8 @@ export interface IDriverDailyLogEvents {
   isEngineOffInnerEvents: boolean;
   shiftBreak: string;
   cycleBreak: string;
+  // custom
+  tenantId: string;
 }
 
 export interface IDriverLogViolation {

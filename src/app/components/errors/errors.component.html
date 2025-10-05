@@ -58,10 +58,10 @@
           <br />
         }
       }
-      @if (adminErrors().length) {
-        <h3>Admin Portal scan</h3>
+      @if (cErrors().length) {
+        <h3>Driver Certifications scan</h3>
         @for (
-          err of adminErrors();
+          err of cErrors();
           track err.driverName ? err.driverName : err.company.id
         ) {
           <span class="errors-company"
@@ -72,10 +72,24 @@
           <br />
         }
       }
-      @if (cErrors().length) {
-        <h3>Driver Certifications scan</h3>
+      @if (unEvErrors().length) {
+        <h3>Unidentified Events</h3>
         @for (
-          err of cErrors();
+          err of unEvErrors();
+          track err.driverName ? err.driverName : err.company.id
+        ) {
+          <span class="errors-company"
+            >[{{ err.error.name }}] {{ err.company.name }}
+            {{ err.driverName ? " - " + err.driverName : "" }}</span
+          >
+          <span style="font-size: 10px">- {{ err.error.message }}</span>
+          <br />
+        }
+      }
+      @if (adminErrors().length) {
+        <h3>Admin Portal</h3>
+        @for (
+          err of adminErrors();
           track err.driverName ? err.driverName : err.company.id
         ) {
           <span class="errors-company"

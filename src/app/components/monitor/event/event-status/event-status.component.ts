@@ -2,8 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   input,
+  ViewChild,
 } from "@angular/core";
 import { IEvent } from "../../../../interfaces/driver-daily-log-events.interface";
 import { KeyboardService } from "../../../../@services/keyboard.service";
@@ -32,6 +34,8 @@ import { getStatusName } from "../../../../helpers/app.helpers";
 })
 export class EventStatusComponent {
   event = input.required<IEvent>();
+
+  @ViewChild("inputRef") myInputField!: ElementRef<HTMLInputElement>;
 
   keyboardService = inject(KeyboardService);
   monitorService = inject(MonitorService);
@@ -88,5 +92,9 @@ export class EventStatusComponent {
     }
 
     this.monitorService.newEventTypeId.set(toggle);
+  }
+
+  ngAfterViewInit(): void {
+    this.myInputField && this.myInputField.nativeElement.focus();
   }
 }

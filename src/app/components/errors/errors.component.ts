@@ -16,6 +16,7 @@ export class ErrorsComponent {
   pErrors = this.progressBarService.pErrors;
   aErrors = this.progressBarService.aErrors;
   cErrors = this.progressBarService.cErrors;
+  unEvErrors = this.progressBarService.unEvErrors;
   adminErrors = this.progressBarService.adminErrors;
 
   constructor() {}

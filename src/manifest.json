@@ -25,10 +25,7 @@
     "https://admin.prologs.us/*",
     "https://identity.prologs.us/*",
     "https://api.prologs.us/*",
-    "https://*.firebaseio.com",
-    "https://*.firebasedatabase.app",
-    "https://*.googleapis.com",
-    "https://*.firebaseapp.com"
+    "https://apps.ringcentral.com/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -37,7 +34,7 @@
     "default_popup": "index.html"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; script-src-elem 'self' https://apis.google.com/ https://www.gstatic.com/ https://www.googleapis.com/ https://securetoken.googleapis.com; connect-src 'self' wss://*.firebaseio.com https://*.firebaseio.com https://www.googleapis.com https://securetoken.googleapis.com;"
+    "extension_pages": "script-src 'self'; object-src 'self';"
   },
   "content_scripts": [
     {

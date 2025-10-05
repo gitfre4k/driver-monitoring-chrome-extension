@@ -1,0 +1,30 @@
+.absolute {
+  position: absolute;
+  right: 10px;
+  &.refresh {
+    top: 10px;
+  }
+  &.vehicle {
+    display: flex;
+    align-items: center;
+    top: 55px;
+    left: 16px;
+    width: min-content;
+  }
+  &.menu {
+    top: 55px;
+    .mat-badge-custom {
+      .mat-badge-content {
+        z-index: 1000000000;
+        background: #343eff54;
+        color: white;
+      }
+    }
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    .spinner {
+      padding: 3.5px;
+    }
+  }
+}

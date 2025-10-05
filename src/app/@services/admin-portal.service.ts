@@ -5,7 +5,7 @@ import { ApiPrologsAdminService } from "./api-prologs-admin.service";
 import { ConstantsService } from "./constants.service";
 import { DateService } from "./date.service";
 import { ProgressBarService } from "./progress-bar.service";
-import { IScanAdminPortalResultDriver } from "../interfaces";
+import { IScanAdminPortalResultDriver, ITenant } from "../interfaces";
 
 @Injectable({
   providedIn: "root",
@@ -19,6 +19,7 @@ export class AdminPortalService {
 
   httpLimit = this.constantService.httpLimit;
 
+  // dashboard
   scanAdminPortal() {
     this.progressBarService.initializeState("admin");
     this.progressBarService.scanning.set(true);

@@ -68,6 +68,13 @@ export class ProgressBarComponent {
       case "advanced":
         this.errors = this.progressBarService.aErrors;
         break;
+      case "cert":
+        this.errors = this.progressBarService.cErrors;
+        break;
+      case "admin":
+        this.errors = this.progressBarService.adminErrors;
+        break;
+
       default:
         this.errors = this.progressBarService.aErrors;
         break;

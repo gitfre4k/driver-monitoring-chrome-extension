@@ -96,6 +96,7 @@ export class ProgressBarService {
   dErrors = signal([] as IScanErrors[]);
   aErrors = signal([] as IScanErrors[]);
   cErrors = signal([] as IScanErrors[]);
+  unEvErrors = signal([] as IScanErrors[]);
   adminErrors = signal([] as IScanErrors[]);
   errorCount = computed(
     () =>
@@ -104,6 +105,7 @@ export class ProgressBarService {
       this.dErrors().length +
       this.aErrors().length +
       this.cErrors().length +
+      this.unEvErrors().length +
       this.adminErrors().length,
   );
   resultsAreReady = computed(
@@ -191,6 +193,7 @@ export class ProgressBarService {
     this.dErrors.set([]);
     this.aErrors.set([]);
     this.cErrors.set([]);
+    this.unEvErrors.set([]);
     this.adminErrors.set([]);
   }
 
@@ -248,6 +251,7 @@ export class ProgressBarService {
         this.progressMode.set("indeterminate");
         break;
       case "deleteUE":
+        this.unEvErrors.set([]);
         this.progressMode.set("indeterminate");
         break;
       case "admin":

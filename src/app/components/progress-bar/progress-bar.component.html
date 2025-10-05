@@ -2,7 +2,7 @@
   <mat-card id="mat-card-wrapper-2">
     <mat-card-content>
       @if (scanMode === "admin") {
-        <h2>Admin Portal Scan in progress...</h2>
+        <h2>Admin Portal scan in progress...</h2>
       } @else if (scanMode === "advanced") {
         <h2>Driver Log Analysis in progress...</h2>
       } @else {
@@ -10,7 +10,7 @@
           <h2>Detecting and deleting unidentified events...</h2>
         } @else {
           <h2>
-            Scanning for {{ " " }}
+            Scanning for
 
             @switch (scanMode) {
               @case ("cert") {
@@ -38,7 +38,7 @@
         <mat-progress-bar
           [mode]="progressMode()"
           [value]="value()"
-          [bufferValue]="bufferValue"
+          [bufferValue]="bufferValue()"
         >
         </mat-progress-bar>
       </section>
@@ -52,23 +52,23 @@
           }
 
           @case ("violations") {
-            Total count: {{ totalCount() }};
+            Total count: {{ totalCount() }}
           }
 
           @case ("dot") {
-            Total count: {{ totalCount() }};
+            Total count: {{ totalCount() }}
           }
 
           @case ("cert") {
-            Active drivers: {{ activeDriversCount() }};
+            Active drivers: {{ activeDriversCount() }}
           }
 
           @case ("advanced") {
-            Active drivers: {{ activeDriversCount() }};
+            Active drivers: {{ activeDriversCount() }}
           }
 
           @case ("pre") {
-            Total count: {{ preVCount() + lowCCount() }};
+            Total count: {{ preVCount() + lowCCount() }}
           }
         }
       </p>

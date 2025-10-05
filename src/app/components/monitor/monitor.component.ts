@@ -9,7 +9,6 @@ import {
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
-import { CdkMenuModule } from "@angular/cdk/menu";
 import { MatButtonModule } from "@angular/material/button";
 import { MatRippleModule } from "@angular/material/core";
 import { MatIconModule } from "@angular/material/icon";
@@ -29,7 +28,6 @@ import { UrlService } from "../../@services/url.service";
 import { getStatusDuration, getStatusName } from "../../helpers/app.helpers";
 import { ContextMenuComponent } from "../context-menu/context-menu.component";
 import { MonitorHeaderComponent } from "./monitor-header/monitor-header.component";
-import { MonitorMenuComponent } from "./monitor-menu/monitor-menu.component";
 
 import { IEvent } from "../../interfaces/driver-daily-log-events.interface";
 import { TContextMenuAction, TFocusElementAction } from "../../types";
@@ -44,6 +42,7 @@ import { FixButtonComponent } from "./fix-button/fix-button.component";
 import { ResizeFormComponent } from "./resize-form/resize-form.component";
 import { EditFormComponent } from "./edit-form/edit-form.component";
 import { EventComponent } from "./event/event.component";
+import { ActionBtnsComponent } from "./action-btns/action-btns.component";
 
 @Component({
   selector: "app-monitor",
@@ -56,24 +55,22 @@ import { EventComponent } from "./event/event.component";
     MatProgressSpinnerModule,
     ContextMenuComponent,
     MatRippleModule,
-    CdkMenuModule,
 
     MatSliderModule,
     MonitorHeaderComponent,
     MatBadgeModule,
-    MonitorMenuComponent,
 
     FixButtonComponent,
     ResizeFormComponent,
     EditFormComponent,
     EventComponent,
+    ActionBtnsComponent,
   ],
   templateUrl: "./monitor.component.html",
   styleUrl: "./monitor.component.scss",
   providers: [],
 })
 export class MonitorComponent {
-  @ViewChild("inputRef") myInputField!: ElementRef<HTMLInputElement>;
   @ViewChild("updateChangesButton")
   updateChangesButtonRef!: ElementRef<HTMLButtonElement>;
   DateTime = DateTime;
@@ -136,7 +133,6 @@ export class MonitorComponent {
 
       if (!selectedEvents.length) return;
 
-      console.log("[Monitor Component] selectedEvents", selectedEvents);
       if (currentDriverId !== this.monitorService.selectedEvents()[0].driver.id)
         this.monitorService.selectedEvents.set([]);
       setTimeout(
@@ -170,23 +166,6 @@ export class MonitorComponent {
       }
     });
   }
-
-  ngAfterViewInit(): void {
-    this.myInputField && this.myInputField.nativeElement.focus();
-  }
-
-  refresh = () => {
-    this.refreshBtnDisabled.set(true);
-    this.monitorService.refresh.update((value) => value + 1);
-
-    this.newResizeSpeed.set(0);
-    this.currentEditEvent.set(null);
-    this.showUpdateEvent.set(null);
-    this.monitorService.newNote.set("");
-    this.newOdometer.set(0);
-    this.currentResizeDriving.set(null);
-    this.showResize.set(null);
-  };
 
   focusElement(event: IEvent, action: TFocusElementAction) {
     if (event.driver.id !== event.driver.viewId) return;
@@ -261,9 +240,5 @@ export class MonitorComponent {
     this.urlService.navigateChromeActiveTab(
       `https://app.monitoringdriver.com/logs/${id}/${date}/`,
     );
-  }
-
-  deselectAllEvents() {
-    this.monitorService.selectedEvents.set([]);
   }
 }

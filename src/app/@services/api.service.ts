@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { from, Observable, tap } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { inject, Injectable } from "@angular/core";
+import { from, map, Observable, tap } from "rxjs";
 
-import { DateTime } from 'luxon';
+import { DateTime } from "luxon";
 
 import {
   IViolations,
@@ -10,16 +10,16 @@ import {
   ITenant,
   ILog,
   IISODateRange,
-} from '../interfaces';
-import { IDriverDailyLogEvents } from '../interfaces/driver-daily-log-events.interface';
-import { ITenantAppMasterData } from '../interfaces/app-master-data.interface';
-import { IDrivers } from '../interfaces/drivers.interface';
-import { IDriverLogs } from '../interfaces/daily-log.interface';
-import { DateService } from './date.service';
-import { IUnidentifiedEventsData } from '../interfaces/unidentified-events.interface';
+} from "../interfaces";
+import { IDriverDailyLogEvents } from "../interfaces/driver-daily-log-events.interface";
+import { ITenantAppMasterData } from "../interfaces/app-master-data.interface";
+import { IDrivers } from "../interfaces/drivers.interface";
+import { IDriverLogs } from "../interfaces/daily-log.interface";
+import { DateService } from "./date.service";
+import { IUnidentifiedEventsData } from "../interfaces/unidentified-events.interface";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ApiService {
   private http: HttpClient = inject(HttpClient);
@@ -27,16 +27,16 @@ export class ApiService {
 
   private filterRule = ({ from, to }: IISODateRange) => {
     return {
-      condition: 'AND',
+      condition: "AND",
       filterRules: [
         {
-          field: 'dateFrom',
-          operator: 'equals',
+          field: "dateFrom",
+          operator: "equals",
           value: from,
         },
         {
-          field: 'dateTo',
-          operator: 'equals',
+          field: "dateTo",
+          operator: "equals",
           value: to,
         },
       ],
@@ -48,19 +48,19 @@ export class ApiService {
   ///////////////////
   // getDriverLogs
   getDriverLogs(tenant: ITenant, driverID: number) {
-    const url = 'https://app.monitoringdriver.com/api/Logs/GetDriverLogs';
+    const url = "https://app.monitoringdriver.com/api/Logs/GetDriverLogs";
     const body = {
       filterRule: {
-        condition: 'AND',
+        condition: "AND",
         filterRules: [
           {
-            field: 'driverId',
-            operator: 'equals',
+            field: "driverId",
+            operator: "equals",
             value: `${driverID}`,
           },
         ],
       },
-      sorting: 'id desc',
+      sorting: "id desc",
       skipCount: 0,
       maxResultCount: 8,
     };
@@ -68,8 +68,8 @@ export class ApiService {
     return this.http.post<IDriverLogs>(url, body, {
       withCredentials: true,
       headers: {
-        'X-Tenant-Id': `${tenant.id}`,
-        'x-client-timezone': `${DateTime.local().zoneName}`,
+        "X-Tenant-Id": `${tenant.id}`,
+        "x-client-timezone": `${DateTime.local().zoneName}`,
       },
     });
   }
@@ -78,18 +78,18 @@ export class ApiService {
   // get Drivers
   getDrivers(tenant: ITenant) {
     const filterRule = {
-      condition: 'AND',
+      condition: "AND",
       filterRules: [
         {
-          field: 'driverStatus',
-          operator: 'equals',
-          value: 'Active',
+          field: "driverStatus",
+          operator: "equals",
+          value: "Active",
         },
       ],
     };
     const searchRule = {
-      columns: ['driverId', 'driverDisplayName', 'vehicleNumber'],
-      text: '',
+      columns: ["driverId", "driverDisplayName", "vehicleNumber"],
+      text: "",
     };
     return from(
       this.http.post<IDrivers>(
@@ -97,15 +97,15 @@ export class ApiService {
         {
           filterRule,
           searchRule,
-          sorting: 'driverDisplayName asc',
+          sorting: "driverDisplayName asc",
           skipCount: 0,
           maxResultCount: 1000,
         },
         {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         },
       ),
@@ -119,12 +119,12 @@ export class ApiService {
       this.http
         .get<
           ITenant[]
-        >('https://app.monitoringdriver.com/api/Tenant/GetAccessibleTenants', { withCredentials: true })
+        >("https://app.monitoringdriver.com/api/Tenant/GetAccessibleTenants", { withCredentials: true })
         .pipe(
           tap(
             (tenants) =>
               !tenants.find(
-                (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+                (t) => t.id === "3a0e2d3b-8214-edb4-c139-0d55051fc170",
               ) && window.close(),
           ),
         ),
@@ -140,22 +140,22 @@ export class ApiService {
     console.log(JSON.stringify(this.filterRule(range)));
     return from(
       this.http.post<IDOTInspections>(
-        'https://app.monitoringdriver.com/api/FmcsaInspections/GetList',
+        "https://app.monitoringdriver.com/api/FmcsaInspections/GetList",
         {
           filterRule: this.filterRule(range),
           searchRule: {
-            columns: ['driverId', 'driverFullName', 'vehicleName'],
-            text: '',
+            columns: ["driverId", "driverFullName", "vehicleName"],
+            text: "",
           },
-          sorting: 'driverFullName asc',
+          sorting: "driverFullName asc",
           skipCount: 0,
           maxResultCount: 1000,
         },
         {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         },
       ),
@@ -170,19 +170,19 @@ export class ApiService {
   ): Observable<IViolations> {
     return from(
       this.http.post<IViolations>(
-        'https://app.monitoringdriver.com/api/Violations/GetViolations',
+        "https://app.monitoringdriver.com/api/Violations/GetViolations",
         {
           filterRule: this.filterRule(range),
-          searchRule: { columns: ['driverName'], text: '' },
-          sorting: 'driverName asc',
+          searchRule: { columns: ["driverName"], text: "" },
+          sorting: "driverName asc",
           skipCount: 0,
           maxResultCount: 1000,
         },
         {
           withCredentials: true,
           headers: {
-            'x-client-timezone': `${DateTime.local().zoneName}`,
-            'X-Tenant-Id': `${tenant.id}`,
+            "x-client-timezone": `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenant.id}`,
           },
         },
       ),
@@ -196,51 +196,57 @@ export class ApiService {
       driverId,
       logDate: date,
     };
-    console.log('[API Service] getDriverDailyLogEvents > ', body.logDate);
-    return this.http.post<IDriverDailyLogEvents>(
-      'https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog',
-      body,
-      {
-        withCredentials: true,
-        headers: {
-          'x-client-timezone': `${DateTime.local().zoneName}`,
-          'X-Tenant-Id': `${tenantId}`,
+    console.log("[API Service] getDriverDailyLogEvents > ", body.logDate);
+    return this.http
+      .post<IDriverDailyLogEvents>(
+        "https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog",
+        body,
+        {
+          withCredentials: true,
+          headers: {
+            "x-client-timezone": `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": `${tenantId}`,
+          },
         },
-      },
-    );
+      )
+      .pipe(
+        map((ddle) => {
+          return { ...ddle, tenantId };
+        }),
+      );
   }
 
   ///////////////////
   // get Logs of Company Drivers
   getLogs(tenant: ITenant, { from, to }: IISODateRange) {
-    console.log('[API Service] getLogs > ');
-    const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
+    console.log("[API Service] getLogs > ");
+    const url = "https://app.monitoringdriver.com/api/Logs/GetLogs";
     const body = {
       filterRule: {
-        condition: 'AND',
+        condition: "AND",
         filterRules: [
           {
-            field: 'lastSync',
-            operator: 'gte',
+            field: "lastSync",
+            operator: "gte",
             value: from,
           },
           {
-            field: 'lastSync',
-            operator: 'lte',
+            field: "lastSync",
+            operator: "lte",
             value: to,
           },
           {
-            field: 'driverStatus',
-            operator: 'equals',
-            value: 'Active',
+            field: "driverStatus",
+            operator: "equals",
+            value: "Active",
           },
         ],
       },
       searchRule: {
-        columns: ['driverId', 'fullName'],
-        text: '',
+        columns: ["driverId", "fullName"],
+        text: "",
       },
-      sorting: 'fullName asc',
+      sorting: "fullName asc",
       skipCount: 0,
       maxResultCount: 1000,
     };
@@ -248,8 +254,8 @@ export class ApiService {
     return this.http.post<ILog>(url, body, {
       withCredentials: true,
       headers: {
-        'x-client-timezone': `${DateTime.local().zoneName}`,
-        'X-Tenant-Id': tenant.id,
+        "x-client-timezone": `${DateTime.local().zoneName}`,
+        "X-Tenant-Id": tenant.id,
       },
     });
   }
@@ -257,13 +263,13 @@ export class ApiService {
   ///////////////////
   // get Master App Data
   getMasterAppData(tenant: ITenant) {
-    const url = 'https://app.monitoringdriver.com/api/Util/GetMasterAppData';
+    const url = "https://app.monitoringdriver.com/api/Util/GetMasterAppData";
 
     return this.http.get<ITenantAppMasterData>(url, {
       withCredentials: true,
       headers: {
-        'x-client-timezone': `${DateTime.local().zoneName}`,
-        'X-Tenant-Id': tenant.id,
+        "x-client-timezone": `${DateTime.local().zoneName}`,
+        "X-Tenant-Id": tenant.id,
       },
     });
   }
@@ -272,32 +278,32 @@ export class ApiService {
   // get unidentified events
   getUnidentifiedEvents(tenant: ITenant) {
     const url =
-      'https://app.monitoringdriver.com/api/Logs/GetUnidentifiedEvents';
+      "https://app.monitoringdriver.com/api/Logs/GetUnidentifiedEvents";
 
     const body = {
       filterRule: {
-        condition: 'AND',
+        condition: "AND",
         filterRules: [
           {
-            field: 'dateFrom',
-            operator: 'gte',
+            field: "dateFrom",
+            operator: "gte",
             value: this.dateService.endOfToday
               .minus({ years: 1 })
               .toUTC()
               .toISO(),
           },
           {
-            field: 'dateTo',
-            operator: 'lte',
+            field: "dateTo",
+            operator: "lte",
             value: this.dateService.endOfToday.toUTC().toISO(),
           },
         ],
       },
       searchRule: {
-        columns: ['vehicleName', 'startLocation', 'endLocation'],
-        text: '',
+        columns: ["vehicleName", "startLocation", "endLocation"],
+        text: "",
       },
-      sorting: 'id asc',
+      sorting: "id asc",
       skipCount: 0,
       maxResultCount: 1000,
     };
@@ -305,8 +311,8 @@ export class ApiService {
     return this.http.post<IUnidentifiedEventsData>(url, body, {
       withCredentials: true,
       headers: {
-        'x-client-timezone': `${DateTime.local().zoneName}`,
-        'X-Tenant-Id': tenant.id,
+        "x-client-timezone": `${DateTime.local().zoneName}`,
+        "X-Tenant-Id": tenant.id,
       },
     });
   }
@@ -315,15 +321,15 @@ export class ApiService {
   // delete unidentified events
   deleteUncertifiedEvents(tenant: ITenant, eventsArray: number[]) {
     const url =
-      'https://app.monitoringdriver.com/api/Logs/BulkDeleteUnidentifiedEvent';
+      "https://app.monitoringdriver.com/api/Logs/BulkDeleteUnidentifiedEvent";
 
     const body = eventsArray;
 
     return this.http.delete(url, {
       withCredentials: true,
       headers: {
-        'x-client-timezone': `${DateTime.local().zoneName}`,
-        'X-Tenant-Id': tenant.id,
+        "x-client-timezone": `${DateTime.local().zoneName}`,
+        "X-Tenant-Id": tenant.id,
       },
       body,
     });
