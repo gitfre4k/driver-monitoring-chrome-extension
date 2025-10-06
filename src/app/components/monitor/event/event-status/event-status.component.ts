@@ -18,6 +18,7 @@ import { EngineComponent } from "../../../UI/engine/engine.component";
 import { getNoSpaceNote } from "../../../../helpers/monitor.helpers";
 import { FormsModule } from "@angular/forms";
 import { getStatusName } from "../../../../helpers/app.helpers";
+import { A11yModule } from "@angular/cdk/a11y";
 
 @Component({
   selector: "app-event-status",
@@ -27,6 +28,7 @@ import { getStatusName } from "../../../../helpers/app.helpers";
     EngineOnComponent,
     EngineComponent,
     FormsModule,
+    A11yModule,
   ],
   templateUrl: "./event-status.component.html",
   styleUrl: "./event-status.component.scss",

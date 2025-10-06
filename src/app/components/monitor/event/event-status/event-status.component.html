@@ -10,8 +10,8 @@
       ) {
         <input
           [(ngModel)]="this.monitorService.newNote"
-          #inputRef
-          id="inputRef"
+          cdkTrapFocus
+          [cdkTrapFocusAutoCapture]="true"
           appAutofocusAndHandleOutsideClick
           (keydown.esc)="monitorService.cancelEventEdit()"
           (wheel)="onEditStatusWheel($event)"
@@ -73,7 +73,16 @@
       [class.start-time]="this.keyboardService.ctrlPressed()"
     >
       @if (keyboardService.ctrlPressed()) {
-        {{ event.realStartTime | date: "shortTime" }}
+        <span [class]="['show', event.parentClass]">
+          {{ event.realStartTime | date: "shortTime" }}
+        </span>
+        <span class="hide">
+          {{
+            event.notes && getNoSpaceNote(event.notes)
+              ? event.notes.trim()
+              : event.statusName
+          }}
+        </span>
       } @else {
         @switch (event.statusName) {
           @case ("Driving") {

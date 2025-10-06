@@ -79,6 +79,7 @@ export class ProgressBarService {
   fleetManager = signal<IScanResult>({});
   truckChange = signal<IScanResult>({});
   refuelWarning = signal<IScanResult>({});
+  eventNotes = signal<IScanResult>({});
 
   adminPortalResults = signal<IScanAdminPortalResult>({});
   adminPortalResultsCount = computed(() => {
@@ -122,7 +123,8 @@ export class ProgressBarService {
       !this.isEmpty(this.lowTotalEngineHours()) ||
       !this.isEmpty(this.newDrivers()) ||
       !this.isEmpty(this.fleetManager()) ||
-      !this.isEmpty(this.refuelWarning()),
+      !this.isEmpty(this.refuelWarning()) ||
+      !this.isEmpty(this.eventNotes()),
   );
 
   constructor() {}
@@ -235,6 +237,7 @@ export class ProgressBarService {
         this.truckChange.set({});
         this.fleetManager.set({});
         this.refuelWarning.set({});
+        this.eventNotes.set({});
         this.aErrors.set([]);
         this.progressMode.set("determinate");
         break;

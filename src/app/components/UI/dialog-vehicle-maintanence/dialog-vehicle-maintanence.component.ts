@@ -18,11 +18,7 @@ export class DialogVehicleMaintanenceComponent {
   readonly dialogRef = inject(MatDialogRef<DialogVehicleMaintanenceComponent>);
   data: IVehicleMaintenance = inject(MAT_DIALOG_DATA);
 
-  onCancel(): void {
-    this.dialogRef.close(false);
-  }
-
-  onProceed(): void {
+  onClose(): void {
     this.dialogRef.close(true);
   }
 }

@@ -11,4 +11,31 @@
     margin: 8px;
     padding: 0;
   }
+
+  &__driver-name {
+    margin-top: 4px;
+  }
+
+  &__content {
+    margin: 12px 0 26px;
+    padding: 12px 0;
+    width: 100%;
+    border-radius: 12px;
+    background-color: rgb(29, 29, 34);
+    &__group {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      margin: 4px;
+      :first-child {
+        width: 36%;
+        text-align: right;
+        font-weight: 700;
+        padding-right: 4px;
+      }
+      :nth-child(2) {
+        text-align: left;
+      }
+    }
+  }
 }

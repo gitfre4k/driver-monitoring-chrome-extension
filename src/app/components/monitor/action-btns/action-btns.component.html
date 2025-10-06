@@ -1,14 +1,21 @@
 @if (vehicles(); as vehicles) {
   <div [class]="['absolute', 'vehicle']">
+    @if (isLoading(); as isLoading) {
+      <div class="spinner">
+        <mat-spinner [diameter]="17"></mat-spinner>
+      </div>
+    } @else {
+      <button
+        mat-icon-button
+        matTooltip="show vehicle maintanence data"
+        matTooltipPosition="below"
+        (click)="getVehicleMaintenance()"
+      >
+        <mat-icon>local_shipping</mat-icon>
+      </button>
+    }
+
     <span>{{ vehicles.at(-1)?.name }}</span>
-    <button
-      mat-icon-button
-      matTooltip="pull vehicle data from admin portal"
-      matTooltipPosition="below"
-      (click)="getVehicleMaintenance()"
-    >
-      <mat-icon>local_shipping</mat-icon>
-    </button>
   </div>
 }
 

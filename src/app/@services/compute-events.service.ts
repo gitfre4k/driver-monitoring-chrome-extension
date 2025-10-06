@@ -189,6 +189,12 @@ export class ComputeEventsService {
         else e.statusName = "Logout";
         events.push(e);
       }
+      if (e.dutyStatus === "Dvir") {
+        e.statusName = "DVIR";
+        e.date = driverDailyLog.date;
+        tenant && (e.tenant = tenant);
+        events.push(e);
+      }
     });
 
     return events.sort(

@@ -13,6 +13,7 @@ import { DateService } from "./date.service";
 import { isPcOrYm } from "../helpers/app.helpers";
 import { DateTime } from "luxon";
 import { ConstantsService } from "./constants.service";
+import { getNoSpaceNote } from "../helpers/monitor.helpers";
 
 @Injectable({
   providedIn: "root",
@@ -176,6 +177,7 @@ export class AdvancedScanService {
     const fleetManagerEvents: IEvent[] = [];
     const refuelWarning: IEvent[] = [];
     const truckChange: IEvent[] = [];
+    const eventNotes: IEvent[] = [];
 
     computedEvents.forEach((event) => {
       if (event.driver.id === driverDailyLog.driverId) {
@@ -227,6 +229,9 @@ export class AdvancedScanService {
         }
         if (event.truckChange) {
           truckChange.push(event);
+        }
+        if (event.notes && getNoSpaceNote(event.notes)) {
+          eventNotes.push(event);
         }
       }
     });
@@ -445,6 +450,22 @@ export class AdvancedScanService {
         if (newValue[companyName])
           newValue[companyName].push(truckChangeDrivers);
         else newValue[companyName] = [truckChangeDrivers];
+        return newValue;
+      });
+    }
+
+    //////////////
+    // event notes
+    if (eventNotes.length) {
+      const driversEventNotes: IScanResultDriver = {
+        driverName: driverDailyLog.driverFullName,
+        events: eventNotes,
+      };
+      this.progressBarService.eventNotes.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(driversEventNotes);
+        else newValue[companyName] = [driversEventNotes];
         return newValue;
       });
     }

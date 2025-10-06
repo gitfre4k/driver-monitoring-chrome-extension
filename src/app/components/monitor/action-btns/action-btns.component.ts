@@ -3,6 +3,7 @@ import {
   Component,
   inject,
   input,
+  signal,
 } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatIconModule } from "@angular/material/icon";
@@ -18,6 +19,7 @@ import { ApiPrologsAdminService } from "../../../@services/api-prologs-admin.ser
 import { MatDialog } from "@angular/material/dialog";
 import { DialogVehicleMaintanenceComponent } from "../../UI/dialog-vehicle-maintanence/dialog-vehicle-maintanence.component";
 import { switchMap } from "rxjs";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: "app-action-btns",
@@ -29,6 +31,7 @@ import { switchMap } from "rxjs";
     MonitorMenuComponent,
     MatButtonModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: "./action-btns.component.html",
   styleUrl: "./action-btns.component.scss",
@@ -41,25 +44,37 @@ export class ActionBtnsComponent {
   monitorService = inject(MonitorService);
   apiPrologsAdminService = inject(ApiPrologsAdminService);
   _dialog = inject(MatDialog);
+  _snackBar = inject(MatSnackBar);
+
+  isLoading = signal(false);
 
   deselectAllEvents() {
     this.monitorService.selectedEvents.set([]);
   }
 
   getVehicleMaintenance() {
+    this.isLoading.set(true);
     const tenantId = this.tenantId();
     const vehicles = this.vehicles();
-    if (!tenantId || !vehicles || !vehicles.length) return;
+    if (!tenantId || !vehicles || !vehicles.length)
+      return this.isLoading.set(false);
 
     return this.apiPrologsAdminService
       .getVehicleMaintenance(tenantId, vehicles.at(-1)!.id)
       .pipe(
-        switchMap((data) =>
-          this._dialog
+        switchMap((data) => {
+          this.isLoading.set(false);
+          return this._dialog
             .open(DialogVehicleMaintanenceComponent, { data })
-            .afterClosed(),
-        ),
+            .afterClosed();
+        }),
       )
-      .subscribe();
+      .subscribe({
+        error: (err) => {
+          this._snackBar.open(`[ERROR] ${err.message ?? err.error.message}`);
+          this.isLoading.set(false);
+        },
+        complete: () => this.isLoading.set(false),
+      });
   }
 }
