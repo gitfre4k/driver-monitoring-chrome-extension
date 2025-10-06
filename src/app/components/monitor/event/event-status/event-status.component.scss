@@ -13,10 +13,12 @@
   cursor: pointer;
   box-shadow: inset 0 -5px 5px rgba(3, 7, 18, 0.4);
   line-height: 12.5px;
+  vertical-align: middle;
 
   .show {
     white-space: nowrap;
     vertical-align: middle;
+    line-height: 12.5px;
   }
 
   .hide {
@@ -93,6 +95,7 @@
 
 .status.mph {
   font-weight: 500;
+  line-height: 12px;
 }
 .status.start-time {
   font-weight: 700;

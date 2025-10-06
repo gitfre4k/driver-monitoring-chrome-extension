@@ -26,7 +26,8 @@ export type TScanResult =
   | "cycleHours"
   | "refuelWarning"
   | "truckChange"
-  | "certStatus";
+  | "certStatus"
+  | "eventNotes";
 
 export type TProgressMode =
   | "determinate"

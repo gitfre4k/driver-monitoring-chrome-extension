@@ -14,6 +14,7 @@ import { isPcOrYm } from "../helpers/app.helpers";
 import { DateTime } from "luxon";
 import { ConstantsService } from "./constants.service";
 import { getNoSpaceNote } from "../helpers/monitor.helpers";
+import { isNoteValid } from "../helpers/advanced-scan.helpers";
 
 @Injectable({
   providedIn: "root",
@@ -231,7 +232,7 @@ export class AdvancedScanService {
           truckChange.push(event);
         }
         if (event.notes && getNoSpaceNote(event.notes)) {
-          eventNotes.push(event);
+          !isNoteValid(event) && eventNotes.push(event);
         }
       }
     });

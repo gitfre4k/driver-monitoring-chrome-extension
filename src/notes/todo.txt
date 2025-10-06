@@ -1,0 +1,41 @@
+## 0.0.5
+scan 
+ > tool: global smart fix
+ > driver log certification by company
+ > no note on PTI
+ > wrong note
+ 
+monitor
+ > format UI for warning/error messages
+ > check current status
+ > add drivings via admin portal
+ > break driving on inter
+ > error on missing engine on
+ > tamplates
+ > listen for webApp refresh event
+ > smartfix operation
+ > add templates
+ > handle resize for negative speed
+ > add smartfix
+ > rename zip and add more control 
+ > add option to copy name/truck/company
+ > add tool for logging disconnected Driving
+ 
+errors
+ > add retry
+keyboardService 
+ > enter => save edit, resize
+ > esc => cancel edit, resize
+ 
+ 
+~~~ fix ~~~
+ > transform from last On Duty
+ > multi location
+ > event error overlap
+ > 34h sleep from err to warn
+ > teleport logic
+ > location missmatch logic
+ 
+upgrade
+ > zip
+
