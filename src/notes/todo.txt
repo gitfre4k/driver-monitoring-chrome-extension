@@ -21,6 +21,7 @@ monitor
  > add tool for logging disconnected Driving
  > add error for odometer decreased
  > add countdown until 30-min break violation
+ > handle DOT logic (event selection / operations)
  
 errors
  > add retry
@@ -40,3 +41,5 @@ keyboardService
 upgrade
  > zip
 
+add 
+ > task list
