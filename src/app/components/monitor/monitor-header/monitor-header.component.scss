@@ -70,5 +70,14 @@
         background-color: rgba(255, 255, 255, 0.07);
       }
     }
+    &__break {
+      border-radius: 5px;
+      padding: 5px 4.6px;
+      box-shadow: inset 0 -4px 2px -1px #ef44448c;
+      text-align: center;
+      &-time {
+        font-weight: 700;
+      }
+    }
   }
 }

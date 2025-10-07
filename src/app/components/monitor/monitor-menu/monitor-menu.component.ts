@@ -17,9 +17,9 @@ import { MonitorService } from '../../../@services/monitor.service';
 import { DialogConfirmComponent } from '../../UI/dialog-confirm/dialog-confirm.component';
 import { ZipService } from '../../../@services/zip.service';
 import { MOCK__EVENT_DETAILS } from '../../../data/mock-ddle';
-import { concatMap, delay, from, mergeMap, toArray } from 'rxjs';
+import { concatMap, delay, from, toArray } from 'rxjs';
 import { ApiOperationsService } from '../../../@services/api-operations.service';
-import { IEventDetails, ITenant } from '../../../interfaces';
+import { IEventDetails } from '../../../interfaces';
 
 @Component({
   selector: 'app-monitor-menu',

@@ -59,39 +59,55 @@
         <div class="info__nav__date">
           <mat-spinner [diameter]="17"></mat-spinner>
         </div>
+        <button
+          mat-icon-button
+          [disabled]="!ddle.nextLogDate"
+          (click)="onChangeLogDate(ddle.nextLogDate)"
+        >
+          <mat-icon>arrow_right</mat-icon>
+        </button>
       } @else {
-        <div>
-          <mat-form-field style="display: none">
-            <input
-              matInput
-              [matDatepicker]="viewDatePicker"
-              [formControl]="datePicker"
-              (dateChange)="onDateChange($event)"
-              [value]="DateTime.fromISO(ddle.date).toJSDate()"
-              [min]="DateTime.fromISO(ddle.firstEventTime).toJSDate()"
-              [max]="
-                DateTime.now().setZone(ddle.homeTerminalTimeZone).toJSDate()
-              "
-            />
-            <mat-datepicker #viewDatePicker></mat-datepicker>
-          </mat-form-field>
-
-          <div
-            class="info__nav__date"
-            (click)="viewDatePicker.open()"
-            matRipple
+        @if (until30minBreak() && until30minBreak()!.seconds < 1800) {
+          <span [class]="'info__nav__break'"
+            ><span [class]="'info__nav__break-time'">{{
+              until30minBreak()!.time
+            }}</span>
+            minutes until <br />30min-break violation</span
           >
-            <span> {{ date | date: "mediumDate" }} </span>
+        } @else {
+          <div>
+            <mat-form-field style="display: none">
+              <input
+                matInput
+                [matDatepicker]="viewDatePicker"
+                [formControl]="datePicker"
+                (dateChange)="onDateChange($event)"
+                [value]="DateTime.fromISO(ddle.date).toJSDate()"
+                [min]="DateTime.fromISO(ddle.firstEventTime).toJSDate()"
+                [max]="
+                  DateTime.now().setZone(ddle.homeTerminalTimeZone).toJSDate()
+                "
+              />
+              <mat-datepicker #viewDatePicker></mat-datepicker>
+            </mat-form-field>
+
+            <div
+              class="info__nav__date"
+              (click)="viewDatePicker.open()"
+              matRipple
+            >
+              <span> {{ date | date: "mediumDate" }} </span>
+            </div>
           </div>
-        </div>
+          <button
+            mat-icon-button
+            [disabled]="!ddle.nextLogDate"
+            (click)="onChangeLogDate(ddle.nextLogDate)"
+          >
+            <mat-icon>arrow_right</mat-icon>
+          </button>
+        }
       }
-      <button
-        mat-icon-button
-        [disabled]="!ddle.nextLogDate"
-        (click)="onChangeLogDate(ddle.nextLogDate)"
-      >
-        <mat-icon>arrow_right</mat-icon>
-      </button>
     </div>
   </div>
 }

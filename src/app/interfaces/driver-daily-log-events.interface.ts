@@ -1,4 +1,4 @@
-import { ITenant } from "./";
+import { ITenant } from './';
 
 export interface IEvent {
   id: number;
@@ -108,6 +108,7 @@ export interface IHosDetails {
   shiftDriveTimeAtFirstSplitBreak: number;
   isPending: boolean;
   isError: boolean;
+  mustHaveBreakBy: string;
 }
 
 export interface IEngineOnEventData {

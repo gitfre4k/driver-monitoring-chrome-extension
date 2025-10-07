@@ -11,7 +11,6 @@ monitor
  > add drivings via admin portal
  > break driving on inter
  > error on missing engine on
- > tamplates
  > listen for webApp refresh event
  > smartfix operation
  > add templates
@@ -20,6 +19,8 @@ monitor
  > rename zip and add more control 
  > add option to copy name/truck/company
  > add tool for logging disconnected Driving
+ > add error for odometer decreased
+ > add countdown until 30-min break violation
  
 errors
  > add retry

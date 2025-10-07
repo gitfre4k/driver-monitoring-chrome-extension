@@ -1,24 +1,24 @@
-import { Injectable, inject, signal, effect, computed } from "@angular/core";
+import { Injectable, inject, signal, effect, computed } from '@angular/core';
 
 import {
   IDailyLogs,
   IDriverDailyLogEvents,
   IEvent,
-} from "../interfaces/driver-daily-log-events.interface";
-import { UrlService } from "./url.service";
-import { tap } from "rxjs";
-import { AppService } from "./app.service";
-import { IEventLocation, IParsedErrorInfo } from "../interfaces/api.interface";
-import { TEventTypeCode } from "../types";
+} from '../interfaces/driver-daily-log-events.interface';
+import { UrlService } from './url.service';
+import { tap } from 'rxjs';
+import { AppService } from './app.service';
+import { IEventLocation, IParsedErrorInfo } from '../interfaces/api.interface';
+import { TEventTypeCode } from '../types';
 
-import { ITenant } from "../interfaces";
-import { MatDialog } from "@angular/material/dialog";
-import { DialogComponent } from "../components/UI/dialog/dialog.component";
-import { ApiService } from "./api.service";
-import { ComputeEventsService } from "./compute-events.service";
-import { FormInputService } from "./form-input.service";
+import { ITenant } from '../interfaces';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../components/UI/dialog/dialog.component';
+import { ApiService } from './api.service';
+import { ComputeEventsService } from './compute-events.service';
+import { FormInputService } from './form-input.service';
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class MonitorService {
   private urlService = inject(UrlService);
   private appService = inject(AppService);
@@ -41,17 +41,17 @@ export class MonitorService {
   showUpdateEvent = signal<number | null>(null);
   currentEditEvent = signal<null | IEvent>(null);
   createNewEvent = signal(false);
-  newNote = signal("");
+  newNote = signal('');
   newOdometer = signal(0);
   newEventTypeId = signal(0);
   eventTypes: TEventTypeCode[] = [
-    "ChangeToOffDutyStatus",
-    "ChangeToSleeperBerthStatus",
-    "ChangeToDrivingStatus",
-    "ChangeToOnDutyNotDrivingStatus",
-    "IntermediateLogConventionalLocationPrecision",
-    "EnginePowerUpConventionalLocationPrecision",
-    "EngineShutDownConventionalLocationPrecision",
+    'ChangeToOffDutyStatus',
+    'ChangeToSleeperBerthStatus',
+    'ChangeToDrivingStatus',
+    'ChangeToOnDutyNotDrivingStatus',
+    'IntermediateLogConventionalLocationPrecision',
+    'EnginePowerUpConventionalLocationPrecision',
+    'EngineShutDownConventionalLocationPrecision',
   ];
 
   newEventType = computed(() => this.eventTypes[this.newEventTypeId()]);
@@ -81,7 +81,7 @@ export class MonitorService {
     const url = this.urlService.url();
     const tenant = this.urlService.tenant();
     if (!url || !tenant) return;
-    if (this.refresh()) console.log("live monitor page refreshed");
+    if (this.refresh()) console.log('live monitor page refreshed');
 
     this.appService.contextMenuVisible.set(false);
 
@@ -105,6 +105,17 @@ export class MonitorService {
     return driverInfo;
   });
 
+  engineOccuredDuringDriving = computed(() => {
+    const events = this.computedDailyLogEvents();
+    if (!events) return false;
+    const engineOccuredDuringDriving = events.find(
+      (e) => e.statusName.includes('Engine') && e.occurredDuringDriving,
+    );
+
+    if (engineOccuredDuringDriving) return true;
+    else return false;
+  });
+
   isUpdating = signal(false);
 
   constructor() {}
@@ -116,7 +127,7 @@ export class MonitorService {
     this.newResizeSpeed.set(0);
     this.currentEditEvent.set(null);
     this.showUpdateEvent.set(null);
-    this.newNote.set("");
+    this.newNote.set('');
     this.newOdometer.set(0);
     this.currentResizeDriving.set(null);
     this.showResize.set(null);
@@ -147,12 +158,12 @@ export class MonitorService {
   updateDriverDailyLogEvents(url: string, tenantId: string): void {
     this.isUpdating.set(true);
 
-    const parts = url.split("/");
+    const parts = url.split('/');
     const logs = parts[3];
     const id = +parts[4];
     const timestamp = parts[5];
 
-    if (logs !== "logs" || id === undefined || timestamp === undefined) {
+    if (logs !== 'logs' || id === undefined || timestamp === undefined) {
       this.driverDailyLog.set(null);
       this.refreshBtnDisabled.set(false);
       this.isUpdating.set(false);
@@ -166,7 +177,7 @@ export class MonitorService {
           this.driverDailyLog.set(driverDailyLog);
           this.currentEditEvent.set(null);
           this.showUpdateEvent.set(null);
-          this.newNote.set("");
+          this.newNote.set('');
           this.currentResizeDriving.set(null);
           this.showResize.set(null);
           this.newResizeSpeed.set(0);
@@ -199,7 +210,7 @@ export class MonitorService {
     this.refreshBtnDisabled.set(false);
 
     if (!driverDailyLog) {
-      console.log("No driver daily log found", driverDailyLog);
+      console.log('No driver daily log found', driverDailyLog);
       return this.computedDailyLogEvents.set(null);
     } else {
       const tenant = this.urlService.tenant() as ITenant;
@@ -226,8 +237,8 @@ export class MonitorService {
     this.newResizeSpeed.set(0);
 
     this.formInputService.geolocation.set(null);
-    this.formInputService.latitude.set("");
-    this.formInputService.longitude.set("");
+    this.formInputService.latitude.set('');
+    this.formInputService.longitude.set('');
 
     const tempEvent = { ...event };
     event.id = 0;
@@ -241,12 +252,12 @@ export class MonitorService {
     this.newEventTypeId.set(
       this.eventTypes.findIndex((type) => type === tempEvent.dutyStatus),
     );
-    this.newNote.set("");
+    this.newNote.set('');
     if (
       [
-        "ChangeToOffDutyStatus",
-        "ChangeToSleeperBerthStatus",
-        "ChangeToOnDutyNotDrivingStatus",
+        'ChangeToOffDutyStatus',
+        'ChangeToSleeperBerthStatus',
+        'ChangeToOnDutyNotDrivingStatus',
       ].includes(tempEvent.dutyStatus)
     ) {
       this.newNote.set(tempEvent.notes);
@@ -259,12 +270,12 @@ export class MonitorService {
   }
 
   showResizeForm(event: IEvent) {
-    if (event.dutyStatus === "ChangeToDrivingStatus") {
+    if (event.dutyStatus === 'ChangeToDrivingStatus') {
       this.selectedEvents.set([]);
 
       this.currentEditEvent.set(null);
       this.showUpdateEvent.set(null);
-      this.newNote.set("");
+      this.newNote.set('');
       this.newOdometer.set(0);
 
       this.currentResizeDriving.set(event);
@@ -276,7 +287,7 @@ export class MonitorService {
   cancelEventEdit() {
     this.currentEditEvent.set(null);
     this.showUpdateEvent.set(null);
-    this.newNote.set("");
+    this.newNote.set('');
 
     setTimeout(() => this.selectedEvents.set([]), 0);
 

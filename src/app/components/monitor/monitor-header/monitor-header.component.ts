@@ -6,30 +6,30 @@ import {
   inject,
   Input,
   Output,
-} from "@angular/core";
-import { DatePipe } from "@angular/common";
-import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
+} from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatButtonModule } from "@angular/material/button";
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
-} from "@angular/material/datepicker";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatRipple, provideNativeDateAdapter } from "@angular/material/core";
+} from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatRipple, provideNativeDateAdapter } from '@angular/material/core';
 
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon';
 
-import { MonitorService } from "../../../@services/monitor.service";
-import { formatTenantName } from "../../../helpers/monitor.helpers";
-import { ExtensionTabNavigationService } from "../../../@services/extension-tab-navigation.service";
-import { IDriverDailyLogEvents } from "../../../interfaces/driver-daily-log-events.interface";
+import { MonitorService } from '../../../@services/monitor.service';
+import { formatTenantName } from '../../../helpers/monitor.helpers';
+import { ExtensionTabNavigationService } from '../../../@services/extension-tab-navigation.service';
+import { IDriverDailyLogEvents } from '../../../interfaces/driver-daily-log-events.interface';
 
 @Component({
-  selector: "app-monitor-header",
+  selector: 'app-monitor-header',
   providers: [provideNativeDateAdapter()],
   imports: [
     MatIconModule,
@@ -43,12 +43,12 @@ import { IDriverDailyLogEvents } from "../../../interfaces/driver-daily-log-even
     ReactiveFormsModule,
     MatRipple,
   ],
-  templateUrl: "./monitor-header.component.html",
-  styleUrl: "./monitor-header.component.scss",
+  templateUrl: './monitor-header.component.html',
+  styleUrl: './monitor-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonitorHeaderComponent {
-  @HostListener("window:keydown", ["$event"])
+  @HostListener('window:keydown', ['$event'])
   handleWindowKeyboardEvent(event: KeyboardEvent) {
     this.handleKeyboardEvent(event);
   }
@@ -69,6 +69,27 @@ export class MonitorHeaderComponent {
 
   formatTenantName = formatTenantName;
 
+  until30minBreak() {
+    const mustHaveBreakBy = this.driverDailyLog.hosDetails?.mustHaveBreakBy;
+    if (!mustHaveBreakBy) return null;
+
+    const untilViolation = DateTime.fromISO(mustHaveBreakBy, { zone: 'utc' });
+    const now = DateTime.now();
+
+    const duration = untilViolation.diff(now, [
+      'hours',
+      'minutes',
+      'seconds',
+      'milliseconds',
+    ]);
+    const ms = untilViolation.diff(now, 'milliseconds');
+
+    const time = duration.toFormat('mm');
+    const seconds = ms.as('seconds');
+
+    return { time, seconds };
+  }
+
   onChangeLogDate(date: string | null) {
     if (!date) return;
     this.changeLogDate.emit(date);
@@ -80,13 +101,13 @@ export class MonitorHeaderComponent {
       !this.monitorService.showUpdateEvent()
     ) {
       switch (event.key) {
-        case "ArrowLeft":
+        case 'ArrowLeft':
           if (this.driverDailyLog.previousLogDate) {
             this.onChangeLogDate(this.driverDailyLog.previousLogDate);
             event.preventDefault();
           }
           break;
-        case "ArrowRight":
+        case 'ArrowRight':
           if (this.driverDailyLog.nextLogDate) {
             this.onChangeLogDate(this.driverDailyLog.nextLogDate);
             event.preventDefault();

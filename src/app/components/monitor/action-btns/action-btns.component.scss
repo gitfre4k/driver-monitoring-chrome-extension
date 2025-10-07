@@ -18,6 +18,10 @@
   &.menu {
     top: 55px;
     .mat-badge-custom {
+      position: absolute;
+      top: 0px;
+      right: 0;
+
       .mat-badge-content {
         z-index: 1000000000;
         background: #343eff54;
@@ -27,7 +31,9 @@
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
+    gap: 8px;
     .spinner {
+      margin-left: 8px;
       padding: 3.5px;
     }
   }

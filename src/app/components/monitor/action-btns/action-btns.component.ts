@@ -4,25 +4,26 @@ import {
   inject,
   input,
   signal,
-} from "@angular/core";
-import { MatBadgeModule } from "@angular/material/badge";
-import { MatIconModule } from "@angular/material/icon";
-import { MonitorService } from "../../../@services/monitor.service";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { CdkMenuModule } from "@angular/cdk/menu";
-import { MonitorMenuComponent } from "../monitor-menu/monitor-menu.component";
-import { MatButtonModule } from "@angular/material/button";
-import { MatTooltipModule } from "@angular/material/tooltip";
+} from '@angular/core';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatIconModule } from '@angular/material/icon';
+import { MonitorService } from '../../../@services/monitor.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CdkMenuModule } from '@angular/cdk/menu';
+import { MonitorMenuComponent } from '../monitor-menu/monitor-menu.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { IVehicle } from "../../../interfaces/driver-daily-log-events.interface";
-import { ApiPrologsAdminService } from "../../../@services/api-prologs-admin.service";
-import { MatDialog } from "@angular/material/dialog";
-import { DialogVehicleMaintanenceComponent } from "../../UI/dialog-vehicle-maintanence/dialog-vehicle-maintanence.component";
-import { switchMap } from "rxjs";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { IVehicle } from '../../../interfaces/driver-daily-log-events.interface';
+import { ApiPrologsAdminService } from '../../../@services/api-prologs-admin.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogVehicleMaintanenceComponent } from '../../UI/dialog-vehicle-maintanence/dialog-vehicle-maintanence.component';
+import { switchMap } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ContextMenuService } from '../../../@services/context-menu.service';
 
 @Component({
-  selector: "app-action-btns",
+  selector: 'app-action-btns',
   imports: [
     MatIconModule,
     MatBadgeModule,
@@ -33,8 +34,8 @@ import { MatSnackBar } from "@angular/material/snack-bar";
     MatTooltipModule,
     MatProgressSpinnerModule,
   ],
-  templateUrl: "./action-btns.component.html",
-  styleUrl: "./action-btns.component.scss",
+  templateUrl: './action-btns.component.html',
+  styleUrl: './action-btns.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActionBtnsComponent {
@@ -43,6 +44,7 @@ export class ActionBtnsComponent {
 
   monitorService = inject(MonitorService);
   apiPrologsAdminService = inject(ApiPrologsAdminService);
+  contextMenuService = inject(ContextMenuService);
   _dialog = inject(MatDialog);
   _snackBar = inject(MatSnackBar);
 
