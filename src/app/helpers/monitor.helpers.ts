@@ -3,9 +3,13 @@ import { DateTime } from "luxon";
 export const formatTenantName = (tenant: string) => {
   const keywordsToRemove = new Set([
     "logistics",
+    "logistic",
+    "express",
+    "service",
+    "trans",
     "transport",
     "transportations",
-    "Transportation",
+    "transportation",
     "express",
     "enterprises",
     "enterprise",

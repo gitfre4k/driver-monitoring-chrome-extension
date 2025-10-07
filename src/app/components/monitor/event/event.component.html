@@ -23,27 +23,32 @@
       />
     } @else {
       <!-- view-id -->
-      <span
-        [class]="[markBreaksAndShift(event), 'view-id']"
-        [class.violation]="addViolationClass(event, violations())"
-        [class.err]="event.errorMessages && event.errorMessages.length"
-        [class.war]="
-          event.manualDriving ||
-          event.malf ||
-          event.statusName === 'Fleet manager' ||
-          event.refuel
-        "
-        >{{ event.viewId }}.</span
-      >
+      @if (!event.truckChange) {
+        <span
+          [class]="[markBreaksAndShift(event), 'view-id']"
+          [class.violation]="addViolationClass(event, violations())"
+          [class.err]="event.errorMessages && event.errorMessages.length"
+          [class.war]="
+            event.manualDriving ||
+            event.malf ||
+            event.statusName === 'Fleet manager' ||
+            event.refuel
+          "
+          >{{ event.viewId }}.</span
+        >
+      } @else {
+        <span></span>
+      }
+
       <!-- odometer -->
       <span
         (click)="copyValue(event.odometer.toFixed(0))"
         [class]="['odometer']"
         [class.copy]="keyboardService.ctrlPressed()"
         [class.error]="event.isTeleport || event.error"
-        [class.approved]="event.truckChange"
+        [class.approved]="event.truckChange && !keyboardService.ctrlPressed()"
         >{{
-          event.truckChange
+          event.truckChange && !keyboardService.ctrlPressed()
             ? "truck change"
             : event.odometer && event.odometer.toLocaleString()
         }}</span
@@ -97,7 +102,7 @@
           }}
           @if (event.locationMismatch) {
             @if (event.isTeleport) {
-              <br />
+              {{ ", " }}
             }
             location mismatch
           }
@@ -106,7 +111,7 @@
             event.errorMessages &&
             event.errorMessages.length > 0
           ) {
-            <br />
+            {{ ", " }}
           }
           <!-- [eventErrors] message-->
           {{
@@ -121,7 +126,7 @@
               event.locationMismatch ||
               (event.errorMessages && event.errorMessages.length > 0)
             ) {
-              <br />
+              {{ ", " }}
             }
             <span class="note" style="color: yellow"
               >potential unrecorded driving</span
@@ -132,7 +137,7 @@
               event.isTeleport ||
               (event.errorMessages && event.errorMessages.length > 0)
             ) {
-              <br />
+              {{ ", " }}
             }
             <span class="note" style="color: yellow"> manual origin </span>
           }

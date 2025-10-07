@@ -22,6 +22,7 @@ monitor
  > add error for odometer decreased
  > add countdown until 30-min break violation
  > handle DOT logic (event selection / operations)
+ > trim 0 from 'mm' 30min-break
  
 errors
  > add retry
@@ -37,6 +38,7 @@ keyboardService
  > 34h sleep from err to warn
  > teleport logic
  > location missmatch logic
+ > error out on Add/Extend PTI
  
 upgrade
  > zip

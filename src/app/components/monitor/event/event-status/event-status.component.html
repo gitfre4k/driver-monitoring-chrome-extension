@@ -30,6 +30,7 @@
             [class.status-note]="event.notes && getNoSpaceNote(event.notes)"
             [class.engine]="['Engine Off', 'Engine On'].includes(newStatusName)"
             [class.intermediate]="newStatusName === 'Intermediate'"
+            [class.truck-change]="event.truckChange"
             tabindex="0"
           >
             @if (newStatusName === "Driving") {
