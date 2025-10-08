@@ -84,10 +84,17 @@ export class MonitorHeaderComponent {
     ]);
     const ms = untilViolation.diff(now, 'milliseconds');
 
-    const time = duration.toFormat('mm');
+    const time = duration.toFormat('m');
     const seconds = ms.as('seconds');
 
     return { time, seconds };
+  }
+
+  trimLeadingZero(time: string) {
+    if (time && time.charAt(0) === '0') {
+      return time.slice(1);
+    }
+    return time;
   }
 
   onChangeLogDate(date: string | null) {

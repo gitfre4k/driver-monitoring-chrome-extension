@@ -111,6 +111,14 @@
                 ></app-fix-button>
               </li>
             }
+            @if (event.errorMessages.includes("[PTI] missing note")) {
+              <li>
+                <app-fix-button
+                  [event]="event"
+                  action="ADD_PTI_NOTE"
+                ></app-fix-button>
+              </li>
+            }
           }
         }
       </ul>

@@ -4,6 +4,8 @@ scan
  > driver log certification by company
  > no note on PTI
  > wrong note
+ > merge Admin Portal scan and Analyze Logs
+ > add duration next to event note
  
 monitor
  > format UI for warning/error messages
@@ -23,7 +25,8 @@ monitor
  > add countdown until 30-min break violation
  > handle DOT logic (event selection / operations)
  > trim 0 from 'mm' 30min-break
- 
+ > dispay driver id next to truck
+
 errors
  > add retry
 keyboardService 
@@ -45,3 +48,34 @@ upgrade
 
 add 
  > task list
+
+
+
+
+
+ Our hands are tied right now since the logs are locked, I advise you contact someone from your company and advise them of the situation and we'll go from there.
+
+
+ Try holding the 'refresh' button on the top right of the screen for a few seconds. If that doesn't help, please sign out and sign back in.
+
+
+ Hello Sir,
+
+You got a violation because you didn’t take a 30-minute break after driving more than 8 hours. This is a serious offense, and please be more careful in the future. Check your clocks from time to time, and if you need more time, let us know.
+
+Hello Sir,
+
+Your shift expired and you entered a violation. This is a serious offense, and please be more careful in the future. Check your clocks from time to time, and if you need more time, let us know.
+
+You drove more than the allowed 11 hours, and that caused a violation. This is a serious issue, so please be more careful in the future. Try to check your driving hours from time to time.
+
+Please do this steps when you got the time:
+
+1. Disconnect you cable and ELD from truck for 30 min 
+2. Delate prologs application
+3. After 30 min connect cable and ELD to the truck 
+4. Install Prologs app again 
+5. Log in on Prologs and accept everything that app offers 
+6. Send as a message when you finish, thanks
+
+Hello sir, it seams that you've forgotten to switch back from PC status once you ware done using it. We highly recommend using regular Driving to avoid potential violations. As you already know - we will always assist you with your driving hours

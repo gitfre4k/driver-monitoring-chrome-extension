@@ -62,16 +62,17 @@
     }
   </div>
 
-  <button (click)="logActiveDriversPerCompany()">
-    [LOG] ative drivers per company
-  </button>
-
-  <button (click)="getVehicleLocationHistory()">
-    getVehicleLocationHistory
+  <button
+    (click)="logActiveDriversPerCompany()"
+    [disabled]="isDisabledElConejo"
+    class="sexy-button"
+    mat-button
+  >
+    botón para el Conejo
   </button>
 
   <div class="info-tab__extension-version">
     <p>Driver Monitoring Chrome Extension</p>
-    <p>version: 0.0.4</p>
+    <p>version: {{ constService.extensionVersion() }}</p>
   </div>
 </div>

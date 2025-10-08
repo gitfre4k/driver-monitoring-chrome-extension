@@ -30,8 +30,7 @@ export class MonitorService {
 
   refresh = signal(0);
   refreshBtnDisabled = signal(false);
-  extendPTIBtnDisabled = signal(false);
-  addPTIBtnDisabled = signal(false);
+  disableFixButtons = signal(false);
   showToolMenu = signal(false);
 
   selectedEvents = signal<IEvent[]>([]);

@@ -2,7 +2,12 @@
   <div class="info">
     <div class="info__company-and-driver">
       <div class="info__company-and-driver__1">
-        <span class="info__company-and-driver__1-company">
+        <span
+          class="info__company-and-driver__1-company"
+          [class.info__company-and-driver__1-company-x]="
+            ['UM Expedite', 'VK'].includes(formatTenantName(ddle.companyName))
+          "
+        >
           ## {{ formatTenantName(ddle.companyName) }}
         </span>
 
@@ -12,6 +17,9 @@
               'Batbayar Enkhbat',
               'Nedeljko Arezina',
               'Farhan Abdullahi Hussein',
+              'Zoran Lakicevic',
+              'Mohamed A Alinor',
+              'John Ibrahim',
             ].includes(ddle.driverFullName)
               ? 'info__company-and-driver__1-driver-name'
               : 'info__company-and-driver__1-driver-x'
@@ -67,12 +75,16 @@
           <mat-icon>arrow_right</mat-icon>
         </button>
       } @else {
-        @if (until30minBreak() && until30minBreak()!.seconds < 1800) {
+        @if (
+          until30minBreak() &&
+          until30minBreak()!.seconds < 1800 &&
+          ddle.hosDetails.driverDutyStatus === "D"
+        ) {
           <span [class]="'info__nav__break'"
-            ><span [class]="'info__nav__break-time'">{{
-              until30minBreak()!.time
-            }}</span>
-            minutes until <br />30min-break violation</span
+            ><span [class]="'info__nav__break-time'"
+              >{{ until30minBreak()!.time }} minutes</span
+            >
+            until <br />30min-break violation</span
           >
         } @else {
           <div>
