@@ -26,6 +26,7 @@ monitor
  > handle DOT logic (event selection / operations)
  > trim 0 from 'mm' 30min-break
  > dispay driver id next to truck
+ > separate logs on truck change
 
 errors
  > add retry
