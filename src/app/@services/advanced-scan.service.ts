@@ -165,6 +165,7 @@ export class AdvancedScanService {
     );
 
     const errorEvents: IEvent[] = [];
+    const warningEvents: IEvent[] = [];
     const detectedTeleportEvents: IEvent[] = [];
     const locationMismatchEvents: IEvent[] = [];
     const prolongedOnDutyEvents: IEvent[] = [];
@@ -190,6 +191,9 @@ export class AdvancedScanService {
         }
         if (event.errorMessages?.length) {
           errorEvents.push(event);
+        }
+        if (event.warningMessages?.length) {
+          warningEvents.push(event);
         }
         if (event.onDutyDuration) {
           prolongedOnDutyEvents.push(event);
@@ -296,6 +300,22 @@ export class AdvancedScanService {
         if (newValue[companyName])
           newValue[companyName].push(driverErrorEvents);
         else newValue[companyName] = [driverErrorEvents];
+        return newValue;
+      });
+    }
+
+    ////////////
+    // handle Warning events
+    if (warningEvents.length) {
+      const driverWarningEvents: IScanResultDriver = {
+        driverName: driverDailyLog.driverFullName,
+        events: warningEvents,
+      };
+      this.progressBarService.eventWarnings.update((prev) => {
+        const newValue = { ...prev };
+        if (newValue[companyName])
+          newValue[companyName].push(driverWarningEvents);
+        else newValue[companyName] = [driverWarningEvents];
         return newValue;
       });
     }

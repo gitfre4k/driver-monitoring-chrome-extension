@@ -1,6 +1,6 @@
 @if (vehicles(); as vehicles) {
   <div [class]="['absolute', 'vehicle']">
-    @if (isLoading(); as isLoading) {
+    @if (isLoading()) {
       <div class="spinner">
         <mat-spinner [diameter]="17"></mat-spinner>
       </div>
@@ -19,16 +19,33 @@
   </div>
 }
 
-<button
-  mat-icon-button
-  matTooltip="Refresh"
-  matTooltipPosition="left"
-  class="absolute refresh"
-  (click)="monitorService.refreshDailyLogs()"
-  [disabled]="monitorService.refreshBtnDisabled()"
->
-  <mat-icon>refresh</mat-icon>
-</button>
+<div [class]="'absolute refresh'">
+  @if (isSmartFix()) {
+    <div class="spinner">
+      <mat-spinner [diameter]="17"></mat-spinner>
+    </div>
+  } @else {
+    <button
+      mat-icon-button
+      matTooltip="Smart Fix"
+      matTooltipPosition="below"
+      (click)="smartFix()"
+      [disabled]="isSmartFix()"
+    >
+      <mat-icon>smart_button</mat-icon>
+    </button>
+  }
+
+  <button
+    mat-icon-button
+    matTooltip="Refresh"
+    matTooltipPosition="left"
+    (click)="monitorService.refreshDailyLogs()"
+    [disabled]="monitorService.refreshBtnDisabled()"
+  >
+    <mat-icon>refresh</mat-icon>
+  </button>
+</div>
 
 <div [class]="'absolute menu'">
   @if (monitorService.selectedEvents().length) {

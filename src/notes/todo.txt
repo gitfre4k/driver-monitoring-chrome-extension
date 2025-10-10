@@ -6,6 +6,7 @@ scan
  > wrong note
  > merge Admin Portal scan and Analyze Logs
  > add duration next to event note
+ > low total Engine Hours - exclude undefined
  
 monitor
  > format UI for warning/error messages
@@ -28,13 +29,14 @@ monitor
  > dispay driver id next to truck
  > separate logs on truck change
  > show assigned vehicle id
+
+keyboardService 
+ > enter => save edit, resize
+ > esc => cancel edit, resize
  
 
 errors
  > add retry
-keyboardService 
- > enter => save edit, resize
- > esc => cancel edit, resize
  
  
 ~~~ fix ~~~

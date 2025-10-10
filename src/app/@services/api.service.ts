@@ -334,4 +334,25 @@ export class ApiService {
       body,
     });
   }
+
+  ///////////////////
+  // Smart Fix
+  smartFix(from: string, to: string, tenantId: string, driverId: number) {
+    const url = "https://app.monitoringdriver.com/api/Logs/SmartFixEvents";
+
+    const body = {
+      driverId,
+      fixEventsDirection: "FromLastEvent",
+      from,
+      to,
+    };
+
+    return this.http.post(url, body, {
+      withCredentials: true,
+      headers: {
+        "x-client-timezone": `${DateTime.local().zoneName}`,
+        "X-Tenant-Id": tenantId,
+      },
+    });
+  }
 }

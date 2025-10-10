@@ -68,6 +68,7 @@ export class ProgressBarService {
   teleports = signal<IScanResult>({});
   locationMismatch = signal<IScanResult>({});
   eventErrors = signal<IScanResult>({});
+  eventWarnings = signal<IScanResult>({});
   prolongedOnDuty = signal<IScanResult>({});
   malfOrDataDiag = signal<IScanResult>({});
   pcYm = signal<IScanResult>({});
@@ -114,6 +115,7 @@ export class ProgressBarService {
       !this.isEmpty(this.teleports()) ||
       !this.isEmpty(this.locationMismatch()) ||
       !this.isEmpty(this.eventErrors()) ||
+      !this.isEmpty(this.eventWarnings()) ||
       !this.isEmpty(this.prolongedOnDuty()) ||
       !this.isEmpty(this.malfOrDataDiag()) ||
       !this.isEmpty(this.pcYm()) ||
@@ -226,6 +228,7 @@ export class ProgressBarService {
         this.teleports.set({});
         this.locationMismatch.set({});
         this.eventErrors.set({});
+        this.eventWarnings.set({});
         this.prolongedOnDuty.set({});
         this.malfOrDataDiag.set({});
         this.pcYm.set({});

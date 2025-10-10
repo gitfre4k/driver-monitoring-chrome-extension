@@ -112,8 +112,8 @@
               </li>
             }
             @if (
-              event.errorMessages &&
-              event.errorMessages.includes("[PTI] missing note")
+              event.warningMessages &&
+              event.warningMessages.includes("[PTI] missing note")
             ) {
               <li>
                 <app-fix-button

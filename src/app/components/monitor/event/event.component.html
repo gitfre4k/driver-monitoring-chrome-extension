@@ -82,68 +82,47 @@
         [style]="event.locationMismatch ? 'color: red' : ''"
         >{{ event.locationDisplayName }}</span
       >
-    } @else {
-      @if (
-        !(monitorService.currentEditEvent()?.id === event.id) &&
-        (event.isTeleport ||
-          (event.errorMessages && event.errorMessages.length > 0) ||
-          event.manualDriving ||
-          event.refuel ||
-          event.locationMismatch)
-      ) {
-        <span class="note" style="color: red">
-          <!-- [teleport] message-->
+    }
+    @if (
+      !(monitorService.currentEditEvent()?.id === event.id) &&
+      (event.isTeleport ||
+        (event.errorMessages && event.errorMessages.length > 0) ||
+        (event.warningMessages && event.warningMessages.length > 0) ||
+        event.manualDriving ||
+        event.refuel ||
+        event.locationMismatch)
+    ) {
+      @if (event.isTeleport) {
+        <span class="note err-item">
           {{
-            event.isTeleport
-              ? event.isTeleport > 0
-                ? "teleport [ " + event.isTeleport + " miles ]"
-                : "odometer decreased"
-              : ""
+            event.isTeleport > 0
+              ? "teleport [ " + event.isTeleport + " miles ]"
+              : "odometer decreased"
           }}
-          @if (event.locationMismatch) {
-            @if (event.isTeleport) {
-              {{ ", " }}
-            }
-            location mismatch
-          }
-          @if (
-            (event.isTeleport || event.locationMismatch) &&
-            event.errorMessages &&
-            event.errorMessages.length > 0
-          ) {
-            {{ ", " }}
-          }
-          <!-- [eventErrors] message-->
-          {{
-            event.errorMessages && event.errorMessages.length > 0
-              ? event.errorMessages[0]
-              : ""
-          }}
-          <!-- warnings -->
-          @if (event.refuel) {
-            @if (
-              event.isTeleport ||
-              event.locationMismatch ||
-              (event.errorMessages && event.errorMessages.length > 0)
-            ) {
-              {{ ", " }}
-            }
-            <span class="note" style="color: yellow"
-              >potential unrecorded driving</span
-            >
-          }
-          @if (event.manualDriving) {
-            @if (
-              event.isTeleport ||
-              (event.errorMessages && event.errorMessages.length > 0)
-            ) {
-              {{ ", " }}
-            }
-            <span class="note" style="color: yellow"> manual origin </span>
-          }
         </span>
-      } @else {
-        <span class="note"> </span>
+      }
+      @if (event.locationMismatch) {
+        <span class="note err-item"> location mismatch </span>
+      }
+      @if (event.errorMessages && event.errorMessages.length) {
+        @for (errorMsg of event.errorMessages; track errorMsg) {
+          <span class="note err-item">
+            {{ errorMsg }}
+          </span>
+        }
+      }
+      @if (event.warningMessages && event.warningMessages.length) {
+        @for (warnMsg of event.warningMessages; track warnMsg) {
+          <span class="note warn-item">
+            {{ warnMsg }}
+          </span>
+        }
+      }
+      @if (event.refuel) {
+        <span class="note warn-item"> potential unrecorded driving </span>
+      }
+      @if (event.manualDriving) {
+        <span class="note warn-item"> manual origin </span>
       }
     }
   </div>

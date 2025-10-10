@@ -3,7 +3,15 @@
   right: 10px;
   &.refresh {
     top: 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 8px;
+    .spinner {
+      padding: 11.3px 11.5px;
+    }
   }
+
   &.vehicle {
     display: flex;
     gap: 4px;

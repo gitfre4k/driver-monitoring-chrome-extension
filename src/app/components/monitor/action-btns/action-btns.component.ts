@@ -4,26 +4,28 @@ import {
   inject,
   input,
   signal,
-} from '@angular/core';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatIconModule } from '@angular/material/icon';
-import { MonitorService } from '../../../@services/monitor.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CdkMenuModule } from '@angular/cdk/menu';
-import { MonitorMenuComponent } from '../monitor-menu/monitor-menu.component';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
+} from "@angular/core";
+import { MatBadgeModule } from "@angular/material/badge";
+import { MatIconModule } from "@angular/material/icon";
+import { MonitorService } from "../../../@services/monitor.service";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { CdkMenuModule } from "@angular/cdk/menu";
+import { MonitorMenuComponent } from "../monitor-menu/monitor-menu.component";
+import { MatButtonModule } from "@angular/material/button";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
-import { IVehicle } from '../../../interfaces/driver-daily-log-events.interface';
-import { ApiPrologsAdminService } from '../../../@services/api-prologs-admin.service';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogVehicleMaintanenceComponent } from '../../UI/dialog-vehicle-maintanence/dialog-vehicle-maintanence.component';
-import { switchMap } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ContextMenuService } from '../../../@services/context-menu.service';
+import { IVehicle } from "../../../interfaces/driver-daily-log-events.interface";
+import { ApiPrologsAdminService } from "../../../@services/api-prologs-admin.service";
+import { MatDialog } from "@angular/material/dialog";
+import { DialogVehicleMaintanenceComponent } from "../../UI/dialog-vehicle-maintanence/dialog-vehicle-maintanence.component";
+import { switchMap } from "rxjs";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { ContextMenuService } from "../../../@services/context-menu.service";
+import { ApiService } from "../../../@services/api.service";
+import { DateTime } from "luxon";
 
 @Component({
-  selector: 'app-action-btns',
+  selector: "app-action-btns",
   imports: [
     MatIconModule,
     MatBadgeModule,
@@ -34,8 +36,8 @@ import { ContextMenuService } from '../../../@services/context-menu.service';
     MatTooltipModule,
     MatProgressSpinnerModule,
   ],
-  templateUrl: './action-btns.component.html',
-  styleUrl: './action-btns.component.scss',
+  templateUrl: "./action-btns.component.html",
+  styleUrl: "./action-btns.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActionBtnsComponent {
@@ -43,15 +45,39 @@ export class ActionBtnsComponent {
   tenantId = input<string>();
 
   monitorService = inject(MonitorService);
+  apiService = inject(ApiService);
   apiPrologsAdminService = inject(ApiPrologsAdminService);
   contextMenuService = inject(ContextMenuService);
   _dialog = inject(MatDialog);
   _snackBar = inject(MatSnackBar);
 
   isLoading = signal(false);
+  isSmartFix = signal(false);
 
   deselectAllEvents() {
     this.monitorService.selectedEvents.set([]);
+  }
+
+  smartFix() {
+    const ddle = this.monitorService.driverDailyLog();
+    if (!ddle) return;
+
+    const to = ddle.date;
+    const from = DateTime.fromISO(to).minus({ days: 7 }).toUTC().toISO()!;
+    const tenantId = this.tenantId()!;
+    const driverId = ddle.driverId;
+    this.isSmartFix.set(true);
+
+    this.apiService.smartFix(from, to, tenantId, driverId).subscribe({
+      next: () => {
+        this.isSmartFix.set(false);
+        this._snackBar.open("Smart fix performed successfully", "OK");
+      },
+      error: (err) => {
+        this.isSmartFix.set(false);
+        this._snackBar.open(err.message, "Close");
+      },
+    });
   }
 
   getVehicleMaintenance() {

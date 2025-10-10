@@ -1132,6 +1132,126 @@
       }
 
       <!--  -->
+      <!-- event Warnings  -->
+      @if (progressBarService.eventWarnings(); as eventWarnings) {
+        @if (!isEmpty(eventWarnings)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Event Warnings
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ resultCount(eventWarnings) }}"
+                  [matBadgeHidden]="resultCount(eventWarnings) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(eventWarnings)) {
+                <div class="scan-results__content__result__empty">
+                  No event warnings detected.
+                </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of eventWarnings | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.events[0].driver.id,
+                                  driver.events[0].date,
+                                  driver.events[0].tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
+
+                          <span class="bold">{{ driver.driverName }}</span>
+
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeItem(
+                                'eventWarnings',
+                                company.key,
+                                driver.driverName
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          @for (
+                            event of driver.events | slice: 0 : 3;
+                            track event.id;
+                            let i = $index
+                          ) {
+                            @if (i === 2 && driver.events.length > 3) {
+                              <li class="event-error">
+                                <span></span>
+                                <span></span>
+                                <span
+                                  >...and
+                                  {{ driver.events.length - 3 }} more</span
+                                >
+                              </li>
+                            } @else {
+                              <li class="event-error">
+                                <span class="view-id">#{{ event.viewId }}</span>
+
+                                <span
+                                  [ngClass]="'status ' + event.dutyStatus"
+                                  >{{ event.statusName }}</span
+                                >
+
+                                <span class="error-msg">
+                                  @for (
+                                    message of event.warningMessages;
+                                    track $index
+                                  ) {
+                                    {{ message }}
+                                  }
+                                </span>
+                              </li>
+                            }
+                          }
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      }
+
+      <!--  -->
       <!-- Refuel Marker Warning  -->
       @if (progressBarService.refuelWarning(); as refuelWarning) {
         @if (!isEmpty(refuelWarning)) {
