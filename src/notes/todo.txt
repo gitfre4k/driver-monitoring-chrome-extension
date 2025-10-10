@@ -27,6 +27,8 @@ monitor
  > trim 0 from 'mm' 30min-break
  > dispay driver id next to truck
  > separate logs on truck change
+ > show assigned vehicle id
+ 
 
 errors
  > add retry
@@ -54,7 +56,8 @@ add
 
 
 
- Our hands are tied right now since the logs are locked, I advise you contact someone from your company and advise them of the situation and we'll go from there.
+ Our hands are tied right now since the logs are locked, 
+ I advise you contact someone from your company and advise them of the situation and we'll go from there.
 
 
  Try holding the 'refresh' button on the top right of the screen for a few seconds. If that doesn't help, please sign out and sign back in.
