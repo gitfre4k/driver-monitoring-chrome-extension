@@ -28,13 +28,14 @@
       width: 100%;
       margin: 4px;
       :first-child {
-        width: 36%;
+        width: 128px;
         text-align: right;
         font-weight: 700;
         padding-right: 4px;
       }
       :nth-child(2) {
         text-align: left;
+        // width: auto;
       }
     }
   }
