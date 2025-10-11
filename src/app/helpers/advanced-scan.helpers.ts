@@ -34,12 +34,16 @@ import { IEvent } from "../interfaces/driver-daily-log-events.interface";
 export const isNoteValid = (event: IEvent) => {
   const onDutyValidInputs = [
     "pti",
+    "pretrip inspection",
     "pre trip inspection",
     "pre-trip inspection",
-    "pre trip",
-    "post trip",
-    "post trip inspection",
     "pretrip",
+    "pre trip",
+    "pre-trip",
+    "post trip",
+    "post-trip",
+    "post trip inspection",
+    "post-trip inspection",
     "pick up",
     "pickup",
     "load",
@@ -69,18 +73,20 @@ export const isNoteValid = (event: IEvent) => {
 
   const note = event.notes.replace(/,/g, " ").trim().toLowerCase();
 
-  const isMatch = (arr: string[], value: string) => {
+  const isMatch = (arr: string[], note: string) => {
     const isIncluded = arr.some((element) => {
-      return element === value;
+      return element === note;
     });
     if (isIncluded) return true;
 
-    const splitValue = value.split(/\s+/);
-    if (splitValue.length < 2) {
+    const splitNote = note.split(/\s+/);
+    if (splitNote.length < 2) {
       return false;
     }
 
-    const isCombinedMatch = splitValue.every((part) => arr.includes(part));
+    const isCombinedMatch = splitNote.every(
+      (part) => arr.includes(part) || part === "and",
+    );
     return isCombinedMatch;
   };
 

@@ -3,9 +3,14 @@
   <ul>
     <!--  -->
     <li (click)="monitorService.createDuplicatedEvent(event)" class="context-menu__item">
-      <mat-icon>control_point_duplicate</mat-icon>
-      <span class="context-menu__item__name">Duplicate #{{ event.viewId }} {{event.statusName}}</span>
+      <span class="context-menu__item__icon-duplicate">
+        <mat-icon>control_point_duplicate</mat-icon>
+      </span>
+      <span class="context-menu__item__name pushup">Duplicate #{{ event.viewId }} {{event.statusName}}</span>
     </li>
+    <!-- ~ -->
+    <!-- if event is not locked -->
+@if (!event.isLocked) {
     @if (event.statusName !== "Driving") {
     <!-- ENGINE OFF -->
     @if (
@@ -14,7 +19,10 @@
     )
     ) {
     <li (click)="contextMenuService.handleAction('ADD_ENGINE_OFF', event)" class="context-menu__item">
-      <app-engine style="margin-top: 1.5px"></app-engine>
+      <span class="context-menu__item__icon-engine">
+        <app-engine></app-engine>
+
+      </span>
       <span class="context-menu__item__name">add Engine Off</span>
     </li>
     }
@@ -47,7 +55,7 @@
       <!-- SUBMENU PARTIAL TRANSFORMATION -->
       <!-- SUBMENU PARTIAL TRANSFORMATION -->
       <app-partial></app-partial>
-      <span class="context-menu__item__name">partial transformation</span>
+      <span class="context-menu__item__name pushup">partial transformation</span>
       <ul class="context-menu submenu">
         @if (
         event.statusName === "On Duty" &&
@@ -89,6 +97,15 @@
     </li>
 
     }
+}
+
+<li (click)="openLocationInGoogleMaps(event)" class="context-menu__item">
+         <mat-icon class="context-menu__item__icon-on">  location_on
+</mat-icon>
+      <span class="context-menu__item__name">open in Google Maps</span>
+  
+</li>
+
   </ul>
 </div>
 }

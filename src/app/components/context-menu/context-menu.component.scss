@@ -26,6 +26,10 @@
       width: 100%;
       display: flex;
       flex-direction: column;
+      justify-content: center;
+      &.pushup {
+        padding-bottom: 4px;
+      }
       &-left {
         padding-left: auto;
       }
@@ -34,12 +38,23 @@
       align-self: center;
       &-off {
         color: #030712;
+        transform: scale(0.9);
       }
       &-sleep {
         color: #e7b008;
+        transform: scale(0.9);
       }
       &-on {
         color: #3b82f6;
+        transform: scale(0.9);
+      }
+      &-engine {
+        margin-left: 2px;
+        padding-bottom: 2px;
+        transform: scale(1.25);
+      }
+      &-duplicate {
+        transform: scale(0.75);
       }
     }
   }

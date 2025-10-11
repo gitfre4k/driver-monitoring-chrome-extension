@@ -22,6 +22,7 @@ import {
 import { ITenant } from "../interfaces";
 import { ApiService } from "./api.service";
 import { DateTime } from "luxon";
+import { isEventLocked } from "../helpers/compute-events.helpers";
 
 @Injectable({
   providedIn: "root",
@@ -101,16 +102,17 @@ export class ComputeEventsService {
         viewId: driverDailyLog.driverId,
         name: driverDailyLog.driverFullName,
       };
+      e.isLocked = isEventLocked(e, driverDailyLog.driverFmcsaInspection);
     });
     if (coDriverDailyLog && coDriverEvents && coDriverEvents?.length > 0) {
-      coDriverEvents.forEach(
-        (e) =>
-          (e.driver = {
-            id: coDriverDailyLog.driverId,
-            viewId: driverDailyLog.driverId,
-            name: coDriverDailyLog.driverFullName,
-          }),
-      );
+      coDriverEvents.forEach((e) => {
+        e.driver = {
+          id: coDriverDailyLog.driverId,
+          viewId: driverDailyLog.driverId,
+          name: coDriverDailyLog.driverFullName,
+        };
+        e.isLocked = isEventLocked(e, coDriverDailyLog.driverFmcsaInspection);
+      });
       events = [...driverEvents, ...coDriverEvents].sort(
         (a, b) =>
           new Date(a.realStartTime).getTime() -

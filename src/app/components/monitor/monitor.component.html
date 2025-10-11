@@ -30,7 +30,7 @@
               </div>
             }
             <!-- [FIX-BUTTON] add Pre-Trip Inspection -->
-            @if (event.pti === 0) {
+            @if (event.pti === 0 && !event.isLocked) {
               <li>
                 <app-fix-button
                   [event]="event"
@@ -39,12 +39,10 @@
               </li>
             }
 
-            <!--  -->
-            <!-- event -->
             <li
               (contextmenu)="onContextMenu($event, event)"
               [class.selected]="selectedEventsIds().includes(event.id)"
-              (click)="selectEvent(event)"
+              (click)="!event.isLocked && selectEvent(event)"
             >
               <div
                 [class.highlighted]="
@@ -60,13 +58,13 @@
                 matRipple
                 id="{{ event.id }}"
               >
-                <!--  -->
-
+                <!-- ~ -->
+                <!-- event -->
                 <app-event
                   [event]="event"
                   [violations]="ddle.violations"
                 ></app-event>
-
+                <!-- ~ -->
                 <!-- ~ -->
 
                 @if (currentEditEvent()?.id === event.id) {
@@ -76,34 +74,17 @@
                       [zone]="ddle.homeTerminalTimeZone"
                     ></app-edit-form>
                   </span>
-                } @else {
-                  <!-- <span [ngClass]="markBreaksAndShift(event, true) + ' duration'"> -->
-                  <!-- ...duration -->
                 }
               </div>
             </li>
 
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
             @if (showResize() === event.id) {
               <li>
                 <app-resize-form></app-resize-form>
               </li>
             }
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-            <!-- / -->
-            <!-- show update event -->
-            <!-- / -->
-
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
-            @if (event.pti > 0) {
+            @if (event.pti > 0 && !event.isLocked) {
               <li>
                 <app-fix-button
                   [event]="event"
@@ -113,7 +94,8 @@
             }
             @if (
               event.warningMessages &&
-              event.warningMessages.includes("[PTI] missing note")
+              event.warningMessages.includes("[PTI] missing note") &&
+              !event.isLocked
             ) {
               <li>
                 <app-fix-button

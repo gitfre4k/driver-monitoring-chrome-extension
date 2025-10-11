@@ -5,6 +5,7 @@ import {
   input,
 } from "@angular/core";
 import {
+  IDriverFmcsaInspection,
   IDriverLogViolation,
   IEvent,
 } from "../../../interfaces/driver-daily-log-events.interface";

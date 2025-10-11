@@ -62,6 +62,7 @@ export interface IEvent {
   coDriverLastBreakStatus: number | null;
   parentClass: string;
   warningMessages: string[];
+  isLocked: boolean;
 }
 
 export interface IStatusInfo {
@@ -118,6 +119,13 @@ export interface IEngineOnEventData {
   totalEngineHours: number;
 }
 
+export interface IDriverFmcsaInspection {
+  id: string;
+  time: string;
+  reportTimeFrom: string;
+  reportTimeTo: string;
+}
+
 export interface IDriverDailyLogEvents {
   date: string;
   startOfDay: string;
@@ -131,6 +139,7 @@ export interface IDriverDailyLogEvents {
   events: IEvent[];
   coDrivers: ICoDriver[];
   vehicles: IVehicle[];
+  driverFmcsaInspection: IDriverFmcsaInspection;
   distance: string;
   odometerUnits: string;
   reassignInProgress: boolean;

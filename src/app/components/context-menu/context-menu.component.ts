@@ -6,6 +6,8 @@ import { EngineComponent } from "../UI/engine/engine.component";
 import { MonitorService } from "../../@services/monitor.service";
 import { PartialComponent } from "../UI/partial/partial.component";
 import { ResizeComponent } from "../UI/resize/resize.component";
+import { ApiOperationsService } from "../../@services/api-operations.service";
+import { switchMap } from "rxjs";
 
 @Component({
   selector: "app-context-menu",
@@ -21,6 +23,22 @@ export class ContextMenuComponent {
 
   contextMenuService = inject(ContextMenuService);
   monitorService = inject(MonitorService);
+  apiOperationsService = inject(ApiOperationsService);
+
+  openLocationInGoogleMaps(event: IEvent) {
+    return this.apiOperationsService
+      .getEvent(event.tenant, event.id)
+      .subscribe({
+        next: (evDetails) => {
+          const coordinates = `${evDetails.latitude},${evDetails.longitude}`;
+
+          const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${coordinates}`;
+          chrome.tabs.create({ url: googleMapsUrl }, function (newTab) {
+            console.log("Opened tab to:", newTab.url);
+          });
+        },
+      });
+  }
 
   duplicateEvent() {
     this.monitorService.computedDailyLogEvents.update((events) =>

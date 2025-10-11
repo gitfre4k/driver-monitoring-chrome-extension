@@ -1,5 +1,5 @@
 @if (event(); as event) {
-  <div [class]="'event'">
+  <div [class]="'event'" [class.fmcsa-locked]="event.isLocked">
     @if (monitorService.currentResizeDriving()?.id === event.id) {
       @if (monitorService.newResizeSpeed(); as newResizeSpeed) {
         <span></span>
