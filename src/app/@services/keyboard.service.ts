@@ -5,6 +5,7 @@ import { DialogComponent } from "../components/UI/dialog/dialog.component";
 import { MonitorService } from "./monitor.service";
 import { DialogConfirmComponent } from "../components/UI/dialog-confirm/dialog-confirm.component";
 import { ContextMenuService } from "./context-menu.service";
+import { concatMap, Observable, of } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -57,26 +58,50 @@ export class KeyboardService {
               (ev) => ev.date === events[0].date,
             );
 
-            const dialogRef = this.dialog.open(DialogConfirmComponent, {
+            const dialogConfig1 = {
               width: "250px",
               data: {
                 title: "Delete Events",
                 message: `Are you sure you want to proceed?`,
                 info: `[${events.length}] event${events.length === 1 ? "" : "s"} selected`,
-                warning: eventsOnSameDay
-                  ? null
-                  : "NOT ALL EVENTS ARE ON THE SAME DAY",
               },
-            });
+            };
 
-            dialogRef.afterClosed().subscribe((result) => {
-              if (result) {
-                this.contextMenuService.handleMultiEventAction(
-                  "DELETE_SELECTED_EVENTS",
-                  events,
-                );
-              }
-            });
+            const dialogConfig2 = {
+              width: "250px",
+              data: {
+                title: "Delete Events",
+                message: `Are you sure you want to proceed?`,
+                info: `[${events.length}] events selected`,
+                warning: "NOT ALL EVENTS ARE ON THE SAME DAY",
+              },
+            };
+
+            this.dialog
+              .open(DialogConfirmComponent, dialogConfig1)
+              .afterClosed()
+              .subscribe((result1) => {
+                if (result1) {
+                  if (eventsOnSameDay) {
+                    this.contextMenuService.handleMultiEventAction(
+                      "DELETE_SELECTED_EVENTS",
+                      events,
+                    );
+                  } else {
+                    this.dialog
+                      .open(DialogConfirmComponent, dialogConfig2)
+                      .afterClosed()
+                      .subscribe((result2) => {
+                        if (result2) {
+                          this.contextMenuService.handleMultiEventAction(
+                            "DELETE_SELECTED_EVENTS",
+                            events,
+                          );
+                        }
+                      });
+                  }
+                }
+              });
           }
         }
       }

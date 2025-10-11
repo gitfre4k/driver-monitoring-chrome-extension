@@ -7,7 +7,6 @@ import { MonitorService } from "../../@services/monitor.service";
 import { PartialComponent } from "../UI/partial/partial.component";
 import { ResizeComponent } from "../UI/resize/resize.component";
 import { ApiOperationsService } from "../../@services/api-operations.service";
-import { switchMap } from "rxjs";
 
 @Component({
   selector: "app-context-menu",
