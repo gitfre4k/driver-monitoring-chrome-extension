@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  inject,
+} from "@angular/core";
 import { MonitorService } from "../../../@services/monitor.service";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSliderModule } from "@angular/material/slider";
@@ -26,6 +31,15 @@ export class ResizeFormComponent {
   monitorService = inject(MonitorService);
   contextMenuService = inject(ContextMenuService);
   private _snackBar = inject(MatSnackBar);
+
+  @HostListener("document:keyup.enter", ["$event"])
+  onDocumentEnter() {
+    this.resize();
+  }
+  @HostListener("document:keyup.escape", ["$event"])
+  onDocumentEscape() {
+    this.cancelResize();
+  }
 
   resize() {
     const event = this.monitorService.currentResizeDriving();

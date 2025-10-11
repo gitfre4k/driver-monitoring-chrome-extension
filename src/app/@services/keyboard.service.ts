@@ -45,9 +45,15 @@ export class KeyboardService {
               !this.monitorService.isShiftingDialogOpen() &&
               this.monitorService.openShiftDialog()
             );
-          //
           // case "Escape": {
-          //   this.monitorService ...
+          //   if (this.monitorService.currentEditEvent())
+          //     return this.monitorService.cancelEventEdit();
+          //   else if (
+          //     this.monitorService.showResize() &&
+          //     !this.monitorService.isResizingEvent()
+          //   )
+          //     return this.monitorService.cancelResize();
+          //   else return;
           // }
           case "Delete":
           case "x": {

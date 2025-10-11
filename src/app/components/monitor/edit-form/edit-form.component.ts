@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  HostListener,
   inject,
   input,
 } from "@angular/core";
@@ -29,12 +30,21 @@ import { ContextMenuService } from "../../../@services/context-menu.service";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditFormComponent {
+  event = input.required<IEvent>();
+  zone = input.required<string>();
+
   monitorService = inject(MonitorService);
   formInputService = inject(FormInputService);
   contextMenuService = inject(ContextMenuService);
 
-  event = input.required<IEvent>();
-  zone = input.required<string>();
+  @HostListener("document:keyup.enter", ["$event"])
+  onDocumentEnter() {
+    this.updateChanges();
+  }
+  @HostListener("document:keyup.escape", ["$event"])
+  onDocumentEscape() {
+    this.monitorService.cancelEventEdit();
+  }
 
   private _snackBar = inject(MatSnackBar);
 
