@@ -2057,8 +2057,8 @@
 
       <!--  -->
       <!-- All event notes -->
-      @if (progressBarService.eventNotes(); as eventNotes) {
-        @if (!isEmpty(eventNotes)) {
+      @if (progressBarService.filteredEventNotes(); as eventNotes) {
+        @if (!isEmpty(progressBarService.eventNotes())) {
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -2075,6 +2075,11 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <div class="scan-results__content__result">
+              <mat-checkbox
+                class="scan-results__content__result__checkbox"
+                [(ngModel)]="progressBarService.excludeOnDutyNotes"
+                >Exclude notes from On Duty events</mat-checkbox
+              >
               @if (isEmpty(eventNotes)) {
                 <div class="scan-results__content__result__empty">
                   No event with note detected.

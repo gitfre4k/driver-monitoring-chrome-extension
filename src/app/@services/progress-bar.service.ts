@@ -80,7 +80,36 @@ export class ProgressBarService {
   fleetManager = signal<IScanResult>({});
   truckChange = signal<IScanResult>({});
   refuelWarning = signal<IScanResult>({});
+
   eventNotes = signal<IScanResult>({});
+  excludeOnDutyNotes = signal(false);
+  filteredEventNotes = computed(() => {
+    const eventNotes = this.eventNotes();
+    const excludeOnDutyNotes = this.excludeOnDutyNotes();
+    if (!excludeOnDutyNotes) return eventNotes;
+    else {
+      const filteredEventNotes = {} as IScanResult;
+      for (let company in eventNotes) {
+        eventNotes[company].forEach((driver) => {
+          const filteredEvents = driver.events.filter(
+            (event) => event.statusName !== "On Duty",
+          );
+          if (filteredEvents.length) {
+            if (filteredEventNotes[company])
+              filteredEventNotes[company].push({
+                driverName: driver.driverName,
+                events: filteredEvents,
+              });
+            else
+              filteredEventNotes[company] = [
+                { driverName: driver.driverName, events: filteredEvents },
+              ];
+          }
+        });
+      }
+      return filteredEventNotes;
+    }
+  });
 
   adminPortalResults = signal<IScanAdminPortalResult>({});
   adminPortalResultsCount = computed(() => {

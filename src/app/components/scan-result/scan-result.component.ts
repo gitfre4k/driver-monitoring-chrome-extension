@@ -18,6 +18,7 @@ import { ICertStatus, IScanResult, ITenant } from "../../interfaces";
 import { ExtensionTabNavigationService } from "../../@services/extension-tab-navigation.service";
 import { DateService } from "../../@services/date.service";
 import { DateTime } from "luxon";
+import { MatCheckboxModule } from "@angular/material/checkbox";
 
 @Component({
   selector: "app-scan-result",
@@ -29,6 +30,7 @@ import { DateTime } from "luxon";
     MatButtonModule,
     MatBadgeModule,
     MatTooltipModule,
+    MatCheckboxModule,
   ],
   templateUrl: "./scan-result.component.html",
   styleUrl: "./scan-result.component.scss",

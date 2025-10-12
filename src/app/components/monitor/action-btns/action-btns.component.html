@@ -8,6 +8,7 @@
       <button
         mat-icon-button
         matTooltip="show vehicle maintanence data"
+        [matTooltipShowDelay]="500"
         matTooltipPosition="below"
         (click)="getVehicleMaintenance()"
       >
@@ -28,17 +29,19 @@
     <button
       mat-icon-button
       matTooltip="Smart Fix"
+      [matTooltipShowDelay]="500"
       matTooltipPosition="below"
       (click)="smartFix()"
       [disabled]="isSmartFix()"
     >
-      <mat-icon>smart_button</mat-icon>
+      <mat-icon>published_with_changes</mat-icon>
     </button>
   }
 
   <button
     mat-icon-button
     matTooltip="Refresh"
+    [matTooltipShowDelay]="500"
     matTooltipPosition="left"
     (click)="monitorService.refreshDailyLogs()"
     [disabled]="monitorService.refreshBtnDisabled()"
@@ -52,6 +55,7 @@
     <button
       mat-icon-button
       matTooltip="Deselect all Events"
+      [matTooltipShowDelay]="500"
       matTooltipPosition="left"
       (click)="deselectAllEvents()"
     >
@@ -76,6 +80,7 @@
       <button
         mat-icon-button
         matTooltip="delete Engine events during Driving"
+        [matTooltipShowDelay]="500"
         (click)="contextMenuService.handleAction('DELETE_ENGINES_IN_DRIVING')"
       >
         <mat-icon>developer_board_off</mat-icon>

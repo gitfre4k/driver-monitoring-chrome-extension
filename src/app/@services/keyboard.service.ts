@@ -1,11 +1,10 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { ExtensionTabNavigationService } from "./extension-tab-navigation.service";
 import { MatDialog } from "@angular/material/dialog";
-import { DialogComponent } from "../components/UI/dialog/dialog.component";
 import { MonitorService } from "./monitor.service";
 import { DialogConfirmComponent } from "../components/UI/dialog-confirm/dialog-confirm.component";
 import { ContextMenuService } from "./context-menu.service";
-import { concatMap, Observable, of } from "rxjs";
+import { ZipService } from "./zip.service";
 
 @Injectable({
   providedIn: "root",
@@ -14,6 +13,7 @@ export class KeyboardService {
   extensionTabNavService = inject(ExtensionTabNavigationService);
   monitorService = inject(MonitorService);
   contextMenuService = inject(ContextMenuService);
+  zipService = inject(ZipService);
 
   readonly dialog = inject(MatDialog);
 
@@ -24,7 +24,8 @@ export class KeyboardService {
       if (this.extensionTabNavService.selectedTabIndex() === 2) {
         if (event.ctrlKey) {
           switch (event.key) {
-            case "a": {
+            case "a":
+            case "A": {
               if (
                 this.monitorService.currentEditEvent() ||
                 this.monitorService.showResize()
@@ -45,18 +46,13 @@ export class KeyboardService {
               !this.monitorService.isShiftingDialogOpen() &&
               this.monitorService.openShiftDialog()
             );
-          // case "Escape": {
-          //   if (this.monitorService.currentEditEvent())
-          //     return this.monitorService.cancelEventEdit();
-          //   else if (
-          //     this.monitorService.showResize() &&
-          //     !this.monitorService.isResizingEvent()
-          //   )
-          //     return this.monitorService.cancelResize();
-          //   else return;
-          // }
+          case "z":
+          case "Z": {
+            return this.zipService.zip();
+          }
           case "Delete":
-          case "x": {
+          case "x":
+          case "X": {
             const events = this.monitorService.selectedEvents();
             if (events.length === 0) return;
 

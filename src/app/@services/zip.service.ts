@@ -38,20 +38,18 @@ export class ZipService {
   readonly dialog = inject(MatDialog);
   readonly _snackBar = inject(MatSnackBar);
 
-  selectedMode = signal(1);
-  mode = computed(() => {
-    const selectedMode = this.selectedMode();
-    switch (selectedMode) {
-      case 0:
-        return { speed: 64, dutyDuration: 1080 };
-      case 1:
-        return { speed: 68, dutyDuration: 900 };
-      case 2:
-        return { speed: 74, dutyDuration: 240 };
-      default:
-        return { speed: 68, dutyDuration: 900 };
-    }
+  resize = signal(true);
+  resizeSpeed = signal<number>(64);
+  shift = signal(true);
+  selectedDirection = signal(1);
+  shiftDirection = computed<"Past" | "Future">(() => {
+    const selectedDirection = this.selectedDirection();
+    return selectedDirection ? "Future" : "Past";
   });
+  zippedOnDuty = signal(true);
+  zippedOnDutyDuration = signal<number>(18);
+  preformSmartFix = signal(true);
+  delDrivingEngEvents = signal(true);
 
   zip() {
     const selectedEvents = this.monitorService.selectedEvents();
@@ -131,43 +129,43 @@ export class ZipService {
           }[];
           const toShiftEventIds: number[] = [];
 
-          for (let i = 0; i < toZipEvents.length; i++) {
-            const event = toZipEvents[i];
-            if (event.statusName === "Driving") {
-              if (event.averageSpeed) {
-                const newSpeed =
-                  this.selectedMode() === 2
-                    ? 74.95
-                    : this.mode().speed + Math.random() * 4;
-                const originalSpeed = event.averageSpeed * 10000;
-                const originalDuration = event.durationInSeconds;
-                const distance = originalSpeed * (originalDuration / 3600);
-                const newDuratiom = ((distance / newSpeed) * 3600) / 10000;
+          // for (let i = 0; i < toZipEvents.length; i++) {
+          //   const event = toZipEvents[i];
+          //   if (event.statusName === "Driving") {
+          //     if (event.averageSpeed) {
+          //       const newSpeed =
+          //         this.selectedMode() === 2
+          //           ? 74.95
+          //           : this.mode().speed + Math.random() * 4;
+          //       const originalSpeed = event.averageSpeed * 10000;
+          //       const originalDuration = event.durationInSeconds;
+          //       const distance = originalSpeed * (originalDuration / 3600);
+          //       const newDuratiom = ((distance / newSpeed) * 3600) / 10000;
 
-                const duration = getDuration(newDuratiom);
+          //       const duration = getDuration(newDuratiom);
 
-                toResize.push({
-                  event,
-                  duration,
-                });
-              } else {
-                if (event.realEndTime) {
-                  toResize.push({
-                    event,
-                    duration: getDuration(getRandomIntInclusive(6, 606)),
-                  });
-                }
-              }
-            }
+          //       toResize.push({
+          //         event,
+          //         duration,
+          //       });
+          //     } else {
+          //       if (event.realEndTime) {
+          //         toResize.push({
+          //           event,
+          //           duration: getDuration(getRandomIntInclusive(6, 606)),
+          //         });
+          //       }
+          //     }
+          //   }
 
-            if (
-              ["On Duty", "Sleeper Berth", "Off Duty"].includes(
-                event.statusName,
-              )
-            ) {
-              toShiftEventIds.push(event.id);
-            }
-          }
+          //   if (
+          //     ["On Duty", "Sleeper Berth", "Off Duty"].includes(
+          //       event.statusName,
+          //     )
+          //   ) {
+          //     toShiftEventIds.push(event.id);
+          //   }
+          // }
 
           ///////////////
           // delete obs
@@ -250,22 +248,24 @@ export class ZipService {
                 this.apiOperationsService
                   .shift(tenant, [first, last], {
                     direction: "Future",
-                    time:
-                      last.id === first.id
-                        ? "00:00"
-                        : getDuration(
-                            (last.realDurationInSeconds
-                              ? last.realDurationInSeconds
-                              : last.durationInSeconds) >
-                              this.mode().dutyDuration * 1.85
-                              ? (last.realDurationInSeconds
-                                  ? last.realDurationInSeconds
-                                  : last.durationInSeconds) -
-                                  this.mode().dutyDuration +
-                                  getRandomIntInclusive(0, 300)
-                              : 0,
-                          ).slice(0, -3),
+                    time: "",
                   })
+                  //   time:
+                  //     last.id === first.id
+                  //       ? "00:00"
+                  //       : getDuration(
+                  //           (last.realDurationInSeconds
+                  //             ? last.realDurationInSeconds
+                  //             : last.durationInSeconds) >
+                  //             this.mode().dutyDuration * 1.85
+                  //             ? (last.realDurationInSeconds
+                  //                 ? last.realDurationInSeconds
+                  //                 : last.durationInSeconds) -
+                  //                 this.mode().dutyDuration +
+                  //                 getRandomIntInclusive(0, 300)
+                  //             : 0,
+                  //         ).slice(0, -3),
+                  // })
                   .pipe(
                     tap((resData) => console.log("[ZIP] shifting...", resData)),
                   ),

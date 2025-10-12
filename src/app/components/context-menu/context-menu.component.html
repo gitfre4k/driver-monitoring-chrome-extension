@@ -59,7 +59,7 @@
       <ul class="context-menu submenu">
         @if (
         event.statusName === "On Duty" &&
-        event.realDurationInSeconds > 1800
+       (event.realDurationInSeconds > 1800 || event.durationInSeconds > 1800)
         ) {
         <!--  -->
         <!-- to Off Duty -->

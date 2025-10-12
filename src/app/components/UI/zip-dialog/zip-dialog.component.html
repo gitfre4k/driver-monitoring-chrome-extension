@@ -1,30 +1,112 @@
 <div class="zip">
-    <h1 class="zip__title">Zip</h1>
-    <mat-radio-group class="zip__mode" [(ngModel)]="zipService.selectedMode">
-        <mat-radio-button [value]="0">"Be Gentle!" (64-68mph)</mat-radio-button>
+  <h1 class="zip__title">Zip</h1>
 
-        <mat-radio-button [value]="1">"Hey, Not Too Rough" (68-72mph)</mat-radio-button>
+  <div class="zip__duration">
+    <span class="zip__duration-text">selected range duration: </span>
+    <span class="zip__duration-time"> 8 hours 31 minutes</span>
+  </div>
+  <div class="zip__duration">
+    <span class="zip__duration-text">estemated ziped duration:</span>
+    <span class="zip__duration-time"> 4 hours 48 minutes</span>
+  </div>
 
-        <mat-radio-button [value]="2">Deadly Overkill Technique (74.99mph)</mat-radio-button>
-
-    </mat-radio-group>
-
-
-    @if (data.length) {
-    <div class="zip__delete">
-        <h3>Events to delete:</h3>
-        <ul>
-            @for (delEvent of data; track delEvent.id) {
-            <li>
-                <span>{{delEvent.realStartTime | date: 'MMM d, h:mm a'}}</span> <span>- {{delEvent.statusName}}</span>
-            </li>
-            }
-        </ul>
+  <div class="zip__form">
+    <div class="zip__form__resize">
+      <mat-checkbox
+        class="zip__form__resize__checkbox"
+        [(ngModel)]="zipService.resize"
+        >Resize</mat-checkbox
+      >
+      <div class="zip__form__resize__input">
+        <span class="zip__form__resize__input-unit">~</span>
+        <input
+          type="text"
+          #speedInput
+          [disabled]="!zipService.resize()"
+          (wheel)="onMouseWheel($event)"
+          [(ngModel)]="zipService.resizeSpeed"
+          autocomplete="off"
+          readonly
+        />
+        <span class="zip__form__resize__input-unit">mph</span>
+      </div>
     </div>
-    }
 
-    <div class="zip__buttons">
-        <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-raised-button color="primary" cdkFocusInitial (click)="onProceed()">Proceed</button>
+    <div class="zip__form__shift">
+      <mat-checkbox
+        class="zip__form__shift__checkbox"
+        [(ngModel)]="zipService.shift"
+        >Shift to</mat-checkbox
+      >
+      <mat-radio-group
+        class="zip__form__shift__radio-btns"
+        [disabled]="!zipService.shift()"
+        [(ngModel)]="zipService.selectedDirection"
+      >
+        <mat-radio-button [value]="1"><span>Right</span></mat-radio-button>
+        <mat-radio-button [value]="0"><span>Left</span></mat-radio-button>
+      </mat-radio-group>
     </div>
+
+    <div class="zip__form__on-duty">
+      <mat-checkbox
+        class="zip__form__on-duty__checkbox"
+        [(ngModel)]="zipService.zippedOnDuty"
+        >On Duty duration</mat-checkbox
+      >
+      <div class="zip__form__on-duty__input">
+        <span class="zip__form__on-duty__input-unit">~</span>
+        <input
+          type="text"
+          #durationInput
+          [disabled]="!zipService.zippedOnDuty()"
+          (wheel)="onMouseWheelOnDuty($event)"
+          [(ngModel)]="zipService.zippedOnDutyDuration"
+          autocomplete="off"
+          readonly
+        />
+        <span class="zip__form__on-duty__input-unit">min</span>
+      </div>
+    </div>
+
+    <div class="zip__form__smart-fix">
+      <mat-checkbox
+        class="zip__form__smart-fix__checkbox"
+        [(ngModel)]="zipService.preformSmartFix"
+        >preform Smart Fix</mat-checkbox
+      >
+    </div>
+    <div class="zip__form__delete-engine">
+      <mat-checkbox
+        class="zip__form__delete-engine__checkbox"
+        [(ngModel)]="zipService.delDrivingEngEvents"
+        >delete Engine events during Driving</mat-checkbox
+      >
+    </div>
+  </div>
+  @if (data.length) {
+    <div class="zip__form__delete">
+      <h3>Events to delete:</h3>
+      <ul>
+        @for (delEvent of data; track delEvent.id) {
+          <li>
+            <span>{{ delEvent.realStartTime | date: "MMM d, h:mm a" }}</span>
+            <span>- {{ delEvent.statusName }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="zip__form__buttons">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button
+      mat-raised-button
+      color="primary"
+      cdkFocusInitial
+      (click)="onProceed()"
+    >
+      Proceed
+    </button>
+  </div>
 </div>
