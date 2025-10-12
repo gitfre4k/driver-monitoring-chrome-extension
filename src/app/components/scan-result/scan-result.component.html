@@ -40,10 +40,11 @@
       Get started by performing a scan.
     </span>
 
+    <!-- (click)="extensionNavigation.selectedTabIndex.set(0)" -->
     <a
       mat-icon-button
       matTooltip="Perform a scan"
-      (click)="extensionNavigation.selectedTabIndex.set(0)"
+      (click)="openBottomSheet()"
       style="margin-top: 6px"
     >
       <mat-icon>radar</mat-icon>

@@ -1,3 +1,3 @@
 ## Driver Monitoring Chrome Extension
 
-** Version 0.0.4.12 **
+** Version 0.0.4.20 **

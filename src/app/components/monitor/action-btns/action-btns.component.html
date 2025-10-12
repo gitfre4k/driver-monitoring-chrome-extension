@@ -7,8 +7,9 @@
     } @else {
       <button
         mat-icon-button
-        matTooltip="show vehicle maintanence data"
+        matTooltip="show vehicle Maintanence Data"
         [matTooltipShowDelay]="500"
+        [matTooltipHideDelay]="0"
         matTooltipPosition="below"
         (click)="getVehicleMaintenance()"
       >
@@ -30,6 +31,7 @@
       mat-icon-button
       matTooltip="Smart Fix"
       [matTooltipShowDelay]="500"
+      [matTooltipHideDelay]="0"
       matTooltipPosition="below"
       (click)="smartFix()"
       [disabled]="isSmartFix()"
@@ -42,6 +44,7 @@
     mat-icon-button
     matTooltip="Refresh"
     [matTooltipShowDelay]="500"
+    [matTooltipHideDelay]="0"
     matTooltipPosition="left"
     (click)="monitorService.refreshDailyLogs()"
     [disabled]="monitorService.refreshBtnDisabled()"
@@ -56,6 +59,7 @@
       mat-icon-button
       matTooltip="Deselect all Events"
       [matTooltipShowDelay]="500"
+      [matTooltipHideDelay]="0"
       matTooltipPosition="left"
       (click)="deselectAllEvents()"
     >
@@ -81,6 +85,7 @@
         mat-icon-button
         matTooltip="delete Engine events during Driving"
         [matTooltipShowDelay]="500"
+        [matTooltipHideDelay]="0"
         (click)="contextMenuService.handleAction('DELETE_ENGINES_IN_DRIVING')"
       >
         <mat-icon>developer_board_off</mat-icon>

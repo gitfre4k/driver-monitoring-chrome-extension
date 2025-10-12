@@ -89,7 +89,7 @@ function sendMessageToContentScript(tabId, url, tenantData) {
     },
     (response) => {
       if (chrome.runtime.lastError) {
-        console.error(
+        console.log(
           ">> [background.js] Error sending message to content script:",
           chrome.runtime.lastError.message,
         );

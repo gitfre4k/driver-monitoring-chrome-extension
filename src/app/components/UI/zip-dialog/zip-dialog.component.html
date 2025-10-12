@@ -17,20 +17,23 @@
         [(ngModel)]="zipService.resize"
         >Resize</mat-checkbox
       >
-      <div class="zip__form__resize__input">
-        <span class="zip__form__resize__input-unit">~</span>
-        <input
-          type="text"
-          #speedInput
-          [disabled]="!zipService.resize()"
-          (wheel)="onMouseWheel($event)"
-          [(ngModel)]="zipService.resizeSpeed"
-          autocomplete="off"
-          readonly
-        />
-        <span class="zip__form__resize__input-unit">mph</span>
-      </div>
+      @if (zipService.resize()) {
+        <div class="zip__form__resize__input">
+          <span class="zip__form__resize__input-unit">~</span>
+          <input
+            type="text"
+            #speedInput
+            (wheel)="onMouseWheel($event)"
+            [(ngModel)]="zipService.resizeSpeed"
+            autocomplete="off"
+            readonly
+          />
+          <span class="zip__form__resize__input-unit">mph</span>
+        </div>
+      }
     </div>
+
+    <hr />
 
     <div class="zip__form__shift">
       <mat-checkbox
@@ -52,22 +55,43 @@
       <mat-checkbox
         class="zip__form__on-duty__checkbox"
         [(ngModel)]="zipService.zippedOnDuty"
-        >On Duty duration</mat-checkbox
+        >On Duty max duration</mat-checkbox
       >
-      <div class="zip__form__on-duty__input">
-        <span class="zip__form__on-duty__input-unit">~</span>
-        <input
-          type="text"
-          #durationInput
-          [disabled]="!zipService.zippedOnDuty()"
-          (wheel)="onMouseWheelOnDuty($event)"
-          [(ngModel)]="zipService.zippedOnDutyDuration"
-          autocomplete="off"
-          readonly
-        />
-        <span class="zip__form__on-duty__input-unit">min</span>
-      </div>
+      @if (zipService.zippedOnDuty()) {
+        <div class="zip__form__on-duty__input">
+          <span class="zip__form__on-duty__input-unit">~</span>
+          <input
+            type="text"
+            #durationInput
+            (wheel)="onMouseWheelOnDuty($event)"
+            [(ngModel)]="zipService.zippedOnDutyDuration"
+            autocomplete="off"
+            readonly
+          />
+          <span class="zip__form__on-duty__input-unit">min</span>
+        </div>
+      }
     </div>
+
+    <hr />
+
+    <div class="zip__form__shift gaps">
+      <mat-checkbox
+        class="zip__form__shift__checkbox"
+        [(ngModel)]="zipService.shift"
+        >Fill resize gaps with</mat-checkbox
+      >
+      <mat-radio-group
+        class="zip__form__shift__radio-btns"
+        [disabled]="!zipService.shift()"
+        [(ngModel)]="zipService.selectedDirection"
+      >
+        <mat-radio-button [value]="1"><span>Sleeper</span></mat-radio-button>
+        <mat-radio-button [value]="0"><span>Off Duty</span></mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <hr />
 
     <div class="zip__form__smart-fix">
       <mat-checkbox

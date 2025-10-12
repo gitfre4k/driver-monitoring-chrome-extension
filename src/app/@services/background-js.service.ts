@@ -33,7 +33,7 @@ export class BackgroundJsService {
 
     const message = {
       action: "GET_ADMIN_PROLOGS_TOKEN",
-      payload: {}, // Payload is empty since the background script finds the tab
+      payload: {},
     };
 
     return new Observable<string>((observer) => {

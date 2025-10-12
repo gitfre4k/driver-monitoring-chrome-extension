@@ -7,6 +7,10 @@
   padding: 12px;
   overflow: hidden;
 
+  hr {
+    width: 90%;
+  }
+
   &__title {
     margin: 8px;
     padding: 0;
@@ -26,19 +30,19 @@
 
   &__form {
     padding: 16px;
-    margin: 8px;
+    margin: 4px;
     border-radius: 16px;
     background-color: rgb(53, 53, 58);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 250px;
+    width: 280px;
 
     &__resize {
       width: 100%;
       display: grid;
-      grid-template-columns: 120px 100px;
-      margin-top: -3.5px;
+      grid-template-columns: 1fr 1fr;
+      margin: -3.5px;
       // &__checkbox {
       //   width: 30%;
       // }
@@ -59,7 +63,7 @@
     &__on-duty {
       width: 100%;
       display: grid;
-      grid-template-columns: 120px 100px;
+      grid-template-columns: 1fr 1fr;
       align-items: center;
 
       &__name {
@@ -84,7 +88,7 @@
     &__shift {
       width: 100%;
       display: grid;
-      grid-template-columns: 120px 100px;
+      grid-template-columns: 1fr 1fr;
       margin: 0;
       padding: 0;
       &__label {
@@ -118,7 +122,7 @@
     li {
       width: 60%;
       display: grid;
-      grid-template-columns: 120px 80px;
+      grid-template-columns: 140px 80px;
       padding: 0;
       margin: 0;
       :last-child {
@@ -130,7 +134,7 @@
     margin-top: 12px;
     button {
       margin: 0 8px;
-      width: 100px;
+      width: 120px;
     }
   }
 }

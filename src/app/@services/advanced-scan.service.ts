@@ -184,7 +184,9 @@ export class AdvancedScanService {
     computedEvents.forEach((event) => {
       if (
         event.driver.id === driverDailyLog.driverId &&
-        !["Login", "Logout", "DVIR"].includes(event.statusName)
+        !["Login", "Logout", "DVIR", "Diagnostic", "Diag.CLR"].includes(
+          event.statusName,
+        )
       ) {
         if (event.isTeleport || event.dutyStatus === "refuel") {
           detectedTeleportEvents.push(event);
