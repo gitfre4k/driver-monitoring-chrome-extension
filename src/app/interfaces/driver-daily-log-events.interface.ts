@@ -63,6 +63,7 @@ export interface IEvent {
   parentClass: string;
   warningMessages: string[];
   isLocked: boolean;
+  offset: number;
 }
 
 export interface IStatusInfo {

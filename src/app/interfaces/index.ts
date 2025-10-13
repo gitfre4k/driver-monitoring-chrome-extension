@@ -145,6 +145,7 @@ export interface IEventDetails {
   elapsedEngineHours: number;
   eventSequenceIdNumber: string;
   eventTypeCode: TEventTypeCode;
+  startTime: string;
   eventUuid: string;
   id: number;
   geolocation: string;
@@ -153,7 +154,6 @@ export interface IEventDetails {
   longitude: string;
   note: string;
   shippingDocumentNumber: string;
-  startTime: string;
   stateId: number;
   totalEngineHours: number;
   totalVehicleMiles: number;

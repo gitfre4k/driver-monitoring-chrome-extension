@@ -6,30 +6,32 @@ import {
   inject,
   Input,
   Output,
-} from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+} from "@angular/core";
+import { DatePipe } from "@angular/common";
+import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatButtonModule } from "@angular/material/button";
 import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
-} from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatRipple, provideNativeDateAdapter } from '@angular/material/core';
+} from "@angular/material/datepicker";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatRipple, provideNativeDateAdapter } from "@angular/material/core";
 
-import { DateTime } from 'luxon';
+import { DateTime } from "luxon";
 
-import { MonitorService } from '../../../@services/monitor.service';
-import { formatTenantName } from '../../../helpers/monitor.helpers';
-import { ExtensionTabNavigationService } from '../../../@services/extension-tab-navigation.service';
-import { IDriverDailyLogEvents } from '../../../interfaces/driver-daily-log-events.interface';
+import { MonitorService } from "../../../@services/monitor.service";
+import { formatTenantName } from "../../../helpers/monitor.helpers";
+import { ExtensionTabNavigationService } from "../../../@services/extension-tab-navigation.service";
+import { IDriverDailyLogEvents } from "../../../interfaces/driver-daily-log-events.interface";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
-  selector: 'app-monitor-header',
+  selector: "app-monitor-header",
   providers: [provideNativeDateAdapter()],
   imports: [
     MatIconModule,
@@ -42,13 +44,14 @@ import { IDriverDailyLogEvents } from '../../../interfaces/driver-daily-log-even
     MatFormFieldModule,
     ReactiveFormsModule,
     MatRipple,
+    MatTooltipModule,
   ],
-  templateUrl: './monitor-header.component.html',
-  styleUrl: './monitor-header.component.scss',
+  templateUrl: "./monitor-header.component.html",
+  styleUrl: "./monitor-header.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonitorHeaderComponent {
-  @HostListener('window:keydown', ['$event'])
+  @HostListener("window:keydown", ["$event"])
   handleWindowKeyboardEvent(event: KeyboardEvent) {
     this.handleKeyboardEvent(event);
   }
@@ -59,6 +62,7 @@ export class MonitorHeaderComponent {
 
   private monitorService = inject(MonitorService);
   private extTabNavService = inject(ExtensionTabNavigationService);
+  private _snackBar = inject(MatSnackBar);
 
   DateTime = DateTime;
 
@@ -73,25 +77,25 @@ export class MonitorHeaderComponent {
     const mustHaveBreakBy = this.driverDailyLog.hosDetails?.mustHaveBreakBy;
     if (!mustHaveBreakBy) return null;
 
-    const untilViolation = DateTime.fromISO(mustHaveBreakBy, { zone: 'utc' });
+    const untilViolation = DateTime.fromISO(mustHaveBreakBy, { zone: "utc" });
     const now = DateTime.now();
 
     const duration = untilViolation.diff(now, [
-      'hours',
-      'minutes',
-      'seconds',
-      'milliseconds',
+      "hours",
+      "minutes",
+      "seconds",
+      "milliseconds",
     ]);
-    const ms = untilViolation.diff(now, 'milliseconds');
+    const ms = untilViolation.diff(now, "milliseconds");
 
-    const time = duration.toFormat('m');
-    const seconds = ms.as('seconds');
+    const time = duration.toFormat("m");
+    const seconds = ms.as("seconds");
 
     return { time, seconds };
   }
 
   trimLeadingZero(time: string) {
-    if (time && time.charAt(0) === '0') {
+    if (time && time.charAt(0) === "0") {
       return time.slice(1);
     }
     return time;
@@ -108,13 +112,13 @@ export class MonitorHeaderComponent {
       !this.monitorService.showUpdateEvent()
     ) {
       switch (event.key) {
-        case 'ArrowLeft':
+        case "ArrowLeft":
           if (this.driverDailyLog.previousLogDate) {
             this.onChangeLogDate(this.driverDailyLog.previousLogDate);
             event.preventDefault();
           }
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           if (this.driverDailyLog.nextLogDate) {
             this.onChangeLogDate(this.driverDailyLog.nextLogDate);
             event.preventDefault();
@@ -125,6 +129,11 @@ export class MonitorHeaderComponent {
           break;
       }
     }
+  }
+
+  copyDriverName(name: string) {
+    navigator.clipboard.writeText(name);
+    this._snackBar.open(`Copied: ${name}`, "OK", { duration: 1500 });
   }
 
   onDateChange(event: MatDatepickerInputEvent<Date>) {

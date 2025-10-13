@@ -48,7 +48,9 @@ export class KeyboardService {
             );
           case "z":
           case "Z": {
-            return this.zipService.zip();
+            const events = this.monitorService.selectedEvents();
+            if (events.length === 0) return;
+            else return this.zipService.zip();
           }
           case "Delete":
           case "x":

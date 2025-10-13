@@ -1,9 +1,20 @@
+import { DateTime } from "luxon";
 import { IEvent } from "../interfaces/driver-daily-log-events.interface";
 
+///////////////////// get offset
+export const getOffset = (event: IEvent) => {
+  const dt1 = DateTime.fromISO(event.startTime).toUTC();
+  const dt2 = DateTime.fromISO(event.startTime).toUTC().startOf("day");
+  const diff = dt2.diff(dt1);
+  return diff.as("minutes");
+};
+
 export const bindEventViewId = (importedEvents: IEvent[]) => {
+  const offset = getOffset(importedEvents[0]);
   let events = [...importedEvents];
   for (let i = 0; i < events.length; i++) {
     events[i].viewId = i + 1;
+    events[i].offset = offset;
   }
   return events;
 };

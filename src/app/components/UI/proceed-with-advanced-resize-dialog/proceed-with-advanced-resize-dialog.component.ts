@@ -7,6 +7,8 @@ import {
 } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import { ResizeComponent } from "../resize/resize.component";
+import { IEvent } from "../../../interfaces/driver-daily-log-events.interface";
+import { DateTime, Duration } from "luxon";
 
 @Component({
   selector: "app-proceed-with-advanced-resize-dialog",
@@ -23,8 +25,25 @@ export class ProceedWithAdvancedResizeDialogComponent {
       message: string;
       info?: string | null;
       warning?: string | null;
+      event?: IEvent;
     },
   ) {}
+
+  getRealTime(time: string, offset: number) {
+    const dt = DateTime.fromISO(time).toUTC().plus({ minutes: offset });
+    return (
+      dt.toFormat("hh:mm:ss") + ` ${+dt.toFormat("HH") >= 12 ? "PM" : "AM"}`
+    );
+  }
+
+  getDurationTime(seconds: number) {
+    return Duration.fromObject({ seconds })
+      .toFormat("hh:mm")
+      .slice(1)
+      .split(":")
+      .map((part) => (part.length === 1 ? part + "h" : part + "m"))
+      .join(" ");
+  }
 
   onNoClick(): void {
     this.dialogRef.close(false);

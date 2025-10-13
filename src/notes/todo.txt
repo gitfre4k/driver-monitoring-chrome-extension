@@ -47,6 +47,8 @@ errors
  > teleport logic
  > location missmatch logic
  > error out on Add/Extend PTI
+ > zip/delete multidialog
+ > delete on dot
  
 upgrade
  > zip

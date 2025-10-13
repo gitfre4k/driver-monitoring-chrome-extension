@@ -11,100 +11,144 @@
   </div>
 
   <div class="zip__form">
+    <!--  -->
+    <!-- RESIZE -->
     <div class="zip__form__resize">
       <mat-checkbox
         class="zip__form__resize__checkbox"
         [(ngModel)]="zipService.resize"
         >Resize</mat-checkbox
       >
-      @if (zipService.resize()) {
-        <div class="zip__form__resize__input">
-          <span class="zip__form__resize__input-unit">~</span>
+    </div>
+
+    <!-- [resize] speed -->
+    <div class="zip__form__resize">
+      <div class="zip__form__resize__input">
+        <span class="zip__form__resize__input-label">Resize average speed</span>
+        @if (zipService.resize()) {
           <input
             type="text"
             #speedInput
-            (wheel)="onMouseWheel($event)"
+            (wheel)="onMouseWheel($event, 'speedInput')"
             [(ngModel)]="zipService.resizeSpeed"
             autocomplete="off"
             readonly
           />
-          <span class="zip__form__resize__input-unit">mph</span>
-        </div>
-      }
+        } @else {
+          <input type="text" value="-" disabled />
+        }
+        <span class="zip__form__resize__input-unit">mph</span>
+      </div>
+
+      <!-- [resize] duration -->
+      <div class="zip__form__resize__input">
+        <span class="zip__form__resize__input-label">Driving min duration</span>
+        @if (zipService.resize()) {
+          <input
+            type="text"
+            #drivingDurationInput
+            (wheel)="onMouseWheel($event, 'drivingDurationInput')"
+            [(ngModel)]="zipService.resizeMinDuration"
+            autocomplete="off"
+            readonly
+          />
+        } @else {
+          <input type="text" value="-" disabled />
+        }
+        <span class="zip__form__resize__input-unit">min</span>
+      </div>
     </div>
 
     <hr />
 
+    <!--  -->
+    <!-- SHIFT -->
     <div class="zip__form__shift">
       <mat-checkbox
         class="zip__form__shift__checkbox"
         [(ngModel)]="zipService.shift"
-        >Shift to</mat-checkbox
+        [disabled]="zipService.fill() && zipService.resize()"
+        >Shift</mat-checkbox
       >
-      <mat-radio-group
-        class="zip__form__shift__radio-btns"
-        [disabled]="!zipService.shift()"
-        [(ngModel)]="zipService.selectedDirection"
-      >
-        <mat-radio-button [value]="1"><span>Right</span></mat-radio-button>
-        <mat-radio-button [value]="0"><span>Left</span></mat-radio-button>
-      </mat-radio-group>
     </div>
-
+    <mat-radio-group
+      class="zip__form__shift__radio-btns"
+      [disabled]="!zipService.shift()"
+      [(ngModel)]="zipService.selectedDirection"
+    >
+      <mat-radio-button [value]="1"><span>Forward</span></mat-radio-button>
+      <mat-radio-button [value]="0"><span>Backward</span></mat-radio-button>
+    </mat-radio-group>
+    <!-- [shift] On Duty duration -->
     <div class="zip__form__on-duty">
-      <mat-checkbox
-        class="zip__form__on-duty__checkbox"
-        [(ngModel)]="zipService.zippedOnDuty"
-        >On Duty max duration</mat-checkbox
-      >
-      @if (zipService.zippedOnDuty()) {
-        <div class="zip__form__on-duty__input">
-          <span class="zip__form__on-duty__input-unit">~</span>
+      <div class="zip__form__on-duty__input">
+        <span class="zip__form__on-duty__input-label"
+          >On Duty max duration</span
+        >
+        @if (zipService.shift()) {
           <input
             type="text"
-            #durationInput
-            (wheel)="onMouseWheelOnDuty($event)"
+            #onDutyDurationInput
+            (wheel)="onMouseWheel($event, 'onDutyDurationInput')"
             [(ngModel)]="zipService.zippedOnDutyDuration"
             autocomplete="off"
             readonly
           />
-          <span class="zip__form__on-duty__input-unit">min</span>
-        </div>
-      }
+        } @else {
+          <input type="text" value="-" disabled />
+        }
+        <span class="zip__form__on-duty__input-unit">min</span>
+      </div>
     </div>
-
     <hr />
 
+    <!-- fill gaps -->
     <div class="zip__form__shift gaps">
       <mat-checkbox
         class="zip__form__shift__checkbox"
-        [(ngModel)]="zipService.shift"
-        >Fill resize gaps with</mat-checkbox
+        [(ngModel)]="zipService.fill"
+        [disabled]="zipService.shift() || !zipService.resize()"
+        >Fill resize gaps</mat-checkbox
       >
-      <mat-radio-group
-        class="zip__form__shift__radio-btns"
-        [disabled]="!zipService.shift()"
-        [(ngModel)]="zipService.selectedDirection"
+    </div>
+    <mat-radio-group
+      class="zip__form__shift__radio-btns"
+      [disabled]="
+        zipService.shift() || !zipService.fill() || !zipService.resize()
+      "
+      [(ngModel)]="zipService.fillOption"
+    >
+      <mat-radio-button [value]="0"
+        ><span>Sleeper Berth</span></mat-radio-button
       >
-        <mat-radio-button [value]="1"><span>Sleeper</span></mat-radio-button>
-        <mat-radio-button [value]="0"><span>Off Duty</span></mat-radio-button>
-      </mat-radio-group>
+      <mat-radio-button [value]="1"><span>Off Duty</span></mat-radio-button>
+    </mat-radio-group>
+
+    <div class="zip__form__fill__input">
+      <span class="zip__form__fill__input-label">only if greater then</span>
+      @if (zipService.fill() && zipService.resize()) {
+        <input
+          type="text"
+          #gapDurationInput
+          (wheel)="onMouseWheel($event, 'gapDurationInput')"
+          [(ngModel)]="zipService.gapMinDuration"
+          autocomplete="off"
+          readonly
+        />
+      } @else {
+        <input type="text" value="-" disabled />
+      }
+      <span class="zip__form__fill__input-unit">min</span>
     </div>
 
     <hr />
 
-    <div class="zip__form__smart-fix">
+    <!-- post-zip -->
+    <div class="zip__form__post-zip">
       <mat-checkbox
-        class="zip__form__smart-fix__checkbox"
+        class="zip__form__post-zip__checkbox"
         [(ngModel)]="zipService.preformSmartFix"
-        >preform Smart Fix</mat-checkbox
-      >
-    </div>
-    <div class="zip__form__delete-engine">
-      <mat-checkbox
-        class="zip__form__delete-engine__checkbox"
-        [(ngModel)]="zipService.delDrivingEngEvents"
-        >delete Engine events during Driving</mat-checkbox
+        >Smart Fix</mat-checkbox
       >
     </div>
   </div>

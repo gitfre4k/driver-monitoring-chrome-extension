@@ -184,7 +184,7 @@ export class AdvancedScanService {
     computedEvents.forEach((event) => {
       if (
         event.driver.id === driverDailyLog.driverId &&
-        !["Login", "Logout", "DVIR", "Diagnostic", "Diag.CLR"].includes(
+        !["Login", "Logout", "DVIR", "Diagnostic", "Diag. CLR"].includes(
           event.statusName,
         )
       ) {

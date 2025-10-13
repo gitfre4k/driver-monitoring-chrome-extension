@@ -22,6 +22,30 @@
     .spinner {
       padding: 11.3px 11.5px;
     }
+    .ids {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      white-space: nowrap;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.07);
+      padding: 1px 3px;
+
+      &__field {
+        display: flex;
+        width: 60px;
+        justify-content: space-between;
+        &__left {
+          font-size: 10px;
+        }
+
+        &__right {
+          user-select: text;
+          font-size: 11px;
+          text-align: right;
+        }
+      }
+    }
   }
   &.menu {
     top: 55px;

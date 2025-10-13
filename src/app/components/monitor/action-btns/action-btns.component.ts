@@ -44,6 +44,7 @@ import { UrlService } from "../../../@services/url.service";
 export class ActionBtnsComponent {
   vehicles = input<IVehicle[]>();
   tenantId = input<string>();
+  driverId = input<string>();
 
   monitorService = inject(MonitorService);
   apiService = inject(ApiService);

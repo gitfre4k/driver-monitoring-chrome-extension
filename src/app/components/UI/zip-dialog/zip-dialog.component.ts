@@ -1,4 +1,10 @@
-import { Component, ElementRef, inject, ViewChild } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  ViewChild,
+} from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { IEvent } from "../../../interfaces/driver-daily-log-events.interface";
 import { CommonModule } from "@angular/common";
@@ -19,6 +25,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
   ],
   templateUrl: "./zip-dialog.component.html",
   styleUrl: "./zip-dialog.component.scss",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ZipDialogComponent {
   zipService = inject(ZipService);
@@ -26,38 +33,77 @@ export class ZipDialogComponent {
   data: IEvent[] = inject(MAT_DIALOG_DATA);
 
   @ViewChild("speedInput") speedInput!: ElementRef<HTMLInputElement>;
-  @ViewChild("durationInput") durationInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("onDutyDurationInput")
+  onDutyDurationInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("drivingDurationInput")
+  drivingDurationInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("gapDurationInput")
+  gapDurationInput!: ElementRef<HTMLInputElement>;
 
-  onMouseWheelOnDuty(event: WheelEvent) {
+  onMouseWheel(
+    event: WheelEvent,
+    inputType:
+      | "speedInput"
+      | "onDutyDurationInput"
+      | "drivingDurationInput"
+      | "gapDurationInput",
+  ) {
     event.preventDefault();
-    if (!this.zipService.zippedOnDuty()) return;
-
     const isScrollUp = event.deltaY < 0;
 
-    this.durationInput.nativeElement.focus();
+    switch (inputType) {
+      case "speedInput": {
+        if (!this.zipService.resize()) return;
 
-    this.zipService.zippedOnDutyDuration.update((prevValue) => {
-      let newValue = prevValue + (isScrollUp ? 1 : -1);
-      if (newValue > 60) return 60;
-      else if (newValue < 1) return 1;
-      else return newValue;
-    });
-  }
+        this.speedInput.nativeElement.focus();
 
-  onMouseWheel(event: WheelEvent) {
-    event.preventDefault();
-    if (!this.zipService.resize()) return;
+        return this.zipService.resizeSpeed.update((prevValue) => {
+          let newValue = prevValue + (isScrollUp ? 1 : -1);
+          if (newValue > 74) return 74;
+          else if (newValue < 1) return 1;
+          else return newValue;
+        });
+      }
+      case "drivingDurationInput": {
+        if (!this.zipService.resize()) return;
 
-    const isScrollUp = event.deltaY < 0;
+        this.drivingDurationInput.nativeElement.focus();
 
-    this.speedInput.nativeElement.focus();
+        return this.zipService.resizeMinDuration.update((prevValue) => {
+          let newValue = prevValue + (isScrollUp ? 1 : -1);
+          if (newValue > 15) return 15;
+          else if (newValue < 1) return 1;
+          else return newValue;
+        });
+      }
+      case "onDutyDurationInput": {
+        if (!this.zipService.shift()) return;
 
-    this.zipService.resizeSpeed.update((prevValue) => {
-      let newValue = prevValue + (isScrollUp ? 1 : -1);
-      if (newValue > 75) return 75;
-      else if (newValue < 1) return 1;
-      else return newValue;
-    });
+        this.onDutyDurationInput.nativeElement.focus();
+
+        return this.zipService.zippedOnDutyDuration.update((prevValue) => {
+          let newValue = prevValue + (isScrollUp ? 1 : -1);
+          if (newValue > 60) return 60;
+          else if (newValue < 1) return 1;
+          else return newValue;
+        });
+      }
+      case "gapDurationInput": {
+        if (!this.zipService.fill()) return;
+
+        this.gapDurationInput.nativeElement.focus();
+
+        return this.zipService.gapMinDuration.update((prevValue) => {
+          let newValue = prevValue + (isScrollUp ? 1 : -1);
+          if (newValue > 60) return 60;
+          else if (newValue < 0) return 0;
+          else return newValue;
+        });
+      }
+
+      default:
+        return;
+    }
   }
 
   onCancel(): void {

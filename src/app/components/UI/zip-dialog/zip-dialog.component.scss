@@ -15,6 +15,7 @@
     margin: 8px;
     padding: 0;
     align-self: center;
+    font-size: 26px;
   }
 
   &__duration {
@@ -23,7 +24,8 @@
     align-items: center;
     margin-bottom: 8px;
     &-time {
-      font-size: 14px;
+      font-size: 12.5px;
+      font-family: Roboto;
       font-weight: 800;
     }
   }
@@ -38,75 +40,52 @@
     align-items: flex-start;
     width: 280px;
 
-    &__resize {
+    &__resize,
+    &__on-duty,
+    &__fill {
       width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      margin: -3.5px;
-      // &__checkbox {
-      //   width: 30%;
-      // }
       &__input {
-        display: flex;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 4fr 32px 1fr;
         align-items: center;
-        justify-content: center;
-        justify-self: start;
+        // justify-content: center;
         gap: 8px;
+        margin: 2px 0;
+        font-size: 12.5px;
+        font-family: Roboto;
 
-        &-unit {
-          font-size: 14px;
+        &-label {
           color: rgb(229, 225, 230);
+          text-align: left;
+          padding-left: 24px;
         }
-      }
-    }
-
-    &__on-duty {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: center;
-
-      &__name {
-        font-size: 14px;
-        color: rgb(229, 225, 230);
-      }
-
-      &__input {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        justify-self: start;
-        gap: 8px;
 
         &-unit {
-          font-size: 14px;
           color: rgb(229, 225, 230);
+          text-align: left;
         }
       }
     }
 
     &__shift {
       width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+
       margin: 0;
       padding: 0;
-      &__label {
-        font-size: 18px;
-        margin-top: 12px;
-        padding: 0;
-      }
+
       &__radio-btns {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
+        margin-left: 38px;
         span {
           padding-left: 5px;
         }
       }
     }
 
-    &__smart-fix {
+    &__post-zip {
       margin-top: 28px;
     }
   }
@@ -140,14 +119,20 @@
 }
 
 input {
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border: none;
-  font-size: 19px;
+  font-size: 12.5px;
+  font-family: Roboto;
   box-sizing: border-box;
   border-radius: 12px;
   text-align: center;
   color: rgb(229, 225, 230);
   background-color: rgb(70, 70, 79);
   cursor: alias;
+}
+
+mat-checkbox,
+mat-radio-group {
+  transform: scale(0.9);
 }

@@ -24,6 +24,11 @@
               ? 'info__company-and-driver__1-driver-name'
               : 'info__company-and-driver__1-driver-x'
           "
+          matTooltip="Copy to clipboard"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="below"
+          (click)="copyDriverName(ddle.driverFullName)"
         >
           {{ ddle.driverFullName }}
         </span>

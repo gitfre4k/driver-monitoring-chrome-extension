@@ -1,30 +1,34 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal, effect } from "@angular/core";
 import { MonitorService } from "./monitor.service";
 import { IEvent } from "../interfaces/driver-daily-log-events.interface";
 import {
+  deletableStatusNames,
+  dutyStatusNames,
   getDuration,
+  getMinusOneToTwoSecDateISO,
   getRandomIntInclusive,
   getTime,
+  timeToSeconds,
 } from "../helpers/zip.helpers";
 import { ApiOperationsService } from "./api-operations.service";
 import {
   catchError,
-  concat,
   concatMap,
   from,
+  mergeMap,
   of,
   switchMap,
-  tap,
   throwError,
 } from "rxjs";
 import { ITenant } from "../interfaces";
 import { ApiService } from "./api.service";
-import { parseErrorMessage } from "../helpers/context-menu.helpers";
+
 import { UrlService } from "./url.service";
 import { MatDialog } from "@angular/material/dialog";
 import { ZipDialogComponent } from "../components/UI/zip-dialog/zip-dialog.component";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ProceedWithAdvancedResizeDialogComponent } from "../components/UI/proceed-with-advanced-resize-dialog/proceed-with-advanced-resize-dialog.component";
+import { parseErrorMessage } from "../helpers/context-menu.helpers";
 
 @Injectable({
   providedIn: "root",
@@ -40,16 +44,33 @@ export class ZipService {
 
   resize = signal(true);
   resizeSpeed = signal<number>(64);
+  resizeMinDuration = signal(2);
+
   shift = signal(true);
   selectedDirection = signal(1);
   shiftDirection = computed<"Past" | "Future">(() => {
     const selectedDirection = this.selectedDirection();
     return selectedDirection ? "Future" : "Past";
   });
-  zippedOnDuty = signal(true);
+
+  fill = signal(false);
+  fillOption = signal(1);
+  gapMinDuration = signal(8);
+  fillStatus = computed(() =>
+    this.fillOption() === 0
+      ? "ChangeToSleeperBerthStatus"
+      : "ChangeToOffDutyStatus",
+  );
+
   zippedOnDutyDuration = signal<number>(18);
   preformSmartFix = signal(true);
   delDrivingEngEvents = signal(true);
+
+  fixFillState = effect(() => {
+    const resize = this.resize();
+    const shift = this.shift();
+    if (resize && shift) this.fill.set(false);
+  });
 
   zip() {
     const selectedEvents = this.monitorService.selectedEvents();
@@ -65,238 +86,204 @@ export class ZipService {
 
     const { 0: firstSelected, [selectedEvents.length - 1]: lastSelected } =
       selectedEvents.sort((a, b) => getTime(a) - getTime(b));
-    const toZipEvents = allEvents.filter(
-      (e) =>
-        getTime(e) >= getTime(firstSelected) &&
-        getTime(e) <= getTime(lastSelected),
+
+    const startTime = getTime(firstSelected);
+    const endTime = getTime(lastSelected);
+
+    const zipEvents = allEvents.filter((e) => {
+      const eventTime = getTime(e);
+      return eventTime >= startTime && eventTime <= endTime;
+    });
+
+    const dutyStatuses = zipEvents.filter((event) =>
+      dutyStatusNames.has(event.statusName),
     );
 
-    if (
-      firstSelected.statusName === "Intermediate" ||
-      lastSelected.statusName === "Intermediate"
-    )
+    const firstEvent = dutyStatuses[0];
+
+    if (!firstEvent)
       return this._snackBar.open(
-        "[ZIP] Error: Intermediate event cannot be the first/last selected event.",
+        "[ZIP] ERROR: The selected range is not valid.",
         "OK",
         { duration: 7000 },
       );
 
-    let first!: IEvent;
-
-    for (let i = 0; i < toZipEvents.length; i++) {
-      if (first) continue;
-      else if (
-        ["On Duty", "Sleeper Berth", "Off Duty", "Driving"].includes(
-          toZipEvents[i].statusName,
+    const onDutyIdsToFill = dutyStatuses
+      .filter((event, index) => {
+        if (
+          index !== 0 &&
+          event.statusName === "On Duty" &&
+          dutyStatuses[index - 1] &&
+          dutyStatuses[index - 1]?.statusName === "Driving"
         )
-      )
-        first = toZipEvents[i];
-    }
+          return true;
+        else return false;
+      })
+      .map((event) => event.id);
 
-    if (!first)
-      return this._snackBar.open(
-        "[ZIP] Error: The selected range is not valid.",
-        "OK",
-        { duration: 7000 },
-      );
-    console.log(first);
+    const eventsWithPotentialGaps = {} as { [id: string]: IEvent };
 
-    const deleteEventInfo: IEvent[] = [];
-
-    for (let i = 0; i < toZipEvents.length; i++) {
-      if (
-        [
-          "Engine On",
-          "Engine Off",
-          "Login",
-          "Logout",
-          "Diagnostic",
-          "Diag. CLR",
-        ].includes(toZipEvents[i].statusName)
-      ) {
-        deleteEventInfo.push(toZipEvents[i]);
+    dutyStatuses.forEach((event, index) => {
+      if (onDutyIdsToFill.includes(event.id)) {
+        eventsWithPotentialGaps[dutyStatuses[index - 1].id] =
+          dutyStatuses[index];
       }
-    }
+    });
+
+    console.log("eventsWithPotentialGaps ", eventsWithPotentialGaps);
+
+    // .map((event, index) => {
+    //   return { id: dutyStatuses[index - 1].id, fillGapEvent: event };
+    // })
+    // .reduce(
+    //   (acc, currentItem) => {
+    //     acc[currentItem.id] = currentItem.fillGapEvent;
+    //     return acc;
+    //   },
+    //   {} as { [id: string]: IEvent },
+    // );
+
+    const eventsToDelete: IEvent[] = [];
+
+    zipEvents.forEach((event) => {
+      deletableStatusNames.has(event.statusName) && eventsToDelete.push(event);
+    });
 
     return this.dialog
-      .open(ZipDialogComponent, { data: deleteEventInfo })
+      .open(ZipDialogComponent, { data: eventsToDelete })
       .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          const toResize = [] as {
-            event: IEvent;
-            duration: string;
-          }[];
-          const toShiftEventIds: number[] = [];
+      .pipe(
+        switchMap((result) => {
+          if (result) {
+            const resize = this.resize();
+            const resizeSpeed = this.resizeSpeed();
+            const resizeMinDuration = this.resizeMinDuration();
+            const resizeItems = zipEvents
+              .filter(
+                (event) =>
+                  event.statusName === "Driving" &&
+                  event.realEndTime &&
+                  event.averageSpeed < resizeSpeed,
+              )
+              .map((event) => {
+                const minDuration =
+                  resizeMinDuration * 60 + getRandomIntInclusive(1, 90);
 
-          // for (let i = 0; i < toZipEvents.length; i++) {
-          //   const event = toZipEvents[i];
-          //   if (event.statusName === "Driving") {
-          //     if (event.averageSpeed) {
-          //       const newSpeed =
-          //         this.selectedMode() === 2
-          //           ? 74.95
-          //           : this.mode().speed + Math.random() * 4;
-          //       const originalSpeed = event.averageSpeed * 10000;
-          //       const originalDuration = event.durationInSeconds;
-          //       const distance = originalSpeed * (originalDuration / 3600);
-          //       const newDuratiom = ((distance / newSpeed) * 3600) / 10000;
+                const gapDuration = event.durationInSeconds - minDuration;
+                const defaultReturn = {
+                  event,
+                  duration: getDuration(minDuration),
+                  duplicateForGapFillEvent:
+                    this.fill() &&
+                    gapDuration >= this.gapMinDuration() * 60 &&
+                    eventsWithPotentialGaps[event.id],
+                };
 
-          //       const duration = getDuration(newDuratiom);
+                if (!event.averageSpeed) return defaultReturn;
+                else {
+                  const speed = resizeSpeed - 2.5 + Math.random() * 5;
+                  const newSpeed = speed >= 75 ? 74.95 : speed;
+                  const originalSpeed = event.averageSpeed * 10000;
+                  const originalDuration = event.durationInSeconds;
+                  const fillGapMinimalDuration = this.gapMinDuration() * 60; // gap in minutes
+                  const distance = originalSpeed * (originalDuration / 3600);
+                  const newDuration = ((distance / newSpeed) * 3600) / 10000;
 
-          //       toResize.push({
-          //         event,
-          //         duration,
-          //       });
-          //     } else {
-          //       if (event.realEndTime) {
-          //         toResize.push({
-          //           event,
-          //           duration: getDuration(getRandomIntInclusive(6, 606)),
-          //         });
-          //       }
-          //     }
-          //   }
+                  if (minDuration > newDuration) return defaultReturn;
+                  else {
+                    const duration = getDuration(newDuration);
+                    const durationDiff = originalDuration - newDuration;
+                    const fillGap = durationDiff >= fillGapMinimalDuration;
+                    const duplicateForGapFillEvent =
+                      this.fill() &&
+                      fillGap &&
+                      eventsWithPotentialGaps[event.id];
 
-          //   if (
-          //     ["On Duty", "Sleeper Berth", "Off Duty"].includes(
-          //       event.statusName,
-          //     )
-          //   ) {
-          //     toShiftEventIds.push(event.id);
-          //   }
-          // }
-
-          ///////////////
-          // delete obs
-          const delete$ = this.apiOperationsService
-            .deleteEvents(
-              tenant,
-              deleteEventInfo.map((e) => e.id),
-            )
-            .pipe(
-              tap((resData) =>
-                console.log("[ZIP] deleting events...", resData),
-              ),
-            );
-          ///////////////
-          // resize obs
-          const resizeObs = toResize.map((resInf) =>
-            this.apiOperationsService
-              .resizeEvent(tenant, resInf.event.id, {
-                duration: resInf.duration,
-                durationAsTimeSpan: `${new Date().getTime()}`,
-              })
-              .pipe(
-                tap((resData) => console.log("[ZIP] resizing...", resData)),
-                catchError((err: any) => {
-                  if (err.error.code === "ResizeEvents.DifferenceInMiles") {
-                    const parsedErrorInfo = parseErrorMessage(
-                      err.error.message,
-                    );
-                    if (parsedErrorInfo) {
-                      return this.dialog
-                        .open(ProceedWithAdvancedResizeDialogComponent, {
-                          data: {
-                            title: "Resize Error",
-                            info: err.error.message, // Corrected line
-                            message: "Proceed with advanced resize?",
-                          },
-                        })
-                        .afterClosed()
-                        .pipe(
-                          switchMap((result) => {
-                            if (result) {
-                              return this.apiOperationsService.advancedResize(
-                                tenant,
-                                resInf.event,
-                                {
-                                  resizePayload: {
-                                    duration: resInf.duration,
-                                    durationAsTimeSpan: `${new Date().getTime()}`,
-                                  },
-                                  parsedErrorInfo,
-                                },
-                              );
-                            } else {
-                              return of();
-                            }
-                          }),
-                        );
-                    }
+                    return {
+                      event,
+                      duration,
+                      duplicateForGapFillEvent,
+                    };
                   }
-                  return throwError(() => err);
-                }),
-              ),
-          );
-          const resize$ = from(resizeObs).pipe(concatMap((obs) => obs));
-          ///////////////
-          // shift obs
-          const shift$ = this.apiService
-            .getDriverDailyLogEvents(driverId, date, tenant.id)
-            .pipe(
-              concatMap((log) =>
-                from(
-                  log.events.filter(
-                    (e) =>
-                      toShiftEventIds.includes(e.id) &&
-                      e.id !== toShiftEventIds[toShiftEventIds.length - 1],
-                  ),
-                ),
-              ),
-              concatMap((last) =>
-                this.apiOperationsService
-                  .shift(tenant, [first, last], {
-                    direction: "Future",
-                    time: "",
+                }
+              })
+              .filter((resizeItem) => {
+                const targetDuration = timeToSeconds(resizeItem.duration);
+                return targetDuration > resizeMinDuration * 60;
+              });
+
+            const resize$ = from(resizeItems).pipe(
+              mergeMap((resizeItem) => {
+                if (resizeItem.duplicateForGapFillEvent) {
+                  const eventToDuplicate = resizeItem.duplicateForGapFillEvent;
+                  return this.apiOperationsService
+                    .duplicateEvent(tenant, eventToDuplicate, {
+                      eventTypeCode: this.fillStatus(),
+                      startTime: getMinusOneToTwoSecDateISO(
+                        eventToDuplicate.startTime,
+                      ),
+                    })
+                    .pipe(mergeMap(() => of(resizeItem)));
+                } else return of(resizeItem);
+              }),
+              concatMap((resizeItem) => {
+                return this.apiOperationsService
+                  .resizeEvent(tenant, resizeItem.event.id, {
+                    duration: resizeItem.duration,
+                    durationAsTimeSpan: `${new Date().getTime()}`,
                   })
-                  //   time:
-                  //     last.id === first.id
-                  //       ? "00:00"
-                  //       : getDuration(
-                  //           (last.realDurationInSeconds
-                  //             ? last.realDurationInSeconds
-                  //             : last.durationInSeconds) >
-                  //             this.mode().dutyDuration * 1.85
-                  //             ? (last.realDurationInSeconds
-                  //                 ? last.realDurationInSeconds
-                  //                 : last.durationInSeconds) -
-                  //                 this.mode().dutyDuration +
-                  //                 getRandomIntInclusive(0, 300)
-                  //             : 0,
-                  //         ).slice(0, -3),
-                  // })
                   .pipe(
-                    tap((resData) => console.log("[ZIP] shifting...", resData)),
-                  ),
-              ),
+                    catchError((err: any) => {
+                      if (err.error.code === "ResizeEvents.DifferenceInMiles") {
+                        const parsedErrorInfo = parseErrorMessage(
+                          err.error.message,
+                        );
+                        if (parsedErrorInfo) {
+                          return this.dialog
+                            .open(ProceedWithAdvancedResizeDialogComponent, {
+                              data: {
+                                title: "Resize Error",
+                                info: ` > ${err.error.message}`,
+                                message: "Proceed with advanced resize?",
+                                event: resizeItem.event,
+                              },
+                            })
+                            .afterClosed()
+                            .pipe(
+                              switchMap((result) => {
+                                if (result) {
+                                  return this.apiOperationsService.advancedResize(
+                                    tenant,
+                                    resizeItem.event,
+                                    {
+                                      resizePayload: {
+                                        duration: resizeItem.duration,
+                                        durationAsTimeSpan: `${new Date().getTime()}`,
+                                      },
+                                      parsedErrorInfo,
+                                    },
+                                  );
+                                } else {
+                                  return of();
+                                }
+                              }),
+                            );
+                        }
+                      }
+                      return throwError(() => err);
+                    }),
+                  );
+              }),
             );
 
-          const zip$ = concat(delete$, resize$, shift$);
-
-          return zip$.subscribe({
-            error: (err) => {
-              this.urlService.refreshWebApp();
-              this.monitorService.refresh.update((value) => value + 1);
-              return this._snackBar.open(
-                `[ZIP] Error: ${err.error.message}`,
-                "OK",
-                { duration: 7000 },
-              );
-            },
-            complete: () => {
-              this.urlService.refreshWebApp();
-              this.monitorService.refresh.update((value) => value + 1);
-              return this._snackBar.open(
-                `[ZIP] operation was successfully executed.`,
-                "OK",
-                {
-                  duration: 3000,
-                },
-              );
-            },
-          });
-        } else return;
-      });
+            if (resize) {
+              return resize$;
+            } else return of();
+          } else {
+            return of();
+          }
+        }),
+      )
+      .subscribe();
   }
 }
