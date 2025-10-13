@@ -86,7 +86,10 @@
     }
 
     &__post-zip {
-      margin-top: 28px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
     }
   }
 
@@ -132,7 +135,12 @@ input {
   cursor: alias;
 }
 
-mat-checkbox,
-mat-radio-group {
+mat-checkbox {
   transform: scale(0.9);
+}
+mat-radio-group {
+  transform: scale(0.8);
+  mat-radio-button {
+    margin-top: -12px;
+  }
 }

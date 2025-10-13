@@ -14,7 +14,9 @@ import { ApiOperationsService } from "./api-operations.service";
 import {
   catchError,
   concatMap,
+  first,
   from,
+  map,
   mergeMap,
   of,
   switchMap,
@@ -48,6 +50,7 @@ export class ZipService {
 
   shift = signal(true);
   selectedDirection = signal(1);
+  zippedOnDutyDuration = signal<number>(18);
   shiftDirection = computed<"Past" | "Future">(() => {
     const selectedDirection = this.selectedDirection();
     return selectedDirection ? "Future" : "Past";
@@ -62,7 +65,6 @@ export class ZipService {
       : "ChangeToOffDutyStatus",
   );
 
-  zippedOnDutyDuration = signal<number>(18);
   preformSmartFix = signal(true);
   delDrivingEngEvents = signal(true);
 
@@ -99,15 +101,6 @@ export class ZipService {
       dutyStatusNames.has(event.statusName),
     );
 
-    const firstEvent = dutyStatuses[0];
-
-    if (!firstEvent)
-      return this._snackBar.open(
-        "[ZIP] ERROR: The selected range is not valid.",
-        "OK",
-        { duration: 7000 },
-      );
-
     const onDutyIdsToFill = dutyStatuses
       .filter((event, index) => {
         if (
@@ -130,19 +123,6 @@ export class ZipService {
       }
     });
 
-    console.log("eventsWithPotentialGaps ", eventsWithPotentialGaps);
-
-    // .map((event, index) => {
-    //   return { id: dutyStatuses[index - 1].id, fillGapEvent: event };
-    // })
-    // .reduce(
-    //   (acc, currentItem) => {
-    //     acc[currentItem.id] = currentItem.fillGapEvent;
-    //     return acc;
-    //   },
-    //   {} as { [id: string]: IEvent },
-    // );
-
     const eventsToDelete: IEvent[] = [];
 
     zipEvents.forEach((event) => {
@@ -156,6 +136,7 @@ export class ZipService {
         switchMap((result) => {
           if (result) {
             const resize = this.resize();
+            const shift = this.shift();
             const resizeSpeed = this.resizeSpeed();
             const resizeMinDuration = this.resizeMinDuration();
             const resizeItems = zipEvents
@@ -222,6 +203,7 @@ export class ZipService {
                       startTime: getMinusOneToTwoSecDateISO(
                         eventToDuplicate.startTime,
                       ),
+                      note: "",
                     })
                     .pipe(mergeMap(() => of(resizeItem)));
                 } else return of(resizeItem);
@@ -275,15 +257,58 @@ export class ZipService {
                   );
               }),
             );
+            const shift$ = of(eventsToDelete).pipe(
+              map((eventsToDelete) => eventsToDelete.map((event) => event.id)),
+              switchMap((ids) =>
+                this.apiOperationsService.deleteEvents(tenant, ids),
+              ),
+              switchMap(() =>
+                from(dutyStatuses).pipe(
+                  concatMap((event) => {
+                    const firstShiftEvent = dutyStatuses[0];
+                    if (event.statusName === "Driving") return of();
+                    else {
+                      const direction = this.shiftDirection();
+                      const time = getDuration(
+                        event.durationInSeconds -
+                          this.zippedOnDutyDuration() * 60 -
+                          getRandomIntInclusive(1, 300),
+                      );
+                      return this.apiOperationsService.shift(
+                        tenant,
+                        [firstShiftEvent, event],
+                        {
+                          direction,
+                          time,
+                        },
+                      );
+                    }
+                  }),
+                ),
+              ),
+            );
 
             if (resize) {
-              return resize$;
+              return resize$.pipe(
+                mergeMap(() => {
+                  if (shift) return shift$;
+                  else return of();
+                }),
+              );
             } else return of();
           } else {
             return of();
           }
         }),
       )
-      .subscribe();
+      .subscribe({
+        error: (err) => {
+          this._snackBar.open(`[ZIP] ERROR: ${err.error.message}`, "Close");
+        },
+        complete: () => {
+          this.monitorService.selectedEvents.set([]);
+          this.monitorService.refreshDailyLogs();
+        },
+      });
   }
 }

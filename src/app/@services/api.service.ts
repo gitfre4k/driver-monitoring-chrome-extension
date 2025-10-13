@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { from, map, Observable, tap } from "rxjs";
+import { from, map, Observable, shareReplay, tap } from "rxjs";
 
 import { DateTime } from "luxon";
 
@@ -128,6 +128,7 @@ export class ApiService {
                 (t) => t.id === "3a0e2d3b-8214-edb4-c139-0d55051fc170",
               ) && window.close(),
           ),
+          shareReplay(1),
         ),
     );
   }

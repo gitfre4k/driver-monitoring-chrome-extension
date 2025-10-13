@@ -42,7 +42,9 @@
 
       <!-- [resize] duration -->
       <div class="zip__form__resize__input">
-        <span class="zip__form__resize__input-label">Driving min duration</span>
+        <span class="zip__form__resize__input-label"
+          >Driving minimal duration</span
+        >
         @if (zipService.resize()) {
           <input
             type="text"
@@ -83,7 +85,7 @@
     <div class="zip__form__on-duty">
       <div class="zip__form__on-duty__input">
         <span class="zip__form__on-duty__input-label"
-          >On Duty max duration</span
+          >On Duty minimal duration</span
         >
         @if (zipService.shift()) {
           <input
@@ -125,7 +127,9 @@
     </mat-radio-group>
 
     <div class="zip__form__fill__input">
-      <span class="zip__form__fill__input-label">only if greater then</span>
+      <span class="zip__form__fill__input-label"
+        >only if they are greater then</span
+      >
       @if (zipService.fill() && zipService.resize()) {
         <input
           type="text"
@@ -148,6 +152,13 @@
       <mat-checkbox
         class="zip__form__post-zip__checkbox"
         [(ngModel)]="zipService.preformSmartFix"
+        [labelPosition]="'before'"
+        >Add Engines</mat-checkbox
+      >
+      <mat-checkbox
+        class="zip__form__post-zip__checkbox"
+        [(ngModel)]="zipService.preformSmartFix"
+        [labelPosition]="'before'"
         >Smart Fix</mat-checkbox
       >
     </div>
