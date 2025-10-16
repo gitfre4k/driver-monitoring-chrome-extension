@@ -87,7 +87,7 @@
       } @else {
         @switch (event.statusName) {
           @case ("Driving") {
-            @if (event.averageSpeed) {
+            @if (event.averageSpeed && isSpeedLegit(event.averageSpeed)) {
               @if (
                 monitorService.newResizeSpeed() &&
                 monitorService.currentResizeDriving()?.id === event.id

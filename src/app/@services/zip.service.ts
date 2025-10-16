@@ -1,6 +1,6 @@
-import { computed, inject, Injectable, signal, effect } from '@angular/core';
-import { MonitorService } from './monitor.service';
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import { computed, inject, Injectable, signal, effect } from "@angular/core";
+import { MonitorService } from "./monitor.service";
+import { IEvent } from "../interfaces/driver-daily-log-events.interface";
 import {
   deletableStatusNames,
   dutyStatusNames,
@@ -9,12 +9,11 @@ import {
   getRandomIntInclusive,
   getTime,
   timeToSeconds,
-} from '../helpers/zip.helpers';
-import { ApiOperationsService } from './api-operations.service';
+} from "../helpers/zip.helpers";
+import { ApiOperationsService } from "./api-operations.service";
 import {
   catchError,
   concatMap,
-  first,
   from,
   map,
   mergeMap,
@@ -22,39 +21,42 @@ import {
   switchMap,
   throwError,
   toArray,
-} from 'rxjs';
-import { ITenant } from '../interfaces';
-import { ApiService } from './api.service';
+} from "rxjs";
+import { ITenant } from "../interfaces";
+import { ApiService } from "./api.service";
 
-import { UrlService } from './url.service';
-import { MatDialog } from '@angular/material/dialog';
-import { ZipDialogComponent } from '../components/UI/zip-dialog/zip-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ProceedWithAdvancedResizeDialogComponent } from '../components/UI/proceed-with-advanced-resize-dialog/proceed-with-advanced-resize-dialog.component';
-import { parseErrorMessage } from '../helpers/context-menu.helpers';
+import { UrlService } from "./url.service";
+import { MatDialog } from "@angular/material/dialog";
+import { ZipDialogComponent } from "../components/UI/zip-dialog/zip-dialog.component";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { ProceedWithAdvancedResizeDialogComponent } from "../components/UI/proceed-with-advanced-resize-dialog/proceed-with-advanced-resize-dialog.component";
+import { parseErrorMessage } from "../helpers/context-menu.helpers";
+import { IResizeItem } from "../interfaces/zip.interface";
+import { ComputeEventsService } from "./compute-events.service";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ZipService {
   monitorService = inject(MonitorService);
   apiService = inject(ApiService);
   apiOperationsService = inject(ApiOperationsService);
   urlService = inject(UrlService);
+  computeEventsService = inject(ComputeEventsService);
 
   readonly dialog = inject(MatDialog);
   readonly _snackBar = inject(MatSnackBar);
 
   resize = signal(true);
   resizeSpeed = signal<number>(64);
-  resizeMinDuration = signal(2);
+  resizeMinDuration = signal(4);
 
   shift = signal(true);
   selectedDirection = signal(1);
   zippedOnDutyDuration = signal<number>(18);
-  shiftDirection = computed<'Past' | 'Future'>(() => {
+  shiftDirection = computed<"Past" | "Future">(() => {
     const selectedDirection = this.selectedDirection();
-    return selectedDirection ? 'Future' : 'Past';
+    return selectedDirection ? "Future" : "Past";
   });
 
   fill = signal(false);
@@ -62,8 +64,8 @@ export class ZipService {
   gapMinDuration = signal(8);
   fillStatus = computed(() =>
     this.fillOption() === 0
-      ? 'ChangeToSleeperBerthStatus'
-      : 'ChangeToOffDutyStatus',
+      ? "ChangeToSleeperBerthStatus"
+      : "ChangeToOffDutyStatus",
   );
 
   preformSmartFix = signal(true);
@@ -75,17 +77,8 @@ export class ZipService {
     if (resize && shift) this.fill.set(false);
   });
 
-  zip() {
+  initializeEvents(allEvents: IEvent[]) {
     const selectedEvents = this.monitorService.selectedEvents();
-    const allEvents = this.monitorService.computedDailyLogEvents();
-    const tenant = this.urlService.tenant() as ITenant;
-    const { driverId, date } = this.urlService.currentView() ?? {
-      driverId: null,
-      date: null,
-    };
-
-    if (!allEvents || !tenant || !driverId || !date)
-      return this._snackBar.open('[ZIP] Error', 'OK', { duration: 7000 });
 
     const { 0: firstSelected, [selectedEvents.length - 1]: lastSelected } =
       selectedEvents.sort((a, b) => getTime(a) - getTime(b));
@@ -106,9 +99,9 @@ export class ZipService {
       .filter((event, index) => {
         if (
           index !== 0 &&
-          event.statusName === 'On Duty' &&
+          event.statusName === "On Duty" &&
           dutyStatuses[index - 1] &&
-          dutyStatuses[index - 1]?.statusName === 'Driving'
+          dutyStatuses[index - 1]?.statusName === "Driving"
         )
           return true;
         else return false;
@@ -130,197 +123,311 @@ export class ZipService {
       deletableStatusNames.has(event.statusName) && eventsToDelete.push(event);
     });
 
-    return this.dialog
-      .open(ZipDialogComponent, { data: eventsToDelete })
-      .afterClosed()
+    return of({
+      zipEvents: zipEvents.filter((event) => {
+        const eventTime = getTime(event);
+        return (
+          eventTime >= startTime &&
+          eventTime <= endTime &&
+          dutyStatusNames.has(event.statusName)
+        );
+      }),
+      startTime,
+      endTime,
+      eventsToDelete,
+      eventsWithPotentialGaps,
+    });
+  }
+
+  zip() {
+    const tenant = this.urlService.tenant() as ITenant;
+    const { driverId, date } = this.urlService.currentView() ?? {
+      driverId: null,
+      date: null,
+    };
+
+    if (!tenant || !driverId || !date)
+      return this._snackBar.open("[ZIP] Error", "OK", { duration: 7000 });
+
+    const zipData$ = this.apiService
+      .getDriverDailyLogEvents(driverId, date, tenant.id)
       .pipe(
-        switchMap((result) => {
-          if (result) {
-            const resize = this.resize();
-            const shift = this.shift();
-            const resizeSpeed = this.resizeSpeed();
-            const resizeMinDuration = this.resizeMinDuration();
-            const resizeItems = zipEvents
-              .filter(
-                (event) =>
-                  event.statusName === 'Driving' &&
-                  event.realEndTime &&
-                  event.averageSpeed < resizeSpeed,
-              )
-              .map((event) => {
-                const minDuration =
-                  resizeMinDuration * 60 + getRandomIntInclusive(1, 90);
+        switchMap((ddle) =>
+          this.computeEventsService.getComputedEvents({
+            driverDailyLog: ddle,
+            coDriverDailyLog: null,
+          }),
+        ),
+        toArray(),
+        switchMap((events) => this.initializeEvents(events)),
+      );
 
-                const gapDuration = event.durationInSeconds - minDuration;
-                const defaultReturn = {
-                  event,
-                  duration: getDuration(minDuration),
-                  duplicateForGapFillEvent:
-                    this.fill() &&
-                    gapDuration >= this.gapMinDuration() * 60 &&
-                    eventsWithPotentialGaps[event.id],
-                };
+    return zipData$
+      .pipe(
+        switchMap((zipData) => {
+          const {
+            zipEvents,
+            eventsToDelete,
+            eventsWithPotentialGaps,
+            startTime,
+            endTime,
+          } = zipData;
 
-                if (!event.averageSpeed) return defaultReturn;
-                else {
-                  const speed = resizeSpeed - 4 + Math.random() * 8;
-                  const newSpeed = speed >= 75 ? 74.95 : speed;
-                  const originalSpeed = event.averageSpeed * 10000;
-                  const originalDuration = event.durationInSeconds;
-                  const fillGapMinimalDuration = this.gapMinDuration() * 60; // gap in minutes
-                  const distance = originalSpeed * (originalDuration / 3600);
-                  const newDuration = ((distance / newSpeed) * 3600) / 10000;
+          return this.dialog
+            .open(ZipDialogComponent, { data: eventsToDelete })
+            .afterClosed()
+            .pipe(
+              switchMap((result) => {
+                if (result) {
+                  const resize = this.resize();
+                  const shift = this.shift();
+                  const resizeSpeed = this.resizeSpeed();
+                  const resizeMinDuration = this.resizeMinDuration();
+                  const resizeItems: IResizeItem[] = zipEvents
+                    .filter(
+                      (event) =>
+                        event.statusName === "Driving" &&
+                        event.realEndTime &&
+                        event.averageSpeed < resizeSpeed,
+                    )
+                    .map((event) => {
+                      const minDuration =
+                        resizeMinDuration * 60 + getRandomIntInclusive(1, 90);
 
-                  if (minDuration > newDuration) return defaultReturn;
-                  else {
-                    const duration = getDuration(newDuration);
-                    const durationDiff = originalDuration - newDuration;
-                    const fillGap = durationDiff >= fillGapMinimalDuration;
-                    const duplicateForGapFillEvent =
-                      this.fill() &&
-                      fillGap &&
-                      eventsWithPotentialGaps[event.id];
+                      const gapDuration = event.durationInSeconds - minDuration;
+                      const defaultReturn = {
+                        event,
+                        duration: getDuration(
+                          Math.min(minDuration, event.durationInSeconds),
+                        ),
+                        duplicateForGapFillEvent:
+                          this.fill() &&
+                          gapDuration >= this.gapMinDuration() * 60 &&
+                          eventsWithPotentialGaps[event.id],
+                      };
 
-                    return {
-                      event,
-                      duration,
-                      duplicateForGapFillEvent,
-                    };
-                  }
-                }
-              })
-              .filter((resizeItem) => {
-                const targetDuration = timeToSeconds(resizeItem.duration);
-                return targetDuration > resizeMinDuration * 60;
-              });
+                      if (!event.averageSpeed) return defaultReturn;
+                      else {
+                        const speed = resizeSpeed - 4 + Math.random() * 8;
+                        const newSpeed = speed >= 75 ? 74.95 : speed;
+                        const originalSpeed = event.averageSpeed * 10000;
+                        const originalDuration = event.durationInSeconds;
+                        const fillGapMinimalDuration =
+                          this.gapMinDuration() * 60; // gap in minutes
+                        const distance =
+                          originalSpeed * (originalDuration / 3600);
+                        const newDuration =
+                          ((distance / newSpeed) * 3600) / 10000;
 
-            const resize$ = from(resizeItems).pipe(
-              mergeMap((resizeItem) => {
-                if (resizeItem.duplicateForGapFillEvent) {
-                  const eventToDuplicate = resizeItem.duplicateForGapFillEvent;
-                  return this.apiOperationsService
-                    .duplicateEvent(tenant, eventToDuplicate, {
-                      eventTypeCode: this.fillStatus(),
-                      startTime: getMinusOneToTwoSecDateISO(
-                        eventToDuplicate.startTime,
-                      ),
-                      note: '',
+                        if (minDuration > newDuration) return defaultReturn;
+                        else {
+                          const duration = getDuration(newDuration);
+                          const durationDiff = originalDuration - newDuration;
+                          const fillGap =
+                            durationDiff >= fillGapMinimalDuration;
+                          const duplicateForGapFillEvent =
+                            this.fill() &&
+                            fillGap &&
+                            eventsWithPotentialGaps[event.id];
+
+                          return {
+                            event,
+                            duration,
+                            duplicateForGapFillEvent,
+                          };
+                        }
+                      }
                     })
-                    .pipe(mergeMap(() => of(resizeItem)));
-                } else return of(resizeItem);
-              }),
-              concatMap((resizeItem) => {
-                return this.apiOperationsService
-                  .resizeEvent(tenant, resizeItem.event.id, {
-                    duration: resizeItem.duration,
-                    durationAsTimeSpan: `${new Date().getTime()}`,
-                  })
-                  .pipe(
-                    catchError((err: any) => {
-                      if (err.error.code === 'ResizeEvents.DifferenceInMiles') {
-                        const parsedErrorInfo = parseErrorMessage(
-                          err.error.message,
-                        );
-                        if (parsedErrorInfo) {
-                          return this.dialog
-                            .open(ProceedWithAdvancedResizeDialogComponent, {
-                              data: {
-                                title: 'Resize Error',
-                                info: ` > ${err.error.message}`,
-                                message: 'Proceed with advanced resize?',
-                                event: resizeItem.event,
-                              },
+                    .filter((resizeItem) => {
+                      const targetDuration = timeToSeconds(resizeItem.duration);
+                      return targetDuration > resizeMinDuration * 60;
+                    });
+
+                  const resize$ = resizeItems.length
+                    ? from(resizeItems).pipe(
+                        mergeMap((resizeItem) => {
+                          if (resizeItem.duplicateForGapFillEvent) {
+                            const eventToDuplicate =
+                              resizeItem.duplicateForGapFillEvent;
+                            return this.apiOperationsService
+                              .duplicateEvent(tenant, eventToDuplicate, {
+                                eventTypeCode: this.fillStatus(),
+                                startTime: getMinusOneToTwoSecDateISO(
+                                  eventToDuplicate.startTime,
+                                ),
+                                note: "",
+                              })
+                              .pipe(mergeMap(() => of(resizeItem)));
+                          } else return of(resizeItem);
+                        }),
+                        concatMap((resizeItem) => {
+                          return this.apiOperationsService
+                            .resizeEvent(tenant, resizeItem.event.id, {
+                              duration: resizeItem.duration,
+                              durationAsTimeSpan: `${new Date().getTime()}`,
                             })
-                            .afterClosed()
                             .pipe(
-                              switchMap((result) => {
-                                if (result) {
-                                  return this.apiOperationsService.advancedResize(
-                                    tenant,
-                                    resizeItem.event,
-                                    {
-                                      resizePayload: {
-                                        duration: resizeItem.duration,
-                                        durationAsTimeSpan: `${new Date().getTime()}`,
-                                      },
-                                      parsedErrorInfo,
-                                    },
+                              catchError((err: any) => {
+                                if (
+                                  err.error.code ===
+                                  "ResizeEvents.DifferenceInMiles"
+                                ) {
+                                  const parsedErrorInfo = parseErrorMessage(
+                                    err.error.message,
                                   );
-                                } else {
+                                  if (parsedErrorInfo) {
+                                    return this.dialog
+                                      .open(
+                                        ProceedWithAdvancedResizeDialogComponent,
+                                        {
+                                          data: {
+                                            title: "Resize Error",
+                                            info: ` > ${err.error.message}`,
+                                            message:
+                                              "Proceed with advanced resize?",
+                                            event: resizeItem.event,
+                                          },
+                                        },
+                                      )
+                                      .afterClosed()
+                                      .pipe(
+                                        switchMap((result) => {
+                                          if (result) {
+                                            return this.apiOperationsService.advancedResize(
+                                              tenant,
+                                              resizeItem.event,
+                                              {
+                                                resizePayload: {
+                                                  duration: resizeItem.duration,
+                                                  durationAsTimeSpan: `${new Date().getTime()}`,
+                                                },
+                                                parsedErrorInfo,
+                                              },
+                                            );
+                                          } else {
+                                            return of({});
+                                          }
+                                        }),
+                                      );
+                                  }
+                                }
+                                return throwError(() => err);
+                              }),
+                            );
+                        }),
+                        toArray(),
+                      )
+                    : of({});
+                  ////////
+                  // shift
+                  const shift$ = of(eventsToDelete).pipe(
+                    map((eventsToDelete) => {
+                      if (eventsToDelete.length)
+                        return eventsToDelete.map((event) => event.id);
+                      else return [];
+                    }),
+                    switchMap((ids) => {
+                      if (ids.length)
+                        return this.apiOperationsService.deleteEvents(
+                          tenant,
+                          ids,
+                        );
+                      else return of({});
+                    }),
+                    switchMap(() =>
+                      this.apiService
+                        .getDriverDailyLogEvents(driverId, date, tenant.id)
+                        .pipe(
+                          switchMap((ddle) =>
+                            this.computeEventsService.getComputedEvents({
+                              driverDailyLog: ddle,
+                              coDriverDailyLog: null,
+                            }),
+                          ),
+                          toArray(),
+                          map((events) =>
+                            events.filter((event) => {
+                              const eventTime = getTime(event);
+                              return (
+                                eventTime >= startTime &&
+                                eventTime <= endTime &&
+                                dutyStatusNames.has(event.statusName)
+                              );
+                            }),
+                          ),
+                          switchMap((events) => {
+                            const direction = this.shiftDirection();
+                            const reverse = direction === "Past";
+                            const sortedEvents = reverse
+                              ? events.reverse()
+                              : events;
+
+                            const firstShiftEvent = sortedEvents[0];
+
+                            const lastShiftEvent =
+                              sortedEvents[sortedEvents.length - 1];
+
+                            return from(sortedEvents).pipe(
+                              concatMap((event, index) => {
+                                const timeToShift =
+                                  sortedEvents[reverse ? index + 1 : index]
+                                    .durationInSeconds -
+                                  this.zippedOnDutyDuration() * 60 -
+                                  getRandomIntInclusive(1, 300);
+                                const time = getDuration(timeToShift).slice(
+                                  0,
+                                  -3,
+                                );
+
+                                if (
+                                  sortedEvents[reverse ? index + 1 : index]
+                                    .statusName === "Driving" ||
+                                  sortedEvents[reverse ? index + 1 : index]
+                                    .id === lastShiftEvent.id ||
+                                  sortedEvents[reverse ? index + 1 : index].pti
+                                )
                                   return of({});
+                                else {
+                                  if (timeToShift > 0)
+                                    return this.apiOperationsService.shift(
+                                      tenant,
+                                      [firstShiftEvent, event],
+                                      {
+                                        direction,
+                                        time,
+                                      },
+                                    );
+                                  else return of({});
                                 }
                               }),
                             );
-                        }
-                      }
-                      return throwError(() => err);
-                    }),
+                          }),
+                        ),
+                    ),
                   );
-              }),
-              toArray(),
-            );
-            const shift$ = of(eventsToDelete).pipe(
-              map((eventsToDelete) => {
-                if (eventsToDelete.length)
-                  return eventsToDelete.map((event) => event.id);
-                else return [];
-              }),
-              switchMap((ids) => {
-                if (ids.length)
-                  return this.apiOperationsService.deleteEvents(tenant, ids);
-                else return of({});
-              }),
-              switchMap(() =>
-                from(dutyStatuses).pipe(
-                  concatMap((event) => {
-                    const firstShiftEvent = dutyStatuses[0];
-                    const lastShiftEvent =
-                      dutyStatuses[dutyStatuses.length - 1];
-                    const direction = this.shiftDirection();
-                    const timeToShift =
-                      event.durationInSeconds -
-                      this.zippedOnDutyDuration() * 60 -
-                      getRandomIntInclusive(1, 300);
-                    const time = getDuration(timeToShift).slice(0, -3);
 
-                    if (
-                      event.statusName === 'Driving' ||
-                      event.id === lastShiftEvent.id
-                    )
-                      return of({});
-                    else {
-                      if (timeToShift > 0)
-                        return this.apiOperationsService.shift(
-                          tenant,
-                          [firstShiftEvent, event],
-                          {
-                            direction,
-                            time,
-                          },
-                        );
-                      else return of({});
-                    }
-                  }),
-                ),
-              ),
+                  if (resize) {
+                    return resize$.pipe(
+                      mergeMap(() => {
+                        if (shift) return shift$;
+                        else return of({});
+                      }),
+                    );
+                  } else {
+                    if (shift) return shift$;
+                    else return of({});
+                  }
+                } else {
+                  return of({});
+                }
+              }),
             );
-
-            if (resize) {
-              return resize$.pipe(
-                mergeMap(() => {
-                  if (shift) return shift$;
-                  else return of({});
-                }),
-              );
-            } else return of({});
-          } else {
-            return of({});
-          }
         }),
       )
+
       .subscribe({
         error: (err) => {
-          this._snackBar.open(`[ZIP] ERROR: ${err.error.message}`, 'Close');
+          this._snackBar.open(`[ZIP] ERROR: ${err.error.message}`, "Close");
         },
         complete: () => {
           this.monitorService.selectedEvents.set([]);

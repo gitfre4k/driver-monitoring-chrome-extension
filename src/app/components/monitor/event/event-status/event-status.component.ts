@@ -96,6 +96,10 @@ export class EventStatusComponent {
     this.monitorService.newEventTypeId.set(toggle);
   }
 
+  isSpeedLegit(speed: number) {
+    return typeof speed === "number";
+  }
+
   ngAfterViewInit(): void {
     this.myInputField && this.myInputField.nativeElement.focus();
   }

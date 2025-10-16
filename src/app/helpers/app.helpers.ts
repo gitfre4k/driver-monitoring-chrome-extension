@@ -32,15 +32,25 @@ export const filterEvents = (event: IEvent): boolean => {
 export const getStatusName = (dutyStatus: string): string => {
   switch (dutyStatus) {
     case "ChangeToOffDutyStatus":
+    case "ChangeToOffDutyStatus-E":
       return "Off Duty";
+    case "ChangeToOffDutyStatus-CR":
+      return "[fleet] Off Duty";
     case "ChangeToSleeperBerthStatus":
+    case "ChangeToSleeperBerthStatus-E":
       return "Sleeper Berth";
+    case "ChangeToSleeperBerthStatus-CR":
+      return "[fleet] Sleeper Berth";
     case "ChangeToDrivingStatus":
     case "ChangeToDrivingStatus-E":
       return "Driving";
+    case "ChangeToDrivingStatus-CR":
+      return "[fleet] Driving";
     case "ChangeToOnDutyNotDrivingStatus":
     case "ChangeToOnDutyNotDrivingStatus-E":
       return "On Duty";
+    case "ChangeToOnDutyNotDrivingStatus-CR":
+      return "[fleet] On Duty";
     case "IntermediateLogConventionalLocationPrecision":
     case "IntermediateLogReducedLocationPrecision":
       return "Intermediate";
