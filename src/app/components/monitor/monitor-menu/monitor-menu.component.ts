@@ -17,9 +17,9 @@ import { MonitorService } from '../../../@services/monitor.service';
 import { DialogConfirmComponent } from '../../UI/dialog-confirm/dialog-confirm.component';
 import { ZipService } from '../../../@services/zip.service';
 import { MOCK__EVENT_DETAILS } from '../../../data/mock-ddle';
-import { concatMap, delay, from, toArray } from 'rxjs';
+import { concatMap, delay, from, mergeMap, tap, toArray } from 'rxjs';
 import { ApiOperationsService } from '../../../@services/api-operations.service';
-import { IEventDetails } from '../../../interfaces';
+import { IEventDetails, ITenant } from '../../../interfaces';
 
 @Component({
   selector: 'app-monitor-menu',
@@ -48,8 +48,23 @@ export class MonitorMenuComponent {
         ),
         toArray(),
       )
-      .pipe(delay(1000))
       .subscribe({ next: (data) => console.log(data) });
+  }
+
+  onSaveEvents() {
+    const events = this.monitorService.selectedEvents();
+    return from(events)
+      .pipe(
+        mergeMap((event) =>
+          this.apiOperationsService.getEvent(
+            { id: '3a0e2d3b-8214-edb4-c139-0d55051fc170' } as ITenant,
+            event.id,
+          ),
+        ),
+        toArray(),
+        tap((x) => console.log(x)),
+      )
+      .subscribe();
   }
 
   onZipAction() {

@@ -1,13 +1,13 @@
-import { inject, Injectable, signal } from "@angular/core";
-import { ExtensionTabNavigationService } from "./extension-tab-navigation.service";
-import { MatDialog } from "@angular/material/dialog";
-import { MonitorService } from "./monitor.service";
-import { DialogConfirmComponent } from "../components/UI/dialog-confirm/dialog-confirm.component";
-import { ContextMenuService } from "./context-menu.service";
-import { ZipService } from "./zip.service";
+import { inject, Injectable, signal } from '@angular/core';
+import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MonitorService } from './monitor.service';
+import { DialogConfirmComponent } from '../components/UI/dialog-confirm/dialog-confirm.component';
+import { ContextMenuService } from './context-menu.service';
+import { ZipService } from './zip.service';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class KeyboardService {
   extensionTabNavService = inject(ExtensionTabNavigationService);
@@ -20,12 +20,12 @@ export class KeyboardService {
   ctrlPressed = signal(false);
 
   constructor() {
-    window.addEventListener("keydown", (event) => {
+    window.addEventListener('keydown', (event) => {
       if (this.extensionTabNavService.selectedTabIndex() === 2) {
         if (event.ctrlKey) {
           switch (event.key) {
-            case "a":
-            case "A": {
+            case 'a':
+            case 'A': {
               if (
                 this.monitorService.currentEditEvent() ||
                 this.monitorService.showResize()
@@ -39,22 +39,23 @@ export class KeyboardService {
           }
         }
         switch (event.key) {
-          case "Control":
+          case 'Control':
             return this.ctrlPressed.set(true);
-          case "Shift":
+          case 'Shift':
             return (
               !this.monitorService.isShiftingDialogOpen() &&
               this.monitorService.openShiftDialog()
             );
-          case "z":
-          case "Z": {
+          case 'z':
+          case 'Z':
+          case '0': {
             const events = this.monitorService.selectedEvents();
             if (events.length === 0) return;
             else return this.zipService.zip();
           }
-          case "Delete":
-          case "x":
-          case "X": {
+          case 'Delete':
+          case 'x':
+          case 'X': {
             const events = this.monitorService.selectedEvents();
             if (events.length === 0) return;
 
@@ -63,21 +64,21 @@ export class KeyboardService {
             );
 
             const dialogConfig1 = {
-              width: "250px",
+              width: '250px',
               data: {
-                title: "Delete Events",
+                title: 'Delete Events',
                 message: `Are you sure you want to proceed?`,
-                info: `[${events.length}] event${events.length === 1 ? "" : "s"} selected`,
+                info: `[${events.length}] event${events.length === 1 ? '' : 's'} selected`,
               },
             };
 
             const dialogConfig2 = {
-              width: "250px",
+              width: '250px',
               data: {
-                title: "Delete Events",
+                title: 'Delete Events',
                 message: `Are you sure you want to proceed?`,
                 info: `[${events.length}] events selected`,
-                warning: "NOT ALL EVENTS ARE ON THE SAME DAY",
+                warning: 'NOT ALL EVENTS ARE ON THE SAME DAY',
               },
             };
 
@@ -88,7 +89,7 @@ export class KeyboardService {
                 if (result1) {
                   if (eventsOnSameDay) {
                     this.contextMenuService.handleMultiEventAction(
-                      "DELETE_SELECTED_EVENTS",
+                      'DELETE_SELECTED_EVENTS',
                       events,
                     );
                   } else {
@@ -98,7 +99,7 @@ export class KeyboardService {
                       .subscribe((result2) => {
                         if (result2) {
                           this.contextMenuService.handleMultiEventAction(
-                            "DELETE_SELECTED_EVENTS",
+                            'DELETE_SELECTED_EVENTS',
                             events,
                           );
                         }
@@ -110,15 +111,15 @@ export class KeyboardService {
         }
       }
     });
-    window.addEventListener("keyup", (event) => {
+    window.addEventListener('keyup', (event) => {
       if (
-        event.key === "Control" &&
+        event.key === 'Control' &&
         this.extensionTabNavService.selectedTabIndex() === 2
       ) {
         this.ctrlPressed.set(false);
       }
     });
-    window.addEventListener("blur", () => {
+    window.addEventListener('blur', () => {
       this.ctrlPressed.set(false);
     });
 

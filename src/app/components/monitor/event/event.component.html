@@ -72,16 +72,21 @@
     </span>
 
     <!-- note / location  -->
-    @if (
-      keyboardService.ctrlPressed() &&
-      monitorService.currentEditEvent()?.id !== event.id
-    ) {
-      <span
-        (click)="copyLocation(event)"
-        class="note location"
-        [style]="event.locationMismatch ? 'color: red' : ''"
-        >{{ event.locationDisplayName }}</span
-      >
+    @if (monitorService.currentEditEvent()?.id !== event.id) {
+      @if (keyboardService.ctrlPressed()) {
+        <span
+          (click)="copyLocation(event)"
+          class="note location"
+          [style]="event.locationMismatch ? 'color: red' : ''"
+          >{{ event.locationDisplayName }}</span
+        >
+      } @else {
+        <span
+          class="note"
+          [style]="event.locationMismatch ? 'color: red' : ''"
+          >{{ event.locationDisplayName }}</span
+        >
+      }
     }
     @if (
       !(monitorService.currentEditEvent()?.id === event.id) &&
