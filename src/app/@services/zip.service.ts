@@ -1,6 +1,6 @@
-import { computed, inject, Injectable, signal, effect } from '@angular/core';
-import { MonitorService } from './monitor.service';
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import { computed, inject, Injectable, signal, effect } from "@angular/core";
+import { MonitorService } from "./monitor.service";
+import { IEvent } from "../interfaces/driver-daily-log-events.interface";
 import {
   deletableStatusNames,
   dutyStatusNames,
@@ -10,8 +10,8 @@ import {
   getRangeDuration,
   getTime,
   timeToSeconds,
-} from '../helpers/zip.helpers';
-import { ApiOperationsService } from './api-operations.service';
+} from "../helpers/zip.helpers";
+import { ApiOperationsService } from "./api-operations.service";
 import {
   catchError,
   concatMap,
@@ -19,24 +19,25 @@ import {
   map,
   mergeMap,
   of,
+  scan,
   switchMap,
   throwError,
   toArray,
-} from 'rxjs';
-import { ITenant } from '../interfaces';
-import { ApiService } from './api.service';
+} from "rxjs";
+import { ITenant } from "../interfaces";
+import { ApiService } from "./api.service";
 
-import { UrlService } from './url.service';
-import { MatDialog } from '@angular/material/dialog';
-import { ZipDialogComponent } from '../components/UI/zip-dialog/zip-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ProceedWithAdvancedResizeDialogComponent } from '../components/UI/proceed-with-advanced-resize-dialog/proceed-with-advanced-resize-dialog.component';
-import { parseErrorMessage } from '../helpers/context-menu.helpers';
-import { IResizeItem } from '../interfaces/zip.interface';
-import { ComputeEventsService } from './compute-events.service';
+import { UrlService } from "./url.service";
+import { MatDialog } from "@angular/material/dialog";
+import { ZipDialogComponent } from "../components/UI/zip-dialog/zip-dialog.component";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { ProceedWithAdvancedResizeDialogComponent } from "../components/UI/proceed-with-advanced-resize-dialog/proceed-with-advanced-resize-dialog.component";
+import { parseErrorMessage } from "../helpers/context-menu.helpers";
+import { IResizeItem } from "../interfaces/zip.interface";
+import { ComputeEventsService } from "./compute-events.service";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ZipService {
   monitorService = inject(MonitorService);
@@ -55,9 +56,9 @@ export class ZipService {
   shift = signal(true);
   selectedDirection = signal(1);
   zippedOnDutyDuration = signal<number>(18);
-  shiftDirection = computed<'Past' | 'Future'>(() => {
+  shiftDirection = computed<"Past" | "Future">(() => {
     const selectedDirection = this.selectedDirection();
-    return selectedDirection ? 'Future' : 'Past';
+    return selectedDirection ? "Future" : "Past";
   });
 
   fill = signal(false);
@@ -65,8 +66,8 @@ export class ZipService {
   gapMinDuration = signal(8);
   fillStatus = computed(() =>
     this.fillOption() === 0
-      ? 'ChangeToSleeperBerthStatus'
-      : 'ChangeToOffDutyStatus',
+      ? "ChangeToSleeperBerthStatus"
+      : "ChangeToOffDutyStatus",
   );
 
   preformSmartFix = signal(true);
@@ -81,7 +82,7 @@ export class ZipService {
   estematedZippedDuration = computed(() => {
     const selectedEvents = this.monitorService.selectedEvents();
     const allEvents = this.monitorService.computedDailyLogEvents();
-    if (!allEvents) return '00:00';
+    if (!allEvents) return "00:00";
 
     const { 0: firstSelected, [selectedEvents.length - 1]: lastSelected } =
       selectedEvents.sort((a, b) => getTime(a) - getTime(b));
@@ -104,7 +105,7 @@ export class ZipService {
 
     const totalDurationInSeconds = dutyStatuses.reduce((acc, event) => {
       switch (event.statusName) {
-        case 'On Duty': {
+        case "On Duty": {
           if (event.pti) return acc + 0;
           else {
             return (
@@ -115,7 +116,7 @@ export class ZipService {
             );
           }
         }
-        case 'Driving': {
+        case "Driving": {
           if (!event.averageSpeed)
             return acc + Math.min(drivingMinDuration, event.durationInSeconds);
           else {
@@ -165,9 +166,9 @@ export class ZipService {
       .filter((event, index) => {
         if (
           index !== 0 &&
-          event.statusName === 'On Duty' &&
+          event.statusName === "On Duty" &&
           dutyStatuses[index - 1] &&
-          dutyStatuses[index - 1]?.statusName === 'Driving'
+          dutyStatuses[index - 1]?.statusName === "Driving"
         )
           return true;
         else return false;
@@ -213,7 +214,7 @@ export class ZipService {
 
   zip(tenant: ITenant, driverId: number, date: string) {
     if (!tenant || !driverId || !date)
-      return this._snackBar.open('[ZIP] Error', 'OK', { duration: 7000 });
+      return this._snackBar.open("[ZIP] Error", "OK", { duration: 7000 });
 
     const zipData$ = this.apiService
       .getDriverDailyLogEvents(driverId, date, tenant.id)
@@ -255,7 +256,7 @@ export class ZipService {
                   const resizeItems: IResizeItem[] = zipEvents
                     .filter(
                       (event) =>
-                        event.statusName === 'Driving' &&
+                        event.statusName === "Driving" &&
                         event.realEndTime &&
                         event.averageSpeed < resizeSpeed,
                     )
@@ -312,10 +313,13 @@ export class ZipService {
                       return targetDuration > resizeMinDuration * 60;
                     });
 
+                  //////////////////////
+                  // resize
                   const resize$ = resizeItems.length
                     ? from(resizeItems).pipe(
                         mergeMap((resizeItem) => {
                           if (resizeItem.duplicateForGapFillEvent) {
+                            // create gap event
                             const eventToDuplicate =
                               resizeItem.duplicateForGapFillEvent;
                             return this.apiOperationsService
@@ -324,7 +328,7 @@ export class ZipService {
                                 startTime: getMinusOneToTwoSecDateISO(
                                   eventToDuplicate.startTime,
                                 ),
-                                note: '',
+                                note: "",
                               })
                               .pipe(mergeMap(() => of(resizeItem)));
                           } else return of(resizeItem);
@@ -339,8 +343,9 @@ export class ZipService {
                               catchError((err: any) => {
                                 if (
                                   err.error.code ===
-                                  'ResizeEvents.DifferenceInMiles'
+                                  "ResizeEvents.DifferenceInMiles"
                                 ) {
+                                  // handle mileage difference error
                                   const parsedErrorInfo = parseErrorMessage(
                                     err.error.message,
                                   );
@@ -350,10 +355,10 @@ export class ZipService {
                                         ProceedWithAdvancedResizeDialogComponent,
                                         {
                                           data: {
-                                            title: 'Resize Error',
+                                            title: "Resize Error",
                                             info: ` > ${err.error.message}`,
                                             message:
-                                              'Proceed with advanced resize?',
+                                              "Proceed with advanced resize?",
                                             event: resizeItem.event,
                                           },
                                         },
@@ -387,7 +392,7 @@ export class ZipService {
                         toArray(),
                       )
                     : of({});
-                  ////////
+                  //////////////////////////
                   // shift
                   const shift$ = of(eventsToDelete).pipe(
                     map((eventsToDelete) => {
@@ -397,6 +402,7 @@ export class ZipService {
                     }),
                     switchMap((ids) => {
                       if (ids.length)
+                        // delete events
                         return this.apiOperationsService.deleteEvents(
                           tenant,
                           ids,
@@ -404,6 +410,7 @@ export class ZipService {
                       else return of({});
                     }),
                     switchMap(() =>
+                      // get updated events
                       this.apiService
                         .getDriverDailyLogEvents(driverId, date, tenant.id)
                         .pipe(
@@ -416,6 +423,7 @@ export class ZipService {
                           toArray(),
                           map((events) =>
                             events.filter((event) => {
+                              // filter events to selected range
                               const eventTime = getTime(event);
                               return (
                                 eventTime >= startTime &&
@@ -425,56 +433,160 @@ export class ZipService {
                             }),
                           ),
                           switchMap((events) => {
+                            // sort events to align with shift direction
                             const direction = this.shiftDirection();
-                            const reverse = direction === 'Past';
+                            const reverse = direction === "Past";
                             const sortedEvents = reverse
                               ? events.reverse()
                               : events;
-
                             const firstShiftEvent = sortedEvents[0];
-
                             const lastShiftEvent =
                               sortedEvents[sortedEvents.length - 1];
+                            const minDutyDuration =
+                              this.zippedOnDutyDuration() * 60;
 
                             return from(sortedEvents).pipe(
-                              concatMap((event, index) => {
-                                const timeToShift =
-                                  sortedEvents[reverse ? index + 1 : index]
-                                    .durationInSeconds -
-                                  this.zippedOnDutyDuration() * 60 -
-                                  getRandomIntInclusive(1, 300);
-                                const time = getDuration(timeToShift).slice(
-                                  0,
-                                  -3,
-                                );
+                              scan(
+                                (
+                                  {
+                                    accumulatedDrivingDuration,
+                                    curentBreakDuration,
+                                    lastNonDrivingStatus: {
+                                      id,
+                                      totalBreakDuration,
+                                    },
+                                  },
+                                  event,
+                                ) => {
+                                  if (accumulatedDrivingDuration >= 28800) {
+                                    return {
+                                      accumulatedDrivingDuration: 0,
+                                      curentBreakDuration: 0,
+                                      lastNonDrivingStatus: {
+                                        id: 0,
+                                        totalBreakDuration: 0,
+                                      },
+                                    };
+                                  }
+                                  // accumulate driving
+                                  if (event.statusName === "Driving")
+                                    return {
+                                      accumulatedDrivingDuration:
+                                        accumulatedDrivingDuration +
+                                        event.durationInSeconds,
+                                      lastNonDrivingStatus: {
+                                        id,
+                                        totalBreakDuration: curentBreakDuration,
+                                      },
+                                      curentBreakDuration: 0,
+                                    };
+                                  else {
+                                    // !driving status ref
+                                    return {
+                                      accumulatedDrivingDuration,
+                                      lastNonDrivingStatus: {
+                                        id: event.id,
+                                        totalBreakDuration:
+                                          totalBreakDuration +
+                                          event.durationInSeconds,
+                                      },
+                                      curentBreakDuration:
+                                        curentBreakDuration +
+                                        event.durationInSeconds,
+                                    };
+                                  }
+                                },
+                                {
+                                  // initial state
+                                  accumulatedDrivingDuration: 0,
+                                  curentBreakDuration: 0,
+                                  lastNonDrivingStatus: {
+                                    id: 0,
+                                    totalBreakDuration: 0,
+                                  },
+                                },
+                              ),
+                              concatMap(
+                                (
+                                  {
+                                    accumulatedDrivingDuration,
+                                    lastNonDrivingStatus,
+                                  },
+                                  index,
+                                ) => {
+                                  console.log(
+                                    "[ accumulatedDrivingDuration ]",
+                                    accumulatedDrivingDuration,
+                                  );
+                                  console.log(
+                                    "[ lastNonDrivingStatus]",
+                                    lastNonDrivingStatus,
+                                  );
 
-                                if (
-                                  sortedEvents[reverse ? index + 1 : index]
-                                    .statusName === 'Driving' ||
-                                  sortedEvents[reverse ? index + 1 : index]
-                                    .id === lastShiftEvent.id ||
-                                  sortedEvents[reverse ? index + 1 : index].pti
-                                )
-                                  return of({});
-                                else {
-                                  if (timeToShift > 0)
+                                  const shiftId = reverse ? index + 1 : index;
+                                  const timeToShift =
+                                    sortedEvents[shiftId].durationInSeconds -
+                                    minDutyDuration -
+                                    getRandomIntInclusive(1, 300);
+                                  const time = getDuration(timeToShift).slice(
+                                    0,
+                                    -3,
+                                  );
+                                  const timeForBreak =
+                                    accumulatedDrivingDuration >= 28800;
+
+                                  if (timeForBreak) {
                                     return this.apiOperationsService.shift(
                                       tenant,
-                                      [firstShiftEvent, event],
+                                      [
+                                        firstShiftEvent,
+                                        sortedEvents[lastNonDrivingStatus.id],
+                                      ],
                                       {
-                                        direction,
-                                        time,
+                                        direction:
+                                          direction === "Past"
+                                            ? "Future"
+                                            : "Past",
+                                        time: getDuration(
+                                          30 * 60 -
+                                            lastNonDrivingStatus.totalBreakDuration +
+                                            getRandomIntInclusive(60, 180),
+                                        ),
                                       },
                                     );
-                                  else return of({});
-                                }
-                              }),
+                                  }
+
+                                  if (
+                                    // shift exeptions
+                                    sortedEvents[shiftId].statusName ===
+                                      "Driving" ||
+                                    sortedEvents[shiftId].id ===
+                                      lastShiftEvent.id ||
+                                    sortedEvents[shiftId].pti === -9999
+                                  )
+                                    return of({});
+                                  else {
+                                    if (timeToShift > 0)
+                                      return this.apiOperationsService.shift(
+                                        tenant,
+                                        [firstShiftEvent, sortedEvents[index]],
+                                        {
+                                          direction,
+                                          time,
+                                        },
+                                      );
+                                    else return of({});
+                                  }
+                                },
+                              ),
                             );
                           }),
                         ),
                     ),
                   );
 
+                  ///////////////////
+                  // ZIP
                   if (resize) {
                     return resize$.pipe(
                       mergeMap(() => {
@@ -496,7 +608,7 @@ export class ZipService {
 
       .subscribe({
         error: (err) => {
-          this._snackBar.open(`[ZIP] ERROR: ${err.error.message}`, 'Close');
+          this._snackBar.open(`[ZIP] ERROR: ${err.error.message}`, "Close");
         },
         complete: () => {
           this.monitorService.selectedEvents.set([]);

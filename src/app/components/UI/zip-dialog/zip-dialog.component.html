@@ -8,7 +8,7 @@
   <div class="zip__duration">
     <span class="zip__duration-text">estemated ziped duration:</span>
     <span class="zip__duration-time">{{
-      zipService.estematedZippedDuration()
+      zipService.estematedZippedDuration().slice(0, -3)
     }}</span>
   </div>
 
@@ -42,10 +42,30 @@
         <span class="zip__form__resize__input-unit">mph</span>
       </div>
 
+      <!-- [resize] maximum speed deviation -->
+      <div class="zip__form__resize__input">
+        <span class="zip__form__resize__input-label"
+          >maximum speed deviation</span
+        >
+        @if (zipService.resize()) {
+          <input
+            type="text"
+            #drivingDurationInput
+            (wheel)="onMouseWheel($event, 'drivingDurationInput')"
+            [(ngModel)]="zipService.resizeMinDuration"
+            autocomplete="off"
+            readonly
+          />
+        } @else {
+          <input type="text" value="-" disabled />
+        }
+        <span class="zip__form__resize__input-unit">mph</span>
+      </div>
+
       <!-- [resize] duration -->
       <div class="zip__form__resize__input">
         <span class="zip__form__resize__input-label"
-          >Driving minimal duration</span
+          >minimum driving duration</span
         >
         @if (zipService.resize()) {
           <input

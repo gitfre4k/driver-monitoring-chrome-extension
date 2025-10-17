@@ -362,9 +362,9 @@ export class ComputeEventsService {
             timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = "");
             shiftIsReadyToStart = false;
             wannabePTIonDutyId = 0;
+            events[i].pti = -9999;
             if (!events[i].notes || events[i].notes.trim() === "")
               events[i].warningMessages.push("[PTI] missing note");
-
             // if (invalidPTINote(events[i].notes)) events[i].errorMessages.push('[PTI] wrong note')
 
             // console.log('[Pre-Trip Inspection validity] valid PTI detected');
