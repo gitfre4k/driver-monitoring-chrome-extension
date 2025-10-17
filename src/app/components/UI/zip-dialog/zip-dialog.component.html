@@ -3,11 +3,13 @@
 
   <div class="zip__duration">
     <span class="zip__duration-text">selected range duration: </span>
-    <span class="zip__duration-time"> 8 hours 31 minutes</span>
+    <span class="zip__duration-time">{{ data.selectedRangeDuration }}</span>
   </div>
   <div class="zip__duration">
     <span class="zip__duration-text">estemated ziped duration:</span>
-    <span class="zip__duration-time"> 4 hours 48 minutes</span>
+    <span class="zip__duration-time">{{
+      zipService.estematedZippedDuration()
+    }}</span>
   </div>
 
   <div class="zip__form">
@@ -151,8 +153,9 @@
     <div class="zip__form__post-zip">
       <mat-checkbox
         class="zip__form__post-zip__checkbox"
-        [(ngModel)]="zipService.preformSmartFix"
+        [(ngModel)]="zipService.addEngines"
         [labelPosition]="'before'"
+        [disabled]="zipService.shift()"
         >Add Engines</mat-checkbox
       >
       <mat-checkbox
@@ -163,19 +166,39 @@
       >
     </div>
   </div>
-  @if (data.length) {
-    <div class="zip__form__delete">
-      <h3>Events to delete:</h3>
-      <ul>
-        @for (delEvent of data; track delEvent.id) {
-          <li>
-            <span>{{ delEvent.realStartTime | date: "MMM d, h:mm a" }}</span>
-            <span>- {{ delEvent.statusName }}</span>
-          </li>
-        }
-      </ul>
-    </div>
-  }
+  <div class="zip__form__delete">
+    @if (data.eventsToDelete.length && zipService.shift()) {
+      @if (showEventsToDelete()) {
+        <div class="zip__form__delete-toggle">
+          <span class="zip__form__delete-toggle__text">Events to delete:</span>
+          <button mat-button (click)="showEventsToDelete.set(false)">
+            Hide
+          </button>
+        </div>
+        <ul class="zip__form__delete__list">
+          @for (delEvent of data.eventsToDelete; track delEvent.id) {
+            <li class="zip__form__delete__list-item">
+              <span class="zip__form__delete__list-item__time">{{
+                delEvent.realStartTime | date: "h:mm a"
+              }}</span>
+              <span class="zip__form__delete__list-item__status">{{
+                delEvent.statusName
+              }}</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="zip__form__delete-toggle">
+          <span class="zip__form__delete-toggle__text"
+            >[{{ data.eventsToDelete.length }}] Events will be deleted.</span
+          >
+          <button mat-button (click)="showEventsToDelete.set(true)">
+            Show
+          </button>
+        </div>
+      }
+    }
+  </div>
 
   <div class="zip__form__buttons">
     <button mat-button (click)="onCancel()">Cancel</button>

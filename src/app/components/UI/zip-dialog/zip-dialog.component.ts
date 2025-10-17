@@ -3,19 +3,20 @@ import {
   Component,
   ElementRef,
   inject,
+  signal,
   ViewChild,
-} from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { IEvent } from "../../../interfaces/driver-daily-log-events.interface";
-import { CommonModule } from "@angular/common";
-import { MatButtonModule } from "@angular/material/button";
-import { MatRadioModule } from "@angular/material/radio";
-import { ZipService } from "../../../@services/zip.service";
-import { FormsModule } from "@angular/forms";
-import { MatCheckboxModule } from "@angular/material/checkbox";
+} from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { IEvent } from '../../../interfaces/driver-daily-log-events.interface';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatRadioModule } from '@angular/material/radio';
+import { ZipService } from '../../../@services/zip.service';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
-  selector: "app-zip-dialog",
+  selector: 'app-zip-dialog',
   imports: [
     CommonModule,
     MatButtonModule,
@@ -23,36 +24,39 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
     FormsModule,
     MatCheckboxModule,
   ],
-  templateUrl: "./zip-dialog.component.html",
-  styleUrl: "./zip-dialog.component.scss",
+  templateUrl: './zip-dialog.component.html',
+  styleUrl: './zip-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ZipDialogComponent {
   zipService = inject(ZipService);
   readonly dialogRef = inject(MatDialogRef<ZipDialogComponent>);
-  data: IEvent[] = inject(MAT_DIALOG_DATA);
+  data: { eventsToDelete: IEvent[]; selectedRangeDuration: string } =
+    inject(MAT_DIALOG_DATA);
 
-  @ViewChild("speedInput") speedInput!: ElementRef<HTMLInputElement>;
-  @ViewChild("onDutyDurationInput")
+  @ViewChild('speedInput') speedInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('onDutyDurationInput')
   onDutyDurationInput!: ElementRef<HTMLInputElement>;
-  @ViewChild("drivingDurationInput")
+  @ViewChild('drivingDurationInput')
   drivingDurationInput!: ElementRef<HTMLInputElement>;
-  @ViewChild("gapDurationInput")
+  @ViewChild('gapDurationInput')
   gapDurationInput!: ElementRef<HTMLInputElement>;
+
+  showEventsToDelete = signal(false);
 
   onMouseWheel(
     event: WheelEvent,
     inputType:
-      | "speedInput"
-      | "onDutyDurationInput"
-      | "drivingDurationInput"
-      | "gapDurationInput",
+      | 'speedInput'
+      | 'onDutyDurationInput'
+      | 'drivingDurationInput'
+      | 'gapDurationInput',
   ) {
     event.preventDefault();
     const isScrollUp = event.deltaY < 0;
 
     switch (inputType) {
-      case "speedInput": {
+      case 'speedInput': {
         if (!this.zipService.resize()) return;
 
         this.speedInput.nativeElement.focus();
@@ -64,7 +68,7 @@ export class ZipDialogComponent {
           else return newValue;
         });
       }
-      case "drivingDurationInput": {
+      case 'drivingDurationInput': {
         if (!this.zipService.resize()) return;
 
         this.drivingDurationInput.nativeElement.focus();
@@ -76,7 +80,7 @@ export class ZipDialogComponent {
           else return newValue;
         });
       }
-      case "onDutyDurationInput": {
+      case 'onDutyDurationInput': {
         if (!this.zipService.shift()) return;
 
         this.onDutyDurationInput.nativeElement.focus();
@@ -88,7 +92,7 @@ export class ZipDialogComponent {
           else return newValue;
         });
       }
-      case "gapDurationInput": {
+      case 'gapDurationInput': {
         if (!this.zipService.fill()) return;
 
         this.gapDurationInput.nativeElement.focus();

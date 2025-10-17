@@ -5,6 +5,7 @@ import { MonitorService } from './monitor.service';
 import { DialogConfirmComponent } from '../components/UI/dialog-confirm/dialog-confirm.component';
 import { ContextMenuService } from './context-menu.service';
 import { ZipService } from './zip.service';
+import { UrlService } from './url.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,7 @@ export class KeyboardService {
   monitorService = inject(MonitorService);
   contextMenuService = inject(ContextMenuService);
   zipService = inject(ZipService);
+  urlService = inject(UrlService);
 
   readonly dialog = inject(MatDialog);
 
@@ -51,7 +53,13 @@ export class KeyboardService {
           case '0': {
             const events = this.monitorService.selectedEvents();
             if (events.length === 0) return;
-            else return this.zipService.zip();
+            else {
+              const tenant = this.urlService.tenant();
+              const logInfo = this.urlService.currentView();
+              if (!tenant || !logInfo) return;
+              const { driverId, date } = logInfo;
+              return this.zipService.zip(tenant, driverId, date);
+            }
           }
           case 'Delete':
           case 'x':

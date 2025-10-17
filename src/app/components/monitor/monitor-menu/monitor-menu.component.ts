@@ -20,6 +20,7 @@ import { MOCK__EVENT_DETAILS } from '../../../data/mock-ddle';
 import { concatMap, delay, from, mergeMap, tap, toArray } from 'rxjs';
 import { ApiOperationsService } from '../../../@services/api-operations.service';
 import { IEventDetails, ITenant } from '../../../interfaces';
+import { UrlService } from '../../../@services/url.service';
 
 @Component({
   selector: 'app-monitor-menu',
@@ -34,6 +35,7 @@ export class MonitorMenuComponent {
   monitorService = inject(MonitorService);
   zipService = inject(ZipService);
   apiOperationsService = inject(ApiOperationsService);
+  urlService = inject(UrlService);
 
   readonly dialog = inject(MatDialog);
 
@@ -68,7 +70,11 @@ export class MonitorMenuComponent {
   }
 
   onZipAction() {
-    this.zipService.zip();
+    const tenant = this.urlService.tenant();
+    const logInfo = this.urlService.currentView();
+    if (!tenant || !logInfo) return;
+    const { driverId, date } = logInfo;
+    return this.zipService.zip(tenant, driverId, date);
   }
 
   onMenuAction(action: TContextMenuAction) {
