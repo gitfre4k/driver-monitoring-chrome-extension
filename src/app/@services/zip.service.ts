@@ -395,6 +395,7 @@ export class ZipService {
                   //////////////////////////
                   // shift
                   const shift$ = of(eventsToDelete).pipe(
+                    // delete events
                     map((eventsToDelete) => {
                       if (eventsToDelete.length)
                         return eventsToDelete.map((event) => event.id);
@@ -436,6 +437,17 @@ export class ZipService {
                             // sort events to align with shift direction
                             const direction = this.shiftDirection();
                             const reverse = direction === "Past";
+
+                            // find 30-minute break breaking point
+                            let accumulatedDrivingDuration = 0;
+                            const breakEvent = events.find((event) => {
+                              if (event.statusName === "Driving") {
+                                accumulatedDrivingDuration +=
+                                  event.durationInSeconds;
+                              }
+                              return accumulatedDrivingDuration > 28800;
+                            });
+
                             const sortedEvents = reverse
                               ? events.reverse()
                               : events;
@@ -445,127 +457,88 @@ export class ZipService {
                             const minDutyDuration =
                               this.zippedOnDutyDuration() * 60;
 
+                            const breakIndex = sortedEvents.findIndex(
+                              (event) => event.id === breakEvent?.id,
+                            );
+
                             return from(sortedEvents).pipe(
-                              scan(
-                                (
-                                  {
-                                    accumulatedDrivingDuration,
-                                    curentBreakDuration,
-                                    lastNonDrivingStatus: {
-                                      id,
-                                      totalBreakDuration,
-                                    },
-                                  },
-                                  event,
-                                ) => {
-                                  if (accumulatedDrivingDuration >= 28800) {
-                                    return {
-                                      accumulatedDrivingDuration: 0,
-                                      curentBreakDuration: 0,
-                                      lastNonDrivingStatus: {
-                                        id: 0,
-                                        totalBreakDuration: 0,
-                                      },
-                                    };
-                                  }
-                                  // accumulate driving
-                                  if (event.statusName === "Driving")
-                                    return {
-                                      accumulatedDrivingDuration:
-                                        accumulatedDrivingDuration +
-                                        event.durationInSeconds,
-                                      lastNonDrivingStatus: {
-                                        id,
-                                        totalBreakDuration: curentBreakDuration,
-                                      },
-                                      curentBreakDuration: 0,
-                                    };
-                                  else {
-                                    // !driving status ref
-                                    return {
-                                      accumulatedDrivingDuration,
-                                      lastNonDrivingStatus: {
-                                        id: event.id,
-                                        totalBreakDuration:
-                                          totalBreakDuration +
-                                          event.durationInSeconds,
-                                      },
-                                      curentBreakDuration:
-                                        curentBreakDuration +
-                                        event.durationInSeconds,
-                                    };
-                                  }
-                                },
-                                {
-                                  // initial state
-                                  accumulatedDrivingDuration: 0,
-                                  curentBreakDuration: 0,
-                                  lastNonDrivingStatus: {
-                                    id: 0,
-                                    totalBreakDuration: 0,
-                                  },
-                                },
-                              ),
-                              concatMap(
-                                (
-                                  {
-                                    accumulatedDrivingDuration,
-                                    lastNonDrivingStatus,
-                                  },
-                                  index,
-                                ) => {
-                                  console.log(
-                                    "[ accumulatedDrivingDuration ]",
-                                    accumulatedDrivingDuration,
-                                  );
-                                  console.log(
-                                    "[ lastNonDrivingStatus]",
-                                    lastNonDrivingStatus,
-                                  );
+                              concatMap((event, index) => {
+                                const shiftId = reverse ? index + 1 : index;
 
-                                  const shiftId = reverse ? index + 1 : index;
-                                  const timeToShift =
-                                    sortedEvents[shiftId].durationInSeconds -
-                                    minDutyDuration -
-                                    getRandomIntInclusive(1, 300);
-                                  const time = getDuration(timeToShift).slice(
-                                    0,
-                                    -3,
-                                  );
-                                  const timeForBreak =
-                                    accumulatedDrivingDuration >= 28800;
+                                if (shiftId >= sortedEvents.length)
+                                  return of({});
 
-                                  if (timeForBreak) {
+                                const timeToShift =
+                                  sortedEvents[shiftId].durationInSeconds -
+                                  minDutyDuration -
+                                  getRandomIntInclusive(1, 300);
+
+                                const time = getDuration(timeToShift).slice(
+                                  0,
+                                  -3,
+                                );
+
+                                if (
+                                  // shift exeptions
+                                  sortedEvents[shiftId].statusName ===
+                                    "Driving" ||
+                                  sortedEvents[shiftId].id ===
+                                    lastShiftEvent.id ||
+                                  sortedEvents[shiftId]?.pti === -9999
+                                )
+                                  return of({});
+                                else {
+                                  // 30-minute break shift
+                                  if (
+                                    breakIndex !== -1 &&
+                                    index ===
+                                      (reverse ? breakIndex : breakIndex - 1)
+                                  ) {
+                                    const breakDuration =
+                                      sortedEvents[shiftId].durationInSeconds;
+
+                                    if (breakDuration >= 1800) {
+                                      if (breakDuration > 1980) {
+                                        const time = getDuration(
+                                          breakDuration -
+                                            1800 -
+                                            getRandomIntInclusive(1, 180),
+                                        ).slice(0, -3);
+                                        return this.apiOperationsService.shift(
+                                          tenant,
+                                          [
+                                            firstShiftEvent,
+                                            sortedEvents[index],
+                                          ],
+                                          {
+                                            direction,
+                                            time,
+                                          },
+                                        );
+                                      } else return of({});
+                                    }
+
+                                    const timeToShift =
+                                      1800 -
+                                      sortedEvents[shiftId].durationInSeconds;
+                                    if (timeToShift <= 0) return of({});
+                                    const time = getDuration(
+                                      timeToShift +
+                                        getRandomIntInclusive(1, 180),
+                                    ).slice(0, -3);
+
                                     return this.apiOperationsService.shift(
                                       tenant,
-                                      [
-                                        firstShiftEvent,
-                                        sortedEvents[lastNonDrivingStatus.id],
-                                      ],
+                                      [firstShiftEvent, sortedEvents[index]],
                                       {
                                         direction:
                                           direction === "Past"
                                             ? "Future"
                                             : "Past",
-                                        time: getDuration(
-                                          30 * 60 -
-                                            lastNonDrivingStatus.totalBreakDuration +
-                                            getRandomIntInclusive(60, 180),
-                                        ),
+                                        time,
                                       },
                                     );
-                                  }
-
-                                  if (
-                                    // shift exeptions
-                                    sortedEvents[shiftId].statusName ===
-                                      "Driving" ||
-                                    sortedEvents[shiftId].id ===
-                                      lastShiftEvent.id ||
-                                    sortedEvents[shiftId].pti === -9999
-                                  )
-                                    return of({});
-                                  else {
+                                  } else {
                                     if (timeToShift > 0)
                                       return this.apiOperationsService.shift(
                                         tenant,
@@ -577,8 +550,8 @@ export class ZipService {
                                       );
                                     else return of({});
                                   }
-                                },
-                              ),
+                                }
+                              }),
                             );
                           }),
                         ),
@@ -608,7 +581,9 @@ export class ZipService {
 
       .subscribe({
         error: (err) => {
-          this._snackBar.open(`[ZIP] ERROR: ${err.error.message}`, "Close");
+          if (err.error?.message)
+            this._snackBar.open(`[ZIP] ERROR: ${err.error.message}`, "Close");
+          else this._snackBar.open(`[ZIP] ERROR: ${err}`);
         },
         complete: () => {
           this.monitorService.selectedEvents.set([]);

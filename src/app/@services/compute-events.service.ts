@@ -591,12 +591,7 @@ export class ComputeEventsService {
               id: inter.id,
               totalVehicleMiles: inter.odometer,
             }));
-          console.log(
-            "nextDutyStatus, interInfo and current compute event",
-            nextDutyStatusInfo,
-            intermediatesInfo,
-            events[i],
-          );
+
           events[currentDriving.computeIndex].nextDutyStatusInfo =
             nextDutyStatusInfo;
           events[currentDriving.computeIndex].intermediatesInfo =
