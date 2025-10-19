@@ -50,9 +50,9 @@
         @if (zipService.resize()) {
           <input
             type="text"
-            #drivingDurationInput
-            (wheel)="onMouseWheel($event, 'drivingDurationInput')"
-            [(ngModel)]="zipService.resizeMinDuration"
+            #maxSpeedDeviationInput
+            (wheel)="onMouseWheel($event, 'maxSpeedDeviationInput')"
+            [(ngModel)]="zipService.maxSpeedDeviation"
             autocomplete="off"
             readonly
           />

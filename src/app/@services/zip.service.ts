@@ -34,12 +34,13 @@ export class ZipService {
   readonly _snackBar = inject(MatSnackBar);
 
   resize = signal(true);
-  resizeSpeed = signal<number>(64);
+  resizeSpeed = signal(64);
+  maxSpeedDeviation = signal(`±4`);
   resizeMinDuration = signal(4);
 
   shift = signal(true);
   selectedDirection = signal(1);
-  zippedOnDutyDuration = signal<number>(18);
+  zippedOnDutyDuration = signal(18);
   shiftDirection = computed<"Past" | "Future">(() => {
     return this.selectedDirection() ? "Future" : "Past";
   });
@@ -89,7 +90,7 @@ export class ZipService {
     const totalDurationInSeconds = dutyStatuses.reduce((acc, event) => {
       switch (event.statusName) {
         case "On Duty": {
-          if (event.pti) return acc + 0;
+          if (event.pti === -9999) return acc + 0;
           else {
             return (
               acc +
@@ -161,20 +162,19 @@ export class ZipService {
               },
             })
             .afterClosed()
-            .pipe(
-              switchMap((result) => (result ? of(zipData) : EMPTY)), // Use EMPTY to stop the stream if user cancels
-            ),
+            .pipe(switchMap((result) => (result ? of(zipData) : EMPTY))),
         ),
         // 2. Prepare resize items
         map((zipData) => ({
           ...zipData,
           resizeItems: this.zipResizeService.createResizeItems(
             zipData.zipEvents,
+            zipData.eventsWithPotentialGaps,
             this.resizeSpeed(),
             this.resizeMinDuration(),
+            +this.maxSpeedDeviation().slice(1),
             this.fill(),
             this.gapMinDuration(),
-            zipData.eventsWithPotentialGaps,
           ),
         })),
         // 3. Conditional operation sequence (Resize -> Shift)

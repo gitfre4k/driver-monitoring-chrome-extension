@@ -34,11 +34,12 @@ export class ZipResizeService {
 
   createResizeItems(
     zipEvents: IEvent[],
+    eventsWithPotentialGaps: { [id: string]: IEvent },
     resizeSpeed: number,
     resizeMinDuration: number,
+    maxSpeedDeviation: number,
     fill: boolean,
     gapMinDuration: number,
-    eventsWithPotentialGaps: { [id: string]: IEvent },
   ): IResizeItem[] {
     return zipEvents
       .filter(
@@ -61,7 +62,10 @@ export class ZipResizeService {
 
         if (!event.averageSpeed) return defaultReturn;
 
-        const speed = resizeSpeed - 4 + Math.random() * 8;
+        const speed =
+          resizeSpeed -
+          maxSpeedDeviation +
+          Math.random() * maxSpeedDeviation * 2;
         const newSpeed = speed >= 75 ? 74.95 : speed;
         const originalSpeed = event.averageSpeed * 10000;
         const originalDuration = event.durationInSeconds;
