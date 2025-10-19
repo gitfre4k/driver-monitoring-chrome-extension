@@ -1,40 +1,20 @@
 import { computed, inject, Injectable, signal, effect } from "@angular/core";
 import { MonitorService } from "./monitor.service";
-import { IEvent } from "../interfaces/driver-daily-log-events.interface";
-import {
-  deletableStatusNames,
-  dutyStatusNames,
-  getDuration,
-  getMinusOneToTwoSecDateISO,
-  getRandomIntInclusive,
-  getRangeDuration,
-  getTime,
-  timeToSeconds,
-} from "../helpers/zip.helpers";
+
+import { dutyStatusNames, getDuration, getTime } from "../helpers/zip.helpers";
 import { ApiOperationsService } from "./api-operations.service";
-import {
-  catchError,
-  concatMap,
-  from,
-  map,
-  mergeMap,
-  of,
-  scan,
-  switchMap,
-  throwError,
-  toArray,
-} from "rxjs";
+import { map, mergeMap, of, switchMap, toArray, EMPTY } from "rxjs";
 import { ITenant } from "../interfaces";
 import { ApiService } from "./api.service";
-
 import { UrlService } from "./url.service";
 import { MatDialog } from "@angular/material/dialog";
 import { ZipDialogComponent } from "../components/UI/zip-dialog/zip-dialog.component";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { ProceedWithAdvancedResizeDialogComponent } from "../components/UI/proceed-with-advanced-resize-dialog/proceed-with-advanced-resize-dialog.component";
-import { parseErrorMessage } from "../helpers/context-menu.helpers";
-import { IResizeItem } from "../interfaces/zip.interface";
+
 import { ComputeEventsService } from "./compute-events.service";
+import { ZipInitializationService } from "./zip-initialization.service";
+import { ZipResizeService } from "./zip-resize.service";
+import { ZipShiftService } from "./zip-shift.service";
 
 @Injectable({
   providedIn: "root",
@@ -45,6 +25,10 @@ export class ZipService {
   apiOperationsService = inject(ApiOperationsService);
   urlService = inject(UrlService);
   computeEventsService = inject(ComputeEventsService);
+
+  zipInitializationService = inject(ZipInitializationService);
+  zipResizeService = inject(ZipResizeService);
+  zipShiftService = inject(ZipShiftService);
 
   readonly dialog = inject(MatDialog);
   readonly _snackBar = inject(MatSnackBar);
@@ -57,8 +41,7 @@ export class ZipService {
   selectedDirection = signal(1);
   zippedOnDutyDuration = signal<number>(18);
   shiftDirection = computed<"Past" | "Future">(() => {
-    const selectedDirection = this.selectedDirection();
-    return selectedDirection ? "Future" : "Past";
+    return this.selectedDirection() ? "Future" : "Past";
   });
 
   fill = signal(false);
@@ -144,77 +127,12 @@ export class ZipService {
     return getDuration(totalDurationInSeconds);
   });
 
-  initializeEvents(allEvents: IEvent[]) {
-    const selectedEvents = this.monitorService.selectedEvents();
-
-    const { 0: firstSelected, [selectedEvents.length - 1]: lastSelected } =
-      selectedEvents.sort((a, b) => getTime(a) - getTime(b));
-
-    const startTime = getTime(firstSelected);
-    const endTime = getTime(lastSelected);
-
-    const zipEvents = allEvents.filter((e) => {
-      const eventTime = getTime(e);
-      return eventTime >= startTime && eventTime <= endTime;
-    });
-
-    const dutyStatuses = zipEvents.filter((event) =>
-      dutyStatusNames.has(event.statusName),
-    );
-
-    const onDutyIdsToFill = dutyStatuses
-      .filter((event, index) => {
-        if (
-          index !== 0 &&
-          event.statusName === "On Duty" &&
-          dutyStatuses[index - 1] &&
-          dutyStatuses[index - 1]?.statusName === "Driving"
-        )
-          return true;
-        else return false;
-      })
-      .map((event) => event.id);
-
-    const eventsWithPotentialGaps = {} as { [id: string]: IEvent };
-
-    dutyStatuses.forEach((event, index) => {
-      if (onDutyIdsToFill.includes(event.id)) {
-        eventsWithPotentialGaps[dutyStatuses[index - 1].id] =
-          dutyStatuses[index];
-      }
-    });
-
-    const eventsToDelete: IEvent[] = [];
-
-    zipEvents.forEach((event) => {
-      deletableStatusNames.has(event.statusName) && eventsToDelete.push(event);
-    });
-
-    const selectedRangeDuration = getRangeDuration(
-      dutyStatuses[0].startTime,
-      dutyStatuses[dutyStatuses.length - 1].startTime,
-    );
-
-    return of({
-      zipEvents: zipEvents.filter((event) => {
-        const eventTime = getTime(event);
-        return (
-          eventTime >= startTime &&
-          eventTime <= endTime &&
-          dutyStatusNames.has(event.statusName)
-        );
-      }),
-      startTime,
-      endTime,
-      selectedRangeDuration,
-      eventsToDelete,
-      eventsWithPotentialGaps,
-    });
-  }
-
   zip(tenant: ITenant, driverId: number, date: string) {
-    if (!tenant || !driverId || !date)
-      return this._snackBar.open("[ZIP] Error", "OK", { duration: 7000 });
+    if (!tenant || !driverId || !date) {
+      return this._snackBar.open("[ZIP] Error: Missing data", "OK", {
+        duration: 7000,
+      });
+    }
 
     const zipData$ = this.apiService
       .getDriverDailyLogEvents(driverId, date, tenant.id)
@@ -226,364 +144,88 @@ export class ZipService {
           }),
         ),
         toArray(),
-        switchMap((events) => this.initializeEvents(events)),
+        switchMap((events) =>
+          this.zipInitializationService.initializeZipEvents(events),
+        ),
       );
 
     return zipData$
       .pipe(
-        switchMap((zipData) => {
-          const {
-            zipEvents,
-            eventsToDelete,
-            eventsWithPotentialGaps,
-            selectedRangeDuration,
-            startTime,
-            endTime,
-          } = zipData;
-
-          return this.dialog
+        // 1. User confirmation dialog
+        switchMap((zipData) =>
+          this.dialog
             .open(ZipDialogComponent, {
-              data: { eventsToDelete, selectedRangeDuration },
+              data: {
+                eventsToDelete: zipData.eventsToDelete,
+                selectedRangeDuration: zipData.selectedRangeDuration,
+              },
             })
             .afterClosed()
             .pipe(
-              switchMap((result) => {
-                if (result) {
-                  const resize = this.resize();
-                  const shift = this.shift();
-                  const resizeSpeed = this.resizeSpeed();
-                  const resizeMinDuration = this.resizeMinDuration();
-                  const resizeItems: IResizeItem[] = zipEvents
-                    .filter(
-                      (event) =>
-                        event.statusName === "Driving" &&
-                        event.realEndTime &&
-                        event.averageSpeed < resizeSpeed,
-                    )
-                    .map((event) => {
-                      const minDuration =
-                        resizeMinDuration * 60 + getRandomIntInclusive(1, 90);
+              switchMap((result) => (result ? of(zipData) : EMPTY)), // Use EMPTY to stop the stream if user cancels
+            ),
+        ),
+        // 2. Prepare resize items
+        map((zipData) => ({
+          ...zipData,
+          resizeItems: this.zipResizeService.createResizeItems(
+            zipData.zipEvents,
+            this.resizeSpeed(),
+            this.resizeMinDuration(),
+            this.fill(),
+            this.gapMinDuration(),
+            zipData.eventsWithPotentialGaps,
+          ),
+        })),
+        // 3. Conditional operation sequence (Resize -> Shift)
+        switchMap(({ resizeItems, ...zipData }) => {
+          const resize$ = this.zipResizeService.processResizeItems(
+            tenant,
+            resizeItems,
+            this.resize(),
+            this.fillStatus(),
+          );
 
-                      const gapDuration = event.durationInSeconds - minDuration;
-                      const defaultReturn = {
-                        event,
-                        duration: getDuration(
-                          Math.min(minDuration, event.durationInSeconds),
-                        ),
-                        duplicateForGapFillEvent:
-                          this.fill() &&
-                          gapDuration >= this.gapMinDuration() * 60 &&
-                          eventsWithPotentialGaps[event.id],
-                      };
-
-                      if (!event.averageSpeed) return defaultReturn;
-                      else {
-                        const speed = resizeSpeed - 4 + Math.random() * 8;
-                        const newSpeed = speed >= 75 ? 74.95 : speed;
-                        const originalSpeed = event.averageSpeed * 10000;
-                        const originalDuration = event.durationInSeconds;
-                        const fillGapMinimalDuration =
-                          this.gapMinDuration() * 60; // gap in minutes
-                        const distance =
-                          originalSpeed * (originalDuration / 3600);
-                        const newDuration =
-                          ((distance / newSpeed) * 3600) / 10000;
-
-                        if (minDuration > newDuration) return defaultReturn;
-                        else {
-                          const duration = getDuration(newDuration);
-                          const durationDiff = originalDuration - newDuration;
-                          const fillGap =
-                            durationDiff >= fillGapMinimalDuration;
-                          const duplicateForGapFillEvent =
-                            this.fill() &&
-                            fillGap &&
-                            eventsWithPotentialGaps[event.id];
-
-                          return {
-                            event,
-                            duration,
-                            duplicateForGapFillEvent,
-                          };
-                        }
-                      }
-                    })
-                    .filter((resizeItem) => {
-                      const targetDuration = timeToSeconds(resizeItem.duration);
-                      return targetDuration > resizeMinDuration * 60;
-                    });
-
-                  //////////////////////
-                  // resize
-                  const resize$ = resizeItems.length
-                    ? from(resizeItems).pipe(
-                        mergeMap((resizeItem) => {
-                          if (resizeItem.duplicateForGapFillEvent) {
-                            // create gap event
-                            const eventToDuplicate =
-                              resizeItem.duplicateForGapFillEvent;
-                            return this.apiOperationsService
-                              .duplicateEvent(tenant, eventToDuplicate, {
-                                eventTypeCode: this.fillStatus(),
-                                startTime: getMinusOneToTwoSecDateISO(
-                                  eventToDuplicate.startTime,
-                                ),
-                                note: "",
-                              })
-                              .pipe(mergeMap(() => of(resizeItem)));
-                          } else return of(resizeItem);
-                        }),
-                        concatMap((resizeItem) => {
-                          return this.apiOperationsService
-                            .resizeEvent(tenant, resizeItem.event.id, {
-                              duration: resizeItem.duration,
-                              durationAsTimeSpan: `${new Date().getTime()}`,
-                            })
-                            .pipe(
-                              catchError((err: any) => {
-                                if (
-                                  err.error.code ===
-                                  "ResizeEvents.DifferenceInMiles"
-                                ) {
-                                  // handle mileage difference error
-                                  const parsedErrorInfo = parseErrorMessage(
-                                    err.error.message,
-                                  );
-                                  if (parsedErrorInfo) {
-                                    return this.dialog
-                                      .open(
-                                        ProceedWithAdvancedResizeDialogComponent,
-                                        {
-                                          data: {
-                                            title: "Resize Error",
-                                            info: ` > ${err.error.message}`,
-                                            message:
-                                              "Proceed with advanced resize?",
-                                            event: resizeItem.event,
-                                          },
-                                        },
-                                      )
-                                      .afterClosed()
-                                      .pipe(
-                                        switchMap((result) => {
-                                          if (result) {
-                                            return this.apiOperationsService.advancedResize(
-                                              tenant,
-                                              resizeItem.event,
-                                              {
-                                                resizePayload: {
-                                                  duration: resizeItem.duration,
-                                                  durationAsTimeSpan: `${new Date().getTime()}`,
-                                                },
-                                                parsedErrorInfo,
-                                              },
-                                            );
-                                          } else {
-                                            return of({});
-                                          }
-                                        }),
-                                      );
-                                  }
-                                }
-                                return throwError(() => err);
-                              }),
-                            );
-                        }),
-                        toArray(),
-                      )
-                    : of({});
-                  //////////////////////////
-                  // shift
-                  const shift$ = of(eventsToDelete).pipe(
-                    // delete events
-                    map((eventsToDelete) => {
-                      if (eventsToDelete.length)
-                        return eventsToDelete.map((event) => event.id);
-                      else return [];
-                    }),
-                    switchMap((ids) => {
-                      if (ids.length)
-                        // delete events
-                        return this.apiOperationsService.deleteEvents(
-                          tenant,
-                          ids,
-                        );
-                      else return of({});
-                    }),
-                    switchMap(() =>
-                      // get updated events
-                      this.apiService
-                        .getDriverDailyLogEvents(driverId, date, tenant.id)
-                        .pipe(
-                          switchMap((ddle) =>
-                            this.computeEventsService.getComputedEvents({
-                              driverDailyLog: ddle,
-                              coDriverDailyLog: null,
-                            }),
-                          ),
-                          toArray(),
-                          map((events) =>
-                            events.filter((event) => {
-                              // filter events to selected range
-                              const eventTime = getTime(event);
-                              return (
-                                eventTime >= startTime &&
-                                eventTime <= endTime &&
-                                dutyStatusNames.has(event.statusName)
-                              );
-                            }),
-                          ),
-                          switchMap((events) => {
-                            // sort events to align with shift direction
-                            const direction = this.shiftDirection();
-                            const reverse = direction === "Past";
-
-                            // find 30-minute break breaking point
-                            let accumulatedDrivingDuration = 0;
-                            const breakEvent = events.find((event) => {
-                              if (event.statusName === "Driving") {
-                                accumulatedDrivingDuration +=
-                                  event.durationInSeconds;
-                              }
-                              return accumulatedDrivingDuration > 28800;
-                            });
-
-                            const sortedEvents = reverse
-                              ? events.reverse()
-                              : events;
-                            const firstShiftEvent = sortedEvents[0];
-                            const lastShiftEvent =
-                              sortedEvents[sortedEvents.length - 1];
-                            const minDutyDuration =
-                              this.zippedOnDutyDuration() * 60;
-
-                            const breakIndex = sortedEvents.findIndex(
-                              (event) => event.id === breakEvent?.id,
-                            );
-
-                            return from(sortedEvents).pipe(
-                              concatMap((event, index) => {
-                                const shiftId = reverse ? index + 1 : index;
-
-                                if (shiftId >= sortedEvents.length)
-                                  return of({});
-
-                                const timeToShift =
-                                  sortedEvents[shiftId].durationInSeconds -
-                                  minDutyDuration -
-                                  getRandomIntInclusive(1, 300);
-
-                                const time = getDuration(timeToShift).slice(
-                                  0,
-                                  -3,
-                                );
-
-                                if (
-                                  // shift exeptions
-                                  sortedEvents[shiftId].statusName ===
-                                    "Driving" ||
-                                  sortedEvents[shiftId].id ===
-                                    lastShiftEvent.id ||
-                                  sortedEvents[shiftId]?.pti === -9999
-                                )
-                                  return of({});
-                                else {
-                                  // 30-minute break shift
-                                  if (
-                                    breakIndex !== -1 &&
-                                    index ===
-                                      (reverse ? breakIndex : breakIndex - 1)
-                                  ) {
-                                    const breakDuration =
-                                      sortedEvents[shiftId].durationInSeconds;
-
-                                    if (breakDuration >= 1800) {
-                                      if (breakDuration > 1980) {
-                                        const time = getDuration(
-                                          breakDuration -
-                                            1800 -
-                                            getRandomIntInclusive(1, 180),
-                                        ).slice(0, -3);
-                                        return this.apiOperationsService.shift(
-                                          tenant,
-                                          [
-                                            firstShiftEvent,
-                                            sortedEvents[index],
-                                          ],
-                                          {
-                                            direction,
-                                            time,
-                                          },
-                                        );
-                                      } else return of({});
-                                    }
-
-                                    const timeToShift =
-                                      1800 -
-                                      sortedEvents[shiftId].durationInSeconds;
-                                    if (timeToShift <= 0) return of({});
-                                    const time = getDuration(
-                                      timeToShift +
-                                        getRandomIntInclusive(1, 180),
-                                    ).slice(0, -3);
-
-                                    return this.apiOperationsService.shift(
-                                      tenant,
-                                      [firstShiftEvent, sortedEvents[index]],
-                                      {
-                                        direction:
-                                          direction === "Past"
-                                            ? "Future"
-                                            : "Past",
-                                        time,
-                                      },
-                                    );
-                                  } else {
-                                    if (timeToShift > 0)
-                                      return this.apiOperationsService.shift(
-                                        tenant,
-                                        [firstShiftEvent, sortedEvents[index]],
-                                        {
-                                          direction,
-                                          time,
-                                        },
-                                      );
-                                    else return of({});
-                                  }
-                                }
-                              }),
-                            );
-                          }),
-                        ),
-                    ),
-                  );
-
-                  ///////////////////
-                  // ZIP
-                  if (resize) {
-                    return resize$.pipe(
-                      mergeMap(() => {
-                        if (shift) return shift$;
-                        else return of({});
-                      }),
-                    );
-                  } else {
-                    if (shift) return shift$;
-                    else return of({});
-                  }
-                } else {
-                  return of({});
-                }
-              }),
+          if (this.resize() && this.shift()) {
+            // Resize then Shift
+            return resize$.pipe(
+              mergeMap(() =>
+                this.zipShiftService.processShift(
+                  tenant,
+                  driverId,
+                  date,
+                  zipData,
+                  this.shift(),
+                  this.shiftDirection(),
+                  this.zippedOnDutyDuration(),
+                ),
+              ),
             );
+          } else if (this.resize()) {
+            // Only Resize
+            return resize$;
+          } else if (this.shift()) {
+            // Only Shift
+            return this.zipShiftService.processShift(
+              tenant,
+              driverId,
+              date,
+              zipData,
+              this.shift(),
+              this.shiftDirection(),
+              this.zippedOnDutyDuration(),
+            );
+          } else {
+            return of({});
+          }
         }),
       )
-
       .subscribe({
         error: (err) => {
-          if (err.error?.message)
-            this._snackBar.open(`[ZIP] ERROR: ${err.error.message}`, "Close");
-          else this._snackBar.open(`[ZIP] ERROR: ${err}`);
+          const message = err.error?.message
+            ? `[ZIP] ERROR: ${err.error.message}`
+            : `[ZIP] ERROR: ${err}`;
+          this._snackBar.open(message, "Close");
         },
         complete: () => {
           this.monitorService.selectedEvents.set([]);
