@@ -40,6 +40,7 @@ export class ZipResizeService {
     maxSpeedDeviation: number,
     fill: boolean,
     gapMinDuration: number,
+    resizeReductionTrashhold: number,
   ): IResizeItem[] {
     return zipEvents
       .filter(
@@ -72,14 +73,21 @@ export class ZipResizeService {
         const fillGapMinimalDuration = gapMinDuration * 60;
         const distance = originalSpeed * (originalDuration / 3600);
         const newDuration = ((distance / newSpeed) * 3600) / 10000;
-
-        if (minDuration > newDuration) return defaultReturn;
-
-        const duration = getDuration(newDuration);
+        const resizeMinimumReductionTrashhold = resizeReductionTrashhold * 60;
         const durationDiff = originalDuration - newDuration;
         const fillGap = durationDiff >= fillGapMinimalDuration;
         const duplicateForGapFillEvent =
           fill && fillGap && eventsWithPotentialGaps[event.id];
+        const duration = getDuration(newDuration);
+
+        if (resizeMinimumReductionTrashhold > durationDiff)
+          return {
+            event,
+            duration: "",
+            duplicateForGapFillEvent: false,
+          } as IResizeItem;
+
+        if (minDuration > newDuration) return defaultReturn;
 
         return {
           event,
@@ -89,7 +97,7 @@ export class ZipResizeService {
       })
       .filter((resizeItem) => {
         const targetDuration = timeToSeconds(resizeItem.duration);
-        return targetDuration > resizeMinDuration * 60;
+        return targetDuration > resizeMinDuration * 60 && !!resizeItem.duration;
       });
   }
 

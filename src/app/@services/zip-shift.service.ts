@@ -1,7 +1,16 @@
 import { inject, Injectable } from "@angular/core";
 import { ITenant } from "../interfaces";
 import { IZipInitializationData } from "../interfaces/zip.interface";
-import { concatMap, from, map, Observable, of, switchMap, toArray } from "rxjs";
+import {
+  concatMap,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  switchMap,
+  toArray,
+} from "rxjs";
 import { ApiOperationsService } from "./api-operations.service";
 import { ApiService } from "./api.service";
 import { ComputeEventsService } from "./compute-events.service";
@@ -28,6 +37,9 @@ export class ZipShiftService {
     shift: boolean,
     shiftDirection: "Future" | "Past",
     zippedOnDutyDuration: number,
+    shiftMinTimeFrame: number,
+    shiftBreak: boolean,
+    engineOffIdleTimeSpawn: number,
   ): Observable<any> {
     if (!shift) {
       return of({});
@@ -108,6 +120,7 @@ export class ZipShiftService {
 
             // 30-minute break special shift logic
             if (
+              shiftBreak &&
               breakIndex !== -1 &&
               index === (reverse ? breakIndex : breakIndex - 1)
             ) {
@@ -128,7 +141,8 @@ export class ZipShiftService {
               }
 
               const timeToShift = 1800 - breakDuration;
-              if (timeToShift <= 0) return of({});
+              if (timeToShift <= 0 || timeToShift < shiftMinTimeFrame)
+                return of({});
               const time = getDuration(
                 timeToShift + getRandomIntInclusive(1, 180),
               ).slice(0, -3);
@@ -163,6 +177,34 @@ export class ZipShiftService {
       }),
     );
 
-    return delete$.pipe(switchMap(() => shiftLogic$));
+    const addEngines$ = getUpdatedEvents$.pipe(
+      switchMap((events) => {
+        if (!engineOffIdleTimeSpawn) {
+          return of({});
+        } else
+          return from(events).pipe(
+            mergeMap((event, index) => {
+              if (
+                event.statusName === "Driving" &&
+                events[index + 1] &&
+                events[index + 1].durationInSeconds >
+                  engineOffIdleTimeSpawn * 60
+              ) {
+                return this.apiOperationsService.addEngineOff(
+                  tenant,
+                  events[index + 1].id,
+                );
+              } else return of({});
+            }),
+            toArray(),
+          );
+      }),
+    );
+
+    return delete$.pipe(
+      switchMap(() => shiftLogic$),
+      toArray(),
+      switchMap(() => addEngines$),
+    );
   }
 }

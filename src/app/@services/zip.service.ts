@@ -3,15 +3,7 @@ import { MonitorService } from "./monitor.service";
 
 import { dutyStatusNames, getDuration, getTime } from "../helpers/zip.helpers";
 import { ApiOperationsService } from "./api-operations.service";
-import {
-  map,
-  mergeMap,
-  of,
-  switchMap,
-  toArray,
-  EMPTY,
-  defaultIfEmpty,
-} from "rxjs";
+import { map, mergeMap, of, switchMap, toArray, EMPTY } from "rxjs";
 import { ITenant } from "../interfaces";
 import { ApiService } from "./api.service";
 import { UrlService } from "./url.service";
@@ -24,6 +16,7 @@ import { ZipInitializationService } from "./zip-initialization.service";
 import { ZipResizeService } from "./zip-resize.service";
 import { ZipShiftService } from "./zip-shift.service";
 import { IZipInitializationData } from "../interfaces/zip.interface";
+import { DateTime } from "luxon";
 
 @Injectable({
   providedIn: "root",
@@ -46,15 +39,19 @@ export class ZipService {
   resizeSpeed = signal(64);
   maxSpeedDeviation = signal(`±4`);
   resizeMinDuration = signal(4);
+  resizeReductionTrashhold = signal(5);
 
   shift = signal(true);
   selectedDirection = signal(1);
-  zippedOnDutyDuration = signal(18);
+  zippedOnDutyDuration = signal(15);
+  shiftMinTimeFrame = signal(5);
+  shiftBreak = signal<boolean | null>(true);
+  engineOffIdleTimeSpawn = signal(2);
   shiftDirection = computed<"Past" | "Future">(() => {
     return this.selectedDirection() ? "Future" : "Past";
   });
 
-  fill = signal(false);
+  fill = signal<boolean | null>(false);
   fillOption = signal(1);
   gapMinDuration = signal(8);
   fillStatus = computed(() =>
@@ -64,12 +61,37 @@ export class ZipService {
   );
 
   preformSmartFix = signal(true);
-  addEngines = signal(true);
+
+  title = computed(() => {
+    const resize = this.resize();
+    const shift = this.shift();
+    const shiftDirection = this.selectedDirection();
+    const fill = this.fill();
+    const fillOption = this.fillOption();
+    const title = resize ? "zip" : "ZIP";
+    const direction = shift
+      ? shiftDirection
+        ? [">[", ">]"]
+        : ["[<", "]<"]
+      : ["[", "]"];
+    const gap = fill ? (fillOption ? ":" : ".") : " ";
+    const shiftBreak = this.shiftBreak();
+    return `${direction[0]}${resize ? gap : ""}|${title}${shiftBreak ? "_" : ""}|${resize ? gap : ""}${direction[1]}`;
+  });
 
   fixFillState = effect(() => {
     const resize = this.resize();
     const shift = this.shift();
-    if (resize && shift) this.fill.set(false);
+    if (resize) this.fill.update((prevV) => (prevV === null ? true : false));
+    else this.fill.update((prevV) => (prevV === true ? null : false));
+    if (shift)
+      this.shiftBreak.update((prevV) =>
+        prevV === null || prevV === true ? true : false,
+      );
+    else
+      this.shiftBreak.update((prevV) =>
+        prevV === true || prevV === null ? null : false,
+      );
   });
 
   estematedZippedDuration = computed(() => {
@@ -177,8 +199,9 @@ export class ZipService {
             this.resizeSpeed(),
             this.resizeMinDuration(),
             +this.maxSpeedDeviation().slice(1),
-            this.fill(),
+            !!this.fill(),
             this.gapMinDuration(),
+            this.resizeReductionTrashhold(),
           ),
         })),
         // 3. Conditional operation sequence (Resize -> Shift)
@@ -203,13 +226,16 @@ export class ZipService {
                     this.shift(),
                     this.shiftDirection(),
                     this.zippedOnDutyDuration(),
+                    this.shiftMinTimeFrame(),
+                    !!this.shiftBreak(),
+                    this.preformSmartFix() ? this.engineOffIdleTimeSpawn() : 0,
                   )
                   .pipe(toArray()),
               ),
             );
           } else if (this.resize()) {
             // Only Resize
-            return resize$;
+            return resize$.pipe();
           } else if (this.shift()) {
             // Only Shift
             return this.zipShiftService
@@ -221,6 +247,9 @@ export class ZipService {
                 this.shift(),
                 this.shiftDirection(),
                 this.zippedOnDutyDuration(),
+                this.shiftMinTimeFrame(),
+                !!this.shiftBreak(),
+                this.preformSmartFix() ? this.engineOffIdleTimeSpawn() : 0,
               )
               .pipe(toArray());
           } else {
@@ -228,11 +257,23 @@ export class ZipService {
           }
         }),
       )
+      .pipe(
+        switchMap(() => {
+          if (this.preformSmartFix()) {
+            const from = DateTime.fromISO(date)
+              .minus({ days: 7 })
+              .toUTC()
+              .toISO();
+            return this.apiService.smartFix(from!, date, tenant.id, driverId);
+          } else return of({});
+        }),
+      )
       .subscribe({
         next: () => {
           this.monitorService.selectedEvents.set([]);
           this._snackBar.open("[ZIP] Completed", "OK", { duration: 3500 });
           this.monitorService.refreshDailyLogs();
+          this.urlService.refreshWebApp();
         },
         error: (err) => {
           const message = err.error?.message

@@ -51,6 +51,12 @@ export class ZipDialogComponent {
   gapDurationInput!: ElementRef<HTMLInputElement>;
   @ViewChild("maxSpeedDeviationInput")
   maxSpeedDeviationInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("resizeReductionTrashholdInput")
+  resizeReductionTrashholdInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("shiftTimeFrameInput")
+  shiftTimeFrameInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("engineOffIdleTimeSpawnInput")
+  engineOffIdleTimeSpawnInput!: ElementRef<HTMLInputElement>;
 
   showEventsToDelete = signal(false);
 
@@ -61,7 +67,10 @@ export class ZipDialogComponent {
       | "onDutyDurationInput"
       | "drivingDurationInput"
       | "gapDurationInput"
-      | "maxSpeedDeviationInput",
+      | "maxSpeedDeviationInput"
+      | "resizeReductionTrashholdInput"
+      | "shiftTimeFrameInput"
+      | "engineOffIdleTimeSpawnInput",
   ) {
     event.preventDefault();
     const isScrollUp = event.deltaY < 0;
@@ -115,6 +124,30 @@ export class ZipDialogComponent {
           else return newValue;
         });
       }
+      case "resizeReductionTrashholdInput": {
+        if (!this.zipService.resize()) return;
+
+        this.resizeReductionTrashholdInput.nativeElement.focus();
+
+        return this.zipService.resizeReductionTrashhold.update((prevValue) => {
+          let newValue = prevValue + (isScrollUp ? 1 : -1);
+          if (newValue > 10) return 10;
+          else if (newValue < 0) return 0;
+          else return newValue;
+        });
+      }
+      case "shiftTimeFrameInput": {
+        if (!this.zipService.resize()) return;
+
+        this.shiftTimeFrameInput.nativeElement.focus();
+
+        return this.zipService.shiftMinTimeFrame.update((prevValue) => {
+          let newValue = prevValue + (isScrollUp ? 1 : -1);
+          if (newValue > 15) return 15;
+          else if (newValue < 0) return 0;
+          else return newValue;
+        });
+      }
 
       case "maxSpeedDeviationInput": {
         if (!this.zipService.resize()) return;
@@ -126,6 +159,19 @@ export class ZipDialogComponent {
           if (newValue > 8) return `±8`;
           else if (newValue < 1) return `±1`;
           else return `±${newValue}`;
+        });
+      }
+
+      case "engineOffIdleTimeSpawnInput": {
+        if (!this.zipService.resize()) return;
+
+        this.engineOffIdleTimeSpawnInput.nativeElement.focus();
+
+        return this.zipService.engineOffIdleTimeSpawn.update((prevValue) => {
+          let newValue = prevValue + (isScrollUp ? 1 : -1);
+          if (newValue > 8) return 8;
+          else if (newValue < 1) return 1;
+          else return newValue;
         });
       }
 

@@ -7,12 +7,16 @@
   padding: 12px;
   overflow: hidden;
 
+  .spinner {
+    margin: 24px;
+  }
+
   hr {
     width: 90%;
   }
 
   &__title {
-    margin: 8px;
+    margin: 0 0 8px;
     padding: 0;
     align-self: center;
     font-size: 26px;
@@ -20,26 +24,28 @@
 
   &__duration {
     display: grid;
-    justify-items: center;
-    margin-bottom: 8px;
     font-size: 12px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    width: 100%;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    height: 20px;
+    align-items: center;
+    margin: 4px 0;
+
     &-text {
-      font-weight: 700;
-      text-align: left;
+      text-align: right;
     }
     &-time {
-      text-align: right;
-      font-size: 12.5px;
+      text-align: left;
+      font-size: 14px;
       font-family: Roboto;
       font-weight: 800;
     }
   }
 
   &__form {
-    padding: 16px;
+    padding: 8px;
     margin: 4px;
     border-radius: 16px;
     background-color: rgb(53, 53, 58);
@@ -56,12 +62,13 @@
         transform: scale(0.9);
         width: 100%;
         display: grid;
-        grid-template-columns: 4fr 32px 1fr;
+        grid-template-columns: 5fr 28px 1fr;
         align-items: center;
-        // justify-content: center;
-        gap: 8px;
+
+        gap: 6px;
         margin: 0;
         font-size: 12.5px;
+        line-height: 12.5px;
         font-family: Roboto;
         margin-top: -1px;
         &-label {
@@ -75,12 +82,13 @@
           text-align: left;
         }
       }
+
       &__inner-check {
         width: 100%;
         transform: scale(0.85);
         display: flex;
         flex-direction: column;
-        padding-left: 24px;
+        padding-left: 20px;
         margin-top: -8px;
         align-items: flex-start;
       }
@@ -115,6 +123,7 @@
       text-align: left;
       width: 100%;
       min-height: 40px;
+      margin: 8px 0;
       &-toggle {
         display: flex;
         align-items: center;
@@ -131,15 +140,21 @@
         list-style-type: none;
         margin: 0;
         padding: 0;
-        height: 180px;
+        height: 150px;
+        width: 100%;
         overflow-y: auto;
         &-item {
           font-size: 12px;
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 30px 1fr 3fr;
           padding: 0;
           margin: 0;
           gap: 16px;
+          margin-left: 64px;
+          &__index {
+            text-align: left;
+            margin-left: 16px;
+          }
           &__status {
             font-weight: 700;
             text-align: left;
@@ -150,20 +165,20 @@
         }
       }
     }
-  }
 
-  &__buttons {
-    margin-top: 12px;
-    button {
-      margin: 0 8px;
-      width: 120px;
+    &__buttons {
+      margin-top: 12px;
+      button {
+        margin: 0 8px;
+        width: 100px;
+      }
     }
   }
 }
 
 input {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: none;
   font-size: 12.5px;
   font-family: Roboto;
@@ -181,6 +196,14 @@ mat-checkbox {
 mat-radio-group {
   transform: scale(0.8);
   mat-radio-button {
-    margin-top: -8px;
+    margin-top: -5px;
   }
+}
+.zip__form__resize__input.disabled .zip__form__resize__input-label,
+.zip__form__on-duty__input.disabled .zip__form__on-duty__input-label,
+.zip__form__fill__input.disabled .zip__form__fill__input-label,
+.zip__form__resize__input.disabled .zip__form__resize__input-unit,
+.zip__form__on-duty__input.disabled .zip__form__on-duty__input-unit,
+.zip__form__fill__input.disabled .zip__form__fill__input-unit {
+  color: rgb(229, 225, 230, 0.5);
 }

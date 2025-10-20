@@ -1,18 +1,7 @@
 <div class="zip">
-  <h1 class="zip__title">Zip</h1>
+  <h1 class="zip__title">{{ zipService.title() }}</h1>
 
   @if (data.zipData$ | async; as data) {
-    <div class="zip__duration">
-      <span class="zip__duration-text">selected range duration: </span>
-      <span class="zip__duration-time">{{ data.selectedRangeDuration }}</span>
-    </div>
-    <div class="zip__duration">
-      <span class="zip__duration-text">estemated ziped duration:</span>
-      <span class="zip__duration-time">{{
-        zipService.estematedZippedDuration().slice(0, -3)
-      }}</span>
-    </div>
-
     <div class="zip__form">
       <!--  -->
       <!-- RESIZE -->
@@ -26,9 +15,12 @@
 
       <!-- [resize] speed -->
       <div class="zip__form__resize">
-        <div class="zip__form__resize__input">
+        <div
+          class="zip__form__resize__input"
+          [class.disabled]="!zipService.resize()"
+        >
           <span class="zip__form__resize__input-label"
-            >Resize average speed</span
+            >resize average speed</span
           >
           @if (zipService.resize()) {
             <input
@@ -46,7 +38,10 @@
         </div>
 
         <!-- [resize] maximum speed deviation -->
-        <div class="zip__form__resize__input">
+        <div
+          class="zip__form__resize__input"
+          [class.disabled]="!zipService.resize()"
+        >
           <span class="zip__form__resize__input-label"
             >maximum speed deviation</span
           >
@@ -66,7 +61,10 @@
         </div>
 
         <!-- [resize] duration -->
-        <div class="zip__form__resize__input">
+        <div
+          class="zip__form__resize__input"
+          [class.disabled]="!zipService.resize()"
+        >
           <span class="zip__form__resize__input-label"
             >minimum driving duration</span
           >
@@ -85,16 +83,21 @@
           <span class="zip__form__resize__input-unit">min</span>
         </div>
 
-        <div class="zip__form__resize__input">
+        <!-- apply only for time frames / resizeReductionTrashhold -->
+        <div
+          class="zip__form__resize__input"
+          [class.disabled]="!zipService.resize()"
+        >
           <span class="zip__form__resize__input-label"
-            >apply only if duration is reduced by more than</span
+            >apply only if duration <br />
+            is reduced by more than</span
           >
           @if (zipService.resize()) {
             <input
               type="text"
-              #drivingDurationInput
-              (wheel)="onMouseWheel($event, 'drivingDurationInput')"
-              [(ngModel)]="zipService.resizeMinDuration"
+              #resizeReductionTrashholdInput
+              (wheel)="onMouseWheel($event, 'resizeReductionTrashholdInput')"
+              [(ngModel)]="zipService.resizeReductionTrashhold"
               autocomplete="off"
               readonly
             />
@@ -113,7 +116,7 @@
         <mat-checkbox
           class="zip__form__shift__checkbox"
           [(ngModel)]="zipService.shift"
-          [disabled]="zipService.fill() && zipService.resize()"
+          [disabled]="!!zipService.fill() && zipService.resize()"
           >Shift</mat-checkbox
         >
       </div>
@@ -125,9 +128,35 @@
         <mat-radio-button [value]="1"><span>Forward</span></mat-radio-button>
         <mat-radio-button [value]="0"><span>Backward</span></mat-radio-button>
       </mat-radio-group>
+      <!-- apply only for time frames / shiftTimeFrame -->
+      <div
+        class="zip__form__on-duty__input"
+        [class.disabled]="!zipService.shift()"
+      >
+        <span class="zip__form__on-duty__input-label"
+          >apply only for <br />
+          time frames greater then</span
+        >
+        @if (zipService.shift()) {
+          <input
+            type="text"
+            #shiftTimeFrameInput
+            (wheel)="onMouseWheel($event, 'shiftTimeFrameInput')"
+            [(ngModel)]="zipService.shiftMinTimeFrame"
+            autocomplete="off"
+            readonly
+          />
+        } @else {
+          <input type="text" value="-" disabled />
+        }
+        <span class="zip__form__on-duty__input-unit">min</span>
+      </div>
       <!-- [shift] On Duty duration -->
       <div class="zip__form__on-duty">
-        <div class="zip__form__on-duty__input">
+        <div
+          class="zip__form__on-duty__input"
+          [class.disabled]="!zipService.shift()"
+        >
           <span class="zip__form__on-duty__input-label"
             >On Duty minimal duration</span
           >
@@ -145,16 +174,23 @@
           }
           <span class="zip__form__on-duty__input-unit">min</span>
         </div>
-        <div class="zip__form__on-duty__input">
+
+        <!-- add Engine Off events -->
+        <div
+          class="zip__form__on-duty__input"
+          [class.disabled]="
+            !zipService.shift() || !zipService.preformSmartFix()
+          "
+        >
           <span class="zip__form__on-duty__input-label"
-            >apply only for time frames</span
+            >add Engine Off if the vehicle remains idle for more than</span
           >
-          @if (zipService.shift()) {
+          @if (zipService.shift() && zipService.preformSmartFix()) {
             <input
               type="text"
-              #onDutyDurationInput
-              (wheel)="onMouseWheel($event, 'onDutyDurationInput')"
-              [(ngModel)]="zipService.zippedOnDutyDuration"
+              #engineOffIdleTimeSpawnInput
+              (wheel)="onMouseWheel($event, 'engineOffIdleTimeSpawnInput')"
+              [(ngModel)]="zipService.engineOffIdleTimeSpawn"
               autocomplete="off"
               readonly
             />
@@ -166,7 +202,8 @@
         <div class="zip__form__on-duty__inner-check">
           <mat-checkbox
             class="zip__form__on-duty__checkbox"
-            [(ngModel)]="zipService.resize"
+            [(ngModel)]="zipService.shiftBreak"
+            [disabled]="!zipService.shift()"
             >include 30-min break</mat-checkbox
           >
         </div>
@@ -174,7 +211,7 @@
       <hr />
 
       <!-- fill gaps -->
-      <div class="zip__form__shift gaps">
+      <div class="zip__form__shift">
         <mat-checkbox
           class="zip__form__shift__checkbox"
           [(ngModel)]="zipService.fill"
@@ -182,6 +219,7 @@
           >Fill resize gaps</mat-checkbox
         >
       </div>
+
       <mat-radio-group
         class="zip__form__shift__radio-btns"
         [disabled]="
@@ -189,13 +227,13 @@
         "
         [(ngModel)]="zipService.fillOption"
       >
+        <mat-radio-button [value]="1"><span>Off Duty</span></mat-radio-button>
         <mat-radio-button [value]="0"
           ><span>Sleeper Berth</span></mat-radio-button
         >
-        <mat-radio-button [value]="1"><span>Off Duty</span></mat-radio-button>
       </mat-radio-group>
 
-      <div class="zip__form__fill__input">
+      <div class="zip__form__fill__input" [class.disabled]="!zipService.fill()">
         <span class="zip__form__fill__input-label"
           >apply only for gaps greater then</span
         >
@@ -220,13 +258,6 @@
       <div class="zip__form__post-zip">
         <mat-checkbox
           class="zip__form__post-zip__checkbox"
-          [(ngModel)]="zipService.addEngines"
-          [labelPosition]="'before'"
-          [disabled]="zipService.shift()"
-          >Add Engines</mat-checkbox
-        >
-        <mat-checkbox
-          class="zip__form__post-zip__checkbox"
           [(ngModel)]="zipService.preformSmartFix"
           [labelPosition]="'before'"
           >Smart Fix</mat-checkbox
@@ -247,6 +278,9 @@
           <ul class="zip__form__delete__list">
             @for (delEvent of data.eventsToDelete; track delEvent.id) {
               <li class="zip__form__delete__list-item">
+                <span class="zip__form__delete__list-item__index"
+                  >{{ delEvent.viewId }}.</span
+                >
                 <span class="zip__form__delete__list-item__time">{{
                   delEvent.realStartTime | date: "h:mm a"
                 }}</span>
@@ -269,6 +303,17 @@
       }
     </div>
 
+    <div class="zip__duration">
+      <span class="zip__duration-text">selected range duration: </span>
+      <span class="zip__duration-time">{{ data.selectedRangeDuration }}</span>
+    </div>
+    <div class="zip__duration">
+      <span class="zip__duration-text">estemated ziped duration:</span>
+      <span class="zip__duration-time">{{
+        zipService.estematedZippedDuration().slice(0, -3)
+      }}</span>
+    </div>
+
     <div class="zip__form__buttons">
       <button mat-button (click)="onCancel()">Cancel</button>
       <button
@@ -281,6 +326,6 @@
       </button>
     </div>
   } @else {
-    <mat-spinner></mat-spinner>
+    <mat-spinner class="spinner" diameter="60"></mat-spinner>
   }
 </div>

@@ -23,7 +23,6 @@ import { TemplatesComponent } from "./components/templates/templates.component";
 import { AppService } from "./@services/app.service";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ConstantsService } from "./@services/constants.service";
-import { MatExpansionModule } from "@angular/material/expansion";
 
 @Component({
   selector: "app-root",
@@ -44,7 +43,6 @@ import { MatExpansionModule } from "@angular/material/expansion";
     ScanResultComponent,
     TemplatesComponent,
     MatProgressSpinnerModule,
-    MatExpansionModule,
   ],
 })
 export class AppComponent {
