@@ -12,103 +12,111 @@
     id="mat-card-wrapper"
   >
     @if (isLoading()) {
-    <div class="spinner">
-      <mat-spinner
-        [mode]="initMode()"
-        [value]="initProgressValue()"
-      ></mat-spinner>
-      <div class="spinner__phase">
-        <span>{{ initPhase() }}</span>
-        <span>{{ initCurrentTenant() }}</span>
+      <div class="spinner">
+        <mat-spinner
+          [mode]="initMode()"
+          [value]="initProgressValue()"
+        ></mat-spinner>
+        <div class="spinner__phase">
+          <span>{{ initPhase() }}</span>
+          <span>{{ initCurrentTenant() }}</span>
+        </div>
       </div>
-    </div>
     } @else {
-    <mat-tab-group
-      mat-stretch-tabs="true"
-      mat-align-tabs="start"
-      preserveContent="true"
-      id="tab-group"
-      [selectedIndex]="selectedTabIndex()"
-      (selectedIndexChange)="changeSelectedIndex($event)"
-    >
-      <mat-tab label="Scan">
-        <ng-template mat-tab-label>
-          <mat-icon id="radar-icon">radar</mat-icon>
-          <span class="hide">Scan</span>
-        </ng-template>
+      <mat-tab-group
+        mat-stretch-tabs="true"
+        mat-align-tabs="start"
+        preserveContent="true"
+        id="tab-group"
+        [selectedIndex]="selectedTabIndex()"
+        (selectedIndexChange)="changeSelectedIndex($event)"
+      >
+        <mat-tab label="Scan">
+          <ng-template mat-tab-label>
+            <mat-icon id="radar-icon">radar</mat-icon>
+            <span class="hide">Scan</span>
+          </ng-template>
 
-        <app-scan></app-scan>
-      </mat-tab>
+          <app-scan></app-scan>
+        </mat-tab>
 
-      @if (showErrors()) {
-      <mat-tab label="errors">
-        <ng-template mat-tab-label>
-          <mat-icon>sync_problem</mat-icon>
-          <div
-            class="mat-badge-custom"
-            style="margin-bottom: auto"
-            matBadge="{{ errCount() }}"
-            matBadgeColor="primary"
-            matBadgePosition="above after"
-            matBadgeSize="medium"
-          ></div>
+        @if (showErrors()) {
+          <mat-tab label="errors">
+            <ng-template mat-tab-label>
+              <mat-icon>sync_problem</mat-icon>
+              <div
+                class="mat-badge-custom"
+                style="margin-bottom: auto"
+                matBadge="{{ errCount() }}"
+                matBadgeColor="primary"
+                matBadgePosition="above after"
+                matBadgeSize="medium"
+              ></div>
 
-          <span class="hide">err</span>
-        </ng-template>
-        <app-errors></app-errors>
-      </mat-tab>
-      } @else {
-      <mat-tab label="Report">
-        <ng-template mat-tab-label>
-          <mat-icon
-            id="radar-icon"
-            matBadge="{{ violationsCount() ? violationsCount() : null }}"
-            >description</mat-icon
-          >
+              <span class="hide">err</span>
+            </ng-template>
+            <app-errors></app-errors>
+          </mat-tab>
+        } @else {
+          <mat-tab label="Report">
+            <ng-template mat-tab-label>
+              <mat-icon
+                id="radar-icon"
+                matBadge="{{ violationsCount() ? violationsCount() : null }}"
+                >description</mat-icon
+              >
 
-          <span class="hide">Report</span>
-        </ng-template>
+              <span class="hide">Report</span>
+            </ng-template>
 
-        <app-scan-result></app-scan-result>
-      </mat-tab>
+            <app-scan-result></app-scan-result>
+          </mat-tab>
+        }
 
-      }
+        <mat-tab label="Monitor">
+          <ng-template mat-tab-label>
+            <mat-icon
+              ><span class="material-symbols-outlined"
+                >delivery_truck_speed</span
+              ></mat-icon
+            >
+            <span class="hide">Monitor</span>
+          </ng-template>
 
-      <mat-tab label="Monitor">
-        <ng-template mat-tab-label>
-          <mat-icon
-            ><span class="material-symbols-outlined"
-              >delivery_truck_speed</span
-            ></mat-icon
-          >
-          <span class="hide">Monitor</span>
-        </ng-template>
+          <app-monitor></app-monitor>
+        </mat-tab>
 
-        <app-monitor></app-monitor>
-      </mat-tab>
+        <mat-tab label="Templates">
+          <ng-template mat-tab-label>
+            <mat-icon>message</mat-icon>
 
-      <mat-tab label="Templates">
-        <ng-template mat-tab-label>
-          <mat-icon>message</mat-icon>
+            <span class="hide">Templates</span>
+          </ng-template>
 
-          <span class="hide">Templates</span>
-        </ng-template>
+          <app-templates></app-templates>
+        </mat-tab>
 
-        <app-templates></app-templates>
-      </mat-tab>
+        <mat-tab label="About">
+          <ng-template mat-tab-label>
+            <mat-icon>info</mat-icon>
 
-      <mat-tab label="About">
-        <ng-template mat-tab-label>
-          <mat-icon>info</mat-icon>
+            <span class="hide">Info</span>
+          </ng-template>
 
-          <span class="hide">Info</span>
-        </ng-template>
+          <app-info></app-info>
+        </mat-tab>
 
-        <app-info></app-info>
-      </mat-tab>
-
-      <mat-tab disabled></mat-tab>
-    </mat-tab-group>
+        <mat-tab disabled></mat-tab>
+      </mat-tab-group>
+      <mat-expansion-panel hideToggle>
+        <mat-expansion-panel-header>
+          <mat-panel-title> This is the expansion title </mat-panel-title>
+          <mat-panel-description>
+            This is a summary of the content
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <p>This is the primary content of the panel.</p>
+      </mat-expansion-panel>
     }
   </mat-card>
 </div>

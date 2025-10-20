@@ -3,7 +3,15 @@ import { MonitorService } from "./monitor.service";
 
 import { dutyStatusNames, getDuration, getTime } from "../helpers/zip.helpers";
 import { ApiOperationsService } from "./api-operations.service";
-import { map, mergeMap, of, switchMap, toArray, EMPTY } from "rxjs";
+import {
+  map,
+  mergeMap,
+  of,
+  switchMap,
+  toArray,
+  EMPTY,
+  defaultIfEmpty,
+} from "rxjs";
 import { ITenant } from "../interfaces";
 import { ApiService } from "./api.service";
 import { UrlService } from "./url.service";
@@ -15,6 +23,7 @@ import { ComputeEventsService } from "./compute-events.service";
 import { ZipInitializationService } from "./zip-initialization.service";
 import { ZipResizeService } from "./zip-resize.service";
 import { ZipShiftService } from "./zip-shift.service";
+import { IZipInitializationData } from "../interfaces/zip.interface";
 
 @Injectable({
   providedIn: "root",
@@ -150,22 +159,17 @@ export class ZipService {
         ),
       );
 
-    return zipData$
+    return this.dialog
+      .open(ZipDialogComponent, {
+        data: {
+          zipData$,
+        },
+      })
+      .afterClosed()
       .pipe(
-        // 1. User confirmation dialog
-        switchMap((zipData) =>
-          this.dialog
-            .open(ZipDialogComponent, {
-              data: {
-                eventsToDelete: zipData.eventsToDelete,
-                selectedRangeDuration: zipData.selectedRangeDuration,
-              },
-            })
-            .afterClosed()
-            .pipe(switchMap((result) => (result ? of(zipData) : EMPTY))),
-        ),
+        switchMap((result) => (result ? of(result) : EMPTY)),
         // 2. Prepare resize items
-        map((zipData) => ({
+        map((zipData: IZipInitializationData) => ({
           ...zipData,
           resizeItems: this.zipResizeService.createResizeItems(
             zipData.zipEvents,
@@ -190,15 +194,17 @@ export class ZipService {
             // Resize then Shift
             return resize$.pipe(
               mergeMap(() =>
-                this.zipShiftService.processShift(
-                  tenant,
-                  driverId,
-                  date,
-                  zipData,
-                  this.shift(),
-                  this.shiftDirection(),
-                  this.zippedOnDutyDuration(),
-                ),
+                this.zipShiftService
+                  .processShift(
+                    tenant,
+                    driverId,
+                    date,
+                    zipData,
+                    this.shift(),
+                    this.shiftDirection(),
+                    this.zippedOnDutyDuration(),
+                  )
+                  .pipe(toArray()),
               ),
             );
           } else if (this.resize()) {
@@ -206,30 +212,33 @@ export class ZipService {
             return resize$;
           } else if (this.shift()) {
             // Only Shift
-            return this.zipShiftService.processShift(
-              tenant,
-              driverId,
-              date,
-              zipData,
-              this.shift(),
-              this.shiftDirection(),
-              this.zippedOnDutyDuration(),
-            );
+            return this.zipShiftService
+              .processShift(
+                tenant,
+                driverId,
+                date,
+                zipData,
+                this.shift(),
+                this.shiftDirection(),
+                this.zippedOnDutyDuration(),
+              )
+              .pipe(toArray());
           } else {
             return of({});
           }
         }),
       )
       .subscribe({
+        next: () => {
+          this.monitorService.selectedEvents.set([]);
+          this._snackBar.open("[ZIP] Completed", "OK", { duration: 3500 });
+          this.monitorService.refreshDailyLogs();
+        },
         error: (err) => {
           const message = err.error?.message
             ? `[ZIP] ERROR: ${err.error.message}`
             : `[ZIP] ERROR: ${err}`;
-          this._snackBar.open(message, "Close");
-        },
-        complete: () => {
-          this.monitorService.selectedEvents.set([]);
-          this.monitorService.refreshDailyLogs();
+          this._snackBar.open(message, "Close", { duration: 7000 });
         },
       });
   }

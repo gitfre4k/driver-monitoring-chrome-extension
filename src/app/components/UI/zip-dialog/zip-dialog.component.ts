@@ -14,6 +14,9 @@ import { MatRadioModule } from "@angular/material/radio";
 import { ZipService } from "../../../@services/zip.service";
 import { FormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { IZipInitializationData } from "../../../interfaces/zip.interface";
+import { Observable } from "rxjs";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
   selector: "app-zip-dialog",
@@ -23,6 +26,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
     MatRadioModule,
     FormsModule,
     MatCheckboxModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: "./zip-dialog.component.html",
   styleUrl: "./zip-dialog.component.scss",
@@ -31,8 +35,12 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 export class ZipDialogComponent {
   zipService = inject(ZipService);
   readonly dialogRef = inject(MatDialogRef<ZipDialogComponent>);
-  data: { eventsToDelete: IEvent[]; selectedRangeDuration: string } =
+
+  data: { zipData$: Observable<IZipInitializationData> } =
     inject(MAT_DIALOG_DATA);
+
+  // data: { eventsToDelete: IEvent[]; selectedRangeDuration: string } =
+  //   inject(MAT_DIALOG_DATA);
 
   @ViewChild("speedInput") speedInput!: ElementRef<HTMLInputElement>;
   @ViewChild("onDutyDurationInput")
@@ -130,7 +138,7 @@ export class ZipDialogComponent {
     this.dialogRef.close(false);
   }
 
-  onProceed(): void {
-    this.dialogRef.close(true);
+  onProceed(data: IZipInitializationData): void {
+    this.dialogRef.close(data);
   }
 }

@@ -53,7 +53,7 @@
     &__fill {
       width: 100%;
       &__input {
-        transform: scale(0.85);
+        transform: scale(0.9);
         width: 100%;
         display: grid;
         grid-template-columns: 4fr 32px 1fr;
@@ -63,7 +63,7 @@
         margin: 0;
         font-size: 12.5px;
         font-family: Roboto;
-
+        margin-top: -1px;
         &-label {
           color: rgb(229, 225, 230);
           text-align: left;
@@ -74,6 +74,15 @@
           color: rgb(229, 225, 230);
           text-align: left;
         }
+      }
+      &__inner-check {
+        width: 100%;
+        transform: scale(0.85);
+        display: flex;
+        flex-direction: column;
+        padding-left: 24px;
+        margin-top: -8px;
+        align-items: flex-start;
       }
     }
 
@@ -88,6 +97,7 @@
         flex-direction: column;
         align-items: flex-start;
         margin-left: 38px;
+        margin-bottom: -12px;
         span {
           padding-left: 5px;
         }
@@ -152,13 +162,13 @@
 }
 
 input {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: none;
   font-size: 12.5px;
   font-family: Roboto;
   box-sizing: border-box;
-  border-radius: 12px;
+  border-radius: 8px;
   text-align: center;
   color: rgb(229, 225, 230);
   background-color: rgb(70, 70, 79);
@@ -171,6 +181,6 @@ mat-checkbox {
 mat-radio-group {
   transform: scale(0.8);
   mat-radio-button {
-    margin-top: -12px;
+    margin-top: -8px;
   }
 }
