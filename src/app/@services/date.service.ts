@@ -56,7 +56,7 @@ export class DateService {
   });
   getLogsCustomDateRange = (date: Date) => ({
     from: this.formatedDate(
-      DateTime.fromJSDate(date).minus({ days: 7 }).toJSDate()
+      DateTime.fromJSDate(date).minus({ days: 7 }).toJSDate(),
     ).endOfDay,
     to: this.formatedDate(date).endOfDay,
   });

@@ -1,5 +1,5 @@
-import { MatDialogRef } from "@angular/material/dialog";
-import { TErrorParsedComparison } from "../types";
+import { MatDialogRef } from '@angular/material/dialog';
+import { TErrorParsedComparison } from '../types';
 
 export interface IResizePayload {
   duration: string;
@@ -17,7 +17,7 @@ export interface IAdvancedResizePayload {
 }
 
 export interface IShiftInputState {
-  direction: "Past" | "Future";
+  direction: 'Past' | 'Future';
   time: string;
   dialogRef?: MatDialogRef<any, any>;
 }
@@ -49,4 +49,18 @@ export interface ISmartFixResponse {
   eventName: string;
   eventTime: string;
   ianaTimeZoneId: string;
+}
+
+export interface ISmartFixErrorResponse {
+  code: string;
+  message: string;
+  details: string;
+  data: Record<string, unknown>;
+}
+
+export interface ISmartFixParsedErrorDetails {
+  Id: string;
+  Time: string;
+  ReportTimeFrom: string;
+  ReportTimeTo: string;
 }

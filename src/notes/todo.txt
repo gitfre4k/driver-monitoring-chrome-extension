@@ -2,38 +2,25 @@
 scan 
  > tool: global smart fix
  > driver log certification by company
- > no note on PTI
  > wrong note
- > merge Admin Portal scan and Analyze Logs
  > add duration next to event note
  > low total Engine Hours - exclude undefined
  
 monitor
- > format UI for warning/error messages
  > check current status
  > add drivings via admin portal
  > break driving on inter
  > error on missing engine on
  > listen for webApp refresh event
- > smartfix operation
  > add templates
  > handle resize for negative speed
- > add smartfix
- > rename zip and add more control 
  > add option to copy name/truck/company
  > add tool for logging disconnected Driving
  > add error for odometer decreased
- > add countdown until 30-min break violation
- > handle DOT logic (event selection / operations)
- > trim 0 from 'mm' 30min-break
- > dispay driver id next to truck
  > separate logs on truck change
- > show assigned vehicle id
 
-keyboardService 
- > enter => save edit, resize
- > esc => cancel edit, resize
- 
+
+
 
 errors
  > add retry
@@ -41,17 +28,11 @@ errors
  
 ~~~ fix ~~~
  > transform from last On Duty
- > multi location
- > event error overlap
- > 34h sleep from err to warn
  > teleport logic
  > location missmatch logic
  > error out on Add/Extend PTI
- > zip/delete multidialog
  > delete on dot
- 
-upgrade
- > zip
+
 
 add 
  > task list

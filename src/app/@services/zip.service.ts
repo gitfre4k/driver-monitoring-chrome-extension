@@ -1,28 +1,30 @@
-import { computed, inject, Injectable, signal, effect } from "@angular/core";
-import { MonitorService } from "./monitor.service";
+import { computed, inject, Injectable, signal, effect } from '@angular/core';
+import { MonitorService } from './monitor.service';
 
-import { dutyStatusNames, getDuration, getTime } from "../helpers/zip.helpers";
-import { ApiOperationsService } from "./api-operations.service";
-import { map, mergeMap, of, switchMap, toArray, EMPTY } from "rxjs";
-import { ITenant } from "../interfaces";
-import { ApiService } from "./api.service";
-import { UrlService } from "./url.service";
-import { MatDialog } from "@angular/material/dialog";
-import { ZipDialogComponent } from "../components/UI/zip-dialog/zip-dialog.component";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { dutyStatusNames, getDuration, getTime } from '../helpers/zip.helpers';
+import { ApiOperationsService } from './api-operations.service';
+import { map, mergeMap, of, switchMap, toArray, EMPTY } from 'rxjs';
+import { ITenant } from '../interfaces';
+import { ApiService } from './api.service';
+import { UrlService } from './url.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ZipDialogComponent } from '../components/UI/zip-dialog/zip-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { ComputeEventsService } from "./compute-events.service";
-import { ZipInitializationService } from "./zip-initialization.service";
-import { ZipResizeService } from "./zip-resize.service";
-import { ZipShiftService } from "./zip-shift.service";
-import { IZipInitializationData } from "../interfaces/zip.interface";
-import { DateTime } from "luxon";
+import { ComputeEventsService } from './compute-events.service';
+import { ZipInitializationService } from './zip-initialization.service';
+import { ZipResizeService } from './zip-resize.service';
+import { ZipShiftService } from './zip-shift.service';
+import { IZipInitializationData } from '../interfaces/zip.interface';
+import { DateTime } from 'luxon';
+import { SmartFixService } from './smart-fix.service';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ZipService {
   monitorService = inject(MonitorService);
+  smartFixService = inject(SmartFixService);
   apiService = inject(ApiService);
   apiOperationsService = inject(ApiOperationsService);
   urlService = inject(UrlService);
@@ -47,8 +49,8 @@ export class ZipService {
   shiftMinTimeFrame = signal(5);
   shiftBreak = signal<boolean | null>(true);
   engineOffIdleTimeSpawn = signal(2);
-  shiftDirection = computed<"Past" | "Future">(() => {
-    return this.selectedDirection() ? "Future" : "Past";
+  shiftDirection = computed<'Past' | 'Future'>(() => {
+    return this.selectedDirection() ? 'Future' : 'Past';
   });
 
   fill = signal<boolean | null>(false);
@@ -56,8 +58,8 @@ export class ZipService {
   gapMinDuration = signal(8);
   fillStatus = computed(() =>
     this.fillOption() === 0
-      ? "ChangeToSleeperBerthStatus"
-      : "ChangeToOffDutyStatus",
+      ? 'ChangeToSleeperBerthStatus'
+      : 'ChangeToOffDutyStatus',
   );
 
   preformSmartFix = signal(true);
@@ -68,15 +70,15 @@ export class ZipService {
     const shiftDirection = this.selectedDirection();
     const fill = this.fill();
     const fillOption = this.fillOption();
-    const title = resize ? "zip" : "ZIP";
+    const title = resize ? 'zip' : 'ZIP';
     const direction = shift
       ? shiftDirection
-        ? [">[", ">]"]
-        : ["[<", "]<"]
-      : ["[", "]"];
-    const gap = fill ? (fillOption ? ":" : ".") : " ";
+        ? ['>[', '>]']
+        : ['[<', ']<']
+      : ['[', ']'];
+    const gap = fill ? (fillOption ? ':' : '.') : ' ';
     const shiftBreak = this.shiftBreak();
-    return `${direction[0]}${resize ? gap : ""}|${title}${shiftBreak ? "_" : ""}|${resize ? gap : ""}${direction[1]}`;
+    return `${direction[0]}${resize ? gap : ''}|${title}${shiftBreak ? '_' : ''}|${resize ? gap : ''}${direction[1]}`;
   });
 
   fixFillState = effect(() => {
@@ -97,7 +99,7 @@ export class ZipService {
   estematedZippedDuration = computed(() => {
     const selectedEvents = this.monitorService.selectedEvents();
     const allEvents = this.monitorService.computedDailyLogEvents();
-    if (!allEvents) return "00:00";
+    if (!allEvents) return '00:00';
 
     const { 0: firstSelected, [selectedEvents.length - 1]: lastSelected } =
       selectedEvents.sort((a, b) => getTime(a) - getTime(b));
@@ -120,7 +122,7 @@ export class ZipService {
 
     const totalDurationInSeconds = dutyStatuses.reduce((acc, event) => {
       switch (event.statusName) {
-        case "On Duty": {
+        case 'On Duty': {
           if (event.pti === -9999) return acc + 0;
           else {
             return (
@@ -131,7 +133,7 @@ export class ZipService {
             );
           }
         }
-        case "Driving": {
+        case 'Driving': {
           if (!event.averageSpeed)
             return acc + Math.min(drivingMinDuration, event.durationInSeconds);
           else {
@@ -161,7 +163,7 @@ export class ZipService {
 
   zip(tenant: ITenant, driverId: number, date: string) {
     if (!tenant || !driverId || !date) {
-      return this._snackBar.open("[ZIP] Error: Missing data", "OK", {
+      return this._snackBar.open('[ZIP] Error: Missing data', 'OK', {
         duration: 7000,
       });
     }
@@ -260,18 +262,14 @@ export class ZipService {
       .pipe(
         switchMap(() => {
           if (this.preformSmartFix()) {
-            const from = DateTime.fromISO(date)
-              .minus({ days: 7 })
-              .toUTC()
-              .toISO();
-            return this.apiService.smartFix(from!, date, tenant.id, driverId);
+            return this.smartFixService.smartFix(tenant.id, driverId, date);
           } else return of({});
         }),
       )
       .subscribe({
         next: () => {
           this.monitorService.selectedEvents.set([]);
-          this._snackBar.open("[ZIP] Completed", "OK", { duration: 3500 });
+          this._snackBar.open('[ZIP] Completed', 'OK', { duration: 3500 });
           this.monitorService.refreshDailyLogs();
           this.urlService.refreshWebApp();
         },
@@ -279,7 +277,7 @@ export class ZipService {
           const message = err.error?.message
             ? `[ZIP] ERROR: ${err.error.message}`
             : `[ZIP] ERROR: ${err}`;
-          this._snackBar.open(message, "Close", { duration: 7000 });
+          this._snackBar.open(message, 'Close', { duration: 7000 });
         },
       });
   }

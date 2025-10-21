@@ -1,13 +1,13 @@
-import { inject, Injectable } from "@angular/core";
-import { IEvent } from "../interfaces/driver-daily-log-events.interface";
-import { IResizeItem } from "../interfaces/zip.interface";
+import { inject, Injectable } from '@angular/core';
+import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import { IResizeItem } from '../interfaces/zip.interface';
 import {
   getDuration,
   getMinusOneToTwoSecDateISO,
   getRandomIntInclusive,
   timeToSeconds,
-} from "../helpers/zip.helpers";
-import { ITenant } from "../interfaces";
+} from '../helpers/zip.helpers';
+import { ITenant } from '../interfaces';
 import {
   catchError,
   concatMap,
@@ -18,15 +18,15 @@ import {
   switchMap,
   throwError,
   toArray,
-} from "rxjs";
-import { ApiOperationsService } from "./api-operations.service";
-import { parseErrorMessage } from "../helpers/context-menu.helpers";
-import { ProceedWithAdvancedResizeDialogComponent } from "../components/UI/proceed-with-advanced-resize-dialog/proceed-with-advanced-resize-dialog.component";
-import { MatDialog } from "@angular/material/dialog";
-import { TEventTypeCode } from "../types";
+} from 'rxjs';
+import { ApiOperationsService } from './api-operations.service';
+import { parseErrorMessage } from '../helpers/context-menu.helpers';
+import { ProceedWithAdvancedResizeDialogComponent } from '../components/UI/proceed-with-advanced-resize-dialog/proceed-with-advanced-resize-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { TEventTypeCode } from '../types';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ZipResizeService {
   apiOperationsService = inject(ApiOperationsService);
@@ -45,7 +45,7 @@ export class ZipResizeService {
     return zipEvents
       .filter(
         (event) =>
-          event.statusName === "Driving" &&
+          event.statusName === 'Driving' &&
           event.realEndTime &&
           (event.averageSpeed ?? Infinity) < resizeSpeed, // Handle null/undefined averageSpeed
       )
@@ -83,7 +83,7 @@ export class ZipResizeService {
         if (resizeMinimumReductionTrashhold > durationDiff)
           return {
             event,
-            duration: "",
+            duration: '',
             duplicateForGapFillEvent: false,
           } as IResizeItem;
 
@@ -120,7 +120,7 @@ export class ZipResizeService {
             .duplicateEvent(tenant, eventToDuplicate, {
               eventTypeCode: fillStatus,
               startTime: getMinusOneToTwoSecDateISO(eventToDuplicate.startTime),
-              note: "",
+              note: '',
             })
             .pipe(
               mergeMap(() => this.executeResize(tenant, resizeItem)), // Proceed to resize after duplication
@@ -142,15 +142,15 @@ export class ZipResizeService {
       })
       .pipe(
         catchError((err: any) => {
-          if (err.error.code === "ResizeEvents.DifferenceInMiles") {
+          if (err.error.code === 'ResizeEvents.DifferenceInMiles') {
             const parsedErrorInfo = parseErrorMessage(err.error.message);
             if (parsedErrorInfo) {
               return this.dialog
                 .open(ProceedWithAdvancedResizeDialogComponent, {
                   data: {
-                    title: "Resize Error",
+                    title: 'Resize Error',
                     info: ` > ${err.error.message}`,
-                    message: "Proceed with advanced resize?",
+                    message: 'Proceed with advanced resize?',
                     event: resizeItem.event,
                   },
                 })
