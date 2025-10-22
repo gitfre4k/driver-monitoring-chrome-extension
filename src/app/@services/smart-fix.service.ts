@@ -51,18 +51,17 @@ export class SmartFixService {
       driverId,
     ).pipe(
       catchError((err: { error: ISmartFixErrorResponse }) => {
-        console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaalalala', err);
         if (err.error.code === 'FixEvents.SourceEventsInspectedByFmcsa') {
           const errorDetails: ISmartFixParsedErrorDetails = JSON.parse(
             err.error.details,
           );
-          console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaalalala', errorDetails);
           const tryFrom = DateTime.fromISO(errorDetails.ReportTimeTo)
             .startOf('day')
             .plus({ days: 1 });
 
           if (+tryFrom.toFormat('dd') > +currentDay.toFormat('dd'))
             return throwError(() => err);
+
           return this.smartFixClassic(
             tryFrom.toUTC().toISO()!,
             currentDate,
