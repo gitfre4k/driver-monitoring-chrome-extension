@@ -6,7 +6,7 @@ import {
   ISmartFixParsedErrorDetails,
   ISmartFixResponse,
 } from '../interfaces/api.interface';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

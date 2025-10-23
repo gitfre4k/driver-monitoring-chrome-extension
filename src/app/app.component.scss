@@ -76,9 +76,14 @@ span {
   right: 8px;
   top: 7px;
   z-index: 100;
-  // @media (max-width: 340px) {
-  //   display: none;
-  // }
+}
+
+.task-queue {
+  position: absolute;
+  right: 8px;
+  bottom: 7px;
+  z-index: 100;
+  background-color: rgba(255, 255, 255, 0.07);
 }
 
 .none {
