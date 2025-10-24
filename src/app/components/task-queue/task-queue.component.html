@@ -8,8 +8,9 @@
       <ul>
         @for (task of taskQueueService.currentTasks(); track task) {
           <li class="task">
+            <span>[{{ DateTime.now().toFormat("HH:mm") }}] </span>
             <span>{{ task.name }}</span>
-            <span>{{ task.status }}</span>
+            <span> | {{ task.status }}</span>
           </li>
         }
       </ul>
@@ -24,4 +25,11 @@
   >
     <mat-icon>layers</mat-icon>
   </button>
+  <div
+    class="mat-badge-custom"
+    matBadge="{{ taskQueueService.currentTasks().length }}"
+    matBadgeColor="primary"
+    matBadgePosition="above after"
+    matBadgeSize="medium"
+  ></div>
 </div>

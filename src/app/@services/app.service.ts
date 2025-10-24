@@ -1,22 +1,21 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from '@angular/core';
 
-import { ApiService } from "./api.service";
-import { UrlService } from "./url.service";
-import { finalize, from, mergeMap, switchMap, tap } from "rxjs";
+import { ApiService } from './api.service';
+import { UrlService } from './url.service';
+import { finalize, from, mergeMap, switchMap, tap } from 'rxjs';
 
-import { ITenant } from "../interfaces";
+import { ITenant } from '../interfaces';
 
-import { DateService } from "./date.service";
-import { ITenantsLog } from "../interfaces/data.interface";
-import { ConstantsService } from "./constants.service";
+import { ITenantsLog } from '../interfaces/data.interface';
+import { ConstantsService } from './constants.service';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AppService {
   private apiService = inject(ApiService);
   private urlService = inject(UrlService);
-  private dateService = inject(DateService);
+
   constantsService = inject(ConstantsService);
 
   httpLimit = this.constantsService.httpLimit;
@@ -25,9 +24,9 @@ export class AppService {
   tenantsLogSignal = signal<ITenantsLog>({});
 
   isLoading = signal(false);
-  initPhase = signal("");
-  initMode = signal<"indeterminate" | "determinate">("indeterminate");
-  initCurrentTenant = signal("");
+  initPhase = signal('');
+  initMode = signal<'indeterminate' | 'determinate'>('indeterminate');
+  initCurrentTenant = signal('');
   initConstant = computed(() => 100 / this.tenantsSignal().length);
   initProgressValue = signal(0);
 
@@ -44,8 +43,8 @@ export class AppService {
 
   initializeAppDevMode$ = () => {
     this.isLoading.set(true);
-    this.initMode.set("indeterminate");
-    this.initPhase.set("getting accessible tenants...");
+    this.initMode.set('indeterminate');
+    this.initPhase.set('getting accessible tenants...');
 
     return this.apiService.getAccessibleTenants().pipe(
       tap((tenants) => this.tenantsSignal.set(tenants)),

@@ -274,6 +274,8 @@ export class ScanComponent {
     this.disableScan = true;
     setTimeout(() => (this.disableScan = false), 2000);
 
+    this.taskQueueServoce.addPendingTask(this.scanMode.value);
+
     switch (this.scanMode.value) {
       // Admin Portal
       case 'admin':
@@ -341,8 +343,6 @@ export class ScanComponent {
       // Violations || DOT Inspections
       case 'dot':
       case 'violations':
-        this.scanMode.value === 'violations' &&
-          this.taskQueueServoce.addPendingTask('Violation');
         const { dateFrom, dateTo } = this.dateRange();
         const dotDate = this.dotDate();
         if (!dateFrom || !dateTo || !dotDate) {

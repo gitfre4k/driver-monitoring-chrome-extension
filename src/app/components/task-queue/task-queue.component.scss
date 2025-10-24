@@ -26,3 +26,11 @@
 .hide {
   display: none;
 }
+
+.mat-badge-custom {
+  margin: auto 0 12px;
+  .mat-badge-content {
+    background: #343effcc;
+    color: white;
+  }
+}

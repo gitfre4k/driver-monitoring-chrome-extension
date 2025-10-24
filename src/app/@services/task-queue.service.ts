@@ -27,13 +27,10 @@ export class TaskQueueService {
   }
 
   addPendingTask(taskName: string) {
-    switch (taskName) {
-      case 'Violation':
-        this.currentTasks.update((prevValue) => {
-          const newValue = [...prevValue];
-          newValue.push({ name: taskName, status: 'pending' });
-          return newValue;
-        });
-    }
+    this.currentTasks.update((prevValue) => {
+      const newValue = [...prevValue];
+      newValue.push({ name: taskName, status: 'pending' });
+      return newValue;
+    });
   }
 }
