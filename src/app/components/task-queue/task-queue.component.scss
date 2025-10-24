@@ -1,0 +1,28 @@
+.example-container {
+  display: flex;
+  background-color: #00000000;
+  position: relative;
+  width: 100%;
+  //   border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.container {
+  display: flex;
+  padding-right: 8px;
+  height: 400px;
+}
+
+.example-sidenav {
+  height: max-content;
+  margin-top: auto;
+  pointer-events: all;
+}
+
+.toggle {
+  margin-top: auto;
+  pointer-events: all;
+}
+
+.hide {
+  display: none;
+}

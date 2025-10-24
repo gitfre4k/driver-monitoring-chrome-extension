@@ -109,13 +109,9 @@
         <mat-tab disabled></mat-tab>
       </mat-tab-group>
 
-      <a
-        mat-icon-button
-        (click)="popUp()"
-        matTooltip="Task Queue"
-        [class]="'task-queue'"
-        ><mat-icon>layers</mat-icon></a
-      >
+      <div [class]="'task-queue'">
+        <app-task-queue></app-task-queue>
+      </div>
     }
   </mat-card>
 </div>

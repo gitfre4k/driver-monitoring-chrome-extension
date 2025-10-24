@@ -1,1 +1,27 @@
-<p>task-queue works!</p>
+<div class="container">
+  <mat-drawer-container
+    class="example-container"
+    [class.hide]="!taskQueueService.currentTasks().length"
+    autosize
+  >
+    <mat-drawer #drawer class="example-sidenav" mode="side" #rightSidenav>
+      <ul>
+        @for (task of taskQueueService.currentTasks(); track task) {
+          <li class="task">
+            <span>{{ task.name }}</span>
+            <span>{{ task.status }}</span>
+          </li>
+        }
+      </ul>
+    </mat-drawer>
+  </mat-drawer-container>
+  <button
+    mat-icon-button
+    (click)="taskQueueService.toggle()"
+    matTooltip="Toggle Task Queue"
+    class="toggle"
+    [class.hide]="!taskQueueService.currentTasks().length"
+  >
+    <mat-icon>layers</mat-icon>
+  </button>
+</div>

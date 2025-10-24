@@ -44,6 +44,7 @@ import { TaskQueueComponent } from './components/task-queue/task-queue.component
     ScanResultComponent,
     TemplatesComponent,
     MatProgressSpinnerModule,
+    TaskQueueComponent,
   ],
 })
 export class AppComponent {
