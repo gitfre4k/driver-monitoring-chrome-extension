@@ -1,16 +1,36 @@
 <div class="container">
   <mat-drawer-container
     class="example-container"
-    [class.hide]="!taskQueueService.currentTasks().length"
+    [class.hide]="!taskCount(taskQueueService.zipTasks())"
     autosize
   >
     <mat-drawer #drawer class="example-sidenav" mode="side" #rightSidenav>
       <ul>
-        @for (task of taskQueueService.currentTasks(); track task) {
+        @for (task of taskQueueService.zipTasks() | keyvalue; track task) {
           <li class="task">
-            <span>[{{ DateTime.now().toFormat("HH:mm") }}] </span>
-            <span>{{ task.name }}</span>
-            <span> | {{ task.status }}</span>
+            <span>[{{ task.value.time }}] Zip Operation</span>
+            <span>
+              @if (task.value.canceled) {
+                <div class="task__done">
+                  <mat-icon> cancel </mat-icon>
+                </div>
+              } @else {
+                @if (task.value.isDone) {
+                  <div class="task__done">
+                    <mat-icon>check_circle_outline</mat-icon>
+                  </div>
+                } @else if (task.value.isDone === null) {
+                  <div class="task__done">
+                    <mat-icon>error_outline</mat-icon>
+                  </div>
+                } @else {
+                  <mat-spinner
+                    class="task__processing"
+                    diameter="16"
+                  ></mat-spinner>
+                }
+              }
+            </span>
           </li>
         }
       </ul>
@@ -21,13 +41,13 @@
     (click)="taskQueueService.toggle()"
     matTooltip="Toggle Task Queue"
     class="toggle"
-    [class.hide]="!taskQueueService.currentTasks().length"
+    [class.hide]="!taskCount(taskQueueService.zipTasks())"
   >
     <mat-icon>layers</mat-icon>
   </button>
   <div
     class="mat-badge-custom"
-    matBadge="{{ taskQueueService.currentTasks().length }}"
+    matBadge="{{ taskCount(taskQueueService.zipTasks()) }}"
     matBadgeColor="primary"
     matBadgePosition="above after"
     matBadgeSize="medium"

@@ -3,7 +3,7 @@ import { MonitorService } from './monitor.service';
 
 import { dutyStatusNames, getDuration, getTime } from '../helpers/zip.helpers';
 import { ApiOperationsService } from './api-operations.service';
-import { map, mergeMap, of, switchMap, toArray, EMPTY } from 'rxjs';
+import { map, mergeMap, of, switchMap, toArray, EMPTY, tap } from 'rxjs';
 import { ITenant } from '../interfaces';
 import { ApiService } from './api.service';
 import { UrlService } from './url.service';
@@ -16,8 +16,9 @@ import { ZipInitializationService } from './zip-initialization.service';
 import { ZipResizeService } from './zip-resize.service';
 import { ZipShiftService } from './zip-shift.service';
 import { IZipInitializationData } from '../interfaces/zip.interface';
-import { DateTime } from 'luxon';
 import { SmartFixService } from './smart-fix.service';
+import { TaskQueueService } from './task-queue.service';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +30,7 @@ export class ZipService {
   apiOperationsService = inject(ApiOperationsService);
   urlService = inject(UrlService);
   computeEventsService = inject(ComputeEventsService);
+  taskQueueService = inject(TaskQueueService);
 
   zipInitializationService = inject(ZipInitializationService);
   zipResizeService = inject(ZipResizeService);
@@ -36,6 +38,8 @@ export class ZipService {
 
   readonly dialog = inject(MatDialog);
   readonly _snackBar = inject(MatSnackBar);
+
+  zipId = 0;
 
   resize = signal(true);
   resizeSpeed = signal(64);
@@ -168,6 +172,8 @@ export class ZipService {
       });
     }
 
+    this.zipId++;
+
     const zipData$ = this.apiService
       .getDriverDailyLogEvents(driverId, date, tenant.id)
       .pipe(
@@ -191,6 +197,16 @@ export class ZipService {
       })
       .afterClosed()
       .pipe(
+        tap(() =>
+          this.taskQueueService.zipTasks.update((prev) => {
+            const newValue = { ...prev };
+            newValue[this.zipId] = {
+              time: DateTime.now().toFormat('HH:mm'),
+              isDone: false,
+            };
+            return newValue;
+          }),
+        ),
         switchMap((result) => (result ? of(result) : EMPTY)),
         // 2. Prepare resize items
         map((zipData: IZipInitializationData) => ({
@@ -217,6 +233,7 @@ export class ZipService {
 
           if (this.resize() && this.shift()) {
             // Resize then Shift
+
             return resize$.pipe(
               mergeMap(() =>
                 this.zipShiftService
@@ -240,6 +257,7 @@ export class ZipService {
             return resize$.pipe();
           } else if (this.shift()) {
             // Only Shift
+
             return this.zipShiftService
               .processShift(
                 tenant,
@@ -274,10 +292,37 @@ export class ZipService {
           this.urlService.refreshWebApp();
         },
         error: (err) => {
+          this.taskQueueService.zipTasks.update((prev) => {
+            const newValue = { ...prev };
+            newValue[this.zipId] = {
+              ...newValue[this.zipId],
+              isDone: null,
+            };
+            return newValue;
+          });
           const message = err.error?.message
             ? `[ZIP] ERROR: ${err.error.message}`
             : `[ZIP] ERROR: ${err}`;
           this._snackBar.open(message, 'Close', { duration: 7000 });
+        },
+        complete: () => {
+          this.taskQueueService.zipTasks.update((prev) => {
+            const newValue = { ...prev };
+            newValue[this.zipId] = {
+              ...newValue[this.zipId],
+              isDone: true,
+            };
+            return newValue;
+          });
+          setTimeout(
+            () =>
+              this.taskQueueService.zipTasks.update((prev) => {
+                const newValue = { ...prev };
+                delete newValue[this.zipId];
+                return newValue;
+              }),
+            5000,
+          );
         },
       });
   }

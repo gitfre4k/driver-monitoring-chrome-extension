@@ -1,11 +1,14 @@
 import { Injectable, signal } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
+import { IZipTask } from '../interfaces/zip.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskQueueService {
   currentTasks = signal<{ name: string; status: string }[]>([]);
+
+  zipTasks = signal<{ [id: number]: IZipTask }>({});
 
   private sidenav!: MatSidenav;
 
