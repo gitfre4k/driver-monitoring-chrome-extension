@@ -40,7 +40,7 @@
     <!-- PARTIAL TO ON -->
     @if (
     ["Sleeper Berth", "Off Duty"].includes(event.statusName) &&
-    event.realDurationInSeconds > 1800
+    (event.realDurationInSeconds ? event.realDurationInSeconds : event.durationInSeconds) > 1800
     ) {
     <li (click)="contextMenuService.handleAction('PARTIAL_TO_ON', event)" class="context-menu__item">
       <mat-icon class="context-menu__item__icon-on">vertical_align_bottom</mat-icon>
