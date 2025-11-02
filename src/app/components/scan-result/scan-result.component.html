@@ -670,7 +670,7 @@
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
-                teleports
+                Teleports
                 <div
                   class="mat-badge-custom"
                   style="margin-left: auto"
@@ -903,7 +903,7 @@
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
-                event errors
+                Event Errors
                 <div
                   class="mat-badge-custom"
                   style="margin-left: auto"
@@ -995,7 +995,7 @@
                                     message of event.errorMessages;
                                     track $index
                                   ) {
-                                    {{ message }}
+                                    {{ message }} <br />
                                   }
                                 </span>
                               </li>
@@ -1111,7 +1111,6 @@
                                 >
 
                                 <span class="error-msg">
-                                  duration:
                                   {{
                                     event.onDutyDuration * 1000
                                       | date: "H:mm" : "UTC"
@@ -1829,13 +1828,13 @@
       }
 
       <!--  -->
-      <!-- manuel Driving  -->
+      <!-- manual Driving  -->
       @if (progressBarService.manualDriving(); as manualDriving) {
         @if (!isEmpty(manualDriving)) {
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
-                manuel Driving
+                manual Driving
                 <div
                   class="mat-badge-custom"
                   style="margin-left: auto"
@@ -2146,6 +2145,21 @@
 
                               <span class="error-msg note">
                                 {{ event.notes }}
+                              </span>
+
+                              <span></span>
+
+                              <span
+                                class="error-msg"
+                                style="text-align: right; padding-right: 8px"
+                                >duration:
+                              </span>
+
+                              <span class="error-msg note">
+                                {{
+                                  getStatusDuration(event) * 1000
+                                    | date: "H:mm" : "UTC"
+                                }}
                               </span>
                             </li>
                           }
