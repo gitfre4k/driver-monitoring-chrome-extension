@@ -1,4 +1,15 @@
-## 0.0.5
+## 0.0.4.2
+ 
+
+ ~ missing Login on Start Day
+ !Cannot read properties of undefined (reading 'push') ~~~~ Start Day ~~~~
+ 
+ ~ missing Login Co-Driver on view index 1
+ ~ missing Login Co-Driver on view index -1
+
+
+
+
 scan 
  > tool: global smart fix
  > driver log certification by company
@@ -19,12 +30,8 @@ monitor
  > add error for odometer decreased
  > separate logs on truck change
 
-
-
-
 errors
  > add retry
- 
  
 ~~~ fix ~~~
  > transform from last On Duty
@@ -36,7 +43,6 @@ errors
 
 add 
  > task list
-
 
 
 
