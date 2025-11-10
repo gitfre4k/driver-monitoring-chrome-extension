@@ -14,7 +14,7 @@
     <mat-label class="label-right">
       <
       {{
-        ptiDurationSliderValue() * 1000 | date : "mm:ss" : "UTC"
+        ptiDurationSliderValue() * 1000 | date: "mm:ss" : "UTC"
       }}min</mat-label
     >
   </div>
@@ -28,7 +28,7 @@
       <input matSliderThumb [(ngModel)]="sliderValue" />
     </mat-slider>
     <mat-label class="example-value-mat-label"
-      >{{ sliderValue() * 1000 | date : "H:mm" : "UTC" }}h+</mat-label
+      >{{ sliderValue() * 1000 | date: "H:mm" : "UTC" }}h+</mat-label
     >
   </div>
 
@@ -56,7 +56,7 @@
       >elapsed <br />
       Engine Hours</mat-label
     >
-    <mat-slider class="slider" [max]="34" [min]="10" [step]="1">
+    <mat-slider class="slider" [max]="34" [min]="8" [step]="1">
       <input matSliderThumb [(ngModel)]="engineSliderValue" />
     </mat-slider>
     <mat-label> {{ engineSliderValue() }}h+</mat-label>

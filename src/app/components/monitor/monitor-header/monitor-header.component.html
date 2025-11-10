@@ -5,7 +5,9 @@
         <span
           class="info__company-and-driver__1-company"
           [class.info__company-and-driver__1-company-x]="
-            ['UM Expedite', 'VK'].includes(formatTenantName(ddle.companyName))
+            ['UM Expedite', 'VK', 'FREEPAL'].includes(
+              formatTenantName(ddle.companyName)
+            )
           "
         >
           ## {{ formatTenantName(ddle.companyName) }}
@@ -20,6 +22,8 @@
               'Zoran Lakicevic',
               'Mohamed A Alinor',
               'John Ibrahim',
+              'Bell Dalonte',
+              'Emil Drekovic',
             ].includes(ddle.driverFullName)
               ? 'info__company-and-driver__1-driver-name'
               : 'info__company-and-driver__1-driver-x'

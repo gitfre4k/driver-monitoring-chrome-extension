@@ -29,9 +29,9 @@ export class AdvancedScanService {
 
   httpLimit = this.constantService.httpLimit;
 
-  ptiDuration = signal(781);
+  ptiDuration = signal(901);
   prolongedOnDutiesDuration = signal(4200); // 1h10min
-  engineHoursDuration = signal(24);
+  engineHoursDuration = signal(10);
   lowTotalEngineHoursCount = signal(100);
   sleeperDuration = signal(30);
 
@@ -182,6 +182,10 @@ export class AdvancedScanService {
     const eventNotes: IEvent[] = [];
 
     computedEvents.forEach((event) => {
+      if (["Login", "Logout"].includes(event.statusName)) {
+        event.errorMessages.length && errorEvents.push(event);
+      }
+
       if (
         event.driver.id === driverDailyLog.driverId &&
         !["Login", "Logout", "DVIR", "Diagnostic", "Diag. CLR"].includes(

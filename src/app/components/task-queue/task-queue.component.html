@@ -49,6 +49,7 @@
     class="mat-badge-custom"
     matBadge="{{ taskCount(taskQueueService.zipTasks()) }}"
     matBadgeColor="primary"
+    matBadgeHidden="{{ !taskCount(taskQueueService.zipTasks()) }}"
     matBadgePosition="above after"
     matBadgeSize="medium"
   ></div>
