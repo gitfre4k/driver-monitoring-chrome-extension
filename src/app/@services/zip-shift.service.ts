@@ -1,6 +1,6 @@
-import { inject, Injectable } from "@angular/core";
-import { ITenant } from "../interfaces";
-import { IZipInitializationData } from "../interfaces/zip.interface";
+import { inject, Injectable } from '@angular/core';
+import { ITenant } from '../interfaces';
+import { IZipInitializationData } from '../interfaces/zip.interface';
 import {
   concatMap,
   from,
@@ -10,19 +10,19 @@ import {
   of,
   switchMap,
   toArray,
-} from "rxjs";
-import { ApiOperationsService } from "./api-operations.service";
-import { ApiService } from "./api.service";
-import { ComputeEventsService } from "./compute-events.service";
+} from 'rxjs';
+import { ApiOperationsService } from './api-operations.service';
+import { ApiService } from './api.service';
+import { ComputeEventsService } from './compute-events.service';
 import {
   dutyStatusNames,
   getDuration,
   getRandomIntInclusive,
   getTime,
-} from "../helpers/zip.helpers";
+} from '../helpers/zip.helpers';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ZipShiftService {
   apiService = inject(ApiService);
@@ -35,11 +35,12 @@ export class ZipShiftService {
     date: string,
     initialData: IZipInitializationData,
     shift: boolean,
-    shiftDirection: "Future" | "Past",
+    shiftDirection: 'Future' | 'Past',
     zippedOnDutyDuration: number,
     shiftMinTimeFrame: number,
     shiftBreak: boolean,
     engineOffIdleTimeSpawn: number,
+    shiftOriginalEventDuration: { [id: number]: number },
   ): Observable<any> {
     if (!shift) {
       return of({});
@@ -78,13 +79,13 @@ export class ZipShiftService {
     const shiftLogic$ = getUpdatedEvents$.pipe(
       switchMap((events) => {
         const direction = shiftDirection;
-        const reverse = direction === "Past";
+        const reverse = direction === 'Past';
         const sortedEvents = reverse ? events.slice().reverse() : events;
 
         // 30-minute break logic
         let accumulatedDrivingDuration = 0;
         const breakEvent = events.find((event) => {
-          if (event.statusName === "Driving") {
+          if (event.statusName === 'Driving') {
             accumulatedDrivingDuration += event.durationInSeconds;
           }
           return accumulatedDrivingDuration > 28800;
@@ -111,7 +112,7 @@ export class ZipShiftService {
 
             // Shift exceptions
             if (
-              currentShiftEvent.statusName === "Driving" ||
+              currentShiftEvent.statusName === 'Driving' ||
               currentShiftEvent.id === lastShiftEvent.id ||
               currentShiftEvent.pti === -9999
             ) {
@@ -144,27 +145,35 @@ export class ZipShiftService {
               if (timeToShift <= 0 || timeToShift < shiftMinTimeFrame)
                 return of({});
               const time = getDuration(
-                timeToShift + getRandomIntInclusive(1, 180),
+                timeToShift +
+                  getRandomIntInclusive(1, 180) *
+                    (direction === 'Future' ? 1 : -1),
               ).slice(0, -3);
 
               return this.apiOperationsService.shift(
                 tenant,
                 [firstShiftEvent, prevEventForShift],
                 {
-                  direction: direction === "Past" ? "Future" : "Past",
+                  direction: direction === 'Past' ? 'Future' : 'Past',
                   time,
                 },
               );
             }
 
             // general shift logic
+            const originalDuration =
+              currentShiftEvent.durationInSeconds -
+              shiftOriginalEventDuration[currentShiftEvent.id];
+
             const timeToShift =
               currentShiftEvent.durationInSeconds -
               minDutyDuration -
               getRandomIntInclusive(1, 300);
 
             if (timeToShift > 0) {
-              const time = getDuration(timeToShift).slice(0, -3);
+              const time = getDuration(
+                Math.max(timeToShift, originalDuration),
+              ).slice(0, -3);
               return this.apiOperationsService.shift(
                 tenant,
                 [firstShiftEvent, prevEventForShift],
@@ -185,7 +194,7 @@ export class ZipShiftService {
           return from(events).pipe(
             mergeMap((event, index) => {
               if (
-                event.statusName === "Driving" &&
+                event.statusName === 'Driving' &&
                 events[index + 1] &&
                 events[index + 1].durationInSeconds >
                   engineOffIdleTimeSpawn * 60

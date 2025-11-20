@@ -201,30 +201,30 @@ export class ComputeEventsService {
         currentDriver = events[i].driver;
         events[i].shift = true;
       }
-      if (i > 1) {
-        if (events[i].driver.id !== events[i - 1].driver.id) {
-          events[i].statusName !== 'Login' &&
-            events[i].errorMessages.push('missing Login event');
-        }
-        if (i < events.length - 1) {
-          if (events[i].driver.id !== events[i + 1].driver.id) {
-            events[i].statusName !== 'Logout' &&
-              events[i].errorMessages.push('missing Logout event');
-          }
-        }
-      }
-      if (i > 1) {
-        if (events[i].statusName && events[i].statusName === 'Login') {
-          if (events[i - 1].statusName !== 'Logout') {
-            events[i].errorMessages.push('missing Logout event');
-          }
-        }
-        if (events[i].statusName && events[i].statusName === 'Logout') {
-          if (i !== events.length - 1 && events[i + 1].statusName !== 'Login') {
-            events[i].errorMessages.push('missing Login event');
-          }
-        }
-      }
+      // if (i > 1) {
+      //   if (events[i].driver.id !== events[i - 1].driver.id) {
+      //     events[i].statusName !== 'Login' &&
+      //       events[i].errorMessages.push('missing Login event');
+      //   }
+      //   if (i < events.length - 1) {
+      //     if (events[i].driver.id !== events[i + 1].driver.id) {
+      //       events[i].statusName !== 'Logout' &&
+      //         events[i].errorMessages.push('missing Logout event');
+      //     }
+      //   }
+      // }
+      // if (i > 1) {
+      //   if (events[i].statusName && events[i].statusName === 'Login') {
+      //     if (events[i - 1].statusName !== 'Logout') {
+      //       events[i].errorMessages.push('missing Logout event');
+      //     }
+      //   }
+      //   if (events[i].statusName && events[i].statusName === 'Logout') {
+      //     if (i !== events.length - 1 && events[i + 1].statusName !== 'Login') {
+      //       events[i].errorMessages.push('missing Login event');
+      //     }
+      //   }
+      // }
     }
 
     return events;
