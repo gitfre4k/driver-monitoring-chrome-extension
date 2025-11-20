@@ -1,27 +1,27 @@
-import { computed, inject, Injectable, signal, effect } from '@angular/core';
-import { MonitorService } from './monitor.service';
+import { computed, inject, Injectable, signal, effect } from "@angular/core";
+import { MonitorService } from "./monitor.service";
 
-import { dutyStatusNames, getDuration, getTime } from '../helpers/zip.helpers';
-import { ApiOperationsService } from './api-operations.service';
-import { map, mergeMap, of, switchMap, toArray, EMPTY, tap } from 'rxjs';
-import { ITenant } from '../interfaces';
-import { ApiService } from './api.service';
-import { UrlService } from './url.service';
-import { MatDialog } from '@angular/material/dialog';
-import { ZipDialogComponent } from '../components/UI/zip-dialog/zip-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { dutyStatusNames, getDuration, getTime } from "../helpers/zip.helpers";
+import { ApiOperationsService } from "./api-operations.service";
+import { map, mergeMap, of, switchMap, toArray, EMPTY, tap } from "rxjs";
+import { ITenant } from "../interfaces";
+import { ApiService } from "./api.service";
+import { UrlService } from "./url.service";
+import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
+import { ZipDialogComponent } from "../components/UI/zip-dialog/zip-dialog.component";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
-import { ComputeEventsService } from './compute-events.service';
-import { ZipInitializationService } from './zip-initialization.service';
-import { ZipResizeService } from './zip-resize.service';
-import { ZipShiftService } from './zip-shift.service';
-import { IZipInitializationData } from '../interfaces/zip.interface';
-import { SmartFixService } from './smart-fix.service';
-import { TaskQueueService } from './task-queue.service';
-import { DateTime } from 'luxon';
+import { ComputeEventsService } from "./compute-events.service";
+import { ZipInitializationService } from "./zip-initialization.service";
+import { ZipResizeService } from "./zip-resize.service";
+import { ZipShiftService } from "./zip-shift.service";
+import { IZipInitializationData } from "../interfaces/zip.interface";
+import { SmartFixService } from "./smart-fix.service";
+import { TaskQueueService } from "./task-queue.service";
+import { DateTime } from "luxon";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ZipService {
   monitorService = inject(MonitorService);
@@ -53,8 +53,8 @@ export class ZipService {
   shiftMinTimeFrame = signal(5);
   shiftBreak = signal<boolean | null>(true);
   engineOffIdleTimeSpawn = signal(8);
-  shiftDirection = computed<'Past' | 'Future'>(() => {
-    return this.selectedDirection() ? 'Future' : 'Past';
+  shiftDirection = computed<"Past" | "Future">(() => {
+    return this.selectedDirection() ? "Future" : "Past";
   });
   shiftOriginalEventDuration = signal<{ [id: number]: number }>({});
 
@@ -63,8 +63,8 @@ export class ZipService {
   gapMinDuration = signal(8);
   fillStatus = computed(() =>
     this.fillOption() === 0
-      ? 'ChangeToSleeperBerthStatus'
-      : 'ChangeToOffDutyStatus',
+      ? "ChangeToSleeperBerthStatus"
+      : "ChangeToOffDutyStatus",
   );
 
   preformSmartFix = signal(true);
@@ -75,15 +75,15 @@ export class ZipService {
     const shiftDirection = this.selectedDirection();
     const fill = this.fill();
     const fillOption = this.fillOption();
-    const title = resize ? 'zip' : 'ZIP';
+    const shiftBreak = this.shiftBreak();
+    const title = shiftBreak ? "zi_p" : "zip";
     const direction = shift
       ? shiftDirection
-        ? ['>[', '>]']
-        : ['[<', ']<']
-      : ['[', ']'];
-    const gap = fill ? (fillOption ? ':' : '.') : ' ';
-    const shiftBreak = this.shiftBreak();
-    return `${direction[0]}${resize ? gap : ''}|${title}${shiftBreak ? '_' : ''}|${resize ? gap : ''}${direction[1]}`;
+        ? [">[", ">]"]
+        : ["[<", "]<"]
+      : ["[", "]"];
+    const gap = fill ? (fillOption ? ":" : ".") : " ";
+    return `${direction[0]}${resize ? gap : ""}|${resize ? title : title.toUpperCase()}|${resize ? gap : ""}${direction[1]}`;
   });
 
   fixFillState = effect(() => {
@@ -101,10 +101,20 @@ export class ZipService {
       );
   });
 
-  estematedZippedDuration = computed(() => {
+  estimatedZippedDuration = computed<{
+    shift: string;
+    drive: string;
+  }>(() => {
     const selectedEvents = this.monitorService.selectedEvents();
     const allEvents = this.monitorService.computedDailyLogEvents();
-    if (!allEvents) return '00:00';
+    if (!allEvents) return { shift: "00:00", drive: "00:00" };
+
+    let totalDurationInSeconds = 0;
+    let drivingAccumulation = 0;
+
+    let drivingAccumulationStart: boolean | null = this.shiftBreak()
+      ? false
+      : null;
 
     const { 0: firstSelected, [selectedEvents.length - 1]: lastSelected } =
       selectedEvents.sort((a, b) => getTime(a) - getTime(b));
@@ -121,24 +131,17 @@ export class ZipService {
       dutyStatusNames.has(event.statusName),
     );
 
-    const zippedOnDuty = this.zippedOnDutyDuration() * 60;
     const drivingMinDuration = this.resizeMinDuration() * 60 + 45;
     const speed = this.resizeSpeed();
 
-    const totalDurationInSeconds = dutyStatuses.reduce((acc, event) => {
-      switch (event.statusName) {
-        case 'On Duty': {
-          if (event.pti === -9999) return acc + 0;
-          else {
-            return (
-              acc +
-              (event.durationInSeconds > zippedOnDuty
-                ? zippedOnDuty
-                : event.durationInSeconds)
-            );
-          }
-        }
-        case 'Driving': {
+    if (!this.shift() && this.resize()) {
+      const lastDrivingEventId = dutyStatuses
+        .slice()
+        .reverse()
+        .find((event) => event.statusName === "Driving")?.id;
+
+      totalDurationInSeconds = dutyStatuses.reduce((acc, event) => {
+        if (event.id === lastDrivingEventId) {
           if (!event.averageSpeed)
             return acc + Math.min(drivingMinDuration, event.durationInSeconds);
           else {
@@ -147,28 +150,143 @@ export class ZipService {
             const distance = originalSpeed * (originalDuration / 3600);
             const newDuration = ((distance / speed) * 3600) / 10000;
 
-            if (drivingMinDuration > newDuration)
+            if (
+              drivingMinDuration >
+              Math.min(newDuration, event.durationInSeconds)
+            ) {
               return acc + drivingMinDuration;
-            else return acc + newDuration;
+            } else return acc + Math.min(newDuration, event.durationInSeconds);
           }
         }
-        default: {
-          return (
-            acc +
-            (event.durationInSeconds > zippedOnDuty
-              ? zippedOnDuty
-              : event.durationInSeconds)
-          );
-        }
-      }
-    }, 0);
+        if (event.id === dutyStatuses[dutyStatuses.length - 1].id)
+          return acc + 0;
+        else return acc + event.durationInSeconds;
+      }, 0);
 
-    return getDuration(totalDurationInSeconds);
+      drivingAccumulation = dutyStatuses.reduce((acc, event) => {
+        if (event.statusName === "Driving") {
+          if (!event.averageSpeed) {
+            return acc + Math.min(drivingMinDuration, event.durationInSeconds);
+          } else {
+            const originalSpeed = event.averageSpeed * 10000;
+            const originalDuration = event.durationInSeconds;
+            const distance = originalSpeed * (originalDuration / 3600);
+            const newDuration = ((distance / speed) * 3600) / 10000;
+
+            if (
+              drivingMinDuration >
+              Math.min(newDuration, event.durationInSeconds)
+            ) {
+              return acc + drivingMinDuration;
+            } else return acc + Math.min(newDuration, event.durationInSeconds);
+          }
+        } else {
+          return acc;
+        }
+      }, 0);
+
+      return {
+        shift: getDuration(totalDurationInSeconds),
+        drive: getDuration(drivingAccumulation),
+      };
+    } else {
+      totalDurationInSeconds = dutyStatuses.reduce((acc, event) => {
+        switch (event.statusName) {
+          case "On Duty":
+          case "Sleeper Berth":
+          case "Off Duty": {
+            if (event.id === dutyStatuses[dutyStatuses.length - 1].id)
+              return acc + 0;
+            else if (!this.shift()) return acc + event.durationInSeconds;
+            else {
+              if (event.pti === -9999) return acc + event.durationInSeconds;
+              else {
+                return (
+                  acc +
+                  (event.durationInSeconds < this.zippedOnDutyDuration() * 60
+                    ? event.durationInSeconds
+                    : this.zippedOnDutyDuration() * 60)
+                );
+              }
+            }
+          }
+          case "Driving": {
+            // start driving accumulation
+            drivingAccumulationStart === false &&
+              (drivingAccumulationStart = true);
+
+            // accumulation
+            if (!this.resize()) {
+              drivingAccumulation += event.durationInSeconds;
+              return acc + event.durationInSeconds;
+            } else if (!event.averageSpeed) {
+              drivingAccumulation += Math.min(
+                drivingMinDuration,
+                event.durationInSeconds,
+              );
+              return (
+                acc + Math.min(drivingMinDuration, event.durationInSeconds)
+              );
+            } else {
+              const originalSpeed = event.averageSpeed * 10000;
+              const originalDuration = event.durationInSeconds;
+              const distance = originalSpeed * (originalDuration / 3600);
+              const newDuration = ((distance / speed) * 3600) / 10000;
+
+              const halfHourBreak =
+                this.zippedOnDutyDuration() * 60 > 1800
+                  ? 0
+                  : 1800 - this.zippedOnDutyDuration() * 60;
+
+              if (
+                drivingMinDuration >
+                Math.min(newDuration, event.durationInSeconds)
+              ) {
+                drivingAccumulation += drivingMinDuration;
+                // check for 30-min break
+                if (
+                  drivingAccumulation >= 480 &&
+                  drivingAccumulationStart !== null
+                ) {
+                  drivingAccumulationStart = null;
+                  return acc + drivingMinDuration + halfHourBreak;
+                } else return acc + drivingMinDuration;
+              } else {
+                drivingAccumulation += Math.min(
+                  newDuration,
+                  event.durationInSeconds,
+                );
+                // check for 30-min break
+                if (
+                  drivingAccumulation >= 480 &&
+                  drivingAccumulationStart !== null
+                ) {
+                  drivingAccumulationStart = null;
+                  return (
+                    acc +
+                    Math.min(newDuration, event.durationInSeconds) +
+                    halfHourBreak
+                  );
+                } else
+                  return acc + Math.min(newDuration, event.durationInSeconds);
+              }
+            }
+          }
+          default: {
+            return acc + 0;
+          }
+        }
+      }, 0);
+    }
+    return {
+      shift: getDuration(totalDurationInSeconds),
+      drive: getDuration(drivingAccumulation),
+    };
   });
 
   zip(tenant: ITenant, driverId: number, date: string) {
     if (!tenant || !driverId || !date) {
-      return this._snackBar.open('[ZIP] Error: Missing data', 'OK', {
+      return this._snackBar.open("[ZIP] Error: Missing data", "OK", {
         duration: 7000,
       });
     }
@@ -186,38 +304,45 @@ export class ZipService {
         ),
         toArray(),
         switchMap((events) =>
-          this.zipInitializationService.initializeZipEvents(events),
+          this.zipInitializationService.initializeZipEvents(events).pipe(
+            tap((zipData) => {
+              const nonDrivingEvents = zipData.zipEvents.filter((event) =>
+                ["Off Duty", "On Duty", "Sleeper Berth"].includes(
+                  event.statusName,
+                ),
+              );
+
+              const shiftOriginalEventDuration: { [key: number]: number } =
+                Object.fromEntries(
+                  nonDrivingEvents.map((event) => [
+                    event.id,
+                    event.durationInSeconds,
+                  ]),
+                );
+
+              this.shiftOriginalEventDuration.set(shiftOriginalEventDuration);
+            }),
+          ),
         ),
-        tap((zipData) => {
-          const nonDrivingEvents = zipData.zipEvents.filter((event) =>
-            ['Off Duty', 'On Duty', 'Sleeper Berth'].includes(event.statusName),
-          );
-
-          const shiftOriginalEventDuration: { [key: number]: number } =
-            Object.fromEntries(
-              nonDrivingEvents.map((event) => [
-                event.id,
-                event.durationInSeconds,
-              ]),
-            );
-
-          this.shiftOriginalEventDuration.set(shiftOriginalEventDuration);
-        }),
       );
 
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.data = {
+      zipData$,
+    };
+    dialogConfig.position = {
+      top: "50px",
+    };
+
     return this.dialog
-      .open(ZipDialogComponent, {
-        data: {
-          zipData$,
-        },
-      })
+      .open(ZipDialogComponent, dialogConfig)
       .afterClosed()
       .pipe(
         tap(() =>
           this.taskQueueService.zipTasks.update((prev) => {
             const newValue = { ...prev };
             newValue[this.zipId] = {
-              time: DateTime.now().toFormat('HH:mm'),
+              time: DateTime.now().toFormat("HH:mm"),
               isDone: false,
             };
             return newValue;
@@ -304,7 +429,7 @@ export class ZipService {
       .subscribe({
         next: () => {
           this.monitorService.selectedEvents.set([]);
-          this._snackBar.open('[ZIP] Completed', 'OK', { duration: 3500 });
+          this._snackBar.open("[ZIP] Completed", "OK", { duration: 3500 });
           this.monitorService.refreshDailyLogs();
           this.urlService.refreshWebApp();
         },
@@ -320,7 +445,7 @@ export class ZipService {
           const message = err.error?.message
             ? `[ZIP] ERROR: ${err.error.message}`
             : `[ZIP] ERROR: ${err}`;
-          this._snackBar.open(message, 'Close', { duration: 7000 });
+          this._snackBar.open(message, "Close", { duration: 7000 });
         },
         complete: () => {
           this.taskQueueService.zipTasks.update((prev) => {

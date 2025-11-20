@@ -1,25 +1,27 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   inject,
   signal,
   ViewChild,
-} from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { IEvent } from '../../../interfaces/driver-daily-log-events.interface';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatRadioModule } from '@angular/material/radio';
-import { ZipService } from '../../../@services/zip.service';
-import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { IZipInitializationData } from '../../../interfaces/zip.interface';
-import { Observable } from 'rxjs';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+} from "@angular/core";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { CommonModule } from "@angular/common";
+import { MatButtonModule } from "@angular/material/button";
+import { MatRadioModule } from "@angular/material/radio";
+import { ZipService } from "../../../@services/zip.service";
+import { FormsModule } from "@angular/forms";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import { IZipInitializationData } from "../../../interfaces/zip.interface";
+import { Observable } from "rxjs";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { subtractTimes } from "../../../helpers/zip.helpers";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 @Component({
-  selector: 'app-zip-dialog',
+  selector: "app-zip-dialog",
   imports: [
     CommonModule,
     MatButtonModule,
@@ -28,8 +30,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatCheckboxModule,
     MatProgressSpinnerModule,
   ],
-  templateUrl: './zip-dialog.component.html',
-  styleUrl: './zip-dialog.component.scss',
+  templateUrl: "./zip-dialog.component.html",
+  styleUrl: "./zip-dialog.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ZipDialogComponent {
@@ -39,44 +41,63 @@ export class ZipDialogComponent {
   data: { zipData$: Observable<IZipInitializationData> } =
     inject(MAT_DIALOG_DATA);
 
-  // data: { eventsToDelete: IEvent[]; selectedRangeDuration: string } =
-  //   inject(MAT_DIALOG_DATA);
-
-  @ViewChild('speedInput') speedInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('onDutyDurationInput')
+  @ViewChild("speedInput") speedInput!: ElementRef<HTMLInputElement>;
+  @ViewChild("onDutyDurationInput")
   onDutyDurationInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('drivingDurationInput')
+  @ViewChild("drivingDurationInput")
   drivingDurationInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('gapDurationInput')
+  @ViewChild("gapDurationInput")
   gapDurationInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('maxSpeedDeviationInput')
+  @ViewChild("maxSpeedDeviationInput")
   maxSpeedDeviationInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('resizeReductionTrashholdInput')
+  @ViewChild("resizeReductionTrashholdInput")
   resizeReductionTrashholdInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('shiftTimeFrameInput')
+  @ViewChild("shiftTimeFrameInput")
   shiftTimeFrameInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('engineOffIdleTimeSpawnInput')
+  @ViewChild("engineOffIdleTimeSpawnInput")
   engineOffIdleTimeSpawnInput!: ElementRef<HTMLInputElement>;
 
   showEventsToDelete = signal(false);
 
+  subtractTimes = subtractTimes;
+
+  zipDataSignal = toSignal(this.data?.zipData$);
+  timeSaved = computed(() => {
+    const zipData = this.zipDataSignal();
+    const estimatedZippedDuration = this.zipService.estimatedZippedDuration();
+
+    if (!zipData) return { shift: "00:00", drive: "00:00" };
+
+    const shiftDuration = zipData.selectedRangeDuration.shift;
+
+    const driveDuration = zipData.selectedRangeDuration.drive.slice(0, -3);
+
+    const estimatedShiftDuration = estimatedZippedDuration.shift;
+    const estimatedDriveDuration = estimatedZippedDuration.drive.slice(0, -3);
+
+    return {
+      shift: subtractTimes(shiftDuration, estimatedShiftDuration),
+      drive: subtractTimes(driveDuration, estimatedDriveDuration),
+    };
+  });
+
   onMouseWheel(
     event: WheelEvent,
     inputType:
-      | 'speedInput'
-      | 'onDutyDurationInput'
-      | 'drivingDurationInput'
-      | 'gapDurationInput'
-      | 'maxSpeedDeviationInput'
-      | 'resizeReductionTrashholdInput'
-      | 'shiftTimeFrameInput'
-      | 'engineOffIdleTimeSpawnInput',
+      | "speedInput"
+      | "onDutyDurationInput"
+      | "drivingDurationInput"
+      | "gapDurationInput"
+      | "maxSpeedDeviationInput"
+      | "resizeReductionTrashholdInput"
+      | "shiftTimeFrameInput"
+      | "engineOffIdleTimeSpawnInput",
   ) {
     event.preventDefault();
     const isScrollUp = event.deltaY < 0;
 
     switch (inputType) {
-      case 'speedInput': {
+      case "speedInput": {
         if (!this.zipService.resize()) return;
 
         this.speedInput.nativeElement.focus();
@@ -88,7 +109,7 @@ export class ZipDialogComponent {
           else return newValue;
         });
       }
-      case 'drivingDurationInput': {
+      case "drivingDurationInput": {
         if (!this.zipService.resize()) return;
 
         this.drivingDurationInput.nativeElement.focus();
@@ -100,7 +121,7 @@ export class ZipDialogComponent {
           else return newValue;
         });
       }
-      case 'onDutyDurationInput': {
+      case "onDutyDurationInput": {
         if (!this.zipService.shift()) return;
 
         this.onDutyDurationInput.nativeElement.focus();
@@ -112,7 +133,7 @@ export class ZipDialogComponent {
           else return newValue;
         });
       }
-      case 'gapDurationInput': {
+      case "gapDurationInput": {
         if (!this.zipService.fill()) return;
 
         this.gapDurationInput.nativeElement.focus();
@@ -124,7 +145,7 @@ export class ZipDialogComponent {
           else return newValue;
         });
       }
-      case 'resizeReductionTrashholdInput': {
+      case "resizeReductionTrashholdInput": {
         if (!this.zipService.resize()) return;
 
         this.resizeReductionTrashholdInput.nativeElement.focus();
@@ -136,7 +157,7 @@ export class ZipDialogComponent {
           else return newValue;
         });
       }
-      case 'shiftTimeFrameInput': {
+      case "shiftTimeFrameInput": {
         if (!this.zipService.shift()) return;
 
         this.shiftTimeFrameInput.nativeElement.focus();
@@ -149,7 +170,7 @@ export class ZipDialogComponent {
         });
       }
 
-      case 'maxSpeedDeviationInput': {
+      case "maxSpeedDeviationInput": {
         if (!this.zipService.resize()) return;
 
         this.maxSpeedDeviationInput.nativeElement.focus();
@@ -162,7 +183,7 @@ export class ZipDialogComponent {
         });
       }
 
-      case 'engineOffIdleTimeSpawnInput': {
+      case "engineOffIdleTimeSpawnInput": {
         if (!this.zipService.shift()) return;
 
         this.engineOffIdleTimeSpawnInput.nativeElement.focus();

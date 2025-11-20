@@ -4,6 +4,7 @@ import { Observable, of } from "rxjs";
 import {
   deletableStatusNames,
   dutyStatusNames,
+  getDuration,
   getRangeDuration,
   getTime,
 } from "../helpers/zip.helpers";
@@ -62,10 +63,25 @@ export class ZipInitializationService {
       deletableStatusNames.has(event.statusName) && eventsToDelete.push(event);
     });
 
-    const selectedRangeDuration = getRangeDuration(
+    const shift = getRangeDuration(
       dutyStatuses[0].startTime,
       dutyStatuses[dutyStatuses.length - 1].startTime,
     );
+
+    const drive = getDuration(
+      dutyStatuses.reduce((acc, event) => {
+        if (event.statusName === "Driving") {
+          return acc + event.durationInSeconds;
+        } else {
+          return acc;
+        }
+      }, 0),
+    );
+
+    const selectedRangeDuration = {
+      shift,
+      drive,
+    };
 
     return of({
       zipEvents: zipEvents.filter((event) => {

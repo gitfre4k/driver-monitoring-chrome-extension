@@ -1,12 +1,12 @@
-import { DateTime } from 'luxon';
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import { DateTime } from "luxon";
+import { IEvent } from "../interfaces/driver-daily-log-events.interface";
 
 ///////////////////// get offset
 export const getOffset = (event: IEvent) => {
   const dt1 = DateTime.fromISO(event.startTime).toUTC();
-  const dt2 = DateTime.fromISO(event.startTime).toUTC().startOf('day');
+  const dt2 = DateTime.fromISO(event.startTime).toUTC().startOf("day");
   const diff = dt2.diff(dt1);
-  return diff.as('minutes');
+  return diff.as("minutes");
 };
 
 export const bindEventViewId = (importedEvents: IEvent[]) => {
@@ -22,82 +22,82 @@ export const bindEventViewId = (importedEvents: IEvent[]) => {
 export const filterEvents = (event: IEvent): boolean => {
   return (
     [
-      'ChangeInDriversDutyStatus',
-      'IntermediateLog',
-      'CmvEnginePowerUpOrShutDownActivity',
-    ].includes(event.eventType) || event.dutyStatus === 'VehicleStartOfDay'
+      "ChangeInDriversDutyStatus",
+      "IntermediateLog",
+      "CmvEnginePowerUpOrShutDownActivity",
+    ].includes(event.eventType) || event.dutyStatus === "VehicleStartOfDay"
   );
 };
 
 export const getStatusName = (dutyStatus: string): string => {
   switch (dutyStatus) {
-    case 'ChangeToOffDutyStatus':
-    case 'ChangeToOffDutyStatus-E':
-      return 'Off Duty';
-    case 'ChangeToOffDutyStatus-CR':
-      return '[fleet] Off Duty';
-    case 'ChangeToSleeperBerthStatus':
-    case 'ChangeToSleeperBerthStatus-E':
-      return 'Sleeper Berth';
-    case 'ChangeToSleeperBerthStatus-CR':
-      return '[fleet] Sleeper Berth';
-    case 'ChangeToDrivingStatus':
-    case 'ChangeToDrivingStatus-E':
-      return 'Driving';
-    case 'ChangeToDrivingStatus-CR':
-      return '[fleet] Driving';
-    case 'ChangeToOnDutyNotDrivingStatus':
-    case 'ChangeToOnDutyNotDrivingStatus-E':
-      return 'On Duty';
-    case 'ChangeToOnDutyNotDrivingStatus-CR':
-      return '[fleet] On Duty';
-    case 'IntermediateLogConventionalLocationPrecision':
-    case 'IntermediateLogReducedLocationPrecision':
-      return 'Intermediate';
-    case 'EnginePowerUpConventionalLocationPrecision':
-    case 'EnginePowerUpReducedLocationPrecision':
-      return 'Engine On';
-    case 'EngineShutDownConventionalLocationPrecision':
-    case 'EngineShutDownReducedLocationPrecision':
-      return 'Engine Off';
-    case 'DriverIndicationAuthorizedPersonalUseCmv':
-      return 'PC';
-    case 'DriverIndicationYardMoves':
-      return 'YM';
-    case 'VehicleStartOfDay':
-      return 'Start Day';
-    case 'AuthenticatedDriverLogin':
-      return 'Login';
-    case 'AuthenticatedDriverLogout':
-      return 'Logout';
+    case "ChangeToOffDutyStatus":
+    case "ChangeToOffDutyStatus-E":
+      return "Off Duty";
+    case "ChangeToOffDutyStatus-CR":
+      return "[fleet] Off Duty";
+    case "ChangeToSleeperBerthStatus":
+    case "ChangeToSleeperBerthStatus-E":
+      return "Sleeper Berth";
+    case "ChangeToSleeperBerthStatus-CR":
+      return "[fleet] Sleeper Berth";
+    case "ChangeToDrivingStatus":
+    case "ChangeToDrivingStatus-E":
+      return "Driving";
+    case "ChangeToDrivingStatus-CR":
+      return "[fleet] Driving";
+    case "ChangeToOnDutyNotDrivingStatus":
+    case "ChangeToOnDutyNotDrivingStatus-E":
+      return "On Duty";
+    case "ChangeToOnDutyNotDrivingStatus-CR":
+      return "[fleet] On Duty";
+    case "IntermediateLogConventionalLocationPrecision":
+    case "IntermediateLogReducedLocationPrecision":
+      return "Intermediate";
+    case "EnginePowerUpConventionalLocationPrecision":
+    case "EnginePowerUpReducedLocationPrecision":
+      return "Engine On";
+    case "EngineShutDownConventionalLocationPrecision":
+    case "EngineShutDownReducedLocationPrecision":
+      return "Engine Off";
+    case "DriverIndicationAuthorizedPersonalUseCmv":
+      return "PC";
+    case "DriverIndicationYardMoves":
+      return "YM";
+    case "VehicleStartOfDay":
+      return "Start Day";
+    case "AuthenticatedDriverLogin":
+      return "Login";
+    case "AuthenticatedDriverLogout":
+      return "Logout";
     default:
-      return '?';
+      return "?";
   }
 };
 
 export const isPcOrYm = (ev: IEvent) => {
-  return ['PC', 'YM', 'PC (2nd)', 'YM (2nd)'].includes(ev.statusName);
+  return ["PC", "YM", "PC (2nd)", "YM (2nd)"].includes(ev.statusName);
 };
 
 export const isPc = (ev: IEvent) => {
-  return ['PC', 'PC (2nd)'].includes(ev.statusName);
+  return ["PC", "PC (2nd)"].includes(ev.statusName);
 };
 
 export const isDriving = (ev: IEvent) => {
-  return ev.statusName === 'Driving';
+  return ev.statusName === "Driving";
 };
 export const isIntermediate = (ev: IEvent) => {
-  return ev.statusName === 'Intermediate';
+  return ev.statusName === "Intermediate";
 };
 
 export const isDutyStatus = (ev: IEvent) => {
   return [
-    'On Duty',
-    'Sleeper Berth',
-    'Driving',
-    'Off Duty',
-    'PC',
-    'YM',
+    "On Duty",
+    "Sleeper Berth",
+    "Driving",
+    "Off Duty",
+    "PC",
+    "YM",
   ].includes(ev.statusName);
 };
 

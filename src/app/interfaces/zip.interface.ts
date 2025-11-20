@@ -1,4 +1,4 @@
-import { IEvent } from './driver-daily-log-events.interface';
+import { IEvent } from "./driver-daily-log-events.interface";
 
 export interface IResizeItem {
   event: IEvent;
@@ -10,7 +10,10 @@ export interface IZipInitializationData {
   zipEvents: IEvent[];
   startTime: number;
   endTime: number;
-  selectedRangeDuration: string;
+  selectedRangeDuration: {
+    shift: string;
+    drive: string;
+  };
   eventsToDelete: IEvent[];
   eventsWithPotentialGaps: { [id: string]: IEvent };
 }
