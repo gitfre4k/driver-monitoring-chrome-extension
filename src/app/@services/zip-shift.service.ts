@@ -95,7 +95,12 @@ export class ZipShiftService {
         );
         // end 30-minute break logic
 
-        if (sortedEvents.length === 0) return of({});
+        if (sortedEvents.length < 2) return of({});
+
+        // remove first event if previous was Driving and add next duty status event in case last one is driving
+        reverse
+          ? sortedEvents[sortedEvents.length - 1].statusName === 'Driving'
+          : sortedEvents[0].occurredAfterDriving && sortedEvents.shift();
 
         const firstShiftEvent = sortedEvents[0];
         const lastShiftEvent = sortedEvents[sortedEvents.length - 1];

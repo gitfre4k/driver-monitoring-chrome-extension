@@ -125,7 +125,9 @@ export class ApiService {
           tap(
             (tenants) =>
               !tenants.find(
-                (t) => t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+                (t) =>
+                  t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170' ||
+                  t.id === '3a1acd7b-2c8c-f6c2-219b-fe8ffa67061f',
               ) && window.close(),
           ),
           shareReplay(1),

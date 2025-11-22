@@ -1,18 +1,18 @@
-import { inject, Injectable } from "@angular/core";
-import { IEvent } from "../interfaces/driver-daily-log-events.interface";
-import { Observable, of } from "rxjs";
+import { inject, Injectable } from '@angular/core';
+import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import { Observable, of } from 'rxjs';
 import {
   deletableStatusNames,
   dutyStatusNames,
   getDuration,
   getRangeDuration,
   getTime,
-} from "../helpers/zip.helpers";
-import { MonitorService } from "./monitor.service";
-import { IZipInitializationData } from "../interfaces/zip.interface";
+} from '../helpers/zip.helpers';
+import { MonitorService } from './monitor.service';
+import { IZipInitializationData } from '../interfaces/zip.interface';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ZipInitializationService {
   monitorService = inject(MonitorService);
@@ -39,9 +39,9 @@ export class ZipInitializationService {
       .filter((event, index) => {
         if (
           index !== 0 &&
-          event.statusName === "On Duty" &&
+          event.statusName === 'On Duty' &&
           dutyStatuses[index - 1] &&
-          dutyStatuses[index - 1]?.statusName === "Driving"
+          dutyStatuses[index - 1]?.statusName === 'Driving'
         )
           return true;
         else return false;
@@ -63,14 +63,21 @@ export class ZipInitializationService {
       deletableStatusNames.has(event.statusName) && eventsToDelete.push(event);
     });
 
+    const firstSelectedEvent = dutyStatuses[0];
+    const lastSelectedEvent = dutyStatuses[dutyStatuses.length - 1];
+
+    const isDrivingLastSelected = lastSelectedEvent.statusName === 'Driving';
+
     const shift = getRangeDuration(
-      dutyStatuses[0].startTime,
-      dutyStatuses[dutyStatuses.length - 1].startTime,
+      firstSelectedEvent.startTime,
+      isDrivingLastSelected
+        ? lastSelectedEvent.endTime
+        : lastSelectedEvent.startTime,
     );
 
     const drive = getDuration(
       dutyStatuses.reduce((acc, event) => {
-        if (event.statusName === "Driving") {
+        if (event.statusName === 'Driving') {
           return acc + event.durationInSeconds;
         } else {
           return acc;

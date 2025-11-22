@@ -1,4 +1,4 @@
-import { ITenant } from "./";
+import { ITenant } from './';
 
 export interface IEvent {
   id: number;
@@ -64,6 +64,7 @@ export interface IEvent {
   warningMessages: string[];
   isLocked: boolean;
   offset: number;
+  occurredAfterDriving: boolean;
 }
 
 export interface IStatusInfo {

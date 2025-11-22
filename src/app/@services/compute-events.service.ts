@@ -607,6 +607,9 @@ export class ComputeEventsService {
             'ChangeToOnDutyNotDrivingStatus',
           ].includes(events[i].dutyStatus)
         ) {
+          //
+          events[i].occurredAfterDriving = true;
+          //
           const nextDutyStatusInfo: IStatusInfo = {
             id: events[i].id,
             totalVehicleMiles: events[i].odometer,

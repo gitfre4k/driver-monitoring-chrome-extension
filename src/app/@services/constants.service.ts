@@ -1,10 +1,10 @@
-import { Injectable, signal } from "@angular/core";
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ConstantsService {
   httpLimit = signal(2);
-  rightSide = signal(true);
-  extensionVersion = signal("0.0.4.2");
+  rightSide = signal(false);
+  extensionVersion = signal('0.0.4.2');
 }
