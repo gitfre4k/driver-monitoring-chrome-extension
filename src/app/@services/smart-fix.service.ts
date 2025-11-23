@@ -6,7 +6,7 @@ import {
   ISmartFixParsedErrorDetails,
   ISmartFixResponse,
 } from '../interfaces/api.interface';
-import { catchError, throwError } from 'rxjs';
+import { catchError, Observable, switchMap, throwError, timer } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -38,40 +38,69 @@ export class SmartFixService {
     });
   }
 
-  smartFix(tenantId: string, driverId: number, date: string) {
+  smartFix(
+    tenantId: string,
+    driverId: number,
+    date: string,
+  ): Observable<ISmartFixResponse[]> {
     const currentDay = DateTime.fromISO(date);
-
     const currentDate = currentDay.toUTC().toISO()!;
-    const seventDaysAgo = currentDay.minus({ days: 7 }).toUTC().toISO()!;
 
-    return this.smartFixClassic(
-      seventDaysAgo,
-      currentDate,
-      tenantId,
-      driverId,
-    ).pipe(
-      catchError((err: { error: ISmartFixErrorResponse }) => {
-        if (err.error.code === 'FixEvents.SourceEventsInspectedByFmcsa') {
-          const errorDetails: ISmartFixParsedErrorDetails = JSON.parse(
-            err.error.details,
-          );
-          const tryFrom = DateTime.fromISO(errorDetails.ReportTimeTo)
-            .startOf('day')
-            .plus({ days: 1 });
+    const initialSevenDaysAgo = currentDay.minus({ days: 7 }).toUTC().toISO()!;
 
-          if (+tryFrom.toFormat('dd') > +currentDay.toFormat('dd'))
-            return throwError(() => err);
+    const attemptSmartFix = (
+      startDate: string,
+      retryAttempt: number = 0,
+    ): Observable<ISmartFixResponse[]> => {
+      return this.smartFixClassic(
+        startDate,
+        currentDate,
+        tenantId,
+        driverId,
+      ).pipe(
+        catchError((err: { error: ISmartFixErrorResponse }) => {
+          // check if error code is 'SourceEventsInspectedByFmcsa'
+          if (err.error.code === 'FixEvents.SourceEventsInspectedByFmcsa') {
+            const nextRetryAttempt = retryAttempt + 1;
+            console.warn(
+              `Attempt ${retryAttempt + 1} failed. Retrying... (Attempt: ${nextRetryAttempt})`,
+            );
 
-          return this.smartFixClassic(
-            tryFrom.toUTC().toISO()!,
-            currentDate,
-            tenantId,
-            driverId,
-          );
-        }
-        return throwError(() => err);
-      }),
-    );
+            try {
+              const errorDetails: ISmartFixParsedErrorDetails = JSON.parse(
+                err.error.details,
+              );
+
+              const tryFrom = DateTime.fromISO(errorDetails.ReportTimeTo)
+                .startOf('day')
+                .plus({ days: nextRetryAttempt });
+
+              const tryFromDay = +tryFrom.toFormat('dd');
+              const currentDayDay = +currentDay.toFormat('dd');
+
+              if (tryFromDay > currentDayDay) return throwError(() => err);
+
+              return attemptSmartFix(
+                tryFrom.toUTC().toISO()!,
+                nextRetryAttempt,
+              );
+            } catch (jsonError) {
+              // Handle error in JSON parsing if 'details' is invalid
+              console.error(
+                'Failed to parse error details for retry logic:',
+                jsonError,
+              );
+              return throwError(() => err);
+            }
+          }
+          // For any other error, propagate the error immediately.
+          return throwError(() => err);
+        }),
+      );
+    };
+
+    // Start the recursive process with the initial parameters (0 retries)
+    return attemptSmartFix(initialSevenDaysAgo, 0);
   }
 }
 const zww = {

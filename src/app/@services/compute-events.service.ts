@@ -197,10 +197,64 @@ export class ComputeEventsService {
 
     let currentDriver = {} as IDriverIdAndName;
     for (let i = 0; i < events.length; i++) {
+      // change currentDriver and add shift breakpoint to event
       if (events[i].driver?.id !== currentDriver.id) {
         currentDriver = events[i].driver;
         events[i].shift = true;
       }
+
+      // check if new drivers's first event is Login
+      if (events[i].isFirstEvent) {
+        const secondEventID = events.findIndex(
+          (ev) => ev.viewId === 2 && events[i].driver?.id === currentDriver.id,
+        );
+        if (
+          secondEventID !== -1 &&
+          events[secondEventID] &&
+          events[secondEventID].statusName !== 'Login'
+        )
+          events[secondEventID].errorMessages.push(
+            'occured before Login event',
+          );
+      }
+
+      // event occured before login
+      if (events[i].statusName === 'Login') {
+        if (i > 1) {
+          const prevEventID = events.findIndex(
+            (ev) =>
+              ev.viewId === events[i].viewId - 1 &&
+              events[i].driver?.id === currentDriver.id,
+          );
+
+          if (
+            prevEventID !== -1 &&
+            events[prevEventID] &&
+            events[prevEventID].statusName !== 'Logout'
+          )
+            events[prevEventID].errorMessages.push(
+              'occured before Login event',
+            );
+        }
+      }
+
+      if (events[i].statusName === 'Logout') {
+        if (i < events.length - 1) {
+          const nextEventID = events.findIndex(
+            (ev) =>
+              ev.viewId === events[i].viewId + 1 &&
+              events[i].driver?.id === currentDriver.id,
+          );
+
+          if (
+            nextEventID !== -1 &&
+            events[nextEventID] &&
+            events[nextEventID].statusName !== 'Login'
+          )
+            events[nextEventID].errorMessages.push('missing Login event');
+        }
+      }
+
       // if (i > 1) {
       //   if (events[i].driver.id !== events[i - 1].driver.id) {
       //     events[i].statusName !== 'Login' &&
