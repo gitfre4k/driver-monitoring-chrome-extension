@@ -196,63 +196,12 @@ export class ComputeEventsService {
     );
 
     let currentDriver = {} as IDriverIdAndName;
+
     for (let i = 0; i < events.length; i++) {
       // change currentDriver and add shift breakpoint to event
       if (events[i].driver?.id !== currentDriver.id) {
         currentDriver = events[i].driver;
         events[i].shift = true;
-      }
-
-      // check if new drivers's first event is Login
-      if (events[i].isFirstEvent) {
-        const secondEventID = events.findIndex(
-          (ev) => ev.viewId === 2 && events[i].driver?.id === currentDriver.id,
-        );
-        if (
-          secondEventID !== -1 &&
-          events[secondEventID] &&
-          events[secondEventID].statusName !== 'Login'
-        )
-          events[secondEventID].errorMessages.push(
-            'occured before Login event',
-          );
-      }
-
-      // event occured before login
-      if (events[i].statusName === 'Login') {
-        if (i > 1) {
-          const prevEventID = events.findIndex(
-            (ev) =>
-              ev.viewId === events[i].viewId - 1 &&
-              events[i].driver?.id === currentDriver.id,
-          );
-
-          if (
-            prevEventID !== -1 &&
-            events[prevEventID] &&
-            events[prevEventID].statusName !== 'Logout'
-          )
-            events[prevEventID].errorMessages.push(
-              'occured before Login event',
-            );
-        }
-      }
-
-      if (events[i].statusName === 'Logout') {
-        if (i < events.length - 1) {
-          const nextEventID = events.findIndex(
-            (ev) =>
-              ev.viewId === events[i].viewId + 1 &&
-              events[i].driver?.id === currentDriver.id,
-          );
-
-          if (
-            nextEventID !== -1 &&
-            events[nextEventID] &&
-            events[nextEventID].statusName !== 'Login'
-          )
-            events[nextEventID].errorMessages.push('missing Login event');
-        }
       }
 
       // if (i > 1) {
@@ -279,6 +228,44 @@ export class ComputeEventsService {
       //     }
       //   }
       // }
+    }
+
+    // filter driver events
+    const currentDriverEvents = events.filter(
+      (ev) => ev.driver.id === ev.driver.viewId,
+    );
+    for (let i = 0; i < currentDriverEvents.length; i++) {
+      // check if new drivers's first event is Login
+      if (currentDriverEvents[i].isFirstEvent) {
+        if (
+          currentDriverEvents[i + 1] &&
+          currentDriverEvents[i + 1].statusName !== 'Login'
+        ) {
+          const index = events.findIndex(
+            (ev) => ev.id === currentDriverEvents[i + 1].id,
+          );
+
+          index !== -1 &&
+            events[index].errorMessages.push('occured before Login event');
+        }
+      }
+
+      // event occured before login
+      if (currentDriverEvents[i].statusName === 'Login' && i > 1) {
+        const prevEvent = currentDriverEvents[i - 1];
+        if (prevEvent && prevEvent.statusName !== 'Logout') {
+          const index = events.findIndex((ev) => ev.id === prevEvent.id);
+          events[index].errorMessages.push('occured before Login event');
+        }
+      }
+      // missing Login event
+      if (currentDriverEvents[i].statusName === 'Logout') {
+        const nextEvent = currentDriverEvents[i + 1];
+        if (nextEvent && nextEvent.statusName !== 'Login') {
+          const index = events.findIndex((ev) => ev.id === nextEvent.id);
+          events[index].errorMessages.push('missing Login event');
+        }
+      }
     }
 
     return events;

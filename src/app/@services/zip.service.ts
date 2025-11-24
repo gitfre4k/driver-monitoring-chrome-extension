@@ -136,11 +136,7 @@ export class ZipService {
     const isResizeActive = this.resize();
     const zippedOnDutyLimit = this.zippedOnDutyDuration() * 60; // Max On Duty duration for 'zipped' events (seconds)
 
-    // --- Helper Functions for Duration Calculation ---
-
-    /**
-     * Calculates the resized/minimized duration for a single Driving event.
-     */
+    // resized duration for a single Driving event.
     const calculateResizedDrivingDuration = (event: IEvent): number => {
       if (!event.realDurationInSeconds) return event.durationInSeconds;
       if (!event.averageSpeed)
@@ -162,9 +158,7 @@ export class ZipService {
       }
     };
 
-    /**
-     * Calculates the duration for a non-Driving duty status event in the 'shift' scenario.
-     */
+    // duration for a non-Driving duty status event in the 'shift' scenario.
     const calculateShiftNonDrivingDuration = (
       event: IEvent,
       isLastEvent: boolean,
@@ -176,7 +170,7 @@ export class ZipService {
       if (event.pti === -9999) {
         return event.durationInSeconds;
       } else {
-        // Apply the 'zipped' on-duty duration limit
+        // on-duty duration limit
         return Math.min(event.durationInSeconds, zippedOnDutyLimit);
       }
     };
@@ -204,16 +198,7 @@ export class ZipService {
 
         if (event.statusName === 'Driving') {
           const duration = calculateResizedDrivingDuration(event);
-          // Only the LAST Driving event has special duration handling (using Math.min against original/new duration)
-          // while ALL other events use original duration.
-          // However, the original code logic seems to apply the *resize logic* ONLY to the last driving event
-          // and then applies original duration to all others, which is unusual for a total accumulation.
-          // I will stick to the literal original logic for *totalDurationInSeconds* in this scenario:
-
           if (isLastDriving) {
-            // This block is complex. It re-calculates the duration for the last driving event
-            // and applies the drivingMinDuration or the recalculated duration.
-            // This seems like a special 'adjustment' for the last event.
             return acc + calculateResizedDrivingDuration(event);
           } else if (isLastDutyStatus) {
             // Original code explicitly returns 0 for the absolute last duty status event

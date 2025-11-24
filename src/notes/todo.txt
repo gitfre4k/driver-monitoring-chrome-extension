@@ -23,7 +23,7 @@ monitor
  > add templates
  > handle resize for negative speed
  > add option to copy name/truck/company
- > add tool for logging disconnected Driving4
+ > add tool for logging disconnected Driving
  > add error for odometer decreased
  > separate logs on truck change
 
