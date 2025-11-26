@@ -53,6 +53,10 @@
               <app-engine-on></app-engine-on>
             } @else if (newStatusName === "Engine Off") {
               <app-engine></app-engine>
+            } @else if (
+              newStatusName === "Login" || newStatusName === "Logout"
+            ) {
+              {{ newStatusName }}
             } @else {
               {{
                 event.notes && getNoSpaceNote(event.notes)

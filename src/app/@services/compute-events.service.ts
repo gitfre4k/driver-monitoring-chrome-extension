@@ -255,7 +255,9 @@ export class ComputeEventsService {
         const prevEvent = currentDriverEvents[i - 1];
         if (prevEvent && prevEvent.statusName !== 'Logout') {
           const index = events.findIndex((ev) => ev.id === prevEvent.id);
-          events[index].errorMessages.push('occured before Login event');
+          events[index].errorMessages.push(
+            'occured before Login / missing Logout',
+          );
         }
       }
       // missing Login event
