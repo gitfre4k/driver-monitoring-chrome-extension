@@ -441,24 +441,35 @@ export class ZipService {
           this.urlService.refreshWebApp();
         },
         error: (err) => {
+          const currentZipId = this.zipId;
           this.taskQueueService.zipTasks.update((prev) => {
             const newValue = { ...prev };
-            newValue[this.zipId] = {
-              ...newValue[this.zipId],
+            newValue[currentZipId] = {
+              ...newValue[currentZipId],
               isDone: null,
             };
             return newValue;
           });
+          setTimeout(
+            () =>
+              this.taskQueueService.zipTasks.update((prev) => {
+                const newValue = { ...prev };
+                delete newValue[currentZipId];
+                return newValue;
+              }),
+            5000,
+          );
           const message = err.error?.message
             ? `[ZIP] ERROR: ${err.error.message}`
             : `[ZIP] ERROR: ${err}`;
           this._snackBar.open(message, 'Close', { duration: 7000 });
         },
         complete: () => {
+          const currentZipId = this.zipId;
           this.taskQueueService.zipTasks.update((prev) => {
             const newValue = { ...prev };
-            newValue[this.zipId] = {
-              ...newValue[this.zipId],
+            newValue[currentZipId] = {
+              ...newValue[currentZipId],
               isDone: true,
             };
             return newValue;
@@ -467,7 +478,7 @@ export class ZipService {
             () =>
               this.taskQueueService.zipTasks.update((prev) => {
                 const newValue = { ...prev };
-                delete newValue[this.zipId];
+                delete newValue[currentZipId];
                 return newValue;
               }),
             5000,

@@ -1233,7 +1233,7 @@
                                     message of event.warningMessages;
                                     track $index
                                   ) {
-                                    {{ message }}
+                                    {{ message }} <br />
                                   }
                                 </span>
                               </li>
@@ -1468,7 +1468,7 @@
                                     message of event.errorMessages;
                                     track $index
                                   ) {
-                                    {{ message }}
+                                    {{ message }} <br />
                                   }
                                 </span>
                               </li>
@@ -1598,7 +1598,7 @@
 
       <!--  -->
       <!-- missing Engine On  -->
-      @if (progressBarService.missingEngineOn(); as missingEngineOn) {
+      <!-- @if (progressBarService.missingEngineOn(); as missingEngineOn) {
         @if (!isEmpty(missingEngineOn)) {
           <mat-expansion-panel>
             <mat-expansion-panel-header>
@@ -1709,7 +1709,7 @@
             </div>
           </mat-expansion-panel>
         }
-      }
+      } -->
 
       <!--  -->
       <!-- high elapsed EH  -->

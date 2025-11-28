@@ -42,7 +42,6 @@ import { TaskQueueComponent } from './components/task-queue/task-queue.component
     ErrorsComponent,
     InfoComponent,
     ScanResultComponent,
-    TemplatesComponent,
     MatProgressSpinnerModule,
     TaskQueueComponent,
   ],

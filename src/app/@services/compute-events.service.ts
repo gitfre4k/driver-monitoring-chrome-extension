@@ -311,6 +311,11 @@ export class ComputeEventsService {
       date && (events[i].date = date);
       tenant && (events[i].tenant = tenant);
 
+      // missing engine on event
+
+      events[i].isEventMissingPowerUp &&
+        events[i].warningMessages.push('Missing Engine On event');
+
       // fleet manager
       events[i].origin ===
         'EditRequestedByAnAuthenticatedUserOtherThanTheDriver' &&
@@ -507,6 +512,13 @@ export class ComputeEventsService {
       if (isDriving(events[i])) {
         occurredDuringDriving = true;
         currentDriving = events[i];
+
+        // speeding warning for Driving less then 1h long
+        if (events[i].averageSpeed && events[i].averageSpeed > 75) {
+          events[i].warningMessages.push(
+            `speeding [${events[i].averageSpeed.toFixed()} mph]`,
+          );
+        }
       }
       if (isIntermediate(events[i])) {
         intermediateCount++;
