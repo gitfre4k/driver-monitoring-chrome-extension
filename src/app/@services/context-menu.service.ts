@@ -143,14 +143,19 @@ export class ContextMenuService {
       case "DELETE_ALL_ENGINES":
       case "DELETE_ENGINES_IN_DRIVING": {
         const ids: number[] = [];
-        computedEvents?.forEach(
-          (e) =>
-            e.statusName.includes("Engine") &&
-            (action === "DELETE_ENGINES_IN_DRIVING"
-              ? e.occurredDuringDriving
-              : true) &&
-            ids.push(e.id),
-        );
+        computedEvents?.forEach((e) => {
+          if (action !== "DELETE_ENGINES_IN_DRIVING") {
+            e.statusName.includes("Engine") && ids.push(e.id);
+          } else {
+            if (e.engineInfo?.length) {
+              e.engineInfo.forEach((engine) => {
+                e.nextDutyStatusInfo.totalVehicleMiles !==
+                  engine.totalVehicleMiles && ids.push(engine.id);
+              });
+            }
+          }
+        });
+
         if (!ids.length)
           return this._snackBar.open("No engine status detected.", "OK", {
             duration: 3000,

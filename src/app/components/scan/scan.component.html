@@ -287,7 +287,15 @@
             ></mat-datepicker-toggle>
             <span>{{ date.value | date: "mediumDate" }}</span>
           </div>
-          <div class="scan__log-analysis__form-submit">
+          <mat-checkbox
+            style="transform: scale(0.9)"
+            [(ngModel)]="advancedScanService.removeEngineDuringDriving"
+            ><span scan__group__cert-checkbox
+              >remove Engine events <br />
+              during Driving</span
+            ></mat-checkbox
+          >
+          <div class="scan__log-analysis__form-submit+">
             <button
               [disabled]="disableScan"
               matButton="tonal"
@@ -303,7 +311,12 @@
         <legend>tools</legend>
 
         <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
-          delete Unidentified Events
+          delete <br />
+          Unidentified Events
+        </button>
+        <button matButton="tonal" (click)="globalSmartFix()">
+          global <br />
+          SmartFix
         </button>
       </fieldset>
     </div>

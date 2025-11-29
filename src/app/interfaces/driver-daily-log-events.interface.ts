@@ -1,4 +1,4 @@
-import { ITenant } from './';
+import { ITenant } from "./";
 
 export interface IEvent {
   id: number;
@@ -58,6 +58,7 @@ export interface IEvent {
   break: number;
   nextDutyStatusInfo: IStatusInfo;
   intermediatesInfo: IStatusInfo[];
+  engineInfo: IStatusInfo[];
   custom: boolean;
   coDriverLastBreakStatus: number | null;
   parentClass: string;

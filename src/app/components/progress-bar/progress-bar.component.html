@@ -8,6 +8,8 @@
       } @else {
         @if (scanMode === "deleteUE") {
           <h2>Detecting and deleting unidentified events...</h2>
+        } @else if (scanMode === "smartFix") {
+          <h2>Performing Global Smart Fix...</h2>
         } @else {
           <h2>
             Scanning for

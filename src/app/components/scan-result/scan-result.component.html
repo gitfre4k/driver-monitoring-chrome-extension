@@ -664,6 +664,101 @@
       }
 
       <!--  -->
+      <!-- Smart Fix Errors -->
+      @if (progressBarService.smartFixErrors(); as smartFixErrors) {
+        @if (!isEmpty(smartFixErrors)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                error on Smart Fix attempt
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(smartFixErrors) }}"
+                  [matBadgeHidden]="driverCount(smartFixErrors) === 0"
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(smartFixErrors)) {
+                <div class="scan-results__content__result__empty">
+                  No driver with uncertified daily log detected.
+                </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of smartFixErrors | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.driverId,
+                                  dateService.now
+                                    .setZone('America/New_York')
+                                    .toUTC()
+                                    .toISO()!,
+                                  driver.tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
+
+                          <span class="bold">{{ driver.driverName }}</span>
+
+                          <!-- <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="on-hover"
+                  (click)="
+                    progressBarService.removeItem(
+                      'smartFixErrors',
+                      company.key,
+                      driver.driverName
+                    )
+                  "
+                  ><span class="material-icons"> clear </span></a
+                > -->
+                        </div>
+                        <ul class="inner-ul">
+                          <li class="event-error">
+                            <span></span>
+                            <span></span>
+                            <span>{{ driver.errorMessage }}</span>
+                          </li>
+                          <li></li>
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      }
+
+      <!--  -->
       <!-- Teleports -->
       @if (progressBarService.teleports(); as teleports) {
         @if (!isEmpty(teleports)) {

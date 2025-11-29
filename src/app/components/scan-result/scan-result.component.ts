@@ -1,33 +1,38 @@
-import { Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, inject } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { FormsModule } from "@angular/forms";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatBadgeModule } from "@angular/material/badge";
 import {
   MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
   MatExpansionModule,
-} from '@angular/material/expansion';
+} from "@angular/material/expansion";
 
-import { ProgressBarService } from '../../@services/progress-bar.service';
-import { UrlService } from '../../@services/url.service';
-import { ICertStatus, IScanResult, ITenant } from '../../interfaces';
-import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
-import { DateService } from '../../@services/date.service';
-import { DateTime } from 'luxon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ProgressBarService } from "../../@services/progress-bar.service";
+import { UrlService } from "../../@services/url.service";
+import {
+  ICertStatus,
+  IScanResult,
+  ISmartFixResult,
+  ITenant,
+} from "../../interfaces";
+import { ExtensionTabNavigationService } from "../../@services/extension-tab-navigation.service";
+import { DateService } from "../../@services/date.service";
+import { DateTime } from "luxon";
+import { MatCheckboxModule } from "@angular/material/checkbox";
 import {
   MatBottomSheet,
   MatBottomSheetModule,
-} from '@angular/material/bottom-sheet';
-import { BottomSheetComponent } from '../UI/bottom-sheet/bottom-sheet.component';
-import { getStatusDuration } from '../../helpers/app.helpers';
+} from "@angular/material/bottom-sheet";
+import { BottomSheetComponent } from "../UI/bottom-sheet/bottom-sheet.component";
+import { getStatusDuration } from "../../helpers/app.helpers";
 
 @Component({
-  selector: 'app-scan-result',
+  selector: "app-scan-result",
   imports: [
     CommonModule,
     MatExpansionModule,
@@ -39,14 +44,14 @@ import { getStatusDuration } from '../../helpers/app.helpers';
     MatCheckboxModule,
     MatBottomSheetModule,
   ],
-  templateUrl: './scan-result.component.html',
-  styleUrl: './scan-result.component.scss',
+  templateUrl: "./scan-result.component.html",
+  styleUrl: "./scan-result.component.scss",
   providers: [
     {
       provide: MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
       useValue: {
-        collapsedHeight: '28px',
-        expandedHeight: '36px',
+        collapsedHeight: "28px",
+        expandedHeight: "36px",
       },
     },
   ],
@@ -84,7 +89,7 @@ export class ScanResultComponent {
     return count;
   }
 
-  driverCount(result: IScanResult | ICertStatus) {
+  driverCount(result: IScanResult | ICertStatus | ISmartFixResult) {
     let count = 0;
     for (let company in result) {
       count += result[company].length;
@@ -98,7 +103,7 @@ export class ScanResultComponent {
 
   copyDriverName(name: string) {
     navigator.clipboard.writeText(name);
-    this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
+    this._snackBar.open(`Copied: ${name}`, "OK", { duration: 1500 });
   }
 
   openLogs(id: number, date: string, tenant: ITenant, openLogs?: boolean) {
@@ -115,23 +120,23 @@ export class ScanResultComponent {
   }
 
   getDate(date: string, zone: string) {
-    return DateTime.fromISO(date).setZone('America/New_York').toISO();
+    return DateTime.fromISO(date).setZone("America/New_York").toISO();
   }
 
   get malfTitle(): string {
     return window.innerWidth > 350
-      ? 'Malfunction / DataDiagnostic'
-      : 'Malf. / DataDiag.';
+      ? "Malfunction / DataDiagnostic"
+      : "Malf. / DataDiag.";
   }
   get elapsedEHTitle(): string {
     return window.innerWidth > 335
-      ? 'high elapsed Engine Hours'
-      : 'high elapsed EH';
+      ? "high elapsed Engine Hours"
+      : "high elapsed EH";
   }
   get lowTotalEHTitle(): string {
-    return window.innerWidth > 303 ? 'low total Engine Hours' : 'low total EH';
+    return window.innerWidth > 303 ? "low total Engine Hours" : "low total EH";
   }
   get prolongedOnDutiesTitle(): string {
-    return window.innerWidth > 286 ? 'prolonged On Duty' : 'prolonged OnDuty';
+    return window.innerWidth > 286 ? "prolonged On Duty" : "prolonged OnDuty";
   }
 }

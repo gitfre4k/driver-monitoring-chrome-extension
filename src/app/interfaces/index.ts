@@ -172,6 +172,17 @@ export interface ICertStatusDriver {
   tenant: ITenant;
 }
 
+export interface ISmartFixResult {
+  [company: string]: ISmartFixResultDriver[];
+}
+
+export interface ISmartFixResultDriver {
+  driverName: string;
+  driverId: number;
+  tenant: ITenant;
+  errorMessage: string;
+}
+
 export interface IISODateRange {
   from: string;
   to: string;

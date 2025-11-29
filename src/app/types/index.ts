@@ -5,7 +5,8 @@ export type TScanMode =
   | "pre"
   | "cert"
   | "deleteUE"
-  | "admin";
+  | "admin"
+  | "smartFix";
 
 export type TErrorParsedComparison = "smaller" | "greater";
 

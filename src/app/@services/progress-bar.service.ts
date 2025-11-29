@@ -9,6 +9,7 @@ import {
   IScanErrors,
   IScanResult,
   IScanViolations,
+  ISmartFixResult,
 } from "../interfaces";
 import { TProgressMode, TScanMode, TScanResult } from "../types";
 import { IScanPreViolations } from "../interfaces/drivers.interface";
@@ -64,6 +65,8 @@ export class ProgressBarService {
 
   inspections = signal<IScanDOTInspections[]>([]);
   totalDCount = signal(0);
+
+  smartFixErrors = signal<ISmartFixResult>({});
 
   teleports = signal<IScanResult>({});
   locationMismatch = signal<IScanResult>({});
@@ -142,6 +145,7 @@ export class ProgressBarService {
   resultsAreReady = computed(
     () =>
       !this.isEmpty(this.teleports()) ||
+      !this.isEmpty(this.smartFixErrors()) ||
       !this.isEmpty(this.locationMismatch()) ||
       !this.isEmpty(this.eventErrors()) ||
       !this.isEmpty(this.eventWarnings()) ||
@@ -292,6 +296,11 @@ export class ProgressBarService {
       case "admin":
         this.adminPortalResults.set({});
         this.adminErrors.set([]);
+        this.progressMode.set("determinate");
+        break;
+      case "smartFix":
+        this.smartFixErrors.set({});
+        // this.aErrors.set([]); errors
         this.progressMode.set("determinate");
         break;
       default:
