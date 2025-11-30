@@ -1,6 +1,6 @@
-import { inject, Injectable, signal } from "@angular/core";
-import { ProgressBarService } from "./progress-bar.service";
-import { AppService } from "./app.service";
+import { inject, Injectable, signal } from '@angular/core';
+import { ProgressBarService } from './progress-bar.service';
+import { AppService } from './app.service';
 import {
   catchError,
   concatMap,
@@ -10,17 +10,17 @@ import {
   take,
   tap,
   toArray,
-} from "rxjs";
-import { DateTime } from "luxon";
-import { SmartFixService } from "./smart-fix.service";
-import { ApiService } from "./api.service";
-import { DateService } from "./date.service";
-import { ConstantsService } from "./constants.service";
-import { AdvancedScanService } from "./advanced-scan.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
+} from 'rxjs';
+import { DateTime } from 'luxon';
+import { SmartFixService } from './smart-fix.service';
+import { ApiService } from './api.service';
+import { DateService } from './date.service';
+import { ConstantsService } from './constants.service';
+import { AdvancedScanService } from './advanced-scan.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class GlobalSmartfFixService {
   private appService = inject(AppService);
@@ -44,7 +44,7 @@ export class GlobalSmartfFixService {
     if (!isReadyForSmartFix) {
       this._snacBar.open(
         "Please complete Driver Log Analysis with 'remove Engine events during Driving' enabled before initiating SmartFix.",
-        "Close",
+        'Close',
         {
           duration: 5000,
         },
@@ -52,11 +52,10 @@ export class GlobalSmartfFixService {
       return of();
     } else {
       const tenants = this.appService.tenantsSignal();
-      this.progressBarService.initializeState("advanced");
+      this.progressBarService.initializeState('advanced');
       this.progressBarService.scanning.set(true);
 
       return from(tenants).pipe(
-        take(10),
         concatMap((tenant) => {
           this.progressBarService.currentCompany.set(tenant.name);
           const qDate = DateTime.fromISO(date).toJSDate();
@@ -90,7 +89,7 @@ export class GlobalSmartfFixService {
                 this.progressBarService.activeDriversCount.update((i) => i + 1);
 
                 if (
-                  !this.includeCoDrivers &&
+                  this.includeCoDrivers() &&
                   analyzedCoDrivers[tenant.id].includes(driver.id)
                 ) {
                   return of();

@@ -81,12 +81,16 @@ export class ActionBtnsComponent {
             this._snackBar.open(
               `[Smart Fix] Error: ${res[0].errorMessage}`,
               'OK',
+              { duration: 7000 },
             );
-          } else this._snackBar.open('Smart fix performed successfully', 'OK');
+          } else
+            this._snackBar.open('Smart fix performed successfully', 'OK', {
+              duration: 3000,
+            });
         },
         error: (err) => {
           this.isSmartFix.set(false);
-          this._snackBar.open(err.error.message, 'Close');
+          this._snackBar.open(err.error.message, 'Close', { duration: 7000 });
         },
       });
   }
@@ -110,7 +114,11 @@ export class ActionBtnsComponent {
       )
       .subscribe({
         error: (err) => {
-          this._snackBar.open(`[ERROR] ${err.message ?? err.error.message}`);
+          this._snackBar.open(
+            `[ERROR] ${err.message ?? err.error.message}`,
+            'Close',
+            { duration: 7000 },
+          );
           this.isLoading.set(false);
         },
         complete: () => this.isLoading.set(false),
