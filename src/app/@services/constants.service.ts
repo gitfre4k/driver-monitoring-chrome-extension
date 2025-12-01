@@ -1,15 +1,16 @@
-import { effect, Injectable, Signal, signal } from '@angular/core';
+import { effect, Injectable, Signal, signal } from "@angular/core";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ConstantsService {
-  extensionVersion = signal('0.0.4.20');
+  extensionVersion = signal("0.0.4.20");
 
   httpLimit = signal(2);
 
-  rightSide = this.createSignal('rightSide', true);
-  showLocationDisplayName = this.createSignal('showLocationDisplayName', true);
+  rightSide = this.createSignal("rightSide", true);
+  ptiName = this.createSignal("ptiName", "pti");
+  showLocationDisplayName = this.createSignal("showLocationDisplayName", true);
 
   createSignal<T>(key: string, initialValue: T): Signal<T> {
     const storedValue = localStorage.getItem(key);
@@ -37,7 +38,7 @@ export class ConstantsService {
         // localStorage only stores strings, so we JSON.stringify the value
         localStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (e) {
-        console.error('Error saving to localStorage', e);
+        console.error("Error saving to localStorage", e);
       }
     });
 

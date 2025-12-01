@@ -15,6 +15,7 @@ import {
 } from "../interfaces/api.interface";
 import { parseErrorMessage } from "../helpers/context-menu.helpers";
 import { from, mergeMap, switchMap } from "rxjs";
+import { ConstantsService } from "./constants.service";
 
 @Injectable({ providedIn: "root" })
 export class ContextMenuService {
@@ -22,6 +23,7 @@ export class ContextMenuService {
   appService = inject(AppService);
   monitorService = inject(MonitorService);
   urlService = inject(UrlService);
+  constantsService = inject(ConstantsService);
   _snackBar = inject(MatSnackBar);
 
   computedEvents = this.monitorService.computedDailyLogEvents;
@@ -103,7 +105,9 @@ export class ContextMenuService {
       }
       case "ADD_PTI_NOTE": {
         if (!event) return;
-        this.handleAction("UPDATE_EVENT", event, { note: "pti" });
+        this.handleAction("UPDATE_EVENT", event, {
+          note: this.constantsService.ptiName(),
+        });
         return;
       }
       case "ADD_PTI":

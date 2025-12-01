@@ -26,7 +26,12 @@
     }
   </div>
   <div class="info-tab__log">
-    <button (click)="getLogs()">get Driver log info</button>
+    @if (monitorService.driverDailyLog(); as driverDailyLog) {
+      <button (click)="getLogs()" matButton="tonal">
+        get {{ driverDailyLog.driverFullName }}'s log info
+      </button>
+    }
+
     @if (driver(); as driver) {
       <h3>{{ driver.fullName }}</h3>
       <div class="info-tab__log__group">
@@ -62,14 +67,14 @@
     }
   </div>
 
-  <button
+  <!-- <button
     (click)="logActiveDriversPerCompany()"
     [disabled]="isDisabledElConejo"
     class="sexy-button"
     mat-button
   >
     botón para el Conejo
-  </button>
+  </button> -->
 
   <div class="info-tab__extension-version">
     <p>Driver Monitoring Chrome Extension</p>
