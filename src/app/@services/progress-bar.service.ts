@@ -125,7 +125,9 @@ export class ProgressBarService {
     return count;
   });
 
+  showInfo = signal(false);
   showErrors = signal(false);
+
   vErrors = signal([] as IScanErrors[]);
   pErrors = signal([] as IScanErrors[]);
   dErrors = signal([] as IScanErrors[]);

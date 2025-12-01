@@ -87,6 +87,16 @@
           <app-monitor></app-monitor>
         </mat-tab>
 
+        <mat-tab label="Shift Report">
+          <ng-template mat-tab-label>
+            <mat-icon>article</mat-icon>
+
+            <span class="hide">Shift Report</span>
+          </ng-template>
+
+          <app-shift-report></app-shift-report>
+        </mat-tab>
+
         <mat-tab label="Settings">
           <ng-template mat-tab-label>
             <mat-icon>build_circle</mat-icon>
@@ -97,7 +107,7 @@
           <app-settings></app-settings>
         </mat-tab>
 
-        <mat-tab label="About">
+        <!-- <mat-tab label="About">
           <ng-template mat-tab-label>
             <mat-icon>info</mat-icon>
 
@@ -105,7 +115,7 @@
           </ng-template>
 
           <app-info></app-info>
-        </mat-tab>
+        </mat-tab> -->
 
         <mat-tab disabled></mat-tab>
       </mat-tab-group>

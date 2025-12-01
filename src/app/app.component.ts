@@ -24,6 +24,7 @@ import { AppService } from './@services/app.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ConstantsService } from './@services/constants.service';
 import { TaskQueueComponent } from './components/task-queue/task-queue.component';
+import { ShiftReportComponent } from './components/shift-report/shift-report.component';
 
 @Component({
   selector: 'app-root',
@@ -41,6 +42,7 @@ import { TaskQueueComponent } from './components/task-queue/task-queue.component
     MonitorComponent,
     ErrorsComponent,
     InfoComponent,
+    ShiftReportComponent,
     ScanResultComponent,
     MatProgressSpinnerModule,
     TaskQueueComponent,
@@ -67,7 +69,9 @@ export class AppComponent {
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
   violationsCount = this.progressBarService.totalVCount;
+
   showErrors = this.progressBarService.showErrors;
+  showInfo = this.progressBarService.showInfo;
 
   errCount = this.progressBarService.errorCount;
 
