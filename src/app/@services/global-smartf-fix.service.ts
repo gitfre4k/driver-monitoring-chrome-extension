@@ -1,16 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ProgressBarService } from './progress-bar.service';
 import { AppService } from './app.service';
-import {
-  catchError,
-  concatMap,
-  from,
-  mergeMap,
-  of,
-  take,
-  tap,
-  toArray,
-} from 'rxjs';
+import { catchError, concatMap, from, mergeMap, of, tap, toArray } from 'rxjs';
 import { DateTime } from 'luxon';
 import { SmartFixService } from './smart-fix.service';
 import { ApiService } from './api.service';
@@ -52,7 +43,7 @@ export class GlobalSmartfFixService {
       return of();
     } else {
       const tenants = this.appService.tenantsSignal();
-      this.progressBarService.initializeState('advanced');
+      this.progressBarService.initializeState('smartFix');
       this.progressBarService.scanning.set(true);
 
       return from(tenants).pipe(
@@ -86,45 +77,42 @@ export class GlobalSmartfFixService {
 
               concatMap((log) => from(log.items)),
               mergeMap((driver) => {
-                this.progressBarService.activeDriversCount.update((i) => i + 1);
+                const preformSmartFix = this.smartFixService
+                  .smartFix(tenant.id, driver.id, date)
+                  .pipe(
+                    tap((response) => {
+                      if (response.length) {
+                        this.progressBarService.smartFixErrors.update(
+                          (prev) => ({
+                            ...prev,
+                            [tenant.name]: prev[tenant.name]
+                              ? [
+                                  ...prev[tenant.name],
+                                  {
+                                    driverName: driver.fullName,
+                                    driverId: driver.id,
+                                    errorMessage: response[0].errorMessage,
+                                    tenant,
+                                  },
+                                ]
+                              : [
+                                  {
+                                    driverName: driver.fullName,
+                                    driverId: driver.id,
+                                    errorMessage: response[0].errorMessage,
+                                    tenant,
+                                  },
+                                ],
+                          }),
+                        );
+                      }
+                    }),
+                  );
 
-                if (
-                  this.includeCoDrivers() &&
-                  analyzedCoDrivers[tenant.id].includes(driver.id)
-                ) {
-                  return of();
-                } else
-                  return this.smartFixService
-                    .smartFix(tenant.id, driver.id, date)
-                    .pipe(
-                      tap((response) => {
-                        if (response.length) {
-                          this.progressBarService.smartFixErrors.update(
-                            (prev) => ({
-                              ...prev,
-                              [tenant.name]: prev[tenant.name]
-                                ? [
-                                    ...prev[tenant.name],
-                                    {
-                                      driverName: driver.fullName,
-                                      driverId: driver.id,
-                                      errorMessage: response[0].errorMessage,
-                                      tenant,
-                                    },
-                                  ]
-                                : [
-                                    {
-                                      driverName: driver.fullName,
-                                      driverId: driver.id,
-                                      errorMessage: response[0].errorMessage,
-                                      tenant,
-                                    },
-                                  ],
-                            }),
-                          );
-                        }
-                      }),
-                    );
+                if (analyzedCoDrivers[tenant.id]?.includes(driver.id)) {
+                  if (this.includeCoDrivers()) return preformSmartFix;
+                  else return of();
+                } else return preformSmartFix;
               }, this.httpLimit()),
               toArray(),
             );

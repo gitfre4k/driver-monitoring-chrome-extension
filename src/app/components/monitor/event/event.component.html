@@ -80,7 +80,7 @@
           [style]="event.locationMismatch ? 'color: red' : ''"
           >{{ event.locationDisplayName }}</span
         >
-      } @else {
+      } @else if (constantsService.showLocationDisplayName()) {
         <span
           class="note"
           [style]="event.locationMismatch ? 'color: red' : ''"

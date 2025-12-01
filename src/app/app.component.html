@@ -2,9 +2,10 @@
   <a
     mat-icon-button
     (click)="popUp()"
-    matTooltip="Open in new window"
+    matTooltip="reboot"
     [ngClass]="scanning() ? 'none' : 'open-in-new-window'"
-    ><mat-icon>open_in_new</mat-icon></a
+  >
+    <mat-icon>restart_alt</mat-icon></a
   >
   <mat-card
     appearance="outlined"
@@ -85,16 +86,16 @@
 
           <app-monitor></app-monitor>
         </mat-tab>
-        <!-- 
-        <mat-tab label="Templates">
-          <ng-template mat-tab-label>
-            <mat-icon>message</mat-icon>
 
-            <span class="hide">Templates</span>
+        <mat-tab label="Settings">
+          <ng-template mat-tab-label>
+            <mat-icon>build_circle</mat-icon>
+
+            <span class="hide">Settings</span>
           </ng-template>
 
-          <app-templates></app-templates>
-        </mat-tab> -->
+          <app-settings></app-settings>
+        </mat-tab>
 
         <mat-tab label="About">
           <ng-template mat-tab-label>

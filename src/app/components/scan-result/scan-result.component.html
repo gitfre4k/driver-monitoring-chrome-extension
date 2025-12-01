@@ -725,19 +725,18 @@
 
                           <span class="bold">{{ driver.driverName }}</span>
 
-                          <!-- <a
-                  mat-icon-button
-                  matTooltip="Done"
-                  class="on-hover"
-                  (click)="
-                    progressBarService.removeItem(
-                      'smartFixErrors',
-                      company.key,
-                      driver.driverName
-                    )
-                  "
-                  ><span class="material-icons"> clear </span></a
-                > -->
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeSmartFixError(
+                                company.key,
+                                driver.driverId
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
                         </div>
                         <ul class="inner-ul">
                           <li class="event-error">
@@ -1692,18 +1691,18 @@
       }
 
       <!--  -->
-      <!-- missing Engine On  -->
-      <!-- @if (progressBarService.missingEngineOn(); as missingEngineOn) {
-        @if (!isEmpty(missingEngineOn)) {
+      <!-- status Overflow  -->
+      @if (progressBarService.statusOverflow(); as statusOverflow) {
+        @if (!isEmpty(statusOverflow)) {
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
-                missing Engine On
+                Status Overflow
                 <div
                   class="mat-badge-custom"
                   style="margin-left: auto"
-                  matBadge="{{ driverCount(missingEngineOn) }}"
-                  [matBadgeHidden]="driverCount(missingEngineOn) === 0"
+                  matBadge="{{ driverCount(statusOverflow) }}"
+                  [matBadgeHidden]="driverCount(statusOverflow) === 0"
                   matBadgeColor="primary"
                   matBadgePosition="below after"
                   matBadgeSize="medium"
@@ -1711,14 +1710,14 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <div class="scan-results__content__result">
-              @if (isEmpty(missingEngineOn)) {
+              @if (isEmpty(statusOverflow)) {
                 <div class="scan-results__content__result__empty">
                   No missing Engine On events.
                 </div>
               } @else {
                 <ul class="list-of-tenants">
                   @for (
-                    company of missingEngineOn | keyvalue;
+                    company of statusOverflow | keyvalue;
                     track company.key
                   ) {
                     <li class="company">
@@ -1756,7 +1755,7 @@
                             class="on-hover"
                             (click)="
                               progressBarService.removeItem(
-                                'missingEngineOn',
+                                'statusOverflow',
                                 company.key,
                                 driver.driverName
                               )
@@ -1781,15 +1780,26 @@
                               </li>
                             } @else {
                               <li class="event-error">
-                                <span class="view-id">#{{ event.viewId }}</span>
+                                <span class="view-id"></span>
 
-                                <span
-                                  [ngClass]="'status ' + event.dutyStatus"
-                                  >{{ event.statusName }}</span
-                                >
+                                <span> </span>
 
                                 <span class="error-msg">
-                                  missing Engine On
+                                  {{
+                                    event.engStatusCount
+                                      ? `Engine status count: ${event.engStatusCount}`
+                                      : ""
+                                  }}
+                                  @if (
+                                    event.eldStatusCount && event.engStatusCount
+                                  ) {
+                                    <br />
+                                  }
+                                  {{
+                                    event.eldStatusCount
+                                      ? `ELD Connection status count: ${event.eldStatusCount}`
+                                      : ""
+                                  }}
                                 </span>
                               </li>
                             }
@@ -1804,7 +1814,7 @@
             </div>
           </mat-expansion-panel>
         }
-      } -->
+      }
 
       <!--  -->
       <!-- high elapsed EH  -->

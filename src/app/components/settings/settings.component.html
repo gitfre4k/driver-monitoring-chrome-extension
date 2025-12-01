@@ -1,0 +1,45 @@
+<div class="settings">
+  <h2 class="settings__title">Settings</h2>
+
+  <div class="settings__container">
+    <hr />
+
+    <div class="settings__container__side">
+      <p>Open extension window on</p>
+      <mat-radio-group [(ngModel)]="constantsService.rightSide">
+        <mat-radio-button [value]="false">Left side</mat-radio-button>
+        <mat-radio-button [value]="true">Right side</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <div class="settings__container__speed">
+      <p>Scan speed</p>
+      <mat-form-field class="settings__container__speed-form">
+        <mat-label>Limit number of pending requests to</mat-label>
+        <mat-select [(ngModel)]="constantsService.httpLimit">
+          <mat-option [value]="1"> 1</mat-option>
+          <mat-option [value]="2"> 2</mat-option>
+          <mat-option [value]="3"> 3</mat-option>
+          <mat-option [value]="4"> 4</mat-option>
+          <mat-option [value]="5"> 5</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <hr />
+    <div class="settings__container__speed">
+      <p>Monotor Tab</p>
+      <mat-checkbox [(ngModel)]="constantsService.showLocationDisplayName">
+        show Location Display Name
+      </mat-checkbox>
+      <mat-form-field class="settings__container__speed-form">
+        <mat-label>Pre-Trip Inspection deffault name</mat-label>
+        <input
+          matInput
+          placeholder="Pre-Trip Inspection"
+          [(ngModel)]="ptiName"
+        />
+      </mat-form-field>
+    </div>
+    <div class="settings__container__speed"></div>
+  </div>
+</div>

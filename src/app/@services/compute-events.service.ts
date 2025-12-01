@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable, signal } from '@angular/core';
 
 import {
   bindEventViewId,
@@ -9,7 +9,7 @@ import {
   isDutyStatus,
   isIntermediate,
   isPc,
-} from "../helpers/app.helpers";
+} from '../helpers/app.helpers';
 
 import {
   IDailyLogs,
@@ -18,14 +18,14 @@ import {
   IEvent,
   IRefuels,
   IStatusInfo,
-} from "../interfaces/driver-daily-log-events.interface";
-import { ITenant } from "../interfaces";
-import { ApiService } from "./api.service";
-import { DateTime } from "luxon";
-import { isEventLocked } from "../helpers/compute-events.helpers";
+} from '../interfaces/driver-daily-log-events.interface';
+import { ITenant } from '../interfaces';
+import { ApiService } from './api.service';
+import { DateTime } from 'luxon';
+import { isEventLocked } from '../helpers/compute-events.helpers';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ComputeEventsService {
   apiService = inject(ApiService);
@@ -41,8 +41,8 @@ export class ComputeEventsService {
     shiftIsReadyToStart: false,
     coDriverLastBreakStatus: null,
     break: {
-      shift: "",
-      cycle: "",
+      shift: '',
+      cycle: '',
     },
   };
   driverState = signal(this.initialDriverState);
@@ -96,7 +96,13 @@ export class ComputeEventsService {
       ? bindEventViewId(coDriverDailyLog.events)
       : null;
 
+    let eldStatusCount = 0;
+    let engStatusCount = 0;
     driverEvents.forEach((e) => {
+      ['EldDisconnected', 'EldConnected'].includes(e.dutyStatus) &&
+        eldStatusCount++;
+      e.dutyStatus.includes('Engine') && engStatusCount++;
+
       e.driver = {
         id: driverDailyLog.driverId,
         viewId: driverDailyLog.driverId,
@@ -131,6 +137,9 @@ export class ComputeEventsService {
       this.refuelMarker.set(refuel);
     }
 
+    eldStatusCount > 40 && (events[0].eldStatusCount = eldStatusCount);
+    engStatusCount > 40 && (events[0].engStatusCount = engStatusCount);
+
     events = this.computeEvents(
       events,
       ptiDuration,
@@ -148,43 +157,43 @@ export class ComputeEventsService {
       e.errorMessages = [];
       tenant && (e.tenant = tenant);
       // PC/YM DriverIndicationClear
-      if (e.dutyStatus === "DriverIndicationClear") {
+      if (e.dutyStatus === 'DriverIndicationClear') {
         e.pcYmCLR = true;
-        e.statusName = "PC/YM CLR";
+        e.statusName = 'PC/YM CLR';
         events.push(e);
       }
       // 2nd PC/YM event
       if (
         e.eventType ===
-        "ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves"
+        'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
       ) {
-        if (e.dutyStatus === "DriverIndicationAuthorizedPersonalUseCmv") {
-          e.statusName = "PC (2nd)";
+        if (e.dutyStatus === 'DriverIndicationAuthorizedPersonalUseCmv') {
+          e.statusName = 'PC (2nd)';
           events.push(e);
         }
-        if (e.dutyStatus === "DriverIndicationYardMoves") {
-          e.statusName = "YM (2nd)";
+        if (e.dutyStatus === 'DriverIndicationYardMoves') {
+          e.statusName = 'YM (2nd)';
           events.push(e);
         }
       }
       // malf or data diag
-      if (e.eventType === "MalfunctionOrDataDiagnosticDetectionOccurrence") {
+      if (e.eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence') {
         e.malf = true;
-        e.dutyStatus === "DataDiagnostic" && (e.statusName = "Diagnostic");
-        e.dutyStatus === "DataDiagnosticClear" && (e.statusName = "Diag. CLR");
-        e.dutyStatus === "DataDiagnostic-E" && (e.statusName = "Diag. CLR (E)");
-        e.dutyStatus === "EldMalfunction" && (e.statusName = "ELD Malf.");
-        e.dutyStatus === "EldMalfunctionClear" && (e.statusName = "Malf. CLR");
+        e.dutyStatus === 'DataDiagnostic' && (e.statusName = 'Diagnostic');
+        e.dutyStatus === 'DataDiagnosticClear' && (e.statusName = 'Diag. CLR');
+        e.dutyStatus === 'DataDiagnostic-E' && (e.statusName = 'Diag. CLR (E)');
+        e.dutyStatus === 'EldMalfunction' && (e.statusName = 'ELD Malf.');
+        e.dutyStatus === 'EldMalfunctionClear' && (e.statusName = 'Malf. CLR');
         events.push(e);
       }
       // login/logout
-      if (e.eventType === "DriversLoginOrLogoutActivity") {
-        if (e.dutyStatus === "AuthenticatedDriverLogin") e.statusName = "Login";
-        else e.statusName = "Logout";
+      if (e.eventType === 'DriversLoginOrLogoutActivity') {
+        if (e.dutyStatus === 'AuthenticatedDriverLogin') e.statusName = 'Login';
+        else e.statusName = 'Logout';
         events.push(e);
       }
-      if (e.dutyStatus === "Dvir") {
-        e.statusName = "DVIR";
+      if (e.dutyStatus === 'Dvir') {
+        e.statusName = 'DVIR';
         events.push(e);
       }
     });
@@ -239,33 +248,33 @@ export class ComputeEventsService {
       if (currentDriverEvents[i].isFirstEvent) {
         if (
           currentDriverEvents[i + 1] &&
-          currentDriverEvents[i + 1].statusName !== "Login"
+          currentDriverEvents[i + 1].statusName !== 'Login'
         ) {
           const index = events.findIndex(
             (ev) => ev.id === currentDriverEvents[i + 1].id,
           );
 
           index !== -1 &&
-            events[index].errorMessages.push("occured before Login event");
+            events[index].errorMessages.push('occured before Login event');
         }
       }
 
       // event occured before login
-      if (currentDriverEvents[i].statusName === "Login" && i > 1) {
+      if (currentDriverEvents[i].statusName === 'Login' && i > 1) {
         const prevEvent = currentDriverEvents[i - 1];
-        if (prevEvent && prevEvent.statusName !== "Logout") {
+        if (prevEvent && prevEvent.statusName !== 'Logout') {
           const index = events.findIndex((ev) => ev.id === prevEvent.id);
           events[index].errorMessages.push(
-            "occured before Login / missing Logout",
+            'occured before Login / missing Logout',
           );
         }
       }
       // missing Login event
-      if (currentDriverEvents[i].statusName === "Logout") {
+      if (currentDriverEvents[i].statusName === 'Logout') {
         const nextEvent = currentDriverEvents[i + 1];
-        if (nextEvent && nextEvent.statusName !== "Login") {
+        if (nextEvent && nextEvent.statusName !== 'Login') {
           const index = events.findIndex((ev) => ev.id === nextEvent.id);
-          events[index].errorMessages.push("missing Login event");
+          events[index].errorMessages.push('missing Login event');
         }
       }
     }
@@ -314,16 +323,16 @@ export class ComputeEventsService {
       // missing engine on event
 
       events[i].isEventMissingPowerUp &&
-        events[i].warningMessages.push("Missing Engine On event");
+        events[i].warningMessages.push('Missing Engine On event');
 
       // fleet manager
       events[i].origin ===
-        "EditRequestedByAnAuthenticatedUserOtherThanTheDriver" &&
-        (events[i].statusName = "Fleet manager");
+        'EditRequestedByAnAuthenticatedUserOtherThanTheDriver' &&
+        (events[i].statusName = 'Fleet manager');
 
       // auto-assumed events
-      events[i].origin === "AssumedFromUnidentifiedDriverProfile" &&
-        events[i].errorMessages.push("origin: Auto-assumed");
+      events[i].origin === 'AssumedFromUnidentifiedDriverProfile' &&
+        events[i].errorMessages.push('origin: Auto-assumed');
 
       // assign end of shift for current driver
       if (events[i].driver?.id !== currentDriver.id) {
@@ -337,15 +346,15 @@ export class ComputeEventsService {
       // onDuty, origin: Auto
       if (
         events[i].viewId !== 1 &&
-        events[i].statusName === "On Duty" &&
-        events[i].origin === "AutomaticallyRecordedByEld" &&
+        events[i].statusName === 'On Duty' &&
+        events[i].origin === 'AutomaticallyRecordedByEld' &&
         !isDriving(currentDutyStatus)
       )
         events[i].errorMessages.push(
-          "[origin: Auto]" +
+          '[origin: Auto]' +
             (currentDutyStatus.statusName
-              ? " after " + currentDutyStatus.statusName
-              : ""),
+              ? ' after ' + currentDutyStatus.statusName
+              : ''),
         );
 
       ///////////////
@@ -359,14 +368,14 @@ export class ComputeEventsService {
         events[i].realEndTime ? events[i].realEndTime : events[i].endTime,
       ).getTime();
       /////////////////////////////// 10h break ///////////////////////////////
-      if (["Sleeper Berth", "Off Duty"].includes(events[i].statusName)) {
+      if (['Sleeper Berth', 'Off Duty'].includes(events[i].statusName)) {
         getStatusDuration(events[i]) / 60 / 60 > 10 && (events[i].break = 10);
       }
       if (marker10Hours > eventStartTime && marker10Hours < eventEndTime) {
         events[i].break = 10;
       }
       /////////////////////////////// 34h break ///////////////////////////////
-      if (["Sleeper Berth", "Off Duty"].includes(events[i].statusName)) {
+      if (['Sleeper Berth', 'Off Duty'].includes(events[i].statusName)) {
         getStatusDuration(events[i]) / 60 / 60 > 34 && (events[i].break = 34);
       }
       if (
@@ -382,7 +391,7 @@ export class ComputeEventsService {
         if (currentDutyStatus.id) {
           currentDutyStatus.driver?.id === events[i].driver?.id && // exclude co drivers events
             (currentDutyStatus.statusName === events[i].statusName
-              ? events[i].errorMessages.push("double Duty status")
+              ? events[i].errorMessages.push('double Duty status')
               : (currentDutyStatus = events[i]));
         } else currentDutyStatus = events[i];
       }
@@ -390,9 +399,9 @@ export class ComputeEventsService {
       /////////////////
       // passing parent duty status
       events[i].id === currentDutyStatus.id
-        ? ""
+        ? ''
         : (events[i].parentClass =
-            "parent-" + currentDutyStatus.statusName.replace(/\s/g, ""));
+            'parent-' + currentDutyStatus.statusName.replace(/\s/g, ''));
 
       ////////////////////////////// mark break //////////////////////////////
       events[i].break = currentDutyStatus.break ? currentDutyStatus.break : 0;
@@ -401,7 +410,7 @@ export class ComputeEventsService {
       // is shift ready to start ??
       if (
         // case 34 break or 10h+ Sleeper/Off
-        ["Sleeper Berth", "Off Duty"].includes(currentDutyStatus.statusName) &&
+        ['Sleeper Berth', 'Off Duty'].includes(currentDutyStatus.statusName) &&
         getStatusDuration(currentDutyStatus) / 60 / 60 > 10
       ) {
         shiftIsReadyToStart = true;
@@ -420,24 +429,24 @@ export class ComputeEventsService {
         (timeSinceShiftResetOccured > timeSinceEventOccured ||
           timeSinceCycleResetOccured > timeSinceEventOccured ||
           shiftIsReadyToStart) &&
-        events[i].eventType !== "CmvEnginePowerUpOrShutDownActivity" &&
-        events[i].dutyStatus !== "DriverIndicationAuthorizedPersonalUseCmv"
+        events[i].eventType !== 'CmvEnginePowerUpOrShutDownActivity' &&
+        events[i].dutyStatus !== 'DriverIndicationAuthorizedPersonalUseCmv'
       ) {
         if (
-          events[i].statusName === "On Duty" &&
+          events[i].statusName === 'On Duty' &&
           events[i].realDurationInSeconds !== 0
         ) {
           // PTI duration validity
           if (
             events[i].realDurationInSeconds >= (ptiDuration ? ptiDuration : 901)
           ) {
-            timeSinceShiftResetOccured > timeSinceEventOccured && (shift = "");
-            timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = "");
+            timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
+            timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
             shiftIsReadyToStart = false;
             wannabePTIonDutyId = 0;
             events[i].pti = -9999;
-            if (!events[i].notes || events[i].notes.trim() === "")
-              events[i].warningMessages.push("[PTI] missing note");
+            if (!events[i].notes || events[i].notes.trim() === '')
+              events[i].warningMessages.push('[PTI] missing note');
             // if (invalidPTINote(events[i].notes)) events[i].errorMessages.push('[PTI] wrong note')
 
             // console.log('[Pre-Trip Inspection validity] valid PTI detected');
@@ -448,20 +457,20 @@ export class ComputeEventsService {
           }
         }
         // no PTI
-        if (events[i].statusName === "Driving") {
+        if (events[i].statusName === 'Driving') {
           if (wannabePTIonDutyId) {
             events[wannabePTIonDutyId].pti =
               901 - events[wannabePTIonDutyId].realDurationInSeconds;
             events[wannabePTIonDutyId].warningMessages.push(
-              "short Pre-Trip Inspection",
+              'short Pre-Trip Inspection',
             );
           } else {
             events[i].pti = 0;
-            events[i].errorMessages.push("no Pre-Trip Inspection");
+            events[i].errorMessages.push('no Pre-Trip Inspection');
           }
 
-          timeSinceShiftResetOccured > timeSinceEventOccured && (shift = "");
-          timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = "");
+          timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
+          timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
           shiftIsReadyToStart = false;
           wannabePTIonDutyId = 0;
         }
@@ -469,7 +478,7 @@ export class ComputeEventsService {
 
       ////////////////////
       // prolonged On Duties
-      if (events[i].dutyStatus === "ChangeToOnDutyNotDrivingStatus") {
+      if (events[i].dutyStatus === 'ChangeToOnDutyNotDrivingStatus') {
         const duration = getStatusDuration(events[i]);
         if (
           duration >
@@ -481,7 +490,7 @@ export class ComputeEventsService {
 
       ////////////////////
       // 34 hours break in Sleeper Berth
-      if (events[i].statusName === "Sleeper Berth") {
+      if (events[i].statusName === 'Sleeper Berth') {
         if (!events[i].realDurationInSeconds) {
           const sleeperDuration =
             (new Date().getTime() -
@@ -490,19 +499,19 @@ export class ComputeEventsService {
             60 /
             60;
           sleeperDuration > (sleeperMinDuration ? sleeperMinDuration : 30) &&
-            events[i].warningMessages.push("34hr break outside Off Duty");
+            events[i].warningMessages.push('34hr break outside Off Duty');
         } else {
           events[i].realDurationInSeconds / 60 / 60 >
             (sleeperMinDuration ? sleeperMinDuration : 30) &&
-            events[i].warningMessages.push("34hr break outside Off Duty");
+            events[i].warningMessages.push('34hr break outside Off Duty');
         }
       }
 
       ////////////////////
       // check for Manual Drivings
       if (
-        events[i].dutyStatus === "ChangeToDrivingStatus" &&
-        events[i].origin === "EditedOrEnteredByTheDriver"
+        events[i].dutyStatus === 'ChangeToDrivingStatus' &&
+        events[i].origin === 'EditedOrEnteredByTheDriver'
       ) {
         events[i].manualDriving = true;
       }
@@ -526,7 +535,7 @@ export class ComputeEventsService {
         intermediateCount++;
         currentDrivingIntermediates.push(events[i]);
         if (!currentDriving) {
-          events[i].errorMessages.push("outside driving scope");
+          events[i].errorMessages.push('outside driving scope');
         } else {
           //////////////
           // intermediate location and odometer check
@@ -543,12 +552,12 @@ export class ComputeEventsService {
             prevEvent.odometer === events[i].odometer &&
             prevEvent.locationDisplayName === events[i].locationDisplayName
           )
-            events[i].errorMessages.push("location and odometer unchanged");
+            events[i].errorMessages.push('location and odometer unchanged');
           else {
             prevEvent.odometer === events[i].odometer &&
-              events[i].errorMessages.push("odometer unchanged");
+              events[i].errorMessages.push('odometer unchanged');
             prevEvent.locationDisplayName === events[i].locationDisplayName &&
-              events[i].errorMessages.push("location unchanged");
+              events[i].errorMessages.push('location unchanged');
           }
 
           ////////////////////////////////////////////////////////
@@ -558,14 +567,14 @@ export class ComputeEventsService {
             +new Date(currentDriving.realStartTime);
           let remainder = diff % (3600 * 1000);
           !(3600 * 1000 - remainder <= 1000 || remainder <= 1000) &&
-            events[i].errorMessages.push("incorrect timestamp");
+            events[i].errorMessages.push('incorrect timestamp');
         }
       }
       if (
         [
-          "ChangeToOffDutyStatus",
-          "ChangeToSleeperBerthStatus",
-          "ChangeToOnDutyNotDrivingStatus",
+          'ChangeToOffDutyStatus',
+          'ChangeToSleeperBerthStatus',
+          'ChangeToOnDutyNotDrivingStatus',
         ].includes(events[i].dutyStatus) ||
         (i === events.length - 1 && currentDriving)
       ) {
@@ -578,7 +587,7 @@ export class ComputeEventsService {
             Math.floor((currentDriving.durationInSeconds - 1) / 3600) !== // -1sec
               intermediateCount &&
               events[currentDriving.computeIndex].errorMessages.push(
-                "incorrect intermediate count",
+                'incorrect intermediate count',
               );
           }
 
@@ -600,7 +609,7 @@ export class ComputeEventsService {
             totalIntermediateCount - previousDayIntermediateCount !==
               intermediateCount &&
               events[currentDriving.computeIndex].errorMessages.push(
-                "incorrect intermediate count",
+                'incorrect intermediate count',
               );
           }
 
@@ -624,7 +633,7 @@ export class ComputeEventsService {
             totalIntermediateCount - previousDayIntermediateCount !==
               intermediateCount &&
               events[currentDriving.computeIndex].errorMessages.push(
-                "incorrect intermediate count",
+                'incorrect intermediate count',
               );
           }
 
@@ -659,9 +668,9 @@ export class ComputeEventsService {
         if (
           currentDriving &&
           [
-            "ChangeToOffDutyStatus",
-            "ChangeToSleeperBerthStatus",
-            "ChangeToOnDutyNotDrivingStatus",
+            'ChangeToOffDutyStatus',
+            'ChangeToSleeperBerthStatus',
+            'ChangeToOnDutyNotDrivingStatus',
           ].includes(events[i].dutyStatus)
         ) {
           //
@@ -694,7 +703,7 @@ export class ComputeEventsService {
       }
 
       // engines in driving
-      if (currentDriving && events[i].statusName.includes("Engine")) {
+      if (currentDriving && events[i].statusName.includes('Engine')) {
         events[currentDriving.computeIndex].engineInfo.push({
           id: events[i].id,
           totalVehicleMiles: events[i].odometer,
@@ -747,7 +756,7 @@ export class ComputeEventsService {
       // detect and report undefined odometer value
       !events[i].odometer &&
         !events[i].isFirstEvent &&
-        events[i].errorMessages.push("undefined odometer value");
+        events[i].errorMessages.push('undefined odometer value');
 
       // check for teleport
       events[i + 1].isTeleport = this.isTeleport(events[i], events[i + 1]);
@@ -812,22 +821,22 @@ export class ComputeEventsService {
 
   locationMismatch(location1: string, location2: string) {
     const opposites: { [key: string]: string } = {
-      N: "S",
-      S: "N",
-      E: "W",
-      W: "E",
-      NE: "SW",
-      SW: "NE",
-      NW: "SE",
-      SE: "NW",
-      NNE: "SSW",
-      SSW: "NNE",
-      NNW: "SSE",
-      SSE: "NNW",
-      ENE: "WSW",
-      WSW: "ENE",
-      ESE: "WNW",
-      WNW: "ESE",
+      N: 'S',
+      S: 'N',
+      E: 'W',
+      W: 'E',
+      NE: 'SW',
+      SW: 'NE',
+      NW: 'SE',
+      SE: 'NW',
+      NNE: 'SSW',
+      SSW: 'NNE',
+      NNW: 'SSE',
+      SSE: 'NNW',
+      ENE: 'WSW',
+      WSW: 'ENE',
+      ESE: 'WNW',
+      WNW: 'ESE',
     };
 
     const loc1 = this.parseLocation(location1);

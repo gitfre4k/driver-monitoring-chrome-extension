@@ -1,6 +1,6 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from '@angular/core';
 
-import { AppService } from "./app.service";
+import { AppService } from './app.service';
 
 import {
   ICertStatus,
@@ -10,23 +10,23 @@ import {
   IScanResult,
   IScanViolations,
   ISmartFixResult,
-} from "../interfaces";
-import { TProgressMode, TScanMode, TScanResult } from "../types";
-import { IScanPreViolations } from "../interfaces/drivers.interface";
+} from '../interfaces';
+import { TProgressMode, TScanMode, TScanResult } from '../types';
+import { IScanPreViolations } from '../interfaces/drivers.interface';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ProgressBarService {
   private appService = inject(AppService);
 
   scanning = signal(false);
   bufferValue = signal(0);
-  progressMode = signal<TProgressMode>("determinate");
+  progressMode = signal<TProgressMode>('determinate');
   constant = computed(() => 100 / this.appService.tenantsSignal().length);
   progressValue = signal(0);
-  currentDriver = signal("");
-  currentCompany = signal("Dex Solutions");
+  currentDriver = signal('');
+  currentCompany = signal('Dex Solutions');
   activeDriversCount = signal(0);
 
   violations = signal<IScanViolations[]>([]);
@@ -38,7 +38,7 @@ export class ProgressBarService {
 
     return totalVCount;
   });
-  violationsLastSync = signal("");
+  violationsLastSync = signal('');
 
   preViolations = signal<IScanPreViolations>({});
   preViolationsSlider = signal(20);
@@ -83,6 +83,7 @@ export class ProgressBarService {
   fleetManager = signal<IScanResult>({});
   truckChange = signal<IScanResult>({});
   refuelWarning = signal<IScanResult>({});
+  statusOverflow = signal<IScanResult>({});
 
   eventNotes = signal<IScanResult>({});
   excludeOnDutyNotes = signal(false);
@@ -95,7 +96,7 @@ export class ProgressBarService {
       for (let company in eventNotes) {
         eventNotes[company].forEach((driver) => {
           const filteredEvents = driver.events.filter(
-            (event) => event.statusName !== "On Duty",
+            (event) => event.statusName !== 'On Duty',
           );
           if (filteredEvents.length) {
             if (filteredEventNotes[company])
@@ -145,6 +146,7 @@ export class ProgressBarService {
   resultsAreReady = computed(
     () =>
       !this.isEmpty(this.teleports()) ||
+      !this.isEmpty(this.statusOverflow()) ||
       !this.isEmpty(this.smartFixErrors()) ||
       !this.isEmpty(this.locationMismatch()) ||
       !this.isEmpty(this.eventErrors()) ||
@@ -184,6 +186,18 @@ export class ProgressBarService {
     });
   }
 
+  removeSmartFixError(companyName: string, driverId: number) {
+    const index = this.smartFixErrors()[companyName].findIndex(
+      (driver) => driver.driverId === driverId,
+    );
+    this.smartFixErrors.update((prev) => {
+      const newValue = { ...prev };
+      newValue[companyName].splice(index, 1);
+      if (newValue[companyName].length === 0) delete newValue[companyName];
+      return newValue;
+    });
+  }
+
   removeAdminPortalResult(companyName: string, vehicleName: string) {
     const index = this.adminPortalResults()[companyName].findIndex(
       (truck) => truck.vehicleName === vehicleName,
@@ -197,9 +211,9 @@ export class ProgressBarService {
   }
 
   removeItem(scanResult: TScanResult, companyName: string, driverName: string) {
-    if (scanResult === "certStatus") return;
+    if (scanResult === 'certStatus') return;
 
-    if (scanResult === "preViolations" || scanResult === "cycleHours") {
+    if (scanResult === 'preViolations' || scanResult === 'cycleHours') {
       const index = this[scanResult]()[companyName].items.findIndex(
         (driver) => driver.driverDisplayName === driverName,
       );
@@ -238,27 +252,28 @@ export class ProgressBarService {
     this.scanning.set(false);
     this.progressValue.set(0);
     this.bufferValue.set(0);
-    this.currentCompany.set("");
+    this.currentCompany.set('');
   }
 
   initializeState(scanMode: TScanMode) {
     this.initializeProgressBar();
 
     switch (scanMode) {
-      case "violations":
+      case 'violations':
         this.violations.set([]);
         this.vErrors.set([]);
-        this.progressMode.set("determinate");
+        this.progressMode.set('determinate');
         break;
-      case "dot":
+      case 'dot':
         this.totalDCount.set(0);
         this.inspections.set([]);
         this.dErrors.set([]);
-        this.progressMode.set("determinate");
+        this.progressMode.set('determinate');
         break;
-      case "advanced":
+      case 'advanced':
         this.activeDriversCount.set(0);
         this.teleports.set({});
+        this.statusOverflow.set({});
         this.locationMismatch.set({});
         this.eventErrors.set({});
         this.eventWarnings.set({});
@@ -275,33 +290,33 @@ export class ProgressBarService {
         this.refuelWarning.set({});
         this.eventNotes.set({});
         this.aErrors.set([]);
-        this.progressMode.set("determinate");
+        this.progressMode.set('determinate');
         break;
-      case "pre":
+      case 'pre':
         this.preViolations.set({});
         this.cycleHours.set({});
         this.pErrors.set([]);
-        this.progressMode.set("determinate");
+        this.progressMode.set('determinate');
         break;
-      case "cert":
+      case 'cert':
         this.activeDriversCount.set(0);
         this.certStatus.set({});
         this.cErrors.set([]);
-        this.progressMode.set("indeterminate");
+        this.progressMode.set('indeterminate');
         break;
-      case "deleteUE":
+      case 'deleteUE':
         this.unEvErrors.set([]);
-        this.progressMode.set("indeterminate");
+        this.progressMode.set('indeterminate');
         break;
-      case "admin":
+      case 'admin':
         this.adminPortalResults.set({});
         this.adminErrors.set([]);
-        this.progressMode.set("determinate");
+        this.progressMode.set('determinate');
         break;
-      case "smartFix":
+      case 'smartFix':
         this.smartFixErrors.set({});
         // this.aErrors.set([]); errors
-        this.progressMode.set("determinate");
+        this.progressMode.set('determinate');
         break;
       default:
         return;

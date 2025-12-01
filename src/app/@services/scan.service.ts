@@ -140,7 +140,9 @@ export class ScanService {
 
   handleError(error: any) {
     this._snackBar
-      .open(`An error occurred: ${error.message}`, 'Close')
+      .open(`An error occurred: ${error.message}`, 'Close', {
+        duration: 7000,
+      })
       .afterDismissed()
       .pipe(tap(() => this.progressBarService.initializeProgressBar()))
       .subscribe();

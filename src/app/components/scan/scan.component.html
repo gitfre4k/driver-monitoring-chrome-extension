@@ -258,9 +258,25 @@
       </div>
     </div>
 
-    <!--////////////////////  -->
-    <!-- Druver Log Analysis -->
     <div class="scan_">
+      <!--////////////////////  -->
+      <!-- Tools -->
+      <fieldset class="scan__tools">
+        <legend>tools</legend>
+
+        <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
+          delete <br />
+          Unidentified Events
+        </button>
+        <button matButton="tonal" (click)="globalSmartFix()">
+          global <br />
+          SmartFix
+        </button>
+      </fieldset>
+
+      <!--////////////////////  -->
+      <!-- Druver Log Analysis -->
+
       <fieldset class="scan__log-analysis">
         <legend>Driver Log Analysis</legend>
 
@@ -305,19 +321,6 @@
             </button>
           </div>
         </div>
-      </fieldset>
-
-      <fieldset class="scan__tools">
-        <legend>tools</legend>
-
-        <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
-          delete <br />
-          Unidentified Events
-        </button>
-        <button matButton="tonal" (click)="globalSmartFix()">
-          global <br />
-          SmartFix
-        </button>
       </fieldset>
     </div>
   } @else {

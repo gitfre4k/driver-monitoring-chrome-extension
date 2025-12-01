@@ -19,7 +19,7 @@ import { IViolations } from './interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateService } from './@services/date.service';
 import { ErrorsComponent } from './components/errors/errors.component';
-import { TemplatesComponent } from './components/templates/templates.component';
+import { SettingsComponent } from './components/settings/settings.component';
 import { AppService } from './@services/app.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ConstantsService } from './@services/constants.service';
@@ -44,6 +44,7 @@ import { TaskQueueComponent } from './components/task-queue/task-queue.component
     ScanResultComponent,
     MatProgressSpinnerModule,
     TaskQueueComponent,
+    SettingsComponent,
   ],
 })
 export class AppComponent {

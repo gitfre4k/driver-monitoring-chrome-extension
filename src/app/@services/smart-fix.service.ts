@@ -6,7 +6,7 @@ import {
   ISmartFixParsedErrorDetails,
   ISmartFixResponse,
 } from '../interfaces/api.interface';
-import { catchError, Observable, switchMap, throwError, timer } from 'rxjs';
+import { catchError, Observable, of, switchMap, throwError, timer } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -75,10 +75,10 @@ export class SmartFixService {
                 .startOf('day')
                 .plus({ days: nextRetryAttempt });
 
-              const tryFromDay = +tryFrom.toFormat('dd');
-              const currentDayDay = +currentDay.toFormat('dd');
+              const tryFromDay = tryFrom.toJSDate().getTime();
+              const currentDayDay = currentDay.toJSDate().getTime();
 
-              if (tryFromDay > currentDayDay) return throwError(() => err);
+              if (tryFromDay > currentDayDay) return of();
 
               return attemptSmartFix(
                 tryFrom.toUTC().toISO()!,

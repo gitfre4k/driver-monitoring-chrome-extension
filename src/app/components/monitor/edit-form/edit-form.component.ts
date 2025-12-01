@@ -4,20 +4,20 @@ import {
   HostListener,
   inject,
   input,
-} from "@angular/core";
-import { IEvent } from "../../../interfaces/driver-daily-log-events.interface";
-import { TimeInputComponent } from "../../UI/time-input/time-input.component";
-import { LocationInputComponent } from "../../UI/location-input/location-input.component";
-import { MonitorService } from "../../../@services/monitor.service";
-import { FormInputService } from "../../../@services/form-input.service";
-import { SaveComponent } from "../../UI/save/save.component";
-import { CancelComponent } from "../../UI/cancel/cancel.component";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { ContextMenuService } from "../../../@services/context-menu.service";
+} from '@angular/core';
+import { IEvent } from '../../../interfaces/driver-daily-log-events.interface';
+import { TimeInputComponent } from '../../UI/time-input/time-input.component';
+import { LocationInputComponent } from '../../UI/location-input/location-input.component';
+import { MonitorService } from '../../../@services/monitor.service';
+import { FormInputService } from '../../../@services/form-input.service';
+import { SaveComponent } from '../../UI/save/save.component';
+import { CancelComponent } from '../../UI/cancel/cancel.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ContextMenuService } from '../../../@services/context-menu.service';
 
 @Component({
-  selector: "app-edit-form",
+  selector: 'app-edit-form',
   imports: [
     TimeInputComponent,
     LocationInputComponent,
@@ -25,8 +25,8 @@ import { ContextMenuService } from "../../../@services/context-menu.service";
     CancelComponent,
     MatProgressSpinnerModule,
   ],
-  templateUrl: "./edit-form.component.html",
-  styleUrl: "./edit-form.component.scss",
+  templateUrl: './edit-form.component.html',
+  styleUrl: './edit-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditFormComponent {
@@ -37,12 +37,12 @@ export class EditFormComponent {
   formInputService = inject(FormInputService);
   contextMenuService = inject(ContextMenuService);
 
-  @HostListener("document:keyup.enter", ["$event"])
-  onDocumentEnter() {
+  @HostListener('document:keyup.enter', ['$event'])
+  onDocumentEnter(event: Event) {
     this.updateChanges();
   }
-  @HostListener("document:keyup.escape", ["$event"])
-  onDocumentEscape() {
+  @HostListener('document:keyup.escape', ['$event'])
+  onDocumentEscape(event: Event) {
     this.monitorService.cancelEventEdit();
   }
 
@@ -55,12 +55,12 @@ export class EditFormComponent {
     const eventTypeCode = this.monitorService.newEventType();
     const startTime = this.formInputService.newDate();
     const note = [
-      "ChangeToOffDutyStatus",
-      "ChangeToSleeperBerthStatus",
-      "ChangeToOnDutyNotDrivingStatus",
+      'ChangeToOffDutyStatus',
+      'ChangeToSleeperBerthStatus',
+      'ChangeToOnDutyNotDrivingStatus',
     ].includes(eventTypeCode)
       ? this.monitorService.newNote()
-      : "";
+      : '';
 
     const duplicateEvent = this.monitorService.duplicateEvent();
 
@@ -68,33 +68,35 @@ export class EditFormComponent {
     const long = this.formInputService.longitude();
 
     const geolocation = this.formInputService.locationDisplayName();
-    const locationSource = "SelectedFromMap";
+    const locationSource = 'SelectedFromMap';
 
     if (isNaN(+lat) || isNaN(+long)) {
-      return this._snackBar.open("Invalid location input");
+      return this._snackBar.open('Invalid location input', 'Close', {
+        duration: 3000,
+      });
     }
     if (!event) {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
-        "OK",
+        'OK',
         { duration: 7000 },
       );
       return this.monitorService.refresh();
     }
     if (!note) {
-      this._snackBar.open(`[Monitor Component] error: invalid note`, "OK", {
+      this._snackBar.open(`[Monitor Component] error: invalid note`, 'OK', {
         duration: 7000,
       });
     }
     if (!startTime) {
-      this._snackBar.open(`[Monitor Component] error: invalid date`, "OK", {
+      this._snackBar.open(`[Monitor Component] error: invalid date`, 'OK', {
         duration: 7000,
       });
     }
     if (!totalVehicleMiles) {
       return this._snackBar.open(
         `[Monitor Component] error: invalid odometer value`,
-        "OK",
+        'OK',
         { duration: 7000 },
       );
     }
@@ -118,10 +120,10 @@ export class EditFormComponent {
 
     if (duplicateEvent) {
       this.monitorService.duplicateEvent.set(false);
-      return this.contextMenuService.handleAction("DUPLICATE", event, payload);
+      return this.contextMenuService.handleAction('DUPLICATE', event, payload);
     } else
       return this.contextMenuService.handleAction(
-        "UPDATE_EVENT",
+        'UPDATE_EVENT',
         event,
         payload,
       );

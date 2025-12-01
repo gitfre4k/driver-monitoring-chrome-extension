@@ -3,9 +3,6 @@
 
 monitor
  > break driving on inter
- > error on missing engine on
- > skip last eng off
-
 
 ~~~ fix ~~~
  > delete on dot
