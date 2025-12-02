@@ -13,12 +13,14 @@ import {
 } from '../interfaces';
 import { TProgressMode, TScanMode, TScanResult } from '../types';
 import { IScanPreViolations } from '../interfaces/drivers.interface';
+import { ConstantsService } from './constants.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProgressBarService {
   private appService = inject(AppService);
+  private constanstsService = inject(ConstantsService);
 
   scanning = signal(false);
   bufferValue = signal(0);
@@ -30,9 +32,43 @@ export class ProgressBarService {
   activeDriversCount = signal(0);
 
   violations = signal<IScanViolations[]>([]);
+  hiddenViolations = this.constanstsService.hiddenViolations;
+
+  filteredViolations = computed(() => {
+    const violations = this.violations();
+    const hiddenViolations = this.hiddenViolations();
+
+    let filteredViolations = violations.map((v) => ({
+      ...v,
+      violations: {
+        ...v.violations,
+        items: v.violations.items.map((item) => ({
+          ...item,
+          violations: item.violations.filter(
+            (v) => !hiddenViolations.includes(v.violationId),
+          ),
+        })),
+      },
+    }));
+
+    filteredViolations.forEach((v) => {
+      v.violations.items = v.violations.items.filter(
+        (driver) => driver.violations.length,
+      );
+    });
+
+    const index = filteredViolations.findIndex(
+      (v) => v.violations.items?.length === 0,
+    );
+
+    index !== -1 && filteredViolations.splice(index, 1);
+
+    return filteredViolations;
+  });
+
   totalVCount = computed(() => {
     let totalVCount = 0;
-    this.violations().forEach(
+    this.filteredViolations().forEach(
       (v) => (totalVCount = totalVCount + v.violations.items?.length),
     );
 
@@ -111,6 +147,7 @@ export class ProgressBarService {
           }
         });
       }
+
       return filteredEventNotes;
     }
   });

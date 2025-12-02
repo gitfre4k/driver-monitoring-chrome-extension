@@ -11,10 +11,12 @@ import { DateService } from '../../@services/date.service';
 import { formatTenantName } from '../../helpers/monitor.helpers';
 import { ConstantsService } from '../../@services/constants.service';
 import { MatButtonModule } from '@angular/material/button';
+import { ProgressBarService } from '../../@services/progress-bar.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-info',
-  imports: [CommonModule, DateAgoPipe, MatButtonModule],
+  imports: [CommonModule, DateAgoPipe, MatButtonModule, MatIconModule],
   templateUrl: './info.component.html',
   styleUrl: './info.component.scss',
 })
@@ -24,12 +26,18 @@ export class InfoComponent {
   monitorService = inject(MonitorService);
   dateService = inject(DateService);
   constService = inject(ConstantsService);
+  progressBarService = inject(ProgressBarService);
 
   isDisabledElConejo = false;
 
   driver = signal<IDriver | null>(null);
+  showGetLogInfo = true;
 
   constructor() {}
+
+  hideInfo() {
+    this.progressBarService.showInfo.set(false);
+  }
 
   getLogs = () => {
     const t = this.appService.currentTenant();
@@ -44,6 +52,7 @@ export class InfoComponent {
           currentDriver && this.driver.set(currentDriver);
         },
       });
+      this.showGetLogInfo = false;
     } else this.driver.set(null);
   };
 

@@ -78,7 +78,8 @@ export class SmartFixService {
               const tryFromDay = tryFrom.toJSDate().getTime();
               const currentDayDay = currentDay.toJSDate().getTime();
 
-              if (tryFromDay > currentDayDay) return of();
+              if (tryFromDay > currentDayDay)
+                return throwError(() => new Error('EEEERRRRROOOOORRRRRR'));
 
               return attemptSmartFix(
                 tryFrom.toUTC().toISO()!,

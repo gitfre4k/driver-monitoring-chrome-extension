@@ -74,18 +74,30 @@
           </mat-tab>
         }
 
-        <mat-tab label="Monitor">
-          <ng-template mat-tab-label>
-            <mat-icon
-              ><span class="material-symbols-outlined"
-                >delivery_truck_speed</span
-              ></mat-icon
-            >
-            <span class="hide">Monitor</span>
-          </ng-template>
+        @if (showInfo()) {
+          <mat-tab label="About">
+            <ng-template mat-tab-label>
+              <mat-icon>info</mat-icon>
 
-          <app-monitor></app-monitor>
-        </mat-tab>
+              <span class="hide">Info</span>
+            </ng-template>
+
+            <app-info></app-info>
+          </mat-tab>
+        } @else {
+          <mat-tab label="Monitor">
+            <ng-template mat-tab-label>
+              <mat-icon
+                ><span class="material-symbols-outlined"
+                  >delivery_truck_speed</span
+                ></mat-icon
+              >
+              <span class="hide">Monitor</span>
+            </ng-template>
+
+            <app-monitor></app-monitor>
+          </mat-tab>
+        }
 
         <mat-tab label="Shift Report">
           <ng-template mat-tab-label>
@@ -106,16 +118,6 @@
 
           <app-settings></app-settings>
         </mat-tab>
-
-        <!-- <mat-tab label="About">
-          <ng-template mat-tab-label>
-            <mat-icon>info</mat-icon>
-
-            <span class="hide">Info</span>
-          </ng-template>
-
-          <app-info></app-info>
-        </mat-tab> -->
 
         <mat-tab disabled></mat-tab>
       </mat-tab-group>

@@ -27,7 +27,7 @@
   </div>
   @if (
     !progressBarService.resultsAreReady() &&
-    !violations().length &&
+    !progressBarService.violations().length &&
     !inspections().length &&
     isEmpty(progressBarService.preViolations()) &&
     isEmpty(progressBarService.cycleHours()) &&
@@ -54,7 +54,7 @@
     <mat-accordion>
       <!-- //////////////////////////////////  -->
       <!-- Violations -->
-      @if (violations().length) {
+      @if (progressBarService.violations().length) {
         <mat-expansion-panel
           [expanded]="extensionNavigation.violationPanelIsOpened()"
           (opened)="extensionNavigation.violationPanelIsOpened.set(true)"
@@ -65,7 +65,7 @@
               >Violations
               <div
                 style="margin-left: auto"
-                matBadge="{{ vCount() }}"
+                [matBadge]="vCount()"
                 [matBadgeHidden]="vCount() === 0"
                 matBadgePosition="below after"
                 matBadgeSize="medium"
@@ -73,9 +73,30 @@
             ></mat-panel-title>
           </mat-expansion-panel-header>
           <div class="scan-results__content__result">
+            @if (hiddenViolations().length > 0) {
+              <div
+                class="scan-results__content__result__checkbox"
+                style="
+                  display: flex;
+                  justify-content: space-around;
+                  align-items: center;
+                "
+              >
+                <span
+                  >hidden violation count: {{ hiddenViolations().length }}</span
+                >
+                <button
+                  (click)="removeHiddenViolations()"
+                  matButton="tonal"
+                  style="height: 24px"
+                >
+                  Show
+                </button>
+              </div>
+            }
             <ul class="list-of-tenants">
               @for (
-                violation of violations();
+                violation of progressBarService.filteredViolations();
                 track violation.violations.company.id
               ) {
                 <li class="company">
@@ -84,40 +105,43 @@
                   }}</span>
 
                   @for (item of violation.violations.items; track item.id) {
-                    <div class="driver">
-                      <div class="btns">
+                    @if (item.violations.length) {
+                      <div class="driver">
+                        <div class="btns">
+                          <a
+                            mat-icon-button
+                            matTooltip="Open driver daily logs in web app"
+                            (click)="
+                              openLogs(
+                                item.id,
+                                item.violations[0].logDate,
+                                violation.violations.company
+                              )
+                            "
+                          >
+                            <mat-icon>open_in_browser</mat-icon>
+                          </a>
+                          <a
+                            mat-icon-button
+                            (click)="copyDriverName(item.driverName)"
+                            matTooltip="Copy to clipboard"
+                          >
+                            <mat-icon>content_copy</mat-icon>
+                          </a>
+                        </div>
+
+                        <span class="bold">{{ item.driverName }}</span>
+
                         <a
                           mat-icon-button
-                          matTooltip="Open driver daily logs in web app"
-                          (click)="
-                            openLogs(
-                              item.id,
-                              item.violations[0].logDate,
-                              violation.violations.company
-                            )
-                          "
+                          matTooltip="Done"
+                          matTooltipPosition="left"
+                          class="on-hover"
+                          (click)="progressBarService.deleteViolation(item.id)"
+                          ><span class="material-icons"> clear </span></a
                         >
-                          <mat-icon>open_in_browser</mat-icon>
-                        </a>
-                        <a
-                          mat-icon-button
-                          (click)="copyDriverName(item.driverName)"
-                          matTooltip="Copy to clipboard"
-                        >
-                          <mat-icon>content_copy</mat-icon>
-                        </a>
                       </div>
-
-                      <span class="bold">{{ item.driverName }}</span>
-
-                      <a
-                        mat-icon-button
-                        matTooltip="Done"
-                        class="on-hover"
-                        (click)="progressBarService.deleteViolation(item.id)"
-                        ><span class="material-icons"> clear </span></a
-                      >
-                    </div>
+                    }
 
                     <ul class="inner-ul">
                       @for (
@@ -129,7 +153,8 @@
                           <li class="event-violation">
                             <span
                               >...and
-                              {{ item.violations.length - 3 }} more</span
+                              {{ item.violations.length - 3 }}
+                              more</span
                             >
                           </li>
                         } @else {
@@ -159,6 +184,17 @@
                                 }
                               </span>
                             </span>
+                            <a
+                              mat-icon-button
+                              (click)="hideViolation(v.violationId)"
+                              matTooltip="Hide from view"
+                              matTooltipPosition="left"
+                              style="transform: scale(0.7)"
+                            >
+                              <mat-icon style="margin-bottom: 3px">
+                                visibility_off</mat-icon
+                              >
+                            </a>
                           </li>
                         }
                       }

@@ -144,6 +144,14 @@
 
             .event-violation {
               display: flex;
+              a {
+                display: none;
+                position: absolute;
+                right: 0;
+              }
+            }
+            .event-violation:hover a {
+              display: block;
             }
 
             .event-error {

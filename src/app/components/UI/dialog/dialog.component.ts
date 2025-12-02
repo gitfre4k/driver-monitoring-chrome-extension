@@ -1,22 +1,22 @@
-import { Component, computed, inject, signal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { MatDialogRef } from "@angular/material/dialog";
-import { ShiftPeriodComponent } from "../shift-period/shift-period.component";
-import { MatButtonModule } from "@angular/material/button";
-import { MatSelectModule } from "@angular/material/select";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
+import { ShiftPeriodComponent } from '../shift-period/shift-period.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import {
   IHoursOutput,
   IMinutesOutput,
-} from "../../../interfaces/api.interface";
-import { ContextMenuService } from "../../../@services/context-menu.service";
-import { MonitorService } from "../../../@services/monitor.service";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { DurationPipe } from "../../../pipes/duration.pipe";
+} from '../../../interfaces/api.interface';
+import { ContextMenuService } from '../../../@services/context-menu.service';
+import { MonitorService } from '../../../@services/monitor.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DurationPipe } from '../../../pipes/duration.pipe';
 
 @Component({
-  selector: "app-dialog",
+  selector: 'app-dialog',
   imports: [
     FormsModule,
     ShiftPeriodComponent,
@@ -27,17 +27,17 @@ import { DurationPipe } from "../../../pipes/duration.pipe";
     MatProgressSpinnerModule,
     DurationPipe,
   ],
-  templateUrl: "./dialog.component.html",
-  styleUrl: "./dialog.component.scss",
+  templateUrl: './dialog.component.html',
+  styleUrl: './dialog.component.scss',
 })
 export class DialogComponent {
   readonly dialogRef = inject(MatDialogRef<DialogComponent>);
   contextMenuService = inject(ContextMenuService);
   monitorService = inject(MonitorService);
 
-  direction = signal<"Past" | "Future">("Future");
-  hh = signal("");
-  mm = signal("");
+  direction = signal<'Past' | 'Future'>('Future');
+  hh = signal('');
+  mm = signal('');
   time = computed(() => {
     const hh = this.hh();
     const mm = this.mm();
@@ -45,12 +45,12 @@ export class DialogComponent {
   });
 
   dutyStatusNames = [
-    "On Duty",
-    "Sleeper Berth",
-    "Off Duty",
-    "Driving",
-    "PC",
-    "YM",
+    'On Duty',
+    'Sleeper Berth',
+    'Off Duty',
+    'Driving',
+    'PC',
+    'YM',
   ];
 
   space = computed(() => {
@@ -65,8 +65,8 @@ export class DialogComponent {
     let forward = 0;
 
     for (let i = selectedEvents[0].computeIndex - 1; i >= 0; i--) {
-      if (this.dutyStatusNames.includes(logEvents[i].statusName)) {
-        if (["Driving", "PC", "YM"].includes(logEvents[i].statusName)) {
+      if (this.dutyStatusNames.includes(logEvents[i]?.statusName)) {
+        if (['Driving', 'PC', 'YM'].includes(logEvents[i]?.statusName)) {
           backward = 0;
           break;
         } else {
@@ -82,7 +82,7 @@ export class DialogComponent {
     ) {
       if (this.dutyStatusNames.includes(logEvents[i].statusName)) {
         if (
-          ["Driving", "PC", "YM"].includes(
+          ['Driving', 'PC', 'YM'].includes(
             selectedEvents[selectedEvents.length - 1].statusName,
           )
         ) {
@@ -108,7 +108,7 @@ export class DialogComponent {
     event.preventDefault();
 
     !this.monitorService.isShifting() &&
-      this.direction.set(event.deltaY > 0 ? "Past" : "Future");
+      this.direction.set(event.deltaY > 0 ? 'Past' : 'Future');
   }
 
   handleHoursInputChange(event: IHoursOutput) {
@@ -121,7 +121,7 @@ export class DialogComponent {
 
   onShift() {
     this.contextMenuService.handleMultiEventAction(
-      "SHIFT_EVENTS",
+      'SHIFT_EVENTS',
       this.monitorService.selectedEvents(),
       {
         direction: this.direction(),

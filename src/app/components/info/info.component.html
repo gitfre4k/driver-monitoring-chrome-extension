@@ -26,7 +26,7 @@
     }
   </div>
   <div class="info-tab__log">
-    @if (monitorService.driverDailyLog(); as driverDailyLog) {
+    @if (showGetLogInfo && monitorService.driverDailyLog(); as driverDailyLog) {
       <button (click)="getLogs()" matButton="tonal">
         get {{ driverDailyLog.driverFullName }}'s log info
       </button>
@@ -75,6 +75,11 @@
   >
     botón para el Conejo
   </button> -->
+
+  <button class="info-tab__back" matButton="tonal" (click)="hideInfo()">
+    <mat-icon>arrow_back</mat-icon>
+    back to Monitor tab
+  </button>
 
   <div class="info-tab__extension-version">
     <p>Driver Monitoring Chrome Extension</p>

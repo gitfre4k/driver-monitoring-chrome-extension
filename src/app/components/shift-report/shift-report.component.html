@@ -1,1 +1,22 @@
-<p>shift-report works!</p>
+<div class="shift-report">
+  <h1 class="shift-report__title">Shift Report</h1>
+
+  @if (backendService.shiftReport(); as shiftReport) {
+    <ul class="shift-report__list">
+      @for (company of shiftReport | keyvalue; track company) {
+        <li>
+          ## {{ company.value.name }}
+          <ul>
+            @for (driver of company.value.drivers; track driver.id) {
+              <li>
+                <span>{{ driver.name }}</span>
+
+                <span>{{ driver.note }}</span>
+              </li>
+            }
+          </ul>
+        </li>
+      }
+    </ul>
+  }
+</div>

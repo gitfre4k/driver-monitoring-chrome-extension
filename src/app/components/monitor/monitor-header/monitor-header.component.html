@@ -5,6 +5,8 @@
         <span
           class="info__company-and-driver__1-company"
           matTooltip="Open Info"
+          matTooltipPosition="right"
+          (click)="showInfo()"
           [class.info__company-and-driver__1-company-x]="
             ['UM Expedite', 'VK', 'FREEPAL'].includes(
               formatTenantName(ddle.companyName)
