@@ -91,7 +91,7 @@ export class GlobalSmartfFixService {
                                   {
                                     driverName: driver.fullName,
                                     driverId: driver.id,
-                                    errorMessage: response[0].errorMessage,
+                                    errorMessage: response[0]?.errorMessage,
                                     tenant,
                                   },
                                 ]
@@ -99,7 +99,7 @@ export class GlobalSmartfFixService {
                                   {
                                     driverName: driver.fullName,
                                     driverId: driver.id,
-                                    errorMessage: response[0].errorMessage,
+                                    errorMessage: response[0]?.errorMessage,
                                     tenant,
                                   },
                                 ],
@@ -107,6 +107,33 @@ export class GlobalSmartfFixService {
                         );
                       }
                     }),
+                    tap({
+                      error: (error) =>
+                        this.progressBarService.smartFixErrors.update(
+                          (prev) => ({
+                            ...prev,
+                            [tenant.name]: prev[tenant.name]
+                              ? [
+                                  ...prev[tenant.name],
+                                  {
+                                    driverName: driver.fullName,
+                                    driverId: driver.id,
+                                    errorMessage: error.message,
+                                    tenant,
+                                  },
+                                ]
+                              : [
+                                  {
+                                    driverName: driver.fullName,
+                                    driverId: driver.id,
+                                    errorMessage: error.message,
+                                    tenant,
+                                  },
+                                ],
+                          }),
+                        ),
+                    }),
+                    catchError(() => of()),
                   );
 
                 if (analyzedCoDrivers[tenant.id]?.includes(driver.id)) {

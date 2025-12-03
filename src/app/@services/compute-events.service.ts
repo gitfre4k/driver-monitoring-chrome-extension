@@ -192,6 +192,7 @@ export class ComputeEventsService {
         else e.statusName = 'Logout';
         events.push(e);
       }
+      // DVIR
       if (e.dutyStatus === 'Dvir') {
         e.statusName = 'DVIR';
         events.push(e);
@@ -212,31 +213,6 @@ export class ComputeEventsService {
         currentDriver = events[i].driver;
         events[i].shift = true;
       }
-
-      // if (i > 1) {
-      //   if (events[i].driver.id !== events[i - 1].driver.id) {
-      //     events[i].statusName !== 'Login' &&
-      //       events[i].errorMessages.push('missing Login event');
-      //   }
-      //   if (i < events.length - 1) {
-      //     if (events[i].driver.id !== events[i + 1].driver.id) {
-      //       events[i].statusName !== 'Logout' &&
-      //         events[i].errorMessages.push('missing Logout event');
-      //     }
-      //   }
-      // }
-      // if (i > 1) {
-      //   if (events[i].statusName && events[i].statusName === 'Login') {
-      //     if (events[i - 1].statusName !== 'Logout') {
-      //       events[i].errorMessages.push('missing Logout event');
-      //     }
-      //   }
-      //   if (events[i].statusName && events[i].statusName === 'Logout') {
-      //     if (i !== events.length - 1 && events[i + 1].statusName !== 'Login') {
-      //       events[i].errorMessages.push('missing Login event');
-      //     }
-      //   }
-      // }
     }
 
     // filter driver events
@@ -262,7 +238,7 @@ export class ComputeEventsService {
       // event occured before login
       if (currentDriverEvents[i].statusName === 'Login' && i > 1) {
         const prevEvent = currentDriverEvents[i - 1];
-        if (prevEvent && prevEvent.statusName !== 'Logout') {
+        if (prevEvent && !['Login', 'Logout'].includes(prevEvent.statusName)) {
           const index = events.findIndex((ev) => ev.id === prevEvent.id);
           events[index].errorMessages.push(
             'occured before Login / missing Logout',

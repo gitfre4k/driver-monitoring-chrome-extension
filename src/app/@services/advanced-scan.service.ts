@@ -236,6 +236,10 @@ export class AdvancedScanService {
         event.errorMessages.length && errorEvents.push(event);
       }
 
+      if (event.malf) {
+        malfEvents.push(event);
+      }
+
       if (
         event.driver.id === driverDailyLog.driverId &&
         !['Login', 'Logout', 'DVIR', 'Diagnostic', 'Diag. CLR'].includes(
@@ -277,9 +281,6 @@ export class AdvancedScanService {
           event.statusName !== 'Start Day'
         ) {
           lowTotalEHEvents.push(event);
-        }
-        if (event.malf) {
-          malfEvents.push(event);
         }
         if (
           event.origin ===
