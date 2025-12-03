@@ -16,7 +16,7 @@ import { ContextMenuService } from '../../../@services/context-menu.service';
 
 @Component({
   selector: 'app-resize-form',
-  imports: [
+  imports: [s
     MatProgressSpinnerModule,
     MatSliderModule,
     SaveComponent,
