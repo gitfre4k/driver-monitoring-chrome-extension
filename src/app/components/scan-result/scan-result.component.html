@@ -72,28 +72,29 @@
               ></div
             ></mat-panel-title>
           </mat-expansion-panel-header>
-          <div class="scan-results__content__result">
-            @if (hiddenViolations().length > 0) {
-              <div
-                class="scan-results__content__result__checkbox"
-                style="
-                  display: flex;
-                  justify-content: space-around;
-                  align-items: center;
-                "
+
+          @if (hiddenViolations().length > 0) {
+            <div
+              class="scan-results__content__result__checkbox"
+              style="
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+              "
+            >
+              <span
+                >hidden violation count: {{ hiddenViolations().length }}</span
               >
-                <span
-                  >hidden violation count: {{ hiddenViolations().length }}</span
-                >
-                <button
-                  (click)="removeHiddenViolations()"
-                  matButton="tonal"
-                  style="height: 24px"
-                >
-                  Show
-                </button>
-              </div>
-            }
+              <button
+                (click)="removeHiddenViolations()"
+                matButton="tonal"
+                style="height: 24px"
+              >
+                Show
+              </button>
+            </div>
+          }
+          <div class="scan-results__content__result">
             <ul class="list-of-tenants">
               @for (
                 violation of progressBarService.filteredViolations();

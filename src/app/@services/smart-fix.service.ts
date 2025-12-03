@@ -79,7 +79,7 @@ export class SmartFixService {
               const currentDayDay = currentDay.toJSDate().getTime();
 
               if (tryFromDay > currentDayDay)
-                return throwError(() => new Error('EEEERRRRROOOOORRRRRR'));
+                return throwError(() => new Error('FMSCA Inspected'));
 
               return attemptSmartFix(
                 tryFrom.toUTC().toISO()!,
