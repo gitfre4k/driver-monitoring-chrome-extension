@@ -3,28 +3,28 @@ import {
   Component,
   HostListener,
   inject,
-} from '@angular/core';
-import { MonitorService } from '../../../@services/monitor.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSliderModule } from '@angular/material/slider';
-import { SaveComponent } from '../../UI/save/save.component';
-import { CancelComponent } from '../../UI/cancel/cancel.component';
-import { FormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Duration } from 'luxon';
-import { ContextMenuService } from '../../../@services/context-menu.service';
+} from "@angular/core";
+import { MonitorService } from "../../../@services/monitor.service";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatSliderModule } from "@angular/material/slider";
+import { SaveComponent } from "../../UI/save/save.component";
+import { CancelComponent } from "../../UI/cancel/cancel.component";
+import { FormsModule } from "@angular/forms";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { Duration } from "luxon";
+import { ContextMenuService } from "../../../@services/context-menu.service";
 
 @Component({
-  selector: 'app-resize-form',
-  imports: [s
+  selector: "app-resize-form",
+  imports: [
     MatProgressSpinnerModule,
     MatSliderModule,
     SaveComponent,
     CancelComponent,
     FormsModule,
   ],
-  templateUrl: './resize-form.component.html',
-  styleUrl: './resize-form.component.scss',
+  templateUrl: "./resize-form.component.html",
+  styleUrl: "./resize-form.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResizeFormComponent {
@@ -32,11 +32,11 @@ export class ResizeFormComponent {
   contextMenuService = inject(ContextMenuService);
   private _snackBar = inject(MatSnackBar);
 
-  @HostListener('document:keyup.enter', ['$event'])
+  @HostListener("document:keyup.enter", ["$event"])
   onDocumentEnter(event: Event) {
     this.resize();
   }
-  @HostListener('document:keyup.escape', ['$event'])
+  @HostListener("document:keyup.escape", ["$event"])
   onDocumentEscape(event: Event) {
     this.cancelResize();
   }
@@ -47,23 +47,23 @@ export class ResizeFormComponent {
     if (!event || !seconds) {
       this._snackBar.open(
         `[Monitor Component] error occurred, refreshing page... `,
-        'OK',
+        "OK",
         { duration: 3000 },
       );
       return this.monitorService.refresh();
     }
-    const duration = Duration.fromObject({ seconds }).toFormat('hh:mm:ss');
+    const duration = Duration.fromObject({ seconds }).toFormat("hh:mm:ss");
     const durationAsTimeSpan = `${new Date().getTime()}`;
 
     const advancedResize = this.monitorService.showAdvancedResize();
     if (advancedResize) {
-      return this.contextMenuService.handleAction('ADVANCED_RESIZE', event, {
+      return this.contextMenuService.handleAction("ADVANCED_RESIZE", event, {
         resizePayload: { duration, durationAsTimeSpan },
         parsedErrorInfo: advancedResize,
       });
     }
 
-    return this.contextMenuService.handleAction('RESIZE', event, {
+    return this.contextMenuService.handleAction("RESIZE", event, {
       duration,
       durationAsTimeSpan,
     });

@@ -4,14 +4,31 @@
   @if (backendService.shiftReport(); as shiftReport) {
     <ul class="shift-report__list">
       @for (company of shiftReport | keyvalue; track company) {
-        <li>
-          ## {{ company.value.name }}
+        <li class="shift-report__list-item">
+          <span class="company"> ## {{ company.value.name }} </span>
           <ul>
             @for (driver of company.value.drivers; track driver.id) {
               <li>
-                <span>{{ driver.name }}</span>
-                <br />
-                <span>{{ driver.note }}</span>
+                <span class="driver">
+                  <a
+                    mat-icon-button
+                    matTooltip="Open driver daily logs in web app"
+                    (click)="
+                      openLogs(
+                        driver.id,
+                        dateService.now
+                          .setZone('America/New_York')
+                          .toUTC()
+                          .toISO()!,
+                        { id: company.key, name: company.value.name }
+                      )
+                    "
+                  >
+                    <mat-icon>open_in_browser</mat-icon> </a
+                  >{{ driver.name }}</span
+                >
+
+                <span class="note">> {{ driver.note }}</span>
               </li>
             }
           </ul>
@@ -19,4 +36,9 @@
       }
     </ul>
   }
+
+  <button class="shift-report__add" matButton="tonal" (click)="addNote()">
+    <mat-icon>add_circle</mat-icon>
+    add Note
+  </button>
 </div>
