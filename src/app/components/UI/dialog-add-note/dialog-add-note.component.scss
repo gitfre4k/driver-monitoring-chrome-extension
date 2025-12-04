@@ -1,0 +1,12 @@
+.add-note {
+  &__form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 220px;
+    padding: 0 24px;
+    textarea {
+      height: 150px;
+    }
+  }
+}
