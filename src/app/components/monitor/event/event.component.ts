@@ -13,7 +13,7 @@ import { DateTime } from 'luxon';
 import { KeyboardService } from '../../../@services/keyboard.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MonitorService } from '../../../@services/monitor.service';
-import { CommonModule } from '@angular/common';
+
 
 import { getStatusDuration } from '../../../helpers/app.helpers';
 import { DurationPipe } from '../../../pipes/duration.pipe';
@@ -24,7 +24,7 @@ import { ConstantsService } from '../../../@services/constants.service';
 
 @Component({
   selector: 'app-event',
-  imports: [CommonModule, DurationPipe, EventStatusComponent, FormsModule],
+  imports: [DurationPipe, EventStatusComponent, FormsModule],
   templateUrl: './event.component.html',
   styleUrl: './event.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
