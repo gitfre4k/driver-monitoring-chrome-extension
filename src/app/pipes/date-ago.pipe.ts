@@ -1,25 +1,26 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
-  name: 'dateAgo',
+  name: "dateAgo",
   pure: true,
 })
 export class DateAgoPipe implements PipeTransform {
   transform(value: string | Date | number): string {
+    if (value === "error") return "error";
     if (!value) {
-      return '';
+      return "";
     }
 
     const date = new Date(value);
     if (isNaN(date.getTime())) {
-      console.error('DateAgoPipe: Invalid date value provided', value);
-      return '';
+      console.error("DateAgoPipe: Invalid date value provided", value);
+      return "";
     }
 
     const seconds = Math.floor((+new Date() - +date) / 1000);
 
     if (seconds < 30) {
-      return 'Just now';
+      return "Just now";
     }
 
     const intervals: { [key: string]: number } = {
@@ -46,6 +47,6 @@ export class DateAgoPipe implements PipeTransform {
       }
     }
 
-    return '';
+    return "";
   }
 }

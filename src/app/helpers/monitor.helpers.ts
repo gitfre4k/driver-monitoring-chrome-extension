@@ -1,6 +1,8 @@
 import { DateTime } from "luxon";
 
 export const formatTenantName = (tenant: string) => {
+  if (!tenant) return "";
+
   const keywordsToRemove = new Set([
     "logistics",
     "logistic",

@@ -5,6 +5,7 @@
   justify-content: center;
   width: 100%;
   margin-top: 16px;
+  height: 100%;
 
   #mat-card-wrapper-2 {
     height: 250px;
@@ -34,6 +35,7 @@
     overflow: hidden;
     max-width: 90vw;
     padding: 16px;
+
     span {
       overflow: hidden;
       display: -webkit-box;
@@ -42,6 +44,14 @@
       -webkit-box-orient: vertical;
       margin: 0;
       padding: 0;
+    }
+  }
+  .tsunade {
+    margin: 16px 0 -70px;
+    height: min-content;
+    img {
+      height: 75%;
+      border-radius: 8px;
     }
   }
 }

@@ -77,7 +77,7 @@
         @if (showInfo()) {
           <mat-tab label="About">
             <ng-template mat-tab-label>
-              <mat-icon>info</mat-icon>
+              <mat-icon (click)="hideInfo()">info</mat-icon>
 
               <span class="hide">Info</span>
             </ng-template>

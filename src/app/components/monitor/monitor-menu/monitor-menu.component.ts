@@ -41,28 +41,6 @@ export class MonitorMenuComponent {
 
   readonly dialog = inject(MatDialog);
 
-  onLoadMockLog() {
-    this.backendService
-      .addNote({ id: "qweqwe", name: "qweqweqwe" } as ITenant)
-      .subscribe();
-  }
-
-  onSaveEvents() {
-    const events = this.monitorService.selectedEvents();
-    return from(events)
-      .pipe(
-        mergeMap((event) =>
-          this.apiOperationsService.getEvent(
-            { id: "3a0e2d3b-8214-edb4-c139-0d55051fc170" } as ITenant,
-            event.id,
-          ),
-        ),
-        toArray(),
-        tap((x) => console.log(x)),
-      )
-      .subscribe();
-  }
-
   onZipAction() {
     const tenant = this.urlService.tenant();
     const logInfo = this.urlService.currentView();

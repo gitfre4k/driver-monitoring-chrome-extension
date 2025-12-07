@@ -11,7 +11,6 @@
           }}</a></span
         >
       </div>
-      <hr />
       <div class="info-tab__tenant__group">
         <span>e-mail</span><span>{{ tenant.customerContactEmail }}</span>
       </div>
@@ -23,49 +22,147 @@
         <span>contact phone:</span
         ><span>{{ tenant.customerContactPhone }}</span>
       </div>
+      <hr />
     }
   </div>
-  <div class="info-tab__log">
-    @if (showGetLogInfo && monitorService.driverDailyLog(); as driverDailyLog) {
-      <button (click)="getLogs()" matButton="tonal">
-        get {{ driverDailyLog.driverFullName }}'s log info
-      </button>
-    }
+  @if (monitorService.driverDailyLog(); as driverDailyLog) {
+    <div class="info-tab__info">
+      <h2 class="info-tab__info__driver-name">
+        {{ driverDailyLog.driverFullName }}
+      </h2>
 
-    @if (driver(); as driver) {
-      <h3>{{ driver.fullName }}</h3>
-      <div class="info-tab__log__group">
-        <span>driver id</span><span>{{ driver.driverId }}</span>
-      </div>
-      <div class="info-tab__log__group">
-        <span>status</span><span>{{ driver.driverStatus }}</span>
-      </div>
-      <div class="info-tab__log__group">
-        <span>app type</span><span>{{ driver.mobileAppType }}</span>
-      </div>
-      <div class="info-tab__log__group">
-        <span>app version</span><span>{{ driver.mobileAppVersion }}</span>
-      </div>
+      @if (!showGetLogInfo && driver(); as driver) {
+        <br />
+        <div class="info-tab__info__group">
+          <span>driver id</span><span>{{ driver.driverId }}</span>
+        </div>
+        <div class="info-tab__info__group">
+          <span>status</span><span>{{ driver.driverStatus }}</span>
+        </div>
+        <div class="info-tab__info__group">
+          <span>app type</span><span>{{ driver.mobileAppType }}</span>
+        </div>
+        <div class="info-tab__info__group">
+          <span>app version</span><span>{{ driver.mobileAppVersion }}</span>
+        </div>
 
-      <div class="info-tab__log__group">
-        <span>last sync</span
-        ><span>{{ driver.lastSync | date: "HH:mm:ss MMMM d, y" }}</span>
-      </div>
-      <div class="info-tab__log__group">
-        <span> </span><span>({{ driver.lastSync | dateAgo }})</span>
-      </div>
+        @if (driver.lastSync !== "error") {
+          <div class="info-tab__info__group">
+            <span>last sync</span>
+            <span>{{ driver.lastSync | date: "HH:mm:ss MMMM d, y" }}</span>
+          </div>
+          <div class="info-tab__info__group">
+            <span> </span><span>({{ driver.lastSync | dateAgo }})</span>
+          </div>
+        }
 
-      <div class="info-tab__log__group">
-        <span>timezone:</span
-        ><span>{{
-          monitorService.driverDailyLog()?.homeTerminalTimeZone
+        <div class="info-tab__info__group">
+          <span>timezone:</span
+          ><span>{{
+            monitorService.driverDailyLog()?.homeTerminalTimeZone
+          }}</span>
+        </div>
+        <span class="info-tab__info__single">{{
+          monitorService.driverDailyLog()?.windowsHomeTerminalZone
         }}</span>
-      </div>
-      <span class="info-tab__log__single">{{
-        monitorService.driverDailyLog()?.windowsHomeTerminalZone
-      }}</span>
-    }
-  </div>
+      }
+      @if (showGetLogInfo) {
+        <button
+          (click)="getLogs()"
+          matButton="tonal"
+          class="info-tab__info__get-info"
+        >
+          <mat-icon>download_2</mat-icon> get Log Info
+        </button>
+      } @else {
+        <button
+          (click)="hideLogs()"
+          matButton="tonal"
+          class="info-tab__info__get-info"
+        >
+          <mat-icon>arrow_drop_up</mat-icon>hide
+        </button>
+      }
+    </div>
+
+    <div class="info-tab__log">
+      <!--  -->
+      <!-- backendData -->
+      @if (backendData(); as data) {
+        <!-- problems -->
+        @if (data.problems; as problems) {
+          <div class="info-tab__log__data__issues">
+            <span class="info-tab__log__data__issues__title"
+              >driver/truck issues</span
+            >
+            @for (singleNote of problems | keyvalue; track singleNote.key) {
+              <div class="info-tab__log__data__issues__note">
+                <span class="info-tab__log__data__issues__note__text">
+                  @if (singleNote.value[0].vehicleData; as vehicleData) {
+                    <span class="info-tab__log__data__issues__note__text-truck">
+                      Truck ID:
+                      <span
+                        class="info-tab__log__data__issues__note__text-truck-id"
+                        >{{ vehicleData.name }}
+                      </span>
+                    </span>
+                    <br />
+                  }
+                  @for (note of singleNote.value; track note.part) {
+                    {{ note.note }}
+                  }
+                </span>
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="info-tab__log__data__issues__note__delete"
+                  (click)="deleteNote(singleNote.value, singleNote.key)"
+                  [disabled]="backendService.isDeletingNote()"
+                >
+                  @if (singleNote.key === backendService.isDeletingNote()) {
+                    <mat-spinner [diameter]="24"></mat-spinner>
+                  } @else {
+                    <span class="material-icons"> clear </span>
+                  }
+                </a>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- driverNotes -->
+        @if (data.driverNotes; as driverNotes) {
+          <div class="info-tab__log__data__notes">
+            <span class="info-tab__log__data__notes__title"
+              >notes from report</span
+            >
+            @for (singleNote of driverNotes | keyvalue; track singleNote.key) {
+              <div class="info-tab__log__data__notes__note">
+                <span class="info-tab__log__data__notes__note__text">
+                  @for (note of singleNote.value; track note.part) {
+                    {{ note.note }}
+                  }
+                </span>
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="info-tab__log__data__notes__note__delete"
+                  (click)="deleteNote(singleNote.value, singleNote.key)"
+                  [disabled]="backendService.isDeletingNote()"
+                >
+                  @if (singleNote.key === backendService.isDeletingNote()) {
+                    <mat-spinner [diameter]="24"></mat-spinner>
+                  } @else {
+                    <span class="material-icons"> clear </span>
+                  }
+                </a>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
 
   <!-- <button
     (click)="logActiveDriversPerCompany()"
@@ -75,6 +172,32 @@
   >
     botón para el Conejo
   </button> -->
+
+  <div class="info-tab__action-btns">
+    <button
+      class="shift-report__add"
+      matButton="tonal"
+      (click)="uploadData('Add Note', 'ChangeToOffDutyStatus')"
+    >
+      <mat-icon>add_circle</mat-icon>
+      add Note
+    </button>
+
+    <button
+      class="shift-report__add"
+      matButton="tonal"
+      (click)="
+        uploadData(
+          'Bring Attention to a Problem',
+          'ChangeToSleeperBerthStatus',
+          monitorService.driverDailyLog()?.vehicles
+        )
+      "
+    >
+      <mat-icon>warning</mat-icon>
+      Report Problem
+    </button>
+  </div>
 
   <button class="info-tab__back" matButton="tonal" (click)="hideInfo()">
     <mat-icon>arrow_back</mat-icon>

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { BackendService } from "../../@services/backend.service";
 import { KeyValuePipe } from "@angular/common";
 import { ITenant } from "../../interfaces";
@@ -9,10 +9,24 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatDialog } from "@angular/material/dialog";
 import { DialogAddNoteComponent } from "../UI/dialog-add-note/dialog-add-note.component";
+import { AppService } from "../../@services/app.service";
+import { formatTenantName } from "../../helpers/monitor.helpers";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
+import { IData } from "../../interfaces/shift-report.interface";
 
 @Component({
   selector: "app-shift-report",
-  imports: [KeyValuePipe, MatIconModule, MatTooltipModule, MatButtonModule],
+  imports: [
+    KeyValuePipe,
+    MatIconModule,
+    MatTooltipModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    KeyValuePipe,
+    MatPaginatorModule,
+  ],
   templateUrl: "./shift-report.component.html",
   styleUrl: "./shift-report.component.scss",
 })
@@ -20,9 +34,38 @@ export class ShiftReportComponent {
   backendService = inject(BackendService);
   dateService = inject(DateService);
   urlService = inject(UrlService);
+  appService = inject(AppService);
+  private _snackBar = inject(MatSnackBar);
 
   readonly dialog = inject(MatDialog);
-  readonly animal = signal("");
+
+  formatTenantName = formatTenantName;
+
+  pages: { [id: number]: string } = {
+    0: "Shift Report",
+    1: "Problems",
+    2: "FMCSA Inspections",
+  };
+  page = signal(0);
+  state = computed(() => {
+    const page = this.page();
+    const data = this.backendService.backendData()?.[page];
+    const name = this.pages[page];
+
+    return { name, data };
+  });
+
+  constructor() {}
+
+  ngOnInit(): void {
+    this.backendService.loadShiftReport();
+  }
+
+  ngOnDestroy(): void {
+    if (this.backendService.dataSubscription) {
+      this.backendService.dataSubscription.unsubscribe();
+    }
+  }
 
   openLogs(id: number, date: string, tenant: ITenant, openLogs?: boolean) {
     openLogs
@@ -37,16 +80,43 @@ export class ShiftReportComponent {
         );
   }
 
-  addNote() {
-    const dialogRef = this.dialog.open(DialogAddNoteComponent, {
-      data: { animal: this.animal() },
+  deleteNote(
+    value: { note: string; part: number; eventId: number }[],
+    key: string,
+  ) {
+    this.backendService.isDeletingNote.set(key);
+
+    const idsToDelete = value.map((note) => note.eventId);
+
+    this.backendService.deleteNote(idsToDelete).subscribe({
+      error: () => {
+        this._snackBar.open("Failed to delete note", "Close", {
+          duration: 3000,
+        });
+        this.backendService.isDeletingNote.set(null);
+      },
+      complete: () => {
+        this.backendService.isDeletingNote.set(null);
+        this.backendService.loadShiftReport();
+      },
     });
+  }
+
+  addNote() {
+    const dialogRef = this.dialog.open(DialogAddNoteComponent);
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("The dialog was closed");
       if (result !== undefined) {
-        this.animal.set(result);
+        this.backendService.loadShiftReport();
       }
     });
+  }
+
+  sortArrayByPart(array: { note: string; part: number; eventId: number }[]) {
+    return array.sort((a, b) => a.part - b.part);
+  }
+
+  handlePageEvent(event: PageEvent) {
+    this.page.set(event.pageIndex);
   }
 }

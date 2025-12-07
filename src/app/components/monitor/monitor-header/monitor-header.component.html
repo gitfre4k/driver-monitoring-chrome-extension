@@ -39,6 +39,15 @@
           (click)="copyDriverName(ddle.driverFullName)"
         >
           {{ ddle.driverFullName }}
+          <div
+            class="mat-badge-custom"
+            style="margin-bottom: 20px"
+            [matBadge]="noteCount()"
+            [matBadgeHidden]="!noteCount()"
+            matBadgeColor="primary"
+            matBadgePosition="above after"
+            matBadgeSize="medium"
+          ></div>
         </span>
       </div>
       <div class="info__company-and-driver__2">

@@ -1,21 +1,49 @@
 <div class="shift-report">
-  <h1 class="shift-report__title">Shift Report</h1>
+  @if (backendService.isLoadingShiftReport()) {
+    <div class="shift-report__loading">
+      <mat-spinner [diameter]="30"></mat-spinner>
+    </div>
+  } @else {
+    <h1 class="shift-report__title">
+      {{ state().name }}
+    </h1>
+  }
 
-  @if (backendService.shiftReport(); as shiftReport) {
+  <div class="absolute refresh">
+    <button
+      mat-icon-button
+      matTooltip="Refresh"
+      [matTooltipShowDelay]="500"
+      [matTooltipHideDelay]="0"
+      matTooltipPosition="left"
+      (click)="backendService.loadShiftReport()"
+      [disabled]="backendService.isLoadingShiftReport()"
+    >
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+  <hr />
+  @if (state().data; as data) {
     <ul class="shift-report__list">
-      @for (company of shiftReport | keyvalue; track company) {
+      @for (company of data | keyvalue; track company) {
         <li class="shift-report__list-item">
-          <span class="company"> ## {{ company.value.name }} </span>
+          <span class="company">
+            ## {{ formatTenantName(company.value.name) }}
+          </span>
           <ul>
-            @for (driver of company.value.drivers; track driver.id) {
+            @for (
+              driver of company.value.drivers | keyvalue;
+              track driver.key
+            ) {
               <li>
                 <span class="driver">
                   <a
                     mat-icon-button
                     matTooltip="Open driver daily logs in web app"
+                    matTooltipPosition="right"
                     (click)="
                       openLogs(
-                        driver.id,
+                        +driver.key,
                         dateService.now
                           .setZone('America/New_York')
                           .toUTC()
@@ -25,10 +53,51 @@
                     "
                   >
                     <mat-icon>open_in_browser</mat-icon> </a
-                  >{{ driver.name }}</span
-                >
+                  >{{ driver.value.name }}
+                </span>
 
-                <span class="note">> {{ driver.note }}</span>
+                <span class="notes">
+                  @for (
+                    singleNote of driver.value.notes | keyvalue;
+                    track singleNote.key
+                  ) {
+                    <div class="notes__note">
+                      <span class="notes__note__text">
+                        @if (singleNote.value[0].vehicleData; as vehicleData) {
+                          <span class="notes__note__text-truck">
+                            Truck ID:
+                            <span class="notes__note__text-truck-id"
+                              >{{ vehicleData.name }}
+                            </span>
+                          </span>
+                          <br />
+                          <br />
+                        }
+                        @for (
+                          note of sortArrayByPart(singleNote.value);
+                          track note.part
+                        ) {
+                          {{ note.note }}
+                        }
+                      </span>
+                      <a
+                        mat-icon-button
+                        matTooltip="Done"
+                        class="notes__note__delete"
+                        (click)="deleteNote(singleNote.value, singleNote.key)"
+                        [disabled]="backendService.isDeletingNote()"
+                      >
+                        @if (
+                          singleNote.key === backendService.isDeletingNote()
+                        ) {
+                          <mat-spinner [diameter]="24"></mat-spinner>
+                        } @else {
+                          <span class="material-icons"> clear </span>
+                        }
+                      </a>
+                    </div>
+                  }
+                </span>
               </li>
             }
           </ul>
@@ -36,9 +105,21 @@
       }
     </ul>
   }
-
+  <hr />
   <button class="shift-report__add" matButton="tonal" (click)="addNote()">
     <mat-icon>add_circle</mat-icon>
     add Note
   </button>
+
+  <mat-paginator
+    [length]="3"
+    [pageSizeOptions]="[1]"
+    (page)="handlePageEvent($event)"
+    [pageIndex]="0"
+    [showFirstLastButtons]="false"
+    [hidePageSize]="true"
+    aria-label="Select page"
+    class="shift-report__paginator"
+  >
+  </mat-paginator>
 </div>

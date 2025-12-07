@@ -47,5 +47,28 @@
         padding-left: 8px;
       }
     }
+
+    &__keybinds {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 8px;
+      padding: 0;
+      margin: 0;
+      &__item {
+        display: grid;
+        width: 280px;
+        grid-template-columns: 110px 55px 55px;
+        column-gap: 12px;
+        &-name {
+          text-align: right;
+          padding-right: 38px;
+        }
+        input {
+          border-radius: 8px;
+        }
+      }
+    }
   }
 }

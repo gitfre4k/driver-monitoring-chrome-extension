@@ -1,12 +1,35 @@
 .add-note {
+  width: 280px;
+
+  &__for {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+
+    &-company {
+      font-size: 24px;
+      font-weight: 800;
+    }
+    &-checkbox {
+      margin: 8px 0;
+    }
+    &-driver {
+      font-size: 20px;
+      margin-bottom: 18px;
+    }
+    &-vehicle {
+      width: 100%;
+    }
+  }
+
   &__form {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 220px;
-    padding: 0 24px;
+    width: 100%;
+    padding: 0;
     textarea {
-      height: 150px;
+      height: 180px;
     }
   }
 }

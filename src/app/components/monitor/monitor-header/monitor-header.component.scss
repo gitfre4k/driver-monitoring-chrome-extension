@@ -38,8 +38,12 @@
           font-size: 17px;
           font-weight: 550;
           padding-left: 6px;
+          display: flex;
+          gap: 18px;
         }
         &-x {
+          display: flex;
+          gap: 18px;
           padding-left: 6px;
           font-size: 17px;
           line-height: 20px;
@@ -100,5 +104,12 @@
         font-weight: 700;
       }
     }
+  }
+}
+
+.mat-badge-custom {
+  .mat-badge-content {
+    background: #343effcc;
+    color: white;
   }
 }

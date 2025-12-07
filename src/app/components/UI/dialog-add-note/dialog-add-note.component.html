@@ -1,23 +1,63 @@
 <div class="add-note">
-  <h2 mat-dialog-title>Add Note</h2>
-  <mat-dialog-content>
-    <mat-form-field class="add-note__form">
-      <mat-label>Company</mat-label>
-      <input matInput [(ngModel)]="company" />
-    </mat-form-field>
+  @if (data) {
+    <h2 class="add-note__title" mat-dialog-title>{{ data.title }}</h2>
+    <mat-dialog-content>
+      <div class="add-note__for">
+        <span class="add-note__for-company"
+          >## {{ formatTenantName(data.tenant.name) }}</span
+        >
 
-    <mat-form-field class="add-note__form">
-      <mat-label>Note</mat-label>
-      <textarea
-        matInput
-        placeholder="Ex. Kreten vozi diskonektovan kmee kmeee..."
-        [(ngModel)]="note"
-      ></textarea>
-    </mat-form-field>
-  </mat-dialog-content>
+        @if (data.eventTypeCode === "ChangeToSleeperBerthStatus") {
+          <mat-checkbox
+            class="add-note__for-checkbox"
+            [(ngModel)]="isVehicleIssue"
+            >Vehicle Issue</mat-checkbox
+          >
+        }
+        @if (isVehicleIssue() && data.vehicles; as vehicles) {
+          <mat-form-field class="add-note__for-vehicle">
+            <mat-label>Vehicle ID</mat-label>
+            <mat-select [(ngModel)]="selectedVehicle">
+              @for (truck of vehicles; let i = $index; track truck.id) {
+                <mat-option [value]="vehicles[$index]">{{
+                  truck.name
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        } @else {
+          <span class="add-note__for-driver">{{
+            data.driver.driverFullName
+          }}</span>
+        }
+      </div>
 
-  <mat-dialog-actions>
-    <button matButton (click)="onNoClick()">No Thanks</button>
-    <button matButton [mat-dialog-close]="note()" cdkFocusInitial>Ok</button>
-  </mat-dialog-actions>
+      <mat-form-field class="add-note__form">
+        <mat-label>Note</mat-label>
+        <textarea
+          matInput
+          placeholder="Ex. Kreten vozi diskonektovan, ja ga pjesmom zovem a on sliku svoju ljubi..."
+          [(ngModel)]="note"
+          cdkFocusInitial
+          (keydown.enter)="onAddClick(data.eventTypeCode, $event)"
+        ></textarea>
+      </mat-form-field>
+    </mat-dialog-content>
+
+    <mat-dialog-actions>
+      <button matButton (click)="onNoClick()">Cancel</button>
+
+      <button
+        matButton
+        (click)="onAddClick(data.eventTypeCode)"
+        [disabled]="!note() || isPosting()"
+      >
+        @if (isPosting()) {
+          <mat-spinner [diameter]="17"></mat-spinner>
+        } @else {
+          Post
+        }
+      </button>
+    </mat-dialog-actions>
+  }
 </div>
