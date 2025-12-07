@@ -2,15 +2,19 @@ import { inject, Injectable, signal } from "@angular/core";
 import { IEventDetails, ITenant } from "../interfaces";
 import { DateTime } from "luxon";
 import { HttpClient } from "@angular/common/http";
-import {
-  IDriverDailyLogEvents,
-  IVehicle,
-} from "../interfaces/driver-daily-log-events.interface";
+import { IVehicle } from "../interfaces/driver-daily-log-events.interface";
 import { ApiService } from "./api.service";
 import { concatMap, from, map, Observable, Subscription } from "rxjs";
-import { IBackendData, IData } from "../interfaces/shift-report.interface";
+import {
+  IBackendData,
+  IData,
+  IMergedDriverNote,
+  IProcessedDrivers,
+  IRawData,
+} from "../interfaces/shift-report.interface";
 import { ApiOperationsService } from "./api-operations.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { sortArrayByPart } from "../helpers/backend.helpers";
 
 @Injectable({
   providedIn: "root",
@@ -67,12 +71,12 @@ export class BackendService {
       map((ddle) => {
         const events = ddle.events;
 
-        const shiftReport = {} as IData;
-        const problems = {} as IData;
-        const fmscaInspections = {} as IData;
+        const shiftReport = {} as IRawData;
+        const problems = {} as IRawData;
+        const fmscaInspections = {} as IRawData;
 
         events.forEach((event) => {
-          let state: IData;
+          let state: IRawData;
           switch (event.dutyStatus) {
             case "ChangeToOffDutyStatus":
               state = shiftReport;
@@ -129,13 +133,78 @@ export class BackendService {
           }
         });
 
-        return { 0: shiftReport, 1: problems, 2: fmscaInspections };
+        const shiftReportState = {} as IData;
+        const problemsState = {} as IData;
+        const fmscaInspectionsState = {} as IData;
+
+        [shiftReport, problems, fmscaInspections].forEach((rawState, index) => {
+          let processedState: IData;
+
+          switch (index) {
+            case 0:
+              processedState = shiftReportState;
+              break;
+            case 1:
+              processedState = problemsState;
+              break;
+            case 2:
+              processedState = fmscaInspectionsState;
+              break;
+            default:
+              processedState = shiftReportState;
+          }
+
+          for (const tenantId in rawState) {
+            const tenantDrivers = rawState[tenantId].drivers;
+
+            processedState[tenantId] = {
+              name: rawState[tenantId].name,
+              drivers: {},
+            };
+
+            for (const driverId in tenantDrivers) {
+              const driverNotes = tenantDrivers[driverId].notes;
+
+              processedState[tenantId].drivers[driverId] = [];
+
+              for (const noteStamp in driverNotes) {
+                // merge into single note
+                const mergedDriverNote: IMergedDriverNote = {
+                  name: "",
+                  note: "",
+                  eventIds: [],
+                  vehicleData: undefined,
+                };
+                const sortedDriverNoteParts = sortArrayByPart(
+                  driverNotes[noteStamp],
+                );
+                sortedDriverNoteParts.forEach((part) => {
+                  mergedDriverNote.note += part.note;
+                  mergedDriverNote.eventIds.push(part.eventId);
+                  if (!mergedDriverNote.vehicleData && part.vehicleData) {
+                    mergedDriverNote.vehicleData = part.vehicleData;
+                  }
+                });
+                // collect merged notes onto stamps
+                processedState[tenantId].drivers[driverId].push({
+                  [noteStamp]: mergedDriverNote,
+                });
+              }
+            }
+          }
+        });
+
+        return {
+          0: shiftReportState,
+          1: problemsState,
+          2: fmscaInspectionsState,
+        };
       }),
     );
 
   uploadData = (
     tenant: ITenant,
-    driver: IDriverDailyLogEvents,
+    driver: { driverId: number; driverFullName: string },
     note: string,
     eventTypeCode:
       | "ChangeToOffDutyStatus"

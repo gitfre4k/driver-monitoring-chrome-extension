@@ -46,6 +46,7 @@ import { ResizeFormComponent } from "./resize-form/resize-form.component";
 import { EditFormComponent } from "./edit-form/edit-form.component";
 import { EventComponent } from "./event/event.component";
 import { ActionBtnsComponent } from "./action-btns/action-btns.component";
+import { BackendService } from "../../@services/backend.service";
 
 @Component({
   selector: "app-monitor",
@@ -86,6 +87,7 @@ export class MonitorComponent {
   extTabNavService = inject(ExtensionTabNavigationService);
   keyboardService = inject(KeyboardService);
   formInputService = inject(FormInputService);
+  backendService = inject(BackendService);
 
   _snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
@@ -125,6 +127,39 @@ export class MonitorComponent {
   showAdvancedResize = this.monitorService.showAdvancedResize;
   newResizeSpeed = this.monitorService.newResizeSpeed;
   newResizeDuration = this.monitorService.newResizeDuration;
+
+  isInspectionPosted = computed(() => {
+    const fmcsaData = this.backendService.backendData()?.[2];
+    const ddle = this.monitorService.driverDailyLog();
+    const fmcsaId = ddle?.driverFmcsaInspection.id;
+
+    if (!fmcsaData || !ddle || !fmcsaId) return false;
+
+    const driverNotes = fmcsaData[ddle.tenantId]?.drivers[ddle.driverId]?.notes;
+
+    if (!driverNotes) return false;
+
+    const sortArrayByPart = (
+      array: { note: string; part: number; eventId: number }[],
+    ) => {
+      return array.sort((a, b) => a.part - b.part);
+    };
+
+    for (const key in driverNotes) {
+      const singleNote = driverNotes[key];
+      const sortedDriverNote = sortArrayByPart(singleNote);
+
+      let rowFmcsaMsg = "";
+      sortedDriverNote.forEach((part) => (rowFmcsaMsg += part.note));
+
+      const fmcsaMsg: IDriverFmcsaInspection = JSON.parse(rowFmcsaMsg);
+
+      if (fmcsaId === fmcsaMsg.id) return true;
+      else rowFmcsaMsg = "";
+    }
+
+    return false;
+  });
 
   constructor() {
     effect(() => {

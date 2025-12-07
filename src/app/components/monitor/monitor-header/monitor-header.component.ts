@@ -27,7 +27,10 @@ import { DateTime } from "luxon";
 import { MonitorService } from "../../../@services/monitor.service";
 import { formatTenantName } from "../../../helpers/monitor.helpers";
 import { ExtensionTabNavigationService } from "../../../@services/extension-tab-navigation.service";
-import { IDriverDailyLogEvents } from "../../../interfaces/driver-daily-log-events.interface";
+import {
+  IDriverDailyLogEvents,
+  IDriverFmcsaInspection,
+} from "../../../interfaces/driver-daily-log-events.interface";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ProgressBarService } from "../../../@services/progress-bar.service";
@@ -84,12 +87,31 @@ export class MonitorHeaderComponent {
 
     if (!backendData || !tenantId) return 0;
 
-    const driverNotes =
-      backendData[0][tenantId]?.drivers[this.driverDailyLog.driverId]?.notes;
+    const reports =
+      backendData[0][tenantId]?.drivers[this.driverDailyLog.driverId];
+    const problems =
+      backendData[1][tenantId]?.drivers[this.driverDailyLog.driverId];
+    const inspections =
+      backendData[2][tenantId]?.drivers[this.driverDailyLog.driverId];
 
-    if (driverNotes) {
-      return Object.keys(driverNotes).length;
-    } else return 0;
+    if (reports || problems || inspections) {
+      const notes = Object.keys(reports).length;
+
+      const dots = inspections.length;
+      const foundDots = [];
+      for (const stamp in inspections) {
+        for (let i = 0; i < dots; i++) {
+          foundDots.push(
+            JSON.parse(inspections[stamp][i].note) as IDriverFmcsaInspection,
+          );
+        }
+      }
+      const lastInspection = Math.max(
+        ...foundDots.map((dot) => new Date(dot.time).getTime()),
+      );
+
+      return { notes: Object.keys(notes).length };
+    } else return null;
   };
 
   formatTenantName = formatTenantName;

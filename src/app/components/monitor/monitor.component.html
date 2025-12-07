@@ -17,7 +17,7 @@
       }
       <ul>
         @if (monitorService.computedDailyLogEvents(); as computedEvents) {
-          @for (event of computedEvents; track event.id) {
+          @for (event of computedEvents; let i = $index; track event.id) {
             @if (event.shift && ddle.coDrivers.length !== 0) {
               <div class="co-drivers">
                 <span
@@ -102,6 +102,19 @@
                 <app-fix-button
                   [event]="event"
                   action="ADD_PTI_NOTE"
+                ></app-fix-button>
+              </li>
+            }
+            @if (
+              event.isLocked &&
+              !computedEvents[i + 1]?.isLocked &&
+              !isInspectionPosted()
+            ) {
+              <li>
+                <app-fix-button
+                  [event]="event"
+                  action="POST_FMCSA"
+                  [payload]="ddle.driverFmcsaInspection"
                 ></app-fix-button>
               </li>
             }

@@ -60,7 +60,8 @@ export type TContextMenuAction =
   | "ChangeToSleeperBerthStatus"
   | "ChangeToDrivingStatus"
   | "ChangeToOnDutyNotDrivingStatus"
-  | "ADD_PTI_NOTE";
+  | "ADD_PTI_NOTE"
+  | "POST_FMCSA";
 
 export type TFocusElementAction =
   | "FOCUS_TACHOGRAPH_START"

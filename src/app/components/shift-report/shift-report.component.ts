@@ -14,7 +14,8 @@ import { formatTenantName } from "../../helpers/monitor.helpers";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
-import { IData } from "../../interfaces/shift-report.interface";
+import { IDriverFmcsaInspection } from "../../interfaces/driver-daily-log-events.interface";
+import { DateAgoPipe } from "../../pipes/date-ago.pipe";
 
 @Component({
   selector: "app-shift-report",
@@ -26,6 +27,7 @@ import { IData } from "../../interfaces/shift-report.interface";
     MatProgressSpinnerModule,
     KeyValuePipe,
     MatPaginatorModule,
+    DateAgoPipe,
   ],
   templateUrl: "./shift-report.component.html",
   styleUrl: "./shift-report.component.scss",
@@ -114,6 +116,15 @@ export class ShiftReportComponent {
 
   sortArrayByPart(array: { note: string; part: number; eventId: number }[]) {
     return array.sort((a, b) => a.part - b.part);
+  }
+
+  parseDOTInspection(array: { note: string; part: number; eventId: number }[]) {
+    const rawDOT = this.sortArrayByPart(array);
+    let message = "";
+
+    rawDOT.forEach((part) => (message += part.note));
+
+    return JSON.parse(message) as IDriverFmcsaInspection;
   }
 
   handlePageEvent(event: PageEvent) {

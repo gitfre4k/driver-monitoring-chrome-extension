@@ -73,11 +73,19 @@
                           <br />
                           <br />
                         }
-                        @for (
-                          note of sortArrayByPart(singleNote.value);
-                          track note.part
+                        @if (
+                          state().name === "FMCSA Inspections" &&
+                            parseDOTInspection(singleNote.value);
+                          as fmcsaData
                         ) {
-                          {{ note.note }}
+                          {{ fmcsaData.time | dateAgo }}
+                        } @else {
+                          @for (
+                            note of sortArrayByPart(singleNote.value);
+                            track note.part
+                          ) {
+                            {{ note.note }}
+                          }
                         }
                       </span>
                       <a
