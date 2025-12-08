@@ -1,4 +1,4 @@
-import { IVehicle } from "./driver-daily-log-events.interface";
+import { IVehicle } from './driver-daily-log-events.interface';
 
 export interface IBackendData {
   [key: number]: IData;
@@ -25,3 +25,9 @@ export interface IDataDriverNotes {
     vehicleData?: IVehicle | undefined | null;
   }[];
 }
+
+const backemdData: IBackendData = {
+  0: {},
+};
+
+backemdData[0]['3a158eba-3171-b188-86a5-809504f6b542'].drivers[60].notes;
