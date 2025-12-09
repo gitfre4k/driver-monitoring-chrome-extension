@@ -7,38 +7,35 @@ import {
   inject,
   Input,
   Output,
-} from "@angular/core";
-import { DatePipe } from "@angular/common";
-import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
+} from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatButtonModule } from "@angular/material/button";
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
-} from "@angular/material/datepicker";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatRipple, provideNativeDateAdapter } from "@angular/material/core";
+} from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatRipple, provideNativeDateAdapter } from '@angular/material/core';
 
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon';
 
-import { MonitorService } from "../../../@services/monitor.service";
-import { formatTenantName } from "../../../helpers/monitor.helpers";
-import { ExtensionTabNavigationService } from "../../../@services/extension-tab-navigation.service";
-import {
-  IDriverDailyLogEvents,
-  IDriverFmcsaInspection,
-} from "../../../interfaces/driver-daily-log-events.interface";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { ProgressBarService } from "../../../@services/progress-bar.service";
-import { MatBadgeModule } from "@angular/material/badge";
-import { BackendService } from "../../../@services/backend.service";
+import { MonitorService } from '../../../@services/monitor.service';
+import { formatTenantName } from '../../../helpers/monitor.helpers';
+import { ExtensionTabNavigationService } from '../../../@services/extension-tab-navigation.service';
+import { IDriverDailyLogEvents } from '../../../interfaces/driver-daily-log-events.interface';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ProgressBarService } from '../../../@services/progress-bar.service';
+import { MatBadgeModule } from '@angular/material/badge';
+import { BackendService } from '../../../@services/backend.service';
 
 @Component({
-  selector: "app-monitor-header",
+  selector: 'app-monitor-header',
   providers: [provideNativeDateAdapter()],
   imports: [
     MatIconModule,
@@ -54,12 +51,12 @@ import { BackendService } from "../../../@services/backend.service";
     MatTooltipModule,
     MatBadgeModule,
   ],
-  templateUrl: "./monitor-header.component.html",
-  styleUrl: "./monitor-header.component.scss",
+  templateUrl: './monitor-header.component.html',
+  styleUrl: './monitor-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonitorHeaderComponent {
-  @HostListener("window:keydown", ["$event"])
+  @HostListener('window:keydown', ['$event'])
   handleWindowKeyboardEvent(event: KeyboardEvent) {
     this.handleKeyboardEvent(event);
   }
@@ -87,31 +84,12 @@ export class MonitorHeaderComponent {
 
     if (!backendData || !tenantId) return 0;
 
-    const reports =
-      backendData[0][tenantId]?.drivers[this.driverDailyLog.driverId];
-    const problems =
-      backendData[1][tenantId]?.drivers[this.driverDailyLog.driverId];
-    const inspections =
-      backendData[2][tenantId]?.drivers[this.driverDailyLog.driverId];
+    const driverNotes =
+      backendData[0][tenantId]?.drivers[this.driverDailyLog.driverId]?.notes;
 
-    if (reports || problems || inspections) {
-      const notes = Object.keys(reports).length;
-
-      const dots = inspections.length;
-      const foundDots = [];
-      for (const stamp in inspections) {
-        for (let i = 0; i < dots; i++) {
-          foundDots.push(
-            JSON.parse(inspections[stamp][i].note) as IDriverFmcsaInspection,
-          );
-        }
-      }
-      const lastInspection = Math.max(
-        ...foundDots.map((dot) => new Date(dot.time).getTime()),
-      );
-
-      return { notes: Object.keys(notes).length };
-    } else return null;
+    if (driverNotes) {
+      return Object.keys(driverNotes).length;
+    } else return 0;
   };
 
   formatTenantName = formatTenantName;
@@ -120,25 +98,25 @@ export class MonitorHeaderComponent {
     const mustHaveBreakBy = this.driverDailyLog.hosDetails?.mustHaveBreakBy;
     if (!mustHaveBreakBy) return null;
 
-    const untilViolation = DateTime.fromISO(mustHaveBreakBy, { zone: "utc" });
+    const untilViolation = DateTime.fromISO(mustHaveBreakBy, { zone: 'utc' });
     const now = DateTime.now();
 
     const duration = untilViolation.diff(now, [
-      "hours",
-      "minutes",
-      "seconds",
-      "milliseconds",
+      'hours',
+      'minutes',
+      'seconds',
+      'milliseconds',
     ]);
-    const ms = untilViolation.diff(now, "milliseconds");
+    const ms = untilViolation.diff(now, 'milliseconds');
 
-    const time = duration.toFormat("m");
-    const seconds = ms.as("seconds");
+    const time = duration.toFormat('m');
+    const seconds = ms.as('seconds');
 
     return { time, seconds };
   }
 
   trimLeadingZero(time: string) {
-    if (time && time.charAt(0) === "0") {
+    if (time && time.charAt(0) === '0') {
       return time.slice(1);
     }
     return time;
@@ -155,13 +133,13 @@ export class MonitorHeaderComponent {
       !this.monitorService.showUpdateEvent()
     ) {
       switch (event.key) {
-        case "ArrowLeft":
+        case 'ArrowLeft':
           if (this.driverDailyLog.previousLogDate) {
             this.onChangeLogDate(this.driverDailyLog.previousLogDate);
             event.preventDefault();
           }
           break;
-        case "ArrowRight":
+        case 'ArrowRight':
           if (this.driverDailyLog.nextLogDate) {
             this.onChangeLogDate(this.driverDailyLog.nextLogDate);
             event.preventDefault();
@@ -176,7 +154,7 @@ export class MonitorHeaderComponent {
 
   copyDriverName(name: string) {
     navigator.clipboard.writeText(name);
-    this._snackBar.open(`Copied: ${name}`, "OK", { duration: 1500 });
+    this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
   }
 
   showInfo() {
