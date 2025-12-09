@@ -45,7 +45,7 @@ export class ProgressBarService {
         items: v.violations.items.map((item) => ({
           ...item,
           violations: item.violations.filter(
-            (v) => !hiddenViolations.includes(v.violationId),
+            (v) => !hiddenViolations.includes(v.),
           ),
         })),
       },

@@ -87,10 +87,17 @@ export class ScanResultComponent {
     this.constanstsService.hiddenViolations.set([]);
   }
 
-  hideViolation(violationId: string) {
+  hideViolation(violation: {
+    violationId: string;
+    type: string;
+    startTime: string;
+    endTime: string;
+    logDate: string;
+    homeTerminalTimeZone: string;
+  }) {
     this.constanstsService.hiddenViolations.update((prev) => [
       ...prev,
-      violationId,
+      { startTime, endTime },
     ]);
   }
 

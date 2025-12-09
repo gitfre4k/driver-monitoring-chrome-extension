@@ -17,7 +17,10 @@ export class ConstantsService {
   rightSide = this.createSignal('rightSide', true);
   ptiName = this.createSignal('ptiName', 'pti');
   showLocationDisplayName = this.createSignal('showLocationDisplayName', true);
-  hiddenViolations = this.createSignal('hiddenViolations', [] as string[]);
+  hiddenViolations = this.createSignal(
+    'hiddenViolations',
+    [] as { startTime: string; endTime: string }[],
+  );
 
   createSignal<T>(key: string, initialValue: T): WritableSignal<T> {
     const storedValue = localStorage.getItem(key);
