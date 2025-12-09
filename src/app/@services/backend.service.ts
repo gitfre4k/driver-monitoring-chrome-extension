@@ -2,10 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { IEventDetails, ITenant } from '../interfaces';
 import { DateTime } from 'luxon';
 import { HttpClient } from '@angular/common/http';
-import {
-  IDriverDailyLogEvents,
-  IVehicle,
-} from '../interfaces/driver-daily-log-events.interface';
+import { IVehicle } from '../interfaces/driver-daily-log-events.interface';
 import { ApiService } from './api.service';
 import { concatMap, from, map, Observable, Subscription } from 'rxjs';
 import { IBackendData, IData } from '../interfaces/shift-report.interface';
@@ -37,7 +34,6 @@ export class BackendService {
     this.isLoadingShiftReport.set(true);
     this.dataSubscription = this.shiftReport$.subscribe({
       next: (value) => {
-        console.log('FOKUMAAAAAAAAAAAAAAAAC !!! ', value);
         this.backendData.set(value);
       },
       error: (error) => {

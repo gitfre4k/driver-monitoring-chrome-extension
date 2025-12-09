@@ -17,7 +17,7 @@
       </button>
     }
 
-    <!-- <div class="ids">
+    <div class="ids">
       <div class="ids__field">
         <span class="ids__field__left">truck </span>
         <span class="ids__field__right">{{ vehicles.at(-1)?.name }}</span>
@@ -27,7 +27,7 @@
         <span class="ids__field__left">driver</span>
         <div class="ids__field__right">{{ driverId() }}</div>
       </div>
-    </div> -->
+    </div>
   </div>
 }
 
@@ -99,6 +99,17 @@
         (click)="contextMenuService.handleAction('DELETE_ENGINES_IN_DRIVING')"
       >
         <mat-icon>developer_board_off</mat-icon>
+      </button>
+    } @else if (fmcsaDate(); as dotDate) {
+      <button
+        mat-icon-button
+        matTooltip="FMCSA Inspected {{ dotDate | date }}"
+        [matTooltipShowDelay]="500"
+        [matTooltipHideDelay]="0"
+        style="color: #0d3c72; border: 0.5px solid #003775; padding: 1px"
+        (click)="navigateToDotInspection()"
+      >
+        <mat-icon style="margin: 5px 0 0 0">local_police</mat-icon>
       </button>
     }
   }

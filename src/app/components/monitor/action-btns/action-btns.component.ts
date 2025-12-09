@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   signal,
@@ -14,7 +15,10 @@ import { MonitorMenuComponent } from '../monitor-menu/monitor-menu.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { IVehicle } from '../../../interfaces/driver-daily-log-events.interface';
+import {
+  IDriverFmcsaInspection,
+  IVehicle,
+} from '../../../interfaces/driver-daily-log-events.interface';
 import { ApiPrologsAdminService } from '../../../@services/api-prologs-admin.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVehicleMaintanenceComponent } from '../../UI/dialog-vehicle-maintanence/dialog-vehicle-maintanence.component';
@@ -24,6 +28,8 @@ import { ContextMenuService } from '../../../@services/context-menu.service';
 
 import { UrlService } from '../../../@services/url.service';
 import { SmartFixService } from '../../../@services/smart-fix.service';
+import { BackendService } from '../../../@services/backend.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-action-btns',
@@ -36,6 +42,7 @@ import { SmartFixService } from '../../../@services/smart-fix.service';
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    DatePipe,
   ],
   templateUrl: './action-btns.component.html',
   styleUrl: './action-btns.component.scss',
@@ -51,6 +58,7 @@ export class ActionBtnsComponent {
   apiPrologsAdminService = inject(ApiPrologsAdminService);
   contextMenuService = inject(ContextMenuService);
   urlService = inject(UrlService);
+  backendService = inject(BackendService);
   _dialog = inject(MatDialog);
   _snackBar = inject(MatSnackBar);
 
@@ -59,6 +67,51 @@ export class ActionBtnsComponent {
 
   deselectAllEvents() {
     this.monitorService.selectedEvents.set([]);
+  }
+
+  fmcsaDate = computed(() => {
+    const ddle = this.monitorService.driverDailyLog();
+    const tenantId = this.tenantId();
+    const backendData = this.backendService.backendData();
+    if (!ddle || !tenantId || !backendData) return null;
+
+    const driverId = ddle.driverId;
+
+    const dots = backendData[2][tenantId]?.drivers[driverId]?.notes;
+    if (!dots) return null;
+
+    const fmcsaInspections: IDriverFmcsaInspection[] = [];
+    for (let stamp in dots) {
+      let dotJSON = '';
+      const inspection = dots[stamp].sort((a, b) => a.part - b.part);
+      inspection.forEach((part) => (dotJSON += part.note));
+
+      fmcsaInspections.push(JSON.parse(dotJSON));
+    }
+
+    let latestDate = null;
+    for (const item of fmcsaInspections) {
+      const currentDate = item.reportTimeTo;
+      if (currentDate) {
+        if (latestDate === null || currentDate > latestDate) {
+          latestDate = currentDate;
+        }
+      }
+    }
+
+    return latestDate ? latestDate : null;
+  });
+
+  navigateToDotInspection() {
+    const ddle = this.monitorService.driverDailyLog();
+    const date = this.fmcsaDate();
+    if (!ddle || !date) return;
+
+    const driverId = ddle.driverId;
+
+    return this.urlService.navigateChromeActiveTab(
+      `https://app.monitoringdriver.com/logs/${driverId}/${date}/`,
+    );
   }
 
   smartFix() {
@@ -88,6 +141,7 @@ export class ActionBtnsComponent {
               duration: 3000,
             });
         },
+
         error: (err) => {
           this.isSmartFix.set(false);
           this._snackBar.open(err.error.message, 'Close', { duration: 7000 });
