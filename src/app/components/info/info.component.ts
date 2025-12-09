@@ -1,27 +1,27 @@
-import { Component, effect, inject, signal } from "@angular/core";
-import { AppService } from "../../@services/app.service";
-import { CommonModule, KeyValuePipe } from "@angular/common";
-import { ApiService } from "../../@services/api.service";
-import { IDriver, ITenant } from "../../interfaces";
-import { MonitorService } from "../../@services/monitor.service";
-import { DateAgoPipe } from "../../pipes/date-ago.pipe";
-import { from, map, mergeMap, switchMap, tap } from "rxjs";
-import { DateTime } from "luxon";
-import { DateService } from "../../@services/date.service";
-import { formatTenantName } from "../../helpers/monitor.helpers";
-import { ConstantsService } from "../../@services/constants.service";
-import { MatButtonModule } from "@angular/material/button";
-import { ProgressBarService } from "../../@services/progress-bar.service";
-import { MatIconModule } from "@angular/material/icon";
-import { DialogAddNoteComponent } from "../UI/dialog-add-note/dialog-add-note.component";
-import { MatDialog } from "@angular/material/dialog";
-import { BackendService } from "../../@services/backend.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { IVehicle } from "../../interfaces/driver-daily-log-events.interface";
+import { Component, effect, inject, signal } from '@angular/core';
+import { AppService } from '../../@services/app.service';
+import { CommonModule, KeyValuePipe } from '@angular/common';
+import { ApiService } from '../../@services/api.service';
+import { IDriver, ITenant } from '../../interfaces';
+import { MonitorService } from '../../@services/monitor.service';
+import { DateAgoPipe } from '../../pipes/date-ago.pipe';
+import { from, map, mergeMap, switchMap, tap } from 'rxjs';
+import { DateTime } from 'luxon';
+import { DateService } from '../../@services/date.service';
+import { formatTenantName } from '../../helpers/monitor.helpers';
+import { ConstantsService } from '../../@services/constants.service';
+import { MatButtonModule } from '@angular/material/button';
+import { ProgressBarService } from '../../@services/progress-bar.service';
+import { MatIconModule } from '@angular/material/icon';
+import { DialogAddNoteComponent } from '../UI/dialog-add-note/dialog-add-note.component';
+import { MatDialog } from '@angular/material/dialog';
+import { BackendService } from '../../@services/backend.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IVehicle } from '../../interfaces/driver-daily-log-events.interface';
 
 @Component({
-  selector: "app-info",
+  selector: 'app-info',
   imports: [
     CommonModule,
     DateAgoPipe,
@@ -30,8 +30,8 @@ import { IVehicle } from "../../interfaces/driver-daily-log-events.interface";
     KeyValuePipe,
     MatProgressSpinnerModule,
   ],
-  templateUrl: "./info.component.html",
-  styleUrl: "./info.component.scss",
+  templateUrl: './info.component.html',
+  styleUrl: './info.component.scss',
 })
 export class InfoComponent {
   appService = inject(AppService);
@@ -85,9 +85,9 @@ export class InfoComponent {
   uploadData(
     title: string,
     eventTypeCode:
-      | "ChangeToOffDutyStatus"
-      | "ChangeToSleeperBerthStatus"
-      | "ChangeToOnDutyNotDrivingStatus",
+      | 'ChangeToOffDutyStatus'
+      | 'ChangeToSleeperBerthStatus'
+      | 'ChangeToOnDutyNotDrivingStatus',
     vehicles?: IVehicle[],
   ) {
     const tenant = this.appService.currentTenant();
@@ -123,7 +123,7 @@ export class InfoComponent {
 
     this.backendService.deleteNote(idsToDelete).subscribe({
       error: () => {
-        this._snackBar.open("Failed to delete note", "Close", {
+        this._snackBar.open('Failed to delete note', 'Close', {
           duration: 3000,
         });
         this.backendService.isDeletingNote.set(null);
@@ -153,17 +153,18 @@ export class InfoComponent {
             } else {
               this.driver.set({
                 companyId: 0,
-                driverId: "error",
-                driverStatus: "error",
-                fullName: "error",
+                driverId: 'error',
+                driverStatus: 'error',
+                fullName: 'error',
                 hasViolations: false,
-                homeTerminalTimeZone: "error",
+                homeTerminalTimeZone: 'error',
                 id: 0,
-                lastSync: "error",
-                mobileAppType: "error",
-                mobileAppVersion: "error",
-                tenant: { name: "error", id: "error" } as ITenant,
+                lastSync: 'error',
+                mobileAppType: 'error',
+                mobileAppVersion: 'error',
+                tenant: { name: 'error', id: 'error' } as ITenant,
               });
+
               this.showGetLogInfo = false;
             }
           },
@@ -198,7 +199,7 @@ export class InfoComponent {
         ),
         tap((logs) => {
           const companyName = formatTenantName(logs.tenant!.name);
-          companyName !== "Dex Solutions" &&
+          companyName !== 'Dex Solutions' &&
             (logOutput[companyName] = logs.totalCount);
         }),
       )
@@ -216,7 +217,7 @@ export class InfoComponent {
             C: { companies: [], total: 0 },
           };
 
-          const groupKeys = ["A", "B", "C"];
+          const groupKeys = ['A', 'B', 'C'];
 
           entries.forEach(([companyName, value]) => {
             let minTotal = Infinity;

@@ -1,26 +1,23 @@
-import {
-  IDriverFmcsaInspection,
-  IVehicle,
-} from "./driver-daily-log-events.interface";
+import { IVehicle } from './driver-daily-log-events.interface';
 
-export interface IRawBackendData {
-  [key: number]: IRawData;
+export interface IBackendData {
+  [key: number]: IData;
 }
 
-export interface IRawData {
+export interface IData {
   [tenantId: string]: {
     name: string;
-    drivers: IRawDataDriver;
+    drivers: IDataDriver;
   };
 }
-export interface IRawDataDriver {
+export interface IDataDriver {
   [id: number]: {
     name: string;
-    notes: IRawDataDriverNotes;
+    notes: IDataDriverNotes;
   };
 }
 
-export interface IRawDataDriverNotes {
+export interface IDataDriverNotes {
   [stamp: string]: {
     note: string;
     part: number;
@@ -29,26 +26,8 @@ export interface IRawDataDriverNotes {
   }[];
 }
 
-// ~~~~~~~~~~~~~~~~~~
-export interface IMergedDriverNote {
-  name: string;
-  note: string;
-  eventIds: number[];
-  vehicleData?: IVehicle | undefined | null;
-}
+const backemdData: IBackendData = {
+  0: {},
+};
 
-export interface IProcessedDrivers {
-  [id: number]: {
-    [stamp: string]: IMergedDriverNote;
-  }[];
-}
-
-export interface IData {
-  [tenantId: string]: {
-    name: string;
-    drivers: IProcessedDrivers;
-  };
-}
-export interface IBackendData {
-  [key: number]: IData;
-}
+backemdData[0]['3a158eba-3171-b188-86a5-809504f6b542'].drivers[60].notes;
