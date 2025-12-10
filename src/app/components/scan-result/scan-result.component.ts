@@ -95,6 +95,7 @@ export class ScanResultComponent {
     logDate: string;
     homeTerminalTimeZone: string;
   }) {
+    const { startTime, endTime } = violation;
     this.constanstsService.hiddenViolations.update((prev) => [
       ...prev,
       { startTime, endTime },

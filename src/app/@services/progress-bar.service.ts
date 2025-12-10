@@ -44,9 +44,18 @@ export class ProgressBarService {
         ...v.violations,
         items: v.violations.items.map((item) => ({
           ...item,
-          violations: item.violations.filter(
-            (v) => !hiddenViolations.includes(v.),
-          ),
+          violations: item.violations.filter((v) => {
+            let isHidden = false;
+
+            hiddenViolations.forEach(
+              (hiddenV) =>
+                hiddenV.endTime === v.endTime &&
+                hiddenV.startTime === v.startTime &&
+                (isHidden = true),
+            );
+
+            return !isHidden;
+          }),
         })),
       },
     }));

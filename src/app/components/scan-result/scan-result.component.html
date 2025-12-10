@@ -73,27 +73,6 @@
             ></mat-panel-title>
           </mat-expansion-panel-header>
 
-          @if (hiddenViolations().length > 0) {
-            <div
-              class="scan-results__content__result__checkbox"
-              style="
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-              "
-            >
-              <span
-                >hidden violation count: {{ hiddenViolations().length }}</span
-              >
-              <button
-                (click)="removeHiddenViolations()"
-                matButton="tonal"
-                style="height: 24px"
-              >
-                Show
-              </button>
-            </div>
-          }
           <div class="scan-results__content__result">
             <ul class="list-of-tenants">
               @for (
@@ -204,6 +183,28 @@
                 </li>
               }
             </ul>
+
+            @if (hiddenViolations().length > 0) {
+              <div
+                class="scan-results__content__result__checkbox"
+                style="
+                  display: flex;
+                  justify-content: space-around;
+                  align-items: center;
+                "
+              >
+                <span
+                  >hidden violation count: {{ hiddenViolations().length }}</span
+                >
+                <button
+                  (click)="removeHiddenViolations()"
+                  matButton="tonal"
+                  style="height: 24px"
+                >
+                  Show
+                </button>
+              </div>
+            }
           </div>
         </mat-expansion-panel>
       }
