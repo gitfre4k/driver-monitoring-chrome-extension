@@ -66,6 +66,7 @@ export class BackendService {
         const shiftReport = {} as IData;
         const problems = {} as IData;
         const fmscaInspections = {} as IData;
+        const noteInfo = {};
 
         events.forEach((event) => {
           let state: IData;

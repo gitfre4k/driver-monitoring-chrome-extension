@@ -1,28 +1,40 @@
 <div class="shift-report">
-  @if (backendService.isLoadingShiftReport()) {
-    <div class="shift-report__loading">
-      <mat-spinner [diameter]="30"></mat-spinner>
-    </div>
-  } @else {
-    <h1 class="shift-report__title">
-      {{ state().name }}
-    </h1>
-  }
+  <h1 class="shift-report__title">
+    <span> {{ state().name }}</span>
 
-  <div class="absolute refresh">
-    <button
-      mat-icon-button
-      matTooltip="Refresh"
-      [matTooltipShowDelay]="500"
-      [matTooltipHideDelay]="0"
-      matTooltipPosition="left"
-      (click)="backendService.loadShiftReport()"
-      [disabled]="backendService.isLoadingShiftReport()"
+    <mat-paginator
+      [length]="4"
+      [pageSizeOptions]="[1]"
+      (page)="handlePageEvent($event)"
+      [pageIndex]="0"
+      [showFirstLastButtons]="false"
+      [hidePageSize]="true"
+      aria-label="Select page"
+      class="shift-report__title__paginator"
     >
-      <mat-icon>refresh</mat-icon>
-    </button>
-  </div>
-  <hr />
+    </mat-paginator>
+
+    <div class="shift-report__title__refresh">
+      @if (backendService.isLoadingShiftReport()) {
+        <div class="shift-report__loading">
+          <mat-spinner [diameter]="30"></mat-spinner>
+        </div>
+      } @else {
+        <button
+          mat-icon-button
+          matTooltip="Refresh"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="left"
+          (click)="backendService.loadShiftReport()"
+          [disabled]="backendService.isLoadingShiftReport()"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+      }
+    </div>
+  </h1>
+
   @if (state().data; as data) {
     <ul class="shift-report__list">
       @for (company of data | keyvalue; track company) {
@@ -113,21 +125,9 @@
       }
     </ul>
   }
-  <hr />
+
   <button class="shift-report__add" matButton="tonal" (click)="addNote()">
     <mat-icon>add_circle</mat-icon>
     add Note
   </button>
-
-  <mat-paginator
-    [length]="3"
-    [pageSizeOptions]="[1]"
-    (page)="handlePageEvent($event)"
-    [pageIndex]="0"
-    [showFirstLastButtons]="false"
-    [hidePageSize]="true"
-    aria-label="Select page"
-    class="shift-report__paginator"
-  >
-  </mat-paginator>
 </div>
