@@ -19,7 +19,7 @@ export class ConstantsService {
   showLocationDisplayName = this.createSignal('showLocationDisplayName', true);
   hiddenViolations = this.createSignal(
     'hiddenViolations',
-    [] as { startTime: string; endTime: string }[],
+    [] as { startTime: string; type: string }[],
   );
 
   createSignal<T>(key: string, initialValue: T): WritableSignal<T> {

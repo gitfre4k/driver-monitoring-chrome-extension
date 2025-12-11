@@ -49,7 +49,7 @@ export class ProgressBarService {
 
             hiddenViolations.forEach(
               (hiddenV) =>
-                hiddenV.endTime === v.endTime &&
+                hiddenV.type === v.type &&
                 hiddenV.startTime === v.startTime &&
                 (isHidden = true),
             );

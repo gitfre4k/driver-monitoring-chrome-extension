@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -95,10 +95,10 @@ export class ScanResultComponent {
     logDate: string;
     homeTerminalTimeZone: string;
   }) {
-    const { startTime, endTime } = violation;
+    const { startTime, type } = violation;
     this.constanstsService.hiddenViolations.update((prev) => [
       ...prev,
-      { startTime, endTime },
+      { startTime, type },
     ]);
   }
 

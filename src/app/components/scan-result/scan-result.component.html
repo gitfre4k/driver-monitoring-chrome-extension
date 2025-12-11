@@ -191,9 +191,10 @@
                   display: flex;
                   justify-content: space-around;
                   align-items: center;
+                  margin-bottom: 4px;
                 "
               >
-                <span>hidden violations: {{ hiddenViolations().length }}</span>
+                <span>hidden: {{ hiddenViolations().length }}</span>
                 <button
                   (click)="removeHiddenViolations()"
                   matButton="tonal"

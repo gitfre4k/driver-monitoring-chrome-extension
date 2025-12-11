@@ -5,11 +5,11 @@
     </div>
 
     <span class="shift-report__header__index">
-      {{ page() + 1 + " of 4" }}
+      {{ page() + 1 + " of 5" }}
     </span>
 
     <mat-paginator
-      [length]="4"
+      [length]="5"
       [pageSizeOptions]="[1]"
       (page)="handlePageEvent($event)"
       [pageIndex]="0"

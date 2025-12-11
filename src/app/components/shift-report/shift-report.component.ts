@@ -48,6 +48,7 @@ export class ShiftReportComponent {
     1: 'Problems',
     2: 'FMCSA Inspections',
     3: 'Info Notes',
+    4: 'Marker Notes',
   };
   page = signal(0);
   state = computed(() => {
