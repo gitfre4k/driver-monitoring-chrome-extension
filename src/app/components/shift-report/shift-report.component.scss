@@ -1,3 +1,7 @@
+::ng-deep .mat-mdc-paginator-range-label {
+  display: none !important;
+}
+
 .shift-report {
   display: flex;
   flex-direction: column;
@@ -22,19 +26,23 @@
     background: #444444;
   }
 
-  .shift-report__title {
+  &__header {
     font-size: 20px;
     text-align: center;
     display: grid;
     align-items: center;
-    grid-template-columns: 4fr 6fr 0.5fr;
+    grid-template-columns: 6fr 1fr 1fr 0.5fr;
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
     margin: 0;
     width: 100%;
     padding: 0;
 
-    span {
+    &__title {
       text-align: left;
+    }
+
+    &__index {
+      font-size: 12px;
     }
 
     &__paginator {

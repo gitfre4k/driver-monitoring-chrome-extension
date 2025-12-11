@@ -1,19 +1,19 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { IEventDetails, ITenant } from '../interfaces';
-import { DateTime } from 'luxon';
-import { HttpClient } from '@angular/common/http';
-import { IVehicle } from '../interfaces/driver-daily-log-events.interface';
-import { ApiService } from './api.service';
-import { concatMap, from, map, Observable, Subscription } from 'rxjs';
-import { IBackendData, IData } from '../interfaces/shift-report.interface';
-import { ApiOperationsService } from './api-operations.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { inject, Injectable, signal } from "@angular/core";
+import { IEventDetails, ITenant } from "../interfaces";
+import { DateTime } from "luxon";
+import { HttpClient } from "@angular/common/http";
+import { IVehicle } from "../interfaces/driver-daily-log-events.interface";
+import { ApiService } from "./api.service";
+import { concatMap, from, map, Observable, Subscription } from "rxjs";
+import { IBackendData, IData } from "../interfaces/shift-report.interface";
+import { ApiOperationsService } from "./api-operations.service";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class BackendService {
-  url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+  url = "https://app.monitoringdriver.com/api/Logs/CreateEvent";
 
   private http: HttpClient = inject(HttpClient);
   private apiService = inject(ApiService);
@@ -26,7 +26,7 @@ export class BackendService {
   isLoadingShiftReport = signal(false);
   isDeletingNote = signal<string | null>(null);
 
-  dataDate = '2025-09-01T04:00:00Z';
+  dataDate = "2025-09-01T04:00:00Z";
 
   constructor() {}
 
@@ -39,9 +39,9 @@ export class BackendService {
       error: (error) => {
         this.isLoadingShiftReport.set(false);
         this._snackBar.open(
-          'Error loading shift report data: ' +
+          "Error loading shift report data: " +
             (error.message ? error.message : error.error.message),
-          'Close',
+          "Close",
           {
             duration: 7000,
           },
@@ -57,7 +57,7 @@ export class BackendService {
     .getDriverDailyLogEvents(
       2,
       this.dataDate,
-      '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+      "3a0e2d3b-8214-edb4-c139-0d55051fc170",
     )
     .pipe(
       map((ddle) => {
@@ -71,20 +71,20 @@ export class BackendService {
         events.forEach((event) => {
           let state: IData;
           switch (event.dutyStatus) {
-            case 'ChangeToOffDutyStatus':
+            case "ChangeToOffDutyStatus":
               state = shiftReport;
               break;
-            case 'ChangeToSleeperBerthStatus':
+            case "ChangeToSleeperBerthStatus":
               state = problems;
               break;
-            case 'ChangeToOnDutyNotDrivingStatus':
+            case "ChangeToOnDutyNotDrivingStatus":
               state = fmscaInspections;
               break;
             default:
               state = shiftReport;
           }
 
-          if (event.notes === 'BACKEND__START') return;
+          if (event.notes === "BACKEND__START") return;
 
           // 1. Ensure tenant structure exists (Initialization)
           const dataInfo = JSON.parse(event.shippingDocuments);
@@ -138,9 +138,10 @@ export class BackendService {
     },
     note: string,
     eventTypeCode:
-      | 'ChangeToOffDutyStatus'
-      | 'ChangeToSleeperBerthStatus'
-      | 'ChangeToOnDutyNotDrivingStatus',
+      | "ChangeToOffDutyStatus"
+      | "ChangeToSleeperBerthStatus"
+      | "ChangeToOnDutyNotDrivingStatus"
+      | "IntermediateLogConventionalLocationPrecision",
     vehicleData?: IVehicle | null,
   ) => {
     const dataInfo = {
@@ -167,11 +168,11 @@ export class BackendService {
           totalVehicleMiles: driver.driverId,
           totalEngineHours: notePart[0],
           trailerNumbers: stamp,
-          locationSource: 'SelectedFromMap',
-          latitude: '31.279850',
-          longitude: '-98.454710',
+          locationSource: "SelectedFromMap",
+          latitude: "31.279850",
+          longitude: "-98.454710",
           geolocation: driver.driverFullName,
-          eventSequenceIdNumber: '1',
+          eventSequenceIdNumber: "1",
           vehicleId: 2,
           driverId: 2,
         };
@@ -179,8 +180,8 @@ export class BackendService {
         return this.http.post<IEventDetails>(this.url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': '3a0e2d3b-8214-edb4-c139-0d55051fc170',
-            'x-client-timezone': `${DateTime.local().zoneName}`,
+            "X-Tenant-Id": "3a0e2d3b-8214-edb4-c139-0d55051fc170",
+            "x-client-timezone": `${DateTime.local().zoneName}`,
           },
         });
       }),
@@ -189,7 +190,7 @@ export class BackendService {
 
   deleteNote(eventIds: number[]) {
     return this.apiOperationsService.deleteEvents(
-      { id: '3a0e2d3b-8214-edb4-c139-0d55051fc170' } as ITenant,
+      { id: "3a0e2d3b-8214-edb4-c139-0d55051fc170" } as ITenant,
       [...eventIds],
     );
   }
@@ -206,11 +207,11 @@ export class BackendService {
 
     // 1. Parse the base date string. We specify the time zone as 'utc'
     // to correctly handle the 'Z' (Zulu/UTC) time zone indicator.
-    const startDate = DateTime.fromISO(startDateString, { zone: 'utc' });
+    const startDate = DateTime.fromISO(startDateString, { zone: "utc" });
 
     if (!startDate.isValid) {
-      console.error('Failed to parse start date:', startDate.invalidReason);
-      return 'ERROR: Invalid Date';
+      console.error("Failed to parse start date:", startDate.invalidReason);
+      return "ERROR: Invalid Date";
     }
 
     // 2. Add the random duration (in milliseconds)

@@ -1,6 +1,12 @@
 <div class="shift-report">
-  <h1 class="shift-report__title">
-    <span> {{ state().name }}</span>
+  <h1 class="shift-report__header">
+    <div class="shift-report__header__title">
+      {{ state().name }}
+    </div>
+
+    <span class="shift-report__header__index">
+      {{ page() + 1 + " of 4" }}
+    </span>
 
     <mat-paginator
       [length]="4"
@@ -10,11 +16,11 @@
       [showFirstLastButtons]="false"
       [hidePageSize]="true"
       aria-label="Select page"
-      class="shift-report__title__paginator"
+      class="shift-report__header__paginator"
     >
     </mat-paginator>
 
-    <div class="shift-report__title__refresh">
+    <div class="shift-report__header__refresh">
       @if (backendService.isLoadingShiftReport()) {
         <div class="shift-report__loading">
           <mat-spinner [diameter]="30"></mat-spinner>
