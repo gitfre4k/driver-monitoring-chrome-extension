@@ -25,6 +25,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ConstantsService } from "./@services/constants.service";
 import { TaskQueueComponent } from "./components/task-queue/task-queue.component";
 import { ShiftReportComponent } from "./components/shift-report/shift-report.component";
+import { MonitorService } from "./@services/monitor.service";
 
 @Component({
   selector: "app-root",
@@ -61,6 +62,7 @@ export class AppComponent {
   private progressBarService = inject(ProgressBarService);
   private appService = inject(AppService);
   private scanService = inject(ScanService);
+  monitorService = inject(MonitorService);
   private _snackBar = inject(MatSnackBar);
   private dateService = inject(DateService);
   private constantsService = inject(ConstantsService);

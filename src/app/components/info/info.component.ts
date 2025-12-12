@@ -19,6 +19,8 @@ import { BackendService } from "../../@services/backend.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { IVehicle } from "../../interfaces/driver-daily-log-events.interface";
+import { getNote } from "../../helpers/backend.helpers";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
   selector: "app-info",
@@ -29,6 +31,7 @@ import { IVehicle } from "../../interfaces/driver-daily-log-events.interface";
     MatIconModule,
     KeyValuePipe,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   templateUrl: "./info.component.html",
   styleUrl: "./info.component.scss",
@@ -49,6 +52,8 @@ export class InfoComponent {
 
   driver = signal<IDriver | null>(null);
   showGetLogInfo = true;
+
+  getNote = getNote;
 
   constructor() {
     effect(() => {
@@ -74,8 +79,10 @@ export class InfoComponent {
     const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
     const problems = backendData[1][tenantId]?.drivers[driverId]?.notes;
     const fmscaInspections = backendData[2][tenantId]?.drivers[driverId]?.notes;
+    const infoNotes = backendData[3][tenantId]?.drivers[driverId]?.notes;
+    const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
 
-    return { driverNotes, problems, fmscaInspections };
+    return { driverNotes, problems, fmscaInspections, infoNotes, driverMarker };
   };
 
   hideInfo() {
@@ -94,17 +101,9 @@ export class InfoComponent {
     vehicles?: IVehicle[],
   ) {
     const tenant = this.appService.currentTenant();
-    const driver =
-      eventTypeCode !== "EnginePowerUpConventionalLocationPrecision"
-        ? this.monitorService.driverDailyLog()
-        : null;
+    const driver = this.monitorService.driverDailyLog();
 
-    if (
-      !tenant ||
-      (!driver &&
-        eventTypeCode !== "EnginePowerUpConventionalLocationPrecision")
-    )
-      return;
+    if (!tenant || !driver) return;
 
     return this.dialog.open(DialogAddNoteComponent, {
       data: {

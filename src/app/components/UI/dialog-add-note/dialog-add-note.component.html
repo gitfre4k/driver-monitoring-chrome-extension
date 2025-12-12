@@ -14,7 +14,6 @@
             >Vehicle Issue</mat-checkbox
           >
         }
-
         @if (isVehicleIssue() && data.vehicles; as vehicles) {
           <mat-form-field class="add-note__for-vehicle">
             <mat-label>Vehicle ID</mat-label>
@@ -26,11 +25,9 @@
               }
             </mat-select>
           </mat-form-field>
-        } @else if (
-          data.eventTypeCode !== "EnginePowerUpConventionalLocationPrecision"
-        ) {
+        } @else {
           <span class="add-note__for-driver">{{
-            data.driver.driverFullName
+            data.driver?.driverFullName
           }}</span>
         }
       </div>

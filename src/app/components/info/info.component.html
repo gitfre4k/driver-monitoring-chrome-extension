@@ -3,6 +3,16 @@
     @if (appService.currentTenant(); as tenant) {
       <h2>## {{ tenant.name }}</h2>
 
+      <div class="info-tab__tenant-action">
+        <mat-icon>add_circle</mat-icon>
+
+        <mat-icon>info</mat-icon>
+
+        <mat-icon>warning</mat-icon>
+
+        <mat-icon>new_label</mat-icon>
+      </div>
+
       <div class="info-tab__tenant__group">
         <span>domain</span
         ><span
@@ -30,6 +40,62 @@
       <h2 class="info-tab__info__driver-name">
         {{ driverDailyLog.driverFullName }}
       </h2>
+
+      <div class="info-tab__info__driver-buttons">
+        <button
+          mat-icon-button
+          matTooltip="add Report Note"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="left"
+          (click)="uploadData('Add Note', 'ChangeToOffDutyStatus')"
+        >
+          <mat-icon>add_circle</mat-icon>
+        </button>
+
+        <button
+          mat-icon-button
+          matTooltip="add Info Note"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="left"
+          (click)="uploadData('Add Info Note', 'ChangeToOffDutyStatus')"
+        >
+          <mat-icon>info</mat-icon>
+        </button>
+
+        <button
+          mat-icon-button
+          matTooltip="Bring Attention to a Problem"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="left"
+          (click)="
+            uploadData(
+              'Bring Attention to a Problem',
+              'ChangeToSleeperBerthStatus',
+              monitorService.driverDailyLog()?.vehicles
+            )
+          "
+        >
+          <mat-icon>warning</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="add Driver Marker"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="left"
+          (click)="
+            uploadData(
+              'Add Driver Marker',
+              'EngineShutDownConventionalLocationPrecision'
+            )
+          "
+        >
+          <mat-icon>add_circle</mat-icon>
+        </button>
+      </div>
 
       @if (!showGetLogInfo && driver(); as driver) {
         <br />
@@ -89,6 +155,35 @@
       <!--  -->
       <!-- backendData -->
       @if (backendData(); as data) {
+        <!-- driverMarker -->
+        @if (data.driverMarker; as driverMarker) {
+          <div class="info-tab__log__data__marker">
+            <span class="info-tab__log__data__marker__title"
+              >driver markers</span
+            >
+            @for (singleNote of driverMarker | keyvalue; track singleNote.key) {
+              <div class="info-tab__log__data__marker__note">
+                <span class="info-tab__log__data__marker__note__text">
+                  {{ getNote(singleNote.value) }}
+                </span>
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="info-tab__log__data__marker__note__delete"
+                  (click)="deleteNote(singleNote.value, singleNote.key)"
+                  [disabled]="backendService.isDeletingNote()"
+                >
+                  @if (singleNote.key === backendService.isDeletingNote()) {
+                    <mat-spinner [diameter]="24"></mat-spinner>
+                  } @else {
+                    <span class="material-icons"> clear </span>
+                  }
+                </a>
+              </div>
+            }
+          </div>
+        }
+
         <!-- problems -->
         @if (data.problems; as problems) {
           <div class="info-tab__log__data__issues">
@@ -108,9 +203,7 @@
                     </span>
                     <br />
                   }
-                  @for (note of singleNote.value; track note.part) {
-                    {{ note.note }}
-                  }
+                  {{ getNote(singleNote.value) }}
                 </span>
                 <a
                   mat-icon-button
@@ -139,9 +232,7 @@
             @for (singleNote of driverNotes | keyvalue; track singleNote.key) {
               <div class="info-tab__log__data__notes__note">
                 <span class="info-tab__log__data__notes__note__text">
-                  @for (note of singleNote.value; track note.part) {
-                    {{ note.note }}
-                  }
+                  {{ getNote(singleNote.value) }}
                 </span>
                 <a
                   mat-icon-button
@@ -162,6 +253,11 @@
         }
       }
     </div>
+
+    <button class="info-tab__back" matButton="tonal" (click)="hideInfo()">
+      <mat-icon>arrow_back</mat-icon>
+      back to Monitor tab
+    </button>
   }
 
   <!-- <button
@@ -172,60 +268,6 @@
   >
     botón para el Conejo
   </button> -->
-
-  <div class="info-tab__action">
-    <div class="info-tab__action-btns">
-      <button
-        class="shift-report__add"
-        matButton="tonal"
-        (click)="uploadData('Add Note', 'ChangeToOffDutyStatus')"
-      >
-        <mat-icon>add_circle</mat-icon>
-        add Report Note
-      </button>
-
-      <button
-        class="shift-report__add"
-        matButton="tonal"
-        (click)="uploadData('Add Info Note', 'ChangeToOffDutyStatus')"
-      >
-        <mat-icon>info</mat-icon>
-        add Info Note
-      </button>
-    </div>
-
-    <div class="info-tab__action-btns">
-      <button
-        class="shift-report__add"
-        matButton="tonal"
-        (click)="
-          uploadData(
-            'Bring Attention to a Problem',
-            'ChangeToSleeperBerthStatus',
-            monitorService.driverDailyLog()?.vehicles
-          )
-        "
-      >
-        <mat-icon>warning</mat-icon>
-        Report Problem
-      </button>
-      <button
-        class="shift-report__add"
-        matButton="tonal"
-        (click)="
-          uploadData('Add Marker', 'EnginePowerUpConventionalLocationPrecision')
-        "
-      >
-        <mat-icon>new_label</mat-icon>
-        add Marker
-      </button>
-    </div>
-  </div>
-
-  <button class="info-tab__back" matButton="tonal" (click)="hideInfo()">
-    <mat-icon>arrow_back</mat-icon>
-    back to Monitor tab
-  </button>
 
   <!-- <div class="info-tab__extension-version">
     <p>Driver Monitoring Chrome Extension</p>

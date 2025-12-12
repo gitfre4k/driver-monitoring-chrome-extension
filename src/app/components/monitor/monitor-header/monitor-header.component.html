@@ -16,7 +16,7 @@
           ## {{ formatTenantName(ddle.companyName) }}
         </span>
 
-        <span
+        <!-- 
           [class]="
             ![
               'Batbayar Enkhbat',
@@ -31,6 +31,12 @@
             ].includes(ddle.driverFullName)
               ? 'info__company-and-driver__1-driver-name'
               : 'info__company-and-driver__1-driver-x'
+          " -->
+        <span
+          [class]="
+            !backendData()?.isMarked
+              ? 'info__company-and-driver__1-driver-name'
+              : 'info__company-and-driver__1-driver-x'
           "
           matTooltip="Copy to clipboard"
           [matTooltipShowDelay]="500"
@@ -42,16 +48,16 @@
           <div
             class="mat-badge-custom"
             style="margin-bottom: 20px"
-            [matBadge]="noteCount()"
-            [matBadgeHidden]="!noteCount()"
+            [matBadge]="backendData()?.noteCount"
+            [matBadgeHidden]="!backendData()?.noteCount"
             matBadgeColor="primary"
             matBadgePosition="above after"
             matBadgeSize="medium"
           ></div>
           <div
             style="margin-bottom: 20px; margin-left: 2px"
-            [matBadge]="noteCount()"
-            [matBadgeHidden]="!noteCount()"
+            [matBadge]="backendData()?.issueCount"
+            [matBadgeHidden]="!backendData()?.issueCount"
             matBadgeColor="primary"
             matBadgePosition="above after"
             matBadgeSize="medium"

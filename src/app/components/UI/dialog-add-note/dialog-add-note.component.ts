@@ -48,8 +48,11 @@ export class DialogAddNoteComponent {
   data = inject(MAT_DIALOG_DATA);
   note = signal("");
   isPosting = signal(false);
+
   isVehicleIssue = signal(false);
   selectedVehicle = signal<IVehicle | null>(null);
+
+  isMarkerForDriver = signal(true);
 
   formatTenantName = formatTenantName;
 

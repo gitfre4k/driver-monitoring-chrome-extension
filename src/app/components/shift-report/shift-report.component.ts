@@ -1,24 +1,29 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { BackendService } from '../../@services/backend.service';
-import { KeyValuePipe } from '@angular/common';
-import { ITenant } from '../../interfaces';
-import { DateService } from '../../@services/date.service';
-import { UrlService } from '../../@services/url.service';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogAddNoteComponent } from '../UI/dialog-add-note/dialog-add-note.component';
-import { AppService } from '../../@services/app.service';
-import { formatTenantName } from '../../helpers/monitor.helpers';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { IDriverFmcsaInspection } from '../../interfaces/driver-daily-log-events.interface';
-import { DateAgoPipe } from '../../pipes/date-ago.pipe';
+import { Component, computed, inject, signal } from "@angular/core";
+import { BackendService } from "../../@services/backend.service";
+import { KeyValuePipe } from "@angular/common";
+import { ITenant } from "../../interfaces";
+import { DateService } from "../../@services/date.service";
+import { UrlService } from "../../@services/url.service";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatDialog } from "@angular/material/dialog";
+import { DialogAddNoteComponent } from "../UI/dialog-add-note/dialog-add-note.component";
+import { AppService } from "../../@services/app.service";
+import { formatTenantName } from "../../helpers/monitor.helpers";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
+import { IDriverFmcsaInspection } from "../../interfaces/driver-daily-log-events.interface";
+import { DateAgoPipe } from "../../pipes/date-ago.pipe";
+import {
+  getNote,
+  parseDOTInspection,
+  sortArrayByPart,
+} from "../../helpers/backend.helpers";
 
 @Component({
-  selector: 'app-shift-report',
+  selector: "app-shift-report",
   imports: [
     KeyValuePipe,
     MatIconModule,
@@ -29,8 +34,8 @@ import { DateAgoPipe } from '../../pipes/date-ago.pipe';
     MatPaginatorModule,
     DateAgoPipe,
   ],
-  templateUrl: './shift-report.component.html',
-  styleUrl: './shift-report.component.scss',
+  templateUrl: "./shift-report.component.html",
+  styleUrl: "./shift-report.component.scss",
 })
 export class ShiftReportComponent {
   backendService = inject(BackendService);
@@ -44,11 +49,11 @@ export class ShiftReportComponent {
   formatTenantName = formatTenantName;
 
   pages: { [id: number]: string } = {
-    0: 'Shift Report',
-    1: 'Problems',
-    2: 'FMCSA Inspections',
-    3: 'Info Notes',
-    4: 'Marker Notes',
+    0: "Shift Report",
+    1: "Problems",
+    2: "FMCSA Inspections",
+    3: "Info Notes",
+    4: "Marker Notes",
   };
   page = signal(0);
   state = computed(() => {
@@ -58,6 +63,10 @@ export class ShiftReportComponent {
 
     return { name, data };
   });
+
+  sortArrayByPart = sortArrayByPart;
+  getNote = getNote;
+  parseDOTInspection = parseDOTInspection;
 
   constructor() {}
 
@@ -94,7 +103,7 @@ export class ShiftReportComponent {
 
     this.backendService.deleteNote(idsToDelete).subscribe({
       error: () => {
-        this._snackBar.open('Failed to delete note', 'Close', {
+        this._snackBar.open("Failed to delete note", "Close", {
           duration: 3000,
         });
         this.backendService.isDeletingNote.set(null);
@@ -114,19 +123,6 @@ export class ShiftReportComponent {
         this.backendService.loadShiftReport();
       }
     });
-  }
-
-  sortArrayByPart(array: { note: string; part: number; eventId: number }[]) {
-    return array.sort((a, b) => a.part - b.part);
-  }
-
-  parseDOTInspection(array: { note: string; part: number; eventId: number }[]) {
-    const rawDOT = this.sortArrayByPart(array);
-    let message = '';
-
-    rawDOT.forEach((part) => (message += part.note));
-
-    return JSON.parse(message) as IDriverFmcsaInspection;
   }
 
   handlePageEvent(event: PageEvent) {

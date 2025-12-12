@@ -92,6 +92,7 @@
     margin: 16px 0;
 
     &__data {
+      &__marker,
       &__notes,
       &__issues {
         display: flex;
@@ -140,35 +141,32 @@
 
       &__issues {
         &__title {
+          color: #e7b008b4;
+        }
+      }
+
+      &__marker {
+        &__title {
           color: #ff6666b4;
         }
       }
     }
   }
 
-  &__action {
-    margin-top: auto;
-    &-btns {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-  }
-
   &__back {
-    margin: 0 0 16px;
+    margin: auto 0 16px;
     height: 28px;
   }
 
-  &__extension-version {
-    text-align: right;
-    margin: 12px;
-    margin-right: 40px;
-    width: 100%;
-    p {
-      margin: 0;
-    }
-  }
+  // &__extension-version {
+  //   text-align: right;
+  //   margin: 12px;
+  //   margin-right: 40px;
+  //   width: 100%;
+  //   p {
+  //     margin: 0;
+  //   }
+  // }
 }
 
 // .sexy-button {

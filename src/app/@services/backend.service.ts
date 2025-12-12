@@ -134,7 +134,13 @@ export class BackendService {
           }
         });
 
-        return { 0: shiftReport, 1: problems, 2: fmscaInspections };
+        return {
+          0: shiftReport,
+          1: problems,
+          2: fmscaInspections,
+          3: noteInfo,
+          4: noteMarker,
+        };
       }),
     );
 
