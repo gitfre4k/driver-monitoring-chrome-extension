@@ -60,7 +60,10 @@ export class DialogAddNoteComponent {
     eventTypeCode:
       | "ChangeToOffDutyStatus"
       | "ChangeToSleeperBerthStatus"
-      | "ChangeToOnDutyNotDrivingStatus",
+      | "ChangeToOnDutyNotDrivingStatus"
+      | "IntermediateLogConventionalLocationPrecision"
+      | "EnginePowerUpConventionalLocationPrecision"
+      | "EngineShutDownConventionalLocationPrecision",
     $event?: Event,
   ) {
     if (!this.note()) return;

@@ -173,30 +173,53 @@
     botón para el Conejo
   </button> -->
 
-  <div class="info-tab__action-btns">
-    <button
-      class="shift-report__add"
-      matButton="tonal"
-      (click)="uploadData('Add Note', 'ChangeToOffDutyStatus')"
-    >
-      <mat-icon>add_circle</mat-icon>
-      add Note
-    </button>
+  <div class="info-tab__action">
+    <div class="info-tab__action-btns">
+      <button
+        class="shift-report__add"
+        matButton="tonal"
+        (click)="uploadData('Add Note', 'ChangeToOffDutyStatus')"
+      >
+        <mat-icon>add_circle</mat-icon>
+        add Report Note
+      </button>
 
-    <button
-      class="shift-report__add"
-      matButton="tonal"
-      (click)="
-        uploadData(
-          'Bring Attention to a Problem',
-          'ChangeToSleeperBerthStatus',
-          monitorService.driverDailyLog()?.vehicles
-        )
-      "
-    >
-      <mat-icon>warning</mat-icon>
-      Report Problem
-    </button>
+      <button
+        class="shift-report__add"
+        matButton="tonal"
+        (click)="uploadData('Add Info Note', 'ChangeToOffDutyStatus')"
+      >
+        <mat-icon>info</mat-icon>
+        add Info Note
+      </button>
+    </div>
+
+    <div class="info-tab__action-btns">
+      <button
+        class="shift-report__add"
+        matButton="tonal"
+        (click)="
+          uploadData(
+            'Bring Attention to a Problem',
+            'ChangeToSleeperBerthStatus',
+            monitorService.driverDailyLog()?.vehicles
+          )
+        "
+      >
+        <mat-icon>warning</mat-icon>
+        Report Problem
+      </button>
+      <button
+        class="shift-report__add"
+        matButton="tonal"
+        (click)="
+          uploadData('Add Marker', 'EnginePowerUpConventionalLocationPrecision')
+        "
+      >
+        <mat-icon>new_label</mat-icon>
+        add Marker
+      </button>
+    </div>
   </div>
 
   <button class="info-tab__back" matButton="tonal" (click)="hideInfo()">
@@ -204,8 +227,8 @@
     back to Monitor tab
   </button>
 
-  <div class="info-tab__extension-version">
+  <!-- <div class="info-tab__extension-version">
     <p>Driver Monitoring Chrome Extension</p>
     <p>version: {{ constService.extensionVersion() }}</p>
-  </div>
+  </div> -->
 </div>
