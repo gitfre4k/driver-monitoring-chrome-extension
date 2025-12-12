@@ -5,51 +5,51 @@ import {
   ElementRef,
   inject,
   ViewChild,
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-import { MatButtonModule } from "@angular/material/button";
-import { MatRippleModule } from "@angular/material/core";
-import { MatIconModule } from "@angular/material/icon";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatSliderModule } from "@angular/material/slider";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatBadgeModule } from "@angular/material/badge";
-import { MatDialog } from "@angular/material/dialog";
+import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialog } from '@angular/material/dialog';
 
-import { AppService } from "../../@services/app.service";
-import { ContextMenuService } from "../../@services/context-menu.service";
-import { ExtensionTabNavigationService } from "../../@services/extension-tab-navigation.service";
-import { MonitorService } from "../../@services/monitor.service";
-import { UrlService } from "../../@services/url.service";
+import { AppService } from '../../@services/app.service';
+import { ContextMenuService } from '../../@services/context-menu.service';
+import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
+import { MonitorService } from '../../@services/monitor.service';
+import { UrlService } from '../../@services/url.service';
 
-import { getStatusDuration, getStatusName } from "../../helpers/app.helpers";
-import { ContextMenuComponent } from "../context-menu/context-menu.component";
-import { MonitorHeaderComponent } from "./monitor-header/monitor-header.component";
+import { getStatusDuration, getStatusName } from '../../helpers/app.helpers';
+import { ContextMenuComponent } from '../context-menu/context-menu.component';
+import { MonitorHeaderComponent } from './monitor-header/monitor-header.component';
 
 import {
   IDriverFmcsaInspection,
   IEvent,
-} from "../../interfaces/driver-daily-log-events.interface";
-import { TContextMenuAction, TFocusElementAction } from "../../types";
+} from '../../interfaces/driver-daily-log-events.interface';
+import { TContextMenuAction, TFocusElementAction } from '../../types';
 import {
   getHoursAndMinutes,
   getNoSpaceNote,
-} from "../../helpers/monitor.helpers";
-import { KeyboardService } from "../../@services/keyboard.service";
-import { DateTime } from "luxon";
-import { FormInputService } from "../../@services/form-input.service";
-import { FixButtonComponent } from "./fix-button/fix-button.component";
-import { ResizeFormComponent } from "./resize-form/resize-form.component";
-import { EditFormComponent } from "./edit-form/edit-form.component";
-import { EventComponent } from "./event/event.component";
-import { ActionBtnsComponent } from "./action-btns/action-btns.component";
-import { BackendService } from "../../@services/backend.service";
+} from '../../helpers/monitor.helpers';
+import { KeyboardService } from '../../@services/keyboard.service';
+import { DateTime } from 'luxon';
+import { FormInputService } from '../../@services/form-input.service';
+import { FixButtonComponent } from './fix-button/fix-button.component';
+import { ResizeFormComponent } from './resize-form/resize-form.component';
+import { EditFormComponent } from './edit-form/edit-form.component';
+import { EventComponent } from './event/event.component';
+import { ActionBtnsComponent } from './action-btns/action-btns.component';
+import { BackendService } from '../../@services/backend.service';
 
 @Component({
-  selector: "app-monitor",
+  selector: 'app-monitor',
   imports: [
     CommonModule,
     FormsModule,
@@ -70,12 +70,12 @@ import { BackendService } from "../../@services/backend.service";
     EventComponent,
     ActionBtnsComponent,
   ],
-  templateUrl: "./monitor.component.html",
-  styleUrl: "./monitor.component.scss",
+  templateUrl: './monitor.component.html',
+  styleUrl: './monitor.component.scss',
   providers: [],
 })
 export class MonitorComponent {
-  @ViewChild("updateChangesButton")
+  @ViewChild('updateChangesButton')
   updateChangesButtonRef!: ElementRef<HTMLButtonElement>;
   DateTime = DateTime;
   getNoSpaceNote = getNoSpaceNote;
@@ -92,7 +92,7 @@ export class MonitorComponent {
   _snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
 
-  statusText = "";
+  statusText = '';
   contextMenuX = 0;
   contextMenuY = 0;
   selectedEvent: IEvent | null = null;
@@ -131,7 +131,7 @@ export class MonitorComponent {
   isInspectionPosted = computed(() => {
     const fmcsaData = this.backendService.backendData()?.[2];
     const ddle = this.monitorService.driverDailyLog();
-    const fmcsaId = ddle?.driverFmcsaInspection.id;
+    const fmcsaId = ddle?.driverFmcsaInspection?.id;
 
     if (!fmcsaData || !ddle || !fmcsaId) return false;
 
@@ -149,13 +149,13 @@ export class MonitorComponent {
       const singleNote = driverNotes[key];
       const sortedDriverNote = sortArrayByPart(singleNote);
 
-      let rowFmcsaMsg = "";
+      let rowFmcsaMsg = '';
       sortedDriverNote.forEach((part) => (rowFmcsaMsg += part.note));
 
       const fmcsaMsg: IDriverFmcsaInspection = JSON.parse(rowFmcsaMsg);
 
       if (fmcsaId === fmcsaMsg.id) return true;
-      else rowFmcsaMsg = "";
+      else rowFmcsaMsg = '';
     }
 
     return false;
@@ -179,7 +179,7 @@ export class MonitorComponent {
             ev.date.substring(0, 10) === currentView.date.substring(0, 10) &&
               this.urlService.focusElement(
                 ev.id,
-                "FOCUS_TACHOGRAPH_START",
+                'FOCUS_TACHOGRAPH_START',
                 ev.statusName,
               );
           }),
@@ -194,12 +194,12 @@ export class MonitorComponent {
       const element = document.getElementById(id!);
 
       if (element) {
-        if (hovered.action === "HOVER_START") {
-          element.scrollIntoView({ behavior: "smooth", block: "center" });
-          element.classList.add("highlighted");
+        if (hovered.action === 'HOVER_START') {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.classList.add('highlighted');
         }
-        if (hovered.action === "HOVER_STOP") {
-          element.classList.remove("highlighted");
+        if (hovered.action === 'HOVER_STOP') {
+          element.classList.remove('highlighted');
         }
       }
     });
@@ -237,7 +237,7 @@ export class MonitorComponent {
       }
 
       newSelectedElements.push(event);
-      this.focusElement(event, "FOCUS_TACHOGRAPH_START");
+      this.focusElement(event, 'FOCUS_TACHOGRAPH_START');
       return newSelectedElements;
     });
   }
