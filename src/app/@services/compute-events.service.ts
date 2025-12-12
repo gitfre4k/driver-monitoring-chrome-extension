@@ -413,9 +413,7 @@ export class ComputeEventsService {
           events[i].realDurationInSeconds !== 0
         ) {
           // PTI duration validity
-          if (
-            events[i].realDurationInSeconds >= (ptiDuration ? ptiDuration : 901)
-          ) {
+          if (events[i].realDurationInSeconds >= 781) {
             timeSinceShiftResetOccured > timeSinceEventOccured && (shift = '');
             timeSinceCycleResetOccured > timeSinceEventOccured && (cycle = '');
             shiftIsReadyToStart = false;
