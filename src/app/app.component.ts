@@ -147,8 +147,10 @@ export class AppComponent {
   }
 
   hideInfo() {
-    console.log("qweqwewqqweqwewqqweqwewqqweqwewqqweqwewqqweqwewqqweqwewq ewq");
     this.progressBarService.showInfo.set(false);
+  }
+  displayInfo() {
+    this.selectedTabIndex() === 2 && this.progressBarService.showInfo.set(true);
   }
 
   private handleKeyboardEvent(event: KeyboardEvent) {

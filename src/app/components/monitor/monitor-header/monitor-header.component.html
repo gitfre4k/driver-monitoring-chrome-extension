@@ -34,7 +34,7 @@
           " -->
         <span
           [class]="
-            !backendData()?.isMarked
+            !driverBackendData()?.isMarked
               ? 'info__company-and-driver__1-driver-name'
               : 'info__company-and-driver__1-driver-x'
           "
@@ -48,16 +48,16 @@
           <div
             class="mat-badge-custom"
             style="margin-bottom: 20px"
-            [matBadge]="backendData()?.noteCount"
-            [matBadgeHidden]="!backendData()?.noteCount"
+            [matBadge]="driverBackendData()?.noteCount"
+            [matBadgeHidden]="!driverBackendData()?.noteCount"
             matBadgeColor="primary"
             matBadgePosition="above after"
             matBadgeSize="medium"
           ></div>
           <div
             style="margin-bottom: 20px; margin-left: 2px"
-            [matBadge]="backendData()?.issueCount"
-            [matBadgeHidden]="!backendData()?.issueCount"
+            [matBadge]="driverBackendData()?.issueCount"
+            [matBadgeHidden]="!driverBackendData()?.issueCount"
             matBadgeColor="primary"
             matBadgePosition="above after"
             matBadgeSize="medium"

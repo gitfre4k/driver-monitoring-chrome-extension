@@ -4,13 +4,59 @@
       <h2>## {{ tenant.name }}</h2>
 
       <div class="info-tab__tenant-action">
-        <mat-icon>add_circle</mat-icon>
+        <button
+          mat-icon-button
+          matTooltip="add Report Note"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="below"
+          (click)="uploadData('Add Note', 'ChangeToOffDutyStatus')"
+        >
+          <mat-icon>add_circle</mat-icon>
+        </button>
 
-        <mat-icon>info</mat-icon>
+        <button
+          mat-icon-button
+          matTooltip="add Info Note"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="below"
+          (click)="uploadData('Add Info Note', 'ChangeToOffDutyStatus')"
+        >
+          <mat-icon>info</mat-icon>
+        </button>
 
-        <mat-icon>warning</mat-icon>
-
-        <mat-icon>new_label</mat-icon>
+        <button
+          mat-icon-button
+          matTooltip="Bring Attention to a Problem"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="below"
+          (click)="
+            uploadData(
+              'Bring Attention to a Problem',
+              'ChangeToSleeperBerthStatus',
+              monitorService.driverDailyLog()?.vehicles
+            )
+          "
+        >
+          <mat-icon>warning</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Mark Driver"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="below"
+          (click)="
+            uploadData(
+              'Add Driver Marker',
+              'EngineShutDownConventionalLocationPrecision'
+            )
+          "
+        >
+          <mat-icon>attribution</mat-icon>
+        </button>
       </div>
 
       <div class="info-tab__tenant__group">
@@ -32,7 +78,6 @@
         <span>contact phone:</span
         ><span>{{ tenant.customerContactPhone }}</span>
       </div>
-      <hr />
     }
   </div>
   @if (monitorService.driverDailyLog(); as driverDailyLog) {
@@ -47,7 +92,7 @@
           matTooltip="add Report Note"
           [matTooltipShowDelay]="500"
           [matTooltipHideDelay]="0"
-          matTooltipPosition="left"
+          matTooltipPosition="below"
           (click)="uploadData('Add Note', 'ChangeToOffDutyStatus')"
         >
           <mat-icon>add_circle</mat-icon>
@@ -58,7 +103,7 @@
           matTooltip="add Info Note"
           [matTooltipShowDelay]="500"
           [matTooltipHideDelay]="0"
-          matTooltipPosition="left"
+          matTooltipPosition="below"
           (click)="uploadData('Add Info Note', 'ChangeToOffDutyStatus')"
         >
           <mat-icon>info</mat-icon>
@@ -69,7 +114,7 @@
           matTooltip="Bring Attention to a Problem"
           [matTooltipShowDelay]="500"
           [matTooltipHideDelay]="0"
-          matTooltipPosition="left"
+          matTooltipPosition="below"
           (click)="
             uploadData(
               'Bring Attention to a Problem',
@@ -82,10 +127,10 @@
         </button>
         <button
           mat-icon-button
-          matTooltip="add Driver Marker"
+          matTooltip="Mark Driver"
           [matTooltipShowDelay]="500"
           [matTooltipHideDelay]="0"
-          matTooltipPosition="left"
+          matTooltipPosition="below"
           (click)="
             uploadData(
               'Add Driver Marker',
@@ -93,7 +138,7 @@
             )
           "
         >
-          <mat-icon>add_circle</mat-icon>
+          <mat-icon>attribution</mat-icon>
         </button>
       </div>
 

@@ -78,25 +78,24 @@ export class MonitorHeaderComponent {
   selectedTabIndex = this.extTabNavService.selectedTabIndex;
   datePicker = new FormControl<Date>(DateTime.now().toJSDate());
 
-  backendData = computed(() => {
+  driverBackendData = computed(() => {
     const backendData = this.backendService.backendData();
-    const tenantId = this.driverDailyLog.tenantId;
+    const ddle = this.monitorService.driverDailyLog();
 
-    if (!backendData || !tenantId) return null;
+    if (!backendData || !ddle) return null;
 
-    const driverNotes =
-      backendData[0][tenantId]?.drivers[this.driverDailyLog.driverId]?.notes;
-    const driverProblems =
-      backendData[1][tenantId]?.drivers[this.driverDailyLog.driverId]?.notes;
-    const driverinfo =
-      backendData[3][tenantId]?.drivers[this.driverDailyLog.driverId]?.notes;
-    const driverMarker =
-      backendData[4][tenantId]?.drivers[this.driverDailyLog.driverId]?.notes;
+    const tenantId = ddle.tenantId;
+    const driverId = ddle.driverId;
+
+    const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
+    const driverProblems = backendData[1][tenantId]?.drivers[driverId]?.notes;
+    const driverinfo = backendData[3][tenantId]?.drivers[driverId]?.notes;
+    const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
 
     return {
       noteCount: driverNotes ? Object.keys(driverNotes).length : 0,
       issueCount: driverProblems ? Object.keys(driverProblems).length : 0,
-      isMarked: driverMarker ? !!Object.keys(driverMarker).length : false,
+      isMarked: !!driverMarker,
     };
   });
 
