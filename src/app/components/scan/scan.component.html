@@ -261,18 +261,34 @@
     <div class="scan_">
       <!--////////////////////  -->
       <!-- Tools -->
-      <fieldset class="scan__tools">
-        <legend>tools</legend>
+      <div class="scan__tools">
+        <fieldset class="scan__tools__unidentified">
+          <legend>Unidentified Events</legend>
+          <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
+            Delete
+          </button>
+        </fieldset>
 
-        <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
-          delete <br />
-          Unidentified Events
-        </button>
-        <button matButton="tonal" (click)="globalSmartFix()">
-          global <br />
-          SmartFix
-        </button>
-      </fieldset>
+        <fieldset class="scan__group__smart">
+          <legend>Global Smart Fix</legend>
+          <mat-checkbox
+            style="transform: scale(0.9)"
+            [(ngModel)]="globalSmartfFixService.excludeCoDrivers"
+            ><span scan__group__smart-checkbox
+              >exclude <br />
+              co-drivers</span
+            ></mat-checkbox
+          >
+          <button
+            class="scan__log-analysis__form-submit"
+            matButton="tonal"
+            [disabled]="disableScan"
+            (click)="globalSmartFix()"
+          >
+            Smart Fix
+          </button>
+        </fieldset>
+      </div>
 
       <!--////////////////////  -->
       <!-- Druver Log Analysis -->

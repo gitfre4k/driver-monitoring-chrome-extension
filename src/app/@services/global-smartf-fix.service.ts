@@ -1,17 +1,17 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { ProgressBarService } from './progress-bar.service';
-import { AppService } from './app.service';
-import { catchError, concatMap, from, mergeMap, of, tap, toArray } from 'rxjs';
-import { DateTime } from 'luxon';
-import { SmartFixService } from './smart-fix.service';
-import { ApiService } from './api.service';
-import { DateService } from './date.service';
-import { ConstantsService } from './constants.service';
-import { AdvancedScanService } from './advanced-scan.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { inject, Injectable, signal } from "@angular/core";
+import { ProgressBarService } from "./progress-bar.service";
+import { AppService } from "./app.service";
+import { catchError, concatMap, from, mergeMap, of, tap, toArray } from "rxjs";
+import { DateTime } from "luxon";
+import { SmartFixService } from "./smart-fix.service";
+import { ApiService } from "./api.service";
+import { DateService } from "./date.service";
+import { ConstantsService } from "./constants.service";
+import { AdvancedScanService } from "./advanced-scan.service";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class GlobalSmartfFixService {
   private appService = inject(AppService);
@@ -26,7 +26,7 @@ export class GlobalSmartfFixService {
   constantService = inject(ConstantsService);
   httpLimit = this.constantService.httpLimit;
 
-  includeCoDrivers = signal(false);
+  excludeCoDrivers = signal(false);
 
   initiateGlobalSmartFix(date: string = this.dateService.analyzeDate) {
     const isReadyForSmartFix = this.advancedScanService.isReadyForSmartFix();
@@ -35,7 +35,7 @@ export class GlobalSmartfFixService {
     if (!isReadyForSmartFix) {
       this._snacBar.open(
         "Please complete Driver Log Analysis with 'remove Engine events during Driving' enabled before initiating SmartFix.",
-        'Close',
+        "Close",
         {
           duration: 5000,
         },
@@ -43,7 +43,7 @@ export class GlobalSmartfFixService {
       return of();
     } else {
       const tenants = this.appService.tenantsSignal();
-      this.progressBarService.initializeState('smartFix');
+      this.progressBarService.initializeState("smartFix");
       this.progressBarService.scanning.set(true);
 
       return from(tenants).pipe(
@@ -137,7 +137,7 @@ export class GlobalSmartfFixService {
                   );
 
                 if (analyzedCoDrivers[tenant.id]?.includes(driver.id)) {
-                  if (this.includeCoDrivers()) return preformSmartFix;
+                  if (!this.excludeCoDrivers()) return preformSmartFix;
                   else return of();
                 } else return preformSmartFix;
               }, this.httpLimit()),
