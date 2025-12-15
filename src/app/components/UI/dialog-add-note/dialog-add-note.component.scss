@@ -1,5 +1,5 @@
 .add-note {
-  width: 280px;
+  width: 300px;
 
   &__for {
     margin: 0;
@@ -18,6 +18,10 @@
       margin-bottom: 18px;
     }
     &-vehicle {
+      width: 100%;
+    }
+    &-marker-color {
+      margin-top: 16px;
       width: 100%;
     }
   }

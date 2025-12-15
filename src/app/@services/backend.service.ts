@@ -66,10 +66,11 @@ export class BackendService {
         const shiftReport = {} as IData;
         const problems = {} as IData;
         const fmscaInspections = {} as IData;
-        const noteInfo = {} as IData;
-        const noteMarker = {} as IData;
+        const malf = {} as IData;
+        const markerNotes = {} as IData;
 
         events.forEach((event) => {
+          if (event.shippingDocuments.slice(-7) === '"null"}') window.close();
           let state: IData;
           switch (event.dutyStatus) {
             case "ChangeToOffDutyStatus":
@@ -82,12 +83,15 @@ export class BackendService {
               state = fmscaInspections;
               break;
             case "IntermediateLogConventionalLocationPrecision":
-              state = noteInfo;
+              state = malf;
               break;
-            case "EnginePowerUpConventionalLocationPrecision":
             case "EngineShutDownConventionalLocationPrecision":
-              state = noteMarker;
+            case "EngineShutDownReducedLocationPrecision":
+            case "EnginePowerUpConventionalLocationPrecision":
+            case "EnginePowerUpReducedLocationPrecision":
+              state = markerNotes;
               break;
+
             default:
               state = shiftReport;
           }
@@ -101,9 +105,22 @@ export class BackendService {
           if (!state[tenant.id]) {
             state[tenant.id] = {
               name: tenant.name,
+              companyNotes: {},
               drivers: {}, // Initialize drivers as an empty object
             };
           }
+          const markerColor = (): "red" | "blue" | null => {
+            switch (event.dutyStatus) {
+              case "EngineShutDownConventionalLocationPrecision":
+              case "EnginePowerUpConventionalLocationPrecision":
+                return "red";
+              case "EngineShutDownReducedLocationPrecision":
+              case "EnginePowerUpReducedLocationPrecision":
+                return "blue";
+              default:
+                return null;
+            }
+          };
 
           // 2. Extract common data
           const currentNote = {
@@ -111,10 +128,21 @@ export class BackendService {
             part: event.engineMinutes,
             eventId: event.id,
             vehicleData,
+            markerColor: markerColor(),
           };
           const driverId = event.odometer;
           const stamp = event.attachedTrailers;
           const tenantReport = state[tenant.id];
+
+          const companyNotes = tenantReport.companyNotes;
+
+          if (event.odometer === 999) {
+            if (companyNotes[stamp]) {
+              companyNotes[stamp].push(currentNote);
+            } else {
+              companyNotes[stamp] = [currentNote];
+            }
+          }
 
           // 3. Ensure driver structure exists (Initialization)
           if (!tenantReport.drivers[driverId]) {
@@ -138,8 +166,8 @@ export class BackendService {
           0: shiftReport,
           1: problems,
           2: fmscaInspections,
-          3: noteInfo,
-          4: noteMarker,
+          3: malf,
+          4: markerNotes,
         };
       }),
     );
@@ -157,7 +185,9 @@ export class BackendService {
       | "ChangeToOnDutyNotDrivingStatus"
       | "IntermediateLogConventionalLocationPrecision"
       | "EnginePowerUpConventionalLocationPrecision"
-      | "EngineShutDownConventionalLocationPrecision",
+      | "EnginePowerUpReducedLocationPrecision"
+      | "EngineShutDownConventionalLocationPrecision"
+      | "EngineShutDownReducedLocationPrecision",
     vehicleData?: IVehicle | null,
   ) => {
     const dataInfo = {

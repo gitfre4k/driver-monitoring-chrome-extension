@@ -26,6 +26,7 @@ import { ConstantsService } from "./@services/constants.service";
 import { TaskQueueComponent } from "./components/task-queue/task-queue.component";
 import { ShiftReportComponent } from "./components/shift-report/shift-report.component";
 import { MonitorService } from "./@services/monitor.service";
+import { BackendService } from "./@services/backend.service";
 
 @Component({
   selector: "app-root",
@@ -66,6 +67,7 @@ export class AppComponent {
   private _snackBar = inject(MatSnackBar);
   private dateService = inject(DateService);
   private constantsService = inject(ConstantsService);
+  private backendService = inject(BackendService);
   private subscriptions: Subscription = new Subscription();
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
@@ -82,6 +84,7 @@ export class AppComponent {
   currentOperationStatus: string = "idle";
 
   timerSub!: Subscription;
+  timerSub2!: Subscription;
 
   isLoading = this.appService.isLoading;
   initMode = this.appService.initMode;
@@ -101,6 +104,11 @@ export class AppComponent {
     // initialize app
     this.appService.initializeAppDevMode$().subscribe();
     // this.appService.initializeApp$().subscribe();
+
+    // Auto-loadShiftReport()
+    this.timerSub = interval(60000).subscribe({
+      next: () => this.backendService.loadShiftReport(),
+    });
 
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({

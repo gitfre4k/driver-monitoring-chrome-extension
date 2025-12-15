@@ -15,3 +15,11 @@ add
  speeding red
 
 tp -> pc
+
+
+
+add exclude co-driver on smart fix
+add keybinds
+add double transformation
+add custom note
+fix vehicle issue logic

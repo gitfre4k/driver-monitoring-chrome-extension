@@ -1,22 +1,39 @@
 @if (driverDailyLog; as ddle) {
   <div class="info">
     <div class="info__company-and-driver">
-      <div class="info__company-and-driver__1">
+      <div
+        class="info__company-and-driver__1"
+        (click)="showInfo()"
+        matTooltip="Open Info"
+        matTooltipPosition="right"
+        [matTooltipShowDelay]="500"
+        [matTooltipHideDelay]="0"
+      >
         <span
-          class="info__company-and-driver__1-company"
-          matTooltip="Open Info"
-          matTooltipPosition="right"
-          (click)="showInfo()"
-          [class.info__company-and-driver__1-company-x]="
-            ['UM Expedite', 'VK', 'FREEPAL'].includes(
-              formatTenantName(ddle.companyName)
-            )
+          [class]="
+            !driverBackendData()?.companyMarkColor
+              ? 'info__company-and-driver__1-company'
+              : driverBackendData()?.companyMarkColor === 'red'
+                ? 'info__company-and-driver__1-company-x'
+                : 'info__company-and-driver__1-company-y'
           "
         >
           ## {{ formatTenantName(ddle.companyName) }}
+          <span
+            class="mat-badge-custom"
+            style="margin-bottom: 20px; margin-left: 12px"
+            [matBadge]="driverBackendData()?.companyNoteCount"
+            [matBadgeHidden]="!driverBackendData()?.companyNoteCount"
+            matBadgeColor="primary"
+            matBadgePosition="above after"
+            matBadgeSize="medium"
+          ></span>
         </span>
 
         <!-- 
+                   ['UM Expedite', 'VK', 'FREEPAL'].includes(
+              formatTenantName(ddle.companyName)
+            )
           [class]="
             ![
               'Batbayar Enkhbat',
@@ -34,15 +51,12 @@
           " -->
         <span
           [class]="
-            !driverBackendData()?.isMarked
+            !driverBackendData()?.driverMarkColor
               ? 'info__company-and-driver__1-driver-name'
-              : 'info__company-and-driver__1-driver-x'
+              : driverBackendData()?.driverMarkColor === 'red'
+                ? 'info__company-and-driver__1-driver-x'
+                : 'info__company-and-driver__1-driver-y'
           "
-          matTooltip="Copy to clipboard"
-          [matTooltipShowDelay]="500"
-          [matTooltipHideDelay]="0"
-          matTooltipPosition="below"
-          (click)="copyDriverName(ddle.driverFullName)"
         >
           {{ ddle.driverFullName }}
           <div
@@ -136,15 +150,24 @@
                   DateTime.now().setZone(ddle.homeTerminalTimeZone).toJSDate()
                 "
               />
-              <mat-datepicker #viewDatePicker></mat-datepicker>
+              <mat-datepicker
+                [dateClass]="dateClass"
+                #viewDatePicker
+              ></mat-datepicker>
             </mat-form-field>
 
             <div
               class="info__nav__date"
+              [class.malf]="date && isMalfDate(date)"
               (click)="viewDatePicker.open()"
+              [matTooltip]="
+                date && isMalfDate(date) ? 'driving on paper logs' : null
+              "
               matRipple
             >
-              <span> {{ date | date: "mediumDate" }} </span>
+              <span>
+                {{ date | date: "mediumDate" }}
+              </span>
             </div>
           </div>
           <button

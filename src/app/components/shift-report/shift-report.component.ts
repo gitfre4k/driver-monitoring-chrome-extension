@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from "@angular/core";
 import { BackendService } from "../../@services/backend.service";
-import { KeyValuePipe } from "@angular/common";
+import { DatePipe, KeyValuePipe } from "@angular/common";
 import { ITenant } from "../../interfaces";
 import { DateService } from "../../@services/date.service";
 import { UrlService } from "../../@services/url.service";
@@ -19,6 +19,7 @@ import { DateAgoPipe } from "../../pipes/date-ago.pipe";
 import {
   getNote,
   parseDOTInspection,
+  parseMalf,
   sortArrayByPart,
 } from "../../helpers/backend.helpers";
 
@@ -32,6 +33,7 @@ import {
     MatProgressSpinnerModule,
     KeyValuePipe,
     MatPaginatorModule,
+    DatePipe,
     DateAgoPipe,
   ],
   templateUrl: "./shift-report.component.html",
@@ -52,7 +54,7 @@ export class ShiftReportComponent {
     0: "Shift Report",
     1: "Problems",
     2: "FMCSA Inspections",
-    3: "Info Notes",
+    3: "Malfunction Letters",
     4: "Marker Notes",
   };
   page = signal(0);
@@ -67,6 +69,7 @@ export class ShiftReportComponent {
   sortArrayByPart = sortArrayByPart;
   getNote = getNote;
   parseDOTInspection = parseDOTInspection;
+  parseMalf = parseMalf;
 
   constructor() {}
 

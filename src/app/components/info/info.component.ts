@@ -74,7 +74,22 @@ export class InfoComponent {
     const tenantId = this.appService.currentTenant()?.id;
     const driverId = this.monitorService.driverDailyLog()?.driverId;
 
-    if (!backendData || !tenantId || !driverId) return null;
+    if (!backendData || !tenantId) return null;
+
+    const companyNotes = backendData[0][tenantId]?.companyNotes;
+    const companyMarkers = backendData[4][tenantId]?.companyNotes;
+
+    if (!driverId) {
+      return {
+        driverNotes: null,
+        problems: null,
+        fmscaInspections: null,
+        infoNotes: null,
+        driverMarker: null,
+        companyNotes,
+        companyMarkers,
+      };
+    }
 
     const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
     const problems = backendData[1][tenantId]?.drivers[driverId]?.notes;
@@ -82,7 +97,15 @@ export class InfoComponent {
     const infoNotes = backendData[3][tenantId]?.drivers[driverId]?.notes;
     const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
 
-    return { driverNotes, problems, fmscaInspections, infoNotes, driverMarker };
+    return {
+      driverNotes,
+      problems,
+      fmscaInspections,
+      infoNotes,
+      driverMarker,
+      companyNotes,
+      companyMarkers,
+    };
   };
 
   hideInfo() {
@@ -103,7 +126,25 @@ export class InfoComponent {
     const tenant = this.appService.currentTenant();
     const driver = this.monitorService.driverDailyLog();
 
-    if (!tenant || !driver) return;
+    if (!tenant) return;
+
+    if (
+      (eventTypeCode === "ChangeToOffDutyStatus" &&
+        title === "Add Company Note") ||
+      (eventTypeCode === "EnginePowerUpConventionalLocationPrecision" &&
+        title === "Add Company Marker")
+    ) {
+      return this.dialog.open(DialogAddNoteComponent, {
+        data: {
+          tenant,
+          driver: null,
+          eventTypeCode,
+          title,
+        },
+      });
+    }
+
+    if (!driver) return;
 
     return this.dialog.open(DialogAddNoteComponent, {
       data: {
@@ -136,6 +177,11 @@ export class InfoComponent {
         this.backendService.loadShiftReport();
       },
     });
+  }
+
+  isEmpty(obj: any): boolean {
+    if (!obj) return true;
+    return Object.keys(obj).length === 0;
   }
 
   getLogs = () => {

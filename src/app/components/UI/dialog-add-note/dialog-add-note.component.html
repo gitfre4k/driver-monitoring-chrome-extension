@@ -25,10 +25,74 @@
               }
             </mat-select>
           </mat-form-field>
+        }
+
+        @if (
+          [
+            "EngineShutDownConventionalLocationPrecision",
+            "EnginePowerUpConventionalLocationPrecision",
+          ].includes(data.eventTypeCode)
+        ) {
+          <mat-form-field class="add-note__for-marker-color">
+            <mat-label>Marker Color</mat-label>
+            <mat-select [(ngModel)]="selectedMarkerColor">
+              <mat-option
+                [value]="
+                  data.eventTypeCode.includes('ShutDown')
+                    ? 'EngineShutDownReducedLocationPrecision'
+                    : 'EnginePowerUpReducedLocationPrecision'
+                "
+                >Blue</mat-option
+              >
+              <mat-option
+                [value]="
+                  data.eventTypeCode.includes('ShutDown')
+                    ? 'EngineShutDownConventionalLocationPrecision'
+                    : 'EnginePowerUpConventionalLocationPrecision'
+                "
+                >Red</mat-option
+              >
+            </mat-select>
+          </mat-form-field>
         } @else {
           <span class="add-note__for-driver">{{
             data.driver?.driverFullName
           }}</span>
+
+          @if (
+            data.eventTypeCode ===
+            "IntermediateLogConventionalLocationPrecision"
+          ) {
+            <!--  -->
+            <!--  -->
+            <mat-form-field>
+              <mat-label>Enter a date range</mat-label>
+              <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+                <input
+                  matStartDate
+                  formControlName="start"
+                  placeholder="Start date"
+                />
+                <input
+                  matEndDate
+                  formControlName="end"
+                  placeholder="End date"
+                />
+              </mat-date-range-input>
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-date-range-picker #picker></mat-date-range-picker>
+
+              @if (range.controls.start.hasError("matStartDateInvalid")) {
+                <mat-error>Invalid start date</mat-error>
+              }
+              @if (range.controls.end.hasError("matEndDateInvalid")) {
+                <mat-error>Invalid end date</mat-error>
+              }
+            </mat-form-field>
+          }
         }
       </div>
 
@@ -36,10 +100,11 @@
         <mat-label>Note</mat-label>
         <textarea
           matInput
-          placeholder="Ex. Kreten vozi diskonektovan, ja ga pjesmom zovem a on sliku svoju ljubi..."
+          placeholder="..."
           [(ngModel)]="note"
           cdkFocusInitial
           (keydown.enter)="onAddClick(data.eventTypeCode, $event)"
+          [disabled]="isPosting()"
         ></textarea>
       </mat-form-field>
     </mat-dialog-content>
@@ -50,7 +115,17 @@
       <button
         matButton
         (click)="onAddClick(data.eventTypeCode)"
-        [disabled]="!note() || isPosting()"
+        [disabled]="
+          !note().trim() ||
+          isPosting() ||
+          (data.eventTypeCode ===
+            'EngineShutDownConventionalLocationPrecision' &&
+            !selectedMarkerColor()) ||
+          (isVehicleIssue() && !selectedVehicle()) ||
+          (data.eventTypeCode ===
+            'IntermediateLogConventionalLocationPrecision' &&
+            rangeStatusSignal() !== 'VALID')
+        "
       >
         @if (isPosting()) {
           <mat-spinner [diameter]="17"></mat-spinner>

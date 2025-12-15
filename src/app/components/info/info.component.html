@@ -10,52 +10,26 @@
           [matTooltipShowDelay]="500"
           [matTooltipHideDelay]="0"
           matTooltipPosition="below"
-          (click)="uploadData('Add Note', 'ChangeToOffDutyStatus')"
+          (click)="uploadData('Add Company Note', 'ChangeToOffDutyStatus')"
         >
           <mat-icon>add_circle</mat-icon>
         </button>
 
         <button
           mat-icon-button
-          matTooltip="add Info Note"
+          matTooltip="Mark Company"
           [matTooltipShowDelay]="500"
           [matTooltipHideDelay]="0"
           matTooltipPosition="below"
-          (click)="uploadData('Add Info Note', 'ChangeToOffDutyStatus')"
-        >
-          <mat-icon>info</mat-icon>
-        </button>
-
-        <button
-          mat-icon-button
-          matTooltip="Bring Attention to a Problem"
-          [matTooltipShowDelay]="500"
-          [matTooltipHideDelay]="0"
-          matTooltipPosition="below"
+          [disabled]="!isEmpty(backendData()?.companyMarkers)"
           (click)="
             uploadData(
-              'Bring Attention to a Problem',
-              'ChangeToSleeperBerthStatus',
-              monitorService.driverDailyLog()?.vehicles
+              'Add Company Marker',
+              'EnginePowerUpConventionalLocationPrecision'
             )
           "
         >
-          <mat-icon>warning</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          matTooltip="Mark Driver"
-          [matTooltipShowDelay]="500"
-          [matTooltipHideDelay]="0"
-          matTooltipPosition="below"
-          (click)="
-            uploadData(
-              'Add Driver Marker',
-              'EngineShutDownConventionalLocationPrecision'
-            )
-          "
-        >
-          <mat-icon>attribution</mat-icon>
+          <mat-icon>copyright</mat-icon>
         </button>
       </div>
 
@@ -80,6 +54,73 @@
       </div>
     }
   </div>
+
+  @if (backendData(); as data) {
+    <div class="info-tab__log">
+      @if (
+        !isEmpty(data.companyMarkers) && data.companyMarkers;
+        as companyMarkers
+      ) {
+        <div class="info-tab__log__data__marker">
+          <span class="info-tab__log__data__marker__title">*** marker ***</span>
+          @for (singleNote of companyMarkers | keyvalue; track singleNote.key) {
+            <div class="info-tab__log__data__marker__note">
+              <span class="info-tab__log__data__marker__note__text">
+                {{ getNote(singleNote.value) }}
+                <br />
+                <span class="info-tab__log__data__marker__note-ts">
+                  {{ singleNote.key | dateAgo }}
+                </span>
+              </span>
+              <a
+                mat-icon-button
+                matTooltip="Done"
+                class="info-tab__log__data__marker__note__delete"
+                (click)="deleteNote(singleNote.value, singleNote.key)"
+                [disabled]="backendService.isDeletingNote()"
+              >
+                @if (singleNote.key === backendService.isDeletingNote()) {
+                  <mat-spinner [diameter]="24"></mat-spinner>
+                } @else {
+                  <span class="material-icons"> clear </span>
+                }
+              </a>
+            </div>
+          }
+        </div>
+      }
+      @if (!isEmpty(data.companyNotes) && data.companyNotes; as companyNotes) {
+        <div class="info-tab__log__data__marker">
+          <span class="info-tab__log__data__marker__title">report notes</span>
+          @for (singleNote of companyNotes | keyvalue; track singleNote.key) {
+            <div class="info-tab__log__data__marker__note">
+              <span class="info-tab__log__data__marker__note__text">
+                {{ getNote(singleNote.value) }}
+                <br />
+                <span class="info-tab__log__data__marker__note-ts">
+                  {{ singleNote.key | dateAgo }}
+                </span>
+              </span>
+              <a
+                mat-icon-button
+                matTooltip="Done"
+                class="info-tab__log__data__marker__note__delete"
+                (click)="deleteNote(singleNote.value, singleNote.key)"
+                [disabled]="backendService.isDeletingNote()"
+              >
+                @if (singleNote.key === backendService.isDeletingNote()) {
+                  <mat-spinner [diameter]="24"></mat-spinner>
+                } @else {
+                  <span class="material-icons"> clear </span>
+                }
+              </a>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
   @if (monitorService.driverDailyLog(); as driverDailyLog) {
     <div class="info-tab__info">
       <h2 class="info-tab__info__driver-name">
@@ -100,17 +141,6 @@
 
         <button
           mat-icon-button
-          matTooltip="add Info Note"
-          [matTooltipShowDelay]="500"
-          [matTooltipHideDelay]="0"
-          matTooltipPosition="below"
-          (click)="uploadData('Add Info Note', 'ChangeToOffDutyStatus')"
-        >
-          <mat-icon>info</mat-icon>
-        </button>
-
-        <button
-          mat-icon-button
           matTooltip="Bring Attention to a Problem"
           [matTooltipShowDelay]="500"
           [matTooltipHideDelay]="0"
@@ -125,12 +155,31 @@
         >
           <mat-icon>warning</mat-icon>
         </button>
+
+        <button
+          mat-icon-button
+          matTooltip="report issued Malf. Letter"
+          [matTooltipShowDelay]="500"
+          [matTooltipHideDelay]="0"
+          matTooltipPosition="below"
+          (click)="
+            uploadData(
+              'report issued Malf. Letter',
+              'IntermediateLogConventionalLocationPrecision',
+              monitorService.driverDailyLog()?.vehicles
+            )
+          "
+        >
+          <mat-icon>mail_asterisk</mat-icon>
+        </button>
+
         <button
           mat-icon-button
           matTooltip="Mark Driver"
           [matTooltipShowDelay]="500"
           [matTooltipHideDelay]="0"
           matTooltipPosition="below"
+          [disabled]="backendData()?.driverMarker"
           (click)="
             uploadData(
               'Add Driver Marker',
@@ -210,6 +259,10 @@
               <div class="info-tab__log__data__marker__note">
                 <span class="info-tab__log__data__marker__note__text">
                   {{ getNote(singleNote.value) }}
+                  <br />
+                  <span class="info-tab__log__data__marker__note-ts">
+                    {{ singleNote.key | dateAgo }}
+                  </span>
                 </span>
                 <a
                   mat-icon-button
@@ -249,6 +302,11 @@
                     <br />
                   }
                   {{ getNote(singleNote.value) }}
+
+                  <br />
+                  <span class="info-tab__log__data__marker__note-ts">
+                    {{ singleNote.key | dateAgo }}
+                  </span>
                 </span>
                 <a
                   mat-icon-button
@@ -278,6 +336,10 @@
               <div class="info-tab__log__data__notes__note">
                 <span class="info-tab__log__data__notes__note__text">
                   {{ getNote(singleNote.value) }}
+                  <br />
+                  <span class="info-tab__log__data__marker__note-ts">
+                    {{ singleNote.key | dateAgo }}
+                  </span>
                 </span>
                 <a
                   mat-icon-button

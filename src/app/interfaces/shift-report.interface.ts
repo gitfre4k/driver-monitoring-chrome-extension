@@ -1,4 +1,4 @@
-import { IVehicle } from './driver-daily-log-events.interface';
+import { IVehicle } from "./driver-daily-log-events.interface";
 
 export interface IBackendData {
   [key: number]: IData;
@@ -8,6 +8,7 @@ export interface IData {
   [tenantId: string]: {
     name: string;
     drivers: IDataDriver;
+    companyNotes: IDataDriverNotes;
   };
 }
 export interface IDataDriver {
@@ -23,5 +24,6 @@ export interface IDataDriverNotes {
     part: number;
     eventId: number;
     vehicleData?: IVehicle | undefined | null;
+    markerColor?: "red" | "blue" | null;
   }[];
 }

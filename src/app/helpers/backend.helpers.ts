@@ -35,3 +35,7 @@ export const parseDOTInspection = (
 
   return JSON.parse(message) as IDriverFmcsaInspection;
 };
+
+export const parseMalf = (note: string) => {
+  return JSON.parse(note) as { start: string; end: string; note: string };
+};

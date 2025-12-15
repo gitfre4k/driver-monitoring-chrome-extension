@@ -7,6 +7,7 @@ import {
   inject,
   Input,
   Output,
+  ViewEncapsulation,
 } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -14,6 +15,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatButtonModule } from "@angular/material/button";
 import {
+  MatCalendarCellClassFunction,
   MatDatepickerInputEvent,
   MatDatepickerModule,
 } from "@angular/material/datepicker";
@@ -33,10 +35,12 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { ProgressBarService } from "../../../@services/progress-bar.service";
 import { MatBadgeModule } from "@angular/material/badge";
 import { BackendService } from "../../../@services/backend.service";
+import { getNote, parseMalf } from "../../../helpers/backend.helpers";
 
 @Component({
   selector: "app-monitor-header",
   providers: [provideNativeDateAdapter()],
+  encapsulation: ViewEncapsulation.None,
   imports: [
     MatIconModule,
     MatButtonModule,
@@ -89,17 +93,135 @@ export class MonitorHeaderComponent {
 
     const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
     const driverProblems = backendData[1][tenantId]?.drivers[driverId]?.notes;
-    const driverinfo = backendData[3][tenantId]?.drivers[driverId]?.notes;
     const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
+    const driverMarkColor = driverMarker
+      ? Object.values(driverMarker)?.[0]?.[0]?.markerColor
+      : null;
+
+    const malf = backendData[3][tenantId]?.drivers[driverId]?.notes;
+    let malfs: {
+      start: string;
+      end: string;
+      note: string;
+    }[] = [];
+    if (malf) {
+      for (let stamp in malf) {
+        malfs.push(parseMalf(getNote(malf[stamp])));
+      }
+    }
+
+    const companyNotes = backendData[0][tenantId]?.companyNotes;
+    const companyMarker = backendData[4][tenantId]?.companyNotes;
+    const companyMarkColor = companyMarker
+      ? Object.values(companyMarker)?.[0]?.[0]?.markerColor
+      : null;
 
     return {
       noteCount: driverNotes ? Object.keys(driverNotes).length : 0,
+      companyNoteCount: companyNotes ? Object.keys(companyNotes).length : 0,
       issueCount: driverProblems ? Object.keys(driverProblems).length : 0,
-      isMarked: !!driverMarker,
+      driverMarkColor: driverMarker ? driverMarkColor : null,
+      companyMarkColor: companyMarker ? companyMarkColor : null,
+      malfs,
     };
   });
 
   formatTenantName = formatTenantName;
+
+  malfDates = computed(() => {
+    const data = this.driverBackendData();
+    if (!data) return [{ startDateString: "", endDateString: "" }];
+
+    const malfDates: { startDateString: string; endDateString: string }[] = [];
+    data.malfs.forEach((malf) => {
+      const malfDate = { startDateString: malf.start, endDateString: malf.end };
+      malfDates.push(malfDate);
+    });
+    return malfDates;
+  });
+
+  isMalfDate(date: string) {
+    let isMalfDate = false;
+
+    const malfDates = this.malfDates();
+    malfDates.forEach((malf) => {
+      const startDate = new Date(malf.startDateString);
+      const endDate = new Date(malf.endDateString);
+      const cellDate = new Date(date);
+
+      const normalizedCellDate = new Date(
+        cellDate.getFullYear(),
+        cellDate.getMonth(),
+        cellDate.getDate(),
+      ).getTime();
+
+      const normalizedStartDate = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+      ).getTime();
+
+      const normalizedEndDate = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate(),
+      ).getTime();
+
+      if (
+        normalizedCellDate >= normalizedStartDate &&
+        normalizedCellDate <= normalizedEndDate
+      ) {
+        isMalfDate = true;
+      }
+    });
+
+    return isMalfDate;
+  }
+
+  dateClass: MatCalendarCellClassFunction<Date> = (cellDate: Date, view) => {
+    if (view !== "month") {
+      return "";
+    }
+
+    const malfPeriods = this.malfDates();
+
+    const normalizedCellDate = new Date(
+      cellDate.getFullYear(),
+      cellDate.getMonth(),
+      cellDate.getDate(),
+    ).getTime();
+
+    for (const period of malfPeriods) {
+      if (!period.startDateString || !period.endDateString) {
+        continue;
+      }
+
+      const startDate = new Date(period.startDateString);
+      const endDate = new Date(period.endDateString);
+
+      const normalizedStartDate = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+      ).getTime();
+
+      const normalizedEndDate = new Date(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate(),
+      ).getTime();
+
+      if (
+        normalizedCellDate >= normalizedStartDate &&
+        normalizedCellDate <= normalizedEndDate
+      ) {
+        return "example-custom-date-class";
+      }
+    }
+
+    // 5. If no period matched, return an empty string
+    return "";
+  };
 
   until30minBreak() {
     const mustHaveBreakBy = this.driverDailyLog.hosDetails?.mustHaveBreakBy;

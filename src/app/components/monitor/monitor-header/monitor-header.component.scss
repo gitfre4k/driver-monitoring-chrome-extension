@@ -16,23 +16,30 @@
       display: flex;
       text-align: left;
       flex-direction: column;
-      padding-left: 8px;
+      padding-left: 4px;
+      margin-left: 4px;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.07);
+      width: calc(100vw - 128px);
       &-company {
         font-size: 22px;
-        user-select: text;
-        &-x {
+        &-x,
+        &-y {
+          font-size: 22px;
           line-height: 25px;
-          letter-spacing: 5px;
+          letter-spacing: 1px;
           font-weight: 800;
           text-transform: uppercase;
+        }
+        &-x {
           color: red;
         }
+        &-y {
+          color: rgb(126, 133, 231);
+          text-decoration: underline;
+        }
       }
-      &-company:hover {
-        cursor: pointer;
-        border-radius: 5px;
-        background-color: rgba(255, 255, 255, 0.07);
-      }
+
       &-driver {
         &-name {
           font-size: 17px;
@@ -41,7 +48,8 @@
           display: flex;
           gap: 18px;
         }
-        &-x {
+        &-x,
+        &-y {
           display: flex;
           gap: 18px;
           padding-left: 6px;
@@ -50,18 +58,24 @@
           letter-spacing: 1px;
           font-weight: 800;
           text-transform: uppercase;
+        }
+        &-x {
           color: red;
         }
+        &-y {
+          color: rgb(126, 133, 231);
+          text-decoration: underline;
+        }
       }
-      &-driver-name:hover,
-      &-driver-x:hover {
-        cursor: pointer;
-        border-radius: 5px;
-        background-color: rgba(255, 255, 255, 0.07);
-      }
+
       &-vehicles {
         margin-left: 8px;
       }
+    }
+    &__1:hover {
+      cursor: pointer;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.1);
     }
     &__2 {
       display: flex;
@@ -84,6 +98,7 @@
       display: flex;
       justify-content: center;
       width: 84px;
+
       span {
         padding: 12px 6px;
         border-radius: 5px;
@@ -112,4 +127,11 @@
     background: #343effcc;
     color: white;
   }
+}
+.malf {
+  color: yellow;
+}
+button.example-custom-date-class {
+  background: orange;
+  border-radius: 100%;
 }

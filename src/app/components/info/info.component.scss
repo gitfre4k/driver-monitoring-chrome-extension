@@ -93,7 +93,7 @@
     align-items: center;
     overflow: hidden;
     overflow-y: overlay;
-    margin: 16px 0;
+    margin: 8px 0;
 
     &__data {
       &__marker,
@@ -103,7 +103,7 @@
         justify-content: space-between;
         align-items: flex-start;
         flex-direction: column;
-        margin-bottom: 16px;
+        margin-bottom: 8px;
         border-radius: 8px;
         background-color: #f1f1f105;
         padding: 8px;
@@ -127,6 +127,7 @@
             margin-left: 20px;
             padding: 4px;
             font-size: 13px;
+
             &-truck {
               font-size: 15px;
               font-weight: 800;
@@ -137,6 +138,12 @@
               }
             }
           }
+
+          &-ts {
+            font-size: 10px;
+            margin-top: 8px;
+          }
+
           &__delete {
             padding-right: 8px;
           }
@@ -149,11 +156,11 @@
         }
       }
 
-      &__marker {
-        &__title {
-          color: #ff6666b4;
-        }
-      }
+      // &__marker {
+      //   &__title {
+      //     color: rgb(255, 255, 255);
+      //   }
+      // }
     }
   }
 
