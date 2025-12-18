@@ -8,37 +8,36 @@ import {
   Input,
   Output,
   ViewEncapsulation,
-} from "@angular/core";
-import { DatePipe } from "@angular/common";
-import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
+} from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatButtonModule } from "@angular/material/button";
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MatCalendarCellClassFunction,
   MatDatepickerInputEvent,
   MatDatepickerModule,
-} from "@angular/material/datepicker";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatRipple, provideNativeDateAdapter } from "@angular/material/core";
+} from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatRipple, provideNativeDateAdapter } from '@angular/material/core';
 
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon';
 
-import { MonitorService } from "../../../@services/monitor.service";
-import { formatTenantName } from "../../../helpers/monitor.helpers";
-import { ExtensionTabNavigationService } from "../../../@services/extension-tab-navigation.service";
-import { IDriverDailyLogEvents } from "../../../interfaces/driver-daily-log-events.interface";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { ProgressBarService } from "../../../@services/progress-bar.service";
-import { MatBadgeModule } from "@angular/material/badge";
-import { BackendService } from "../../../@services/backend.service";
-import { getNote, parseMalf } from "../../../helpers/backend.helpers";
+import { MonitorService } from '../../../@services/monitor.service';
+import { formatTenantName } from '../../../helpers/monitor.helpers';
+import { ExtensionTabNavigationService } from '../../../@services/extension-tab-navigation.service';
+import { IDriverDailyLogEvents } from '../../../interfaces/driver-daily-log-events.interface';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatBadgeModule } from '@angular/material/badge';
+import { BackendService } from '../../../@services/backend.service';
+import { getNote, parseMalf } from '../../../helpers/backend.helpers';
 
 @Component({
-  selector: "app-monitor-header",
+  selector: 'app-monitor-header',
   providers: [provideNativeDateAdapter()],
   encapsulation: ViewEncapsulation.None,
   imports: [
@@ -55,12 +54,12 @@ import { getNote, parseMalf } from "../../../helpers/backend.helpers";
     MatTooltipModule,
     MatBadgeModule,
   ],
-  templateUrl: "./monitor-header.component.html",
-  styleUrl: "./monitor-header.component.scss",
+  templateUrl: './monitor-header.component.html',
+  styleUrl: './monitor-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonitorHeaderComponent {
-  @HostListener("window:keydown", ["$event"])
+  @HostListener('window:keydown', ['$event'])
   handleWindowKeyboardEvent(event: KeyboardEvent) {
     this.handleKeyboardEvent(event);
   }
@@ -71,7 +70,6 @@ export class MonitorHeaderComponent {
 
   private monitorService = inject(MonitorService);
   private extTabNavService = inject(ExtensionTabNavigationService);
-  private progressBarService = inject(ProgressBarService);
   private backendService = inject(BackendService);
   private _snackBar = inject(MatSnackBar);
 
@@ -130,7 +128,7 @@ export class MonitorHeaderComponent {
 
   malfDates = computed(() => {
     const data = this.driverBackendData();
-    if (!data) return [{ startDateString: "", endDateString: "" }];
+    if (!data) return [{ startDateString: '', endDateString: '' }];
 
     const malfDates: { startDateString: string; endDateString: string }[] = [];
     data.malfs.forEach((malf) => {
@@ -179,8 +177,8 @@ export class MonitorHeaderComponent {
   }
 
   dateClass: MatCalendarCellClassFunction<Date> = (cellDate: Date, view) => {
-    if (view !== "month") {
-      return "";
+    if (view !== 'month') {
+      return '';
     }
 
     const malfPeriods = this.malfDates();
@@ -215,37 +213,37 @@ export class MonitorHeaderComponent {
         normalizedCellDate >= normalizedStartDate &&
         normalizedCellDate <= normalizedEndDate
       ) {
-        return "example-custom-date-class";
+        return 'example-custom-date-class';
       }
     }
 
     // 5. If no period matched, return an empty string
-    return "";
+    return '';
   };
 
   until30minBreak() {
     const mustHaveBreakBy = this.driverDailyLog.hosDetails?.mustHaveBreakBy;
     if (!mustHaveBreakBy) return null;
 
-    const untilViolation = DateTime.fromISO(mustHaveBreakBy, { zone: "utc" });
+    const untilViolation = DateTime.fromISO(mustHaveBreakBy, { zone: 'utc' });
     const now = DateTime.now();
 
     const duration = untilViolation.diff(now, [
-      "hours",
-      "minutes",
-      "seconds",
-      "milliseconds",
+      'hours',
+      'minutes',
+      'seconds',
+      'milliseconds',
     ]);
-    const ms = untilViolation.diff(now, "milliseconds");
+    const ms = untilViolation.diff(now, 'milliseconds');
 
-    const time = duration.toFormat("m");
-    const seconds = ms.as("seconds");
+    const time = duration.toFormat('m');
+    const seconds = ms.as('seconds');
 
     return { time, seconds };
   }
 
   trimLeadingZero(time: string) {
-    if (time && time.charAt(0) === "0") {
+    if (time && time.charAt(0) === '0') {
       return time.slice(1);
     }
     return time;
@@ -262,13 +260,13 @@ export class MonitorHeaderComponent {
       !this.monitorService.showUpdateEvent()
     ) {
       switch (event.key) {
-        case "ArrowLeft":
+        case 'ArrowLeft':
           if (this.driverDailyLog.previousLogDate) {
             this.onChangeLogDate(this.driverDailyLog.previousLogDate);
             event.preventDefault();
           }
           break;
-        case "ArrowRight":
+        case 'ArrowRight':
           if (this.driverDailyLog.nextLogDate) {
             this.onChangeLogDate(this.driverDailyLog.nextLogDate);
             event.preventDefault();
@@ -283,11 +281,11 @@ export class MonitorHeaderComponent {
 
   copyDriverName(name: string) {
     navigator.clipboard.writeText(name);
-    this._snackBar.open(`Copied: ${name}`, "OK", { duration: 1500 });
+    this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
   }
 
   showInfo() {
-    this.progressBarService.showInfo.set(true);
+    this.extTabNavService.selectedTabIndex.set(3);
   }
 
   onDateChange(event: MatDatepickerInputEvent<Date>) {

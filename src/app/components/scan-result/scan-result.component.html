@@ -889,6 +889,7 @@
                                 >
 
                                 <span class="error-msg">
+                                  {{ event.isLocked ? "[LOCKED] " : "" }}
                                   {{
                                     event.isTeleport > 0
                                       ? "teleport [ " +
@@ -1010,6 +1011,7 @@
                                 >
 
                                 <span class="error-msg">
+                                  {{ event.isLocked ? "[LOCKED] " : "" }}
                                   location mismatch
                                 </span>
                               </li>
@@ -1126,7 +1128,8 @@
                                     message of event.errorMessages;
                                     track $index
                                   ) {
-                                    {{ message }} <br />
+                                    {{ event.isLocked ? "[LOCKED] " : ""
+                                    }}{{ message }} <br />
                                   }
                                 </span>
                               </li>
@@ -1242,7 +1245,8 @@
                                 >
 
                                 <span class="error-msg">
-                                  {{
+                                  {{ event.isLocked ? "[LOCKED] " : ""
+                                  }}{{
                                     event.onDutyDuration * 1000
                                       | date: "H:mm" : "UTC"
                                   }}
@@ -1364,6 +1368,7 @@
                                     message of event.warningMessages;
                                     track $index
                                   ) {
+                                    {{ event.isLocked ? "[LOCKED] " : "" }}
                                     {{ message }} <br />
                                   }
                                 </span>
@@ -1480,6 +1485,7 @@
                                 >
 
                                 <span class="error-msg">
+                                  {{ event.isLocked ? "[LOCKED] " : "" }}
                                   potential unrecorded driving
                                 </span>
                               </li>
@@ -1599,6 +1605,7 @@
                                     message of event.errorMessages;
                                     track $index
                                   ) {
+                                    {{ event.isLocked ? "[LOCKED] " : "" }}
                                     {{ message }} <br />
                                   }
                                 </span>
@@ -1711,7 +1718,9 @@
                                   >{{ event.statusName }}</span
                                 >
 
-                                <span class="error-msg"></span>
+                                <span class="error-msg">{{
+                                  event.isLocked ? "[LOCKED] " : ""
+                                }}</span>
                               </li>
                             }
                           }
@@ -1822,6 +1831,7 @@
                                 <span> </span>
 
                                 <span class="error-msg">
+                                  {{ event.isLocked ? "[LOCKED] " : "" }}
                                   {{
                                     event.engStatusCount
                                       ? `Engine status count: ${event.engStatusCount}`
@@ -1855,8 +1865,8 @@
 
       <!--  -->
       <!-- high elapsed EH  -->
-      @if (progressBarService.highEngineHours(); as highEngineHours) {
-        @if (!isEmpty(highEngineHours)) {
+      @if (filteredHighEngHrs(); as highEngineHours) {
+        @if (!isEmpty(progressBarService.highEngineHours())) {
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -1873,11 +1883,16 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <div class="scan-results__content__result">
-              @if (isEmpty(highEngineHours)) {
+              @if (isEmpty(progressBarService.highEngineHours())) {
                 <div class="scan-results__content__result__empty">
                   No high elapsed Engine Hours events.
                 </div>
               } @else {
+                <mat-checkbox
+                  class="scan-results__content__result__checkbox"
+                  [(ngModel)]="excludeCoDriversHighEngHrs"
+                  >Exclude Co-Drivers</mat-checkbox
+                >
                 <ul class="list-of-tenants">
                   @for (
                     company of highEngineHours | keyvalue;
@@ -1951,6 +1966,7 @@
                                 >
 
                                 <span class="error-msg">
+                                  {{ event.isLocked ? "[LOCKED] " : "" }}
                                   elapsed Engine Hours:
                                   {{ event.elapsedEngineHours }}
                                 </span>
@@ -2066,7 +2082,10 @@
                                   >{{ event.statusName }}</span
                                 >
 
-                                <span class="error-msg"> manual origin </span>
+                                <span class="error-msg"
+                                  >{{ event.isLocked ? "[LOCKED] " : "" }}
+                                  manual origin
+                                </span>
                               </li>
                             }
                           }
@@ -2180,7 +2199,8 @@
                                 >
 
                                 <span class="error-msg">
-                                  total Engine Hours: {{ event.engineMinutes }}
+                                  {{ event.isLocked ? "[LOCKED] " : "" }} total
+                                  Engine Hours: {{ event.engineMinutes }}
                                 </span>
                               </li>
                             }
@@ -2286,6 +2306,7 @@
                               }}</span>
 
                               <span class="error-msg note">
+                                {{ event.isLocked ? "[LOCKED] " : "" }}
                                 {{ event.notes }}
                               </span>
 
@@ -2412,7 +2433,8 @@
                                 >
 
                                 <span class="error-msg">
-                                  total Engine Hours: {{ event.engineMinutes }}
+                                  {{ event.isLocked ? "[LOCKED] " : "" }} total
+                                  Engine Hours: {{ event.engineMinutes }}
                                 </span>
                               </li>
                             }

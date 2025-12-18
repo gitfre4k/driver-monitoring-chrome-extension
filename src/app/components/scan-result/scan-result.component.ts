@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -31,6 +31,7 @@ import {
 import { BottomSheetComponent } from '../UI/bottom-sheet/bottom-sheet.component';
 import { getStatusDuration } from '../../helpers/app.helpers';
 import { ConstantsService } from '../../@services/constants.service';
+import { AdvancedScanService } from '../../@services/advanced-scan.service';
 
 @Component({
   selector: 'app-scan-result',
@@ -60,6 +61,7 @@ import { ConstantsService } from '../../@services/constants.service';
 export class ScanResultComponent {
   private _snackBar = inject(MatSnackBar);
   private urlService = inject(UrlService);
+  private advancedScanService = inject(AdvancedScanService);
   progressBarService = inject(ProgressBarService);
   extensionNavigation = inject(ExtensionTabNavigationService);
   dateService = inject(DateService);
@@ -80,6 +82,40 @@ export class ScanResultComponent {
   inspectionsCount = this.progressBarService.totalDCount;
 
   getStatusDuration = getStatusDuration;
+
+  excludeCoDriversHighEngHrs = signal(false);
+  filteredHighEngHrs = computed(() => {
+    const engHrs = this.progressBarService.highEngineHours();
+    const excludeCoDriversHighEngHrs = this.excludeCoDriversHighEngHrs();
+
+    const analyzedCoDrivers = this.advancedScanService.analyzedCoDrivers();
+
+    if (!excludeCoDriversHighEngHrs) return engHrs;
+    else {
+      const filteredHighEngHrs = {} as IScanResult;
+      for (let company in engHrs) {
+        engHrs[company].forEach((driver) => {
+          const filteredEvents = driver.events.filter(
+            (event) =>
+              !analyzedCoDrivers[event.tenant.id]?.includes(event.driver.id),
+          );
+          if (filteredEvents.length) {
+            if (filteredHighEngHrs[company])
+              filteredHighEngHrs[company].push({
+                driverName: driver.driverName,
+                events: filteredEvents,
+              });
+            else
+              filteredHighEngHrs[company] = [
+                { driverName: driver.driverName, events: filteredEvents },
+              ];
+          }
+        });
+      }
+
+      return filteredHighEngHrs;
+    }
+  });
 
   constructor() {}
 

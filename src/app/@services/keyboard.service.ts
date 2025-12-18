@@ -20,9 +20,21 @@ export class KeyboardService {
   readonly dialog = inject(MatDialog);
 
   ctrlPressed = signal(false);
+  isDeleteDialogOpen = signal(false);
 
   constructor() {
     window.addEventListener('keydown', (event) => {
+      const target = event.target;
+
+      if (target instanceof HTMLElement) {
+        if (
+          target.nodeName.toLowerCase() === 'input' ||
+          target.nodeName.toLowerCase() === 'textarea' ||
+          target.isContentEditable
+        ) {
+          return;
+        }
+      }
       if (this.extensionTabNavService.selectedTabIndex() === 2) {
         if (event.ctrlKey) {
           switch (event.key) {
@@ -51,6 +63,7 @@ export class KeyboardService {
           case 'z':
           case 'Z':
           case '0': {
+            if (this.zipService.isZipOpen()) return;
             const events = this.monitorService.selectedEvents();
             if (events.length === 0) return;
             else {
@@ -64,8 +77,12 @@ export class KeyboardService {
           case 'Delete':
           case 'x':
           case 'X': {
+            if (this.isDeleteDialogOpen()) return;
+
             const events = this.monitorService.selectedEvents();
             if (events.length === 0) return;
+
+            this.isDeleteDialogOpen.set(true);
 
             const eventsOnSameDay = events.every(
               (ev) => ev.date === events[0].date,
@@ -100,6 +117,7 @@ export class KeyboardService {
                       'DELETE_SELECTED_EVENTS',
                       events,
                     );
+                    this.isDeleteDialogOpen.set(false);
                   } else {
                     this.dialog
                       .open(DialogConfirmComponent, dialogConfig2)
@@ -111,9 +129,11 @@ export class KeyboardService {
                             events,
                           );
                         }
+                        this.isDeleteDialogOpen.set(false);
                       });
                   }
                 }
+                this.isDeleteDialogOpen.set(false);
               });
           }
         }

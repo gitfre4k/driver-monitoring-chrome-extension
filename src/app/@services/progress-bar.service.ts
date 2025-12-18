@@ -131,6 +131,7 @@ export class ProgressBarService {
   statusOverflow = signal<IScanResult>({});
 
   eventNotes = signal<IScanResult>({});
+
   excludeOnDutyNotes = signal(false);
   filteredEventNotes = computed(() => {
     const eventNotes = this.eventNotes();
@@ -171,7 +172,6 @@ export class ProgressBarService {
     return count;
   });
 
-  showInfo = signal(false);
   showErrors = signal(false);
 
   vErrors = signal([] as IScanErrors[]);

@@ -42,6 +42,8 @@ export class ZipService {
 
   zipId = 0;
 
+  isZipOpen = signal(false);
+
   resize = signal(true);
   resizeSpeed = signal(64);
   maxSpeedDeviation = signal(`±5`);
@@ -298,6 +300,7 @@ export class ZipService {
       });
     }
 
+    this.isZipOpen.set(true);
     this.zipId++;
 
     const zipData$ = this.apiService
@@ -441,6 +444,7 @@ export class ZipService {
           this.urlService.refreshWebApp();
         },
         error: (err) => {
+          this.isZipOpen.set(false);
           const currentZipId = this.zipId;
           this.taskQueueService.zipTasks.update((prev) => {
             const newValue = { ...prev };
@@ -465,6 +469,7 @@ export class ZipService {
           this._snackBar.open(message, 'Close', { duration: 7000 });
         },
         complete: () => {
+          this.isZipOpen.set(false);
           const currentZipId = this.zipId;
           this.taskQueueService.zipTasks.update((prev) => {
             const newValue = { ...prev };
