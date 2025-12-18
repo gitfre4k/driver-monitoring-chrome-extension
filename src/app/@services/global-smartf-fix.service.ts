@@ -26,7 +26,7 @@ export class GlobalSmartfFixService {
   constantService = inject(ConstantsService);
   httpLimit = this.constantService.httpLimit;
 
-  excludeCoDrivers = signal(false);
+  excludeCoDrivers = signal(true);
 
   initiateGlobalSmartFix(date: string = this.dateService.analyzeDate) {
     const isReadyForSmartFix = this.advancedScanService.isReadyForSmartFix();

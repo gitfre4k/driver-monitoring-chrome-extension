@@ -1,4 +1,10 @@
-import { Component, effect, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  signal,
+} from "@angular/core";
 import { AppService } from "../../@services/app.service";
 import { CommonModule, KeyValuePipe } from "@angular/common";
 import { ApiService } from "../../@services/api.service";
@@ -35,6 +41,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
   ],
   templateUrl: "./info.component.html",
   styleUrl: "./info.component.scss",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InfoComponent {
   appService = inject(AppService);

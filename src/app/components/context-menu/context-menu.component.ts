@@ -1,4 +1,10 @@
-import { Component, inject, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  output,
+} from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { IEvent } from "../../interfaces/driver-daily-log-events.interface";
 import { ContextMenuService } from "../../@services/context-menu.service";
@@ -13,6 +19,7 @@ import { ApiOperationsService } from "../../@services/api-operations.service";
   imports: [MatIconModule, EngineComponent, PartialComponent, ResizeComponent],
   templateUrl: "./context-menu.component.html",
   styleUrl: "./context-menu.component.scss",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContextMenuComponent {
   x = input(0);

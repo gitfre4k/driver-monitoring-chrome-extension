@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ProgressBarService } from "../../@services/progress-bar.service";
 import { MatButtonModule } from "@angular/material/button";
 
@@ -7,6 +7,7 @@ import { MatButtonModule } from "@angular/material/button";
   imports: [MatButtonModule],
   templateUrl: "./errors.component.html",
   styleUrl: "./errors.component.scss",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ErrorsComponent {
   private progressBarService = inject(ProgressBarService);
