@@ -1,36 +1,36 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
-} from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
-} from "@angular/material/dialog";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
-import { MatAutocompleteModule } from "@angular/material/autocomplete";
-import { formatTenantName } from "../../../helpers/monitor.helpers";
-import { BackendService } from "../../../@services/backend.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { ExtensionTabNavigationService } from "../../../@services/extension-tab-navigation.service";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatSelectModule } from "@angular/material/select";
-import { IVehicle } from "../../../interfaces/driver-daily-log-events.interface";
-import { MatDatepickerModule } from "@angular/material/datepicker";
-import { provideNativeDateAdapter } from "@angular/material/core";
-import { JsonPipe } from "@angular/common";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { formatTenantName } from '../../../helpers/monitor.helpers';
+import { BackendService } from '../../../@services/backend.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSelectModule } from '@angular/material/select';
+import { IVehicle } from '../../../interfaces/driver-daily-log-events.interface';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
+
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: "app-dialog-add-note",
+  selector: 'app-dialog-add-note',
   imports: [
     MatDialogModule,
     MatFormFieldModule,
@@ -46,12 +46,11 @@ import { toSignal } from "@angular/core/rxjs-interop";
     MatSelectModule,
   ],
   providers: [provideNativeDateAdapter()],
-  templateUrl: "./dialog-add-note.component.html",
-  styleUrl: "./dialog-add-note.component.scss",
+  templateUrl: './dialog-add-note.component.html',
+  styleUrl: './dialog-add-note.component.scss',
 })
 export class DialogAddNoteComponent {
   private backendService = inject(BackendService);
-  private extTabNavService = inject(ExtensionTabNavigationService);
   private _snackBar = inject(MatSnackBar);
 
   readonly dialogRef = inject(MatDialogRef<DialogAddNoteComponent>);
@@ -69,16 +68,16 @@ export class DialogAddNoteComponent {
   });
 
   data = inject(MAT_DIALOG_DATA);
-  note = signal("");
+  note = signal('');
   isPosting = signal(false);
 
   isVehicleIssue = signal(false);
   selectedVehicle = signal<IVehicle | null>(null);
   selectedMarkerColor = signal<
-    | "EngineShutDownConventionalLocationPrecision"
-    | "EngineShutDownReducedLocationPrecision"
-    | "EnginePowerUpConventionalLocationPrecision"
-    | "EnginePowerUpReducedLocationPrecision"
+    | 'EngineShutDownConventionalLocationPrecision'
+    | 'EngineShutDownReducedLocationPrecision'
+    | 'EnginePowerUpConventionalLocationPrecision'
+    | 'EnginePowerUpReducedLocationPrecision'
     | null
   >(null);
 
@@ -91,18 +90,18 @@ export class DialogAddNoteComponent {
   }
   onAddClick(
     eventTypeCode:
-      | "ChangeToOffDutyStatus"
-      | "ChangeToSleeperBerthStatus"
-      | "ChangeToOnDutyNotDrivingStatus"
-      | "IntermediateLogConventionalLocationPrecision"
-      | "EnginePowerUpConventionalLocationPrecision"
-      | "EngineShutDownConventionalLocationPrecision",
+      | 'ChangeToOffDutyStatus'
+      | 'ChangeToSleeperBerthStatus'
+      | 'ChangeToOnDutyNotDrivingStatus'
+      | 'IntermediateLogConventionalLocationPrecision'
+      | 'EnginePowerUpConventionalLocationPrecision'
+      | 'EngineShutDownConventionalLocationPrecision',
     $event?: Event,
   ) {
     if (!this.note()) return;
     const { start, end } = this.rangeValueSignal();
     if (
-      eventTypeCode === "IntermediateLogConventionalLocationPrecision" &&
+      eventTypeCode === 'IntermediateLogConventionalLocationPrecision' &&
       (!start || !end)
     )
       return;
@@ -112,7 +111,7 @@ export class DialogAddNoteComponent {
     const vehicleData = this.isVehicleIssue() ? this.selectedVehicle() : null;
     const selectedMarkerColor = this.selectedMarkerColor()!;
     const note =
-      eventTypeCode === "IntermediateLogConventionalLocationPrecision"
+      eventTypeCode === 'IntermediateLogConventionalLocationPrecision'
         ? JSON.stringify({ start, end, note: this.note().trim() })
         : this.note().trim();
 
@@ -122,8 +121,8 @@ export class DialogAddNoteComponent {
         this.data.driver,
         note,
         ![
-          "EngineShutDownConventionalLocationPrecision",
-          "EnginePowerUpConventionalLocationPrecision",
+          'EngineShutDownConventionalLocationPrecision',
+          'EnginePowerUpConventionalLocationPrecision',
         ].includes(eventTypeCode)
           ? eventTypeCode
           : selectedMarkerColor,
@@ -131,13 +130,13 @@ export class DialogAddNoteComponent {
       )
       .subscribe({
         error: () => {
-          this._snackBar.open("Error posting note", "Close", {
+          this._snackBar.open('Error posting note', 'Close', {
             duration: 3000,
           });
           this.isPosting.set(false);
         },
         complete: () => {
-          this._snackBar.open("Note successfully posted", "Close", {
+          this._snackBar.open('Note successfully posted', 'Close', {
             duration: 3000,
           });
           this.backendService.loadShiftReport();

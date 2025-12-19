@@ -10,7 +10,7 @@ import {
   providedIn: 'root',
 })
 export class ConstantsService {
-  extensionVersion = signal('0.0.4.20');
+  extensionVersion = signal('0.0.4.22');
 
   httpLimit = signal(2);
 

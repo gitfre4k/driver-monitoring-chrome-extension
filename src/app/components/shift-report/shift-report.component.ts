@@ -1,30 +1,29 @@
-import { Component, computed, inject, signal } from "@angular/core";
-import { BackendService } from "../../@services/backend.service";
-import { DatePipe, KeyValuePipe } from "@angular/common";
-import { ITenant } from "../../interfaces";
-import { DateService } from "../../@services/date.service";
-import { UrlService } from "../../@services/url.service";
-import { MatIconModule } from "@angular/material/icon";
-import { MatButtonModule } from "@angular/material/button";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatDialog } from "@angular/material/dialog";
-import { DialogAddNoteComponent } from "../UI/dialog-add-note/dialog-add-note.component";
-import { AppService } from "../../@services/app.service";
-import { formatTenantName } from "../../helpers/monitor.helpers";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
-import { IDriverFmcsaInspection } from "../../interfaces/driver-daily-log-events.interface";
-import { DateAgoPipe } from "../../pipes/date-ago.pipe";
+import { Component, computed, inject, signal } from '@angular/core';
+import { BackendService } from '../../@services/backend.service';
+import { DatePipe, KeyValuePipe } from '@angular/common';
+import { ITenant } from '../../interfaces';
+import { DateService } from '../../@services/date.service';
+import { UrlService } from '../../@services/url.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogAddNoteComponent } from '../UI/dialog-add-note/dialog-add-note.component';
+import { AppService } from '../../@services/app.service';
+import { formatTenantName } from '../../helpers/monitor.helpers';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { DateAgoPipe } from '../../pipes/date-ago.pipe';
 import {
   getNote,
   parseDOTInspection,
   parseMalf,
   sortArrayByPart,
-} from "../../helpers/backend.helpers";
+} from '../../helpers/backend.helpers';
 
 @Component({
-  selector: "app-shift-report",
+  selector: 'app-shift-report',
   imports: [
     KeyValuePipe,
     MatIconModule,
@@ -36,8 +35,8 @@ import {
     DatePipe,
     DateAgoPipe,
   ],
-  templateUrl: "./shift-report.component.html",
-  styleUrl: "./shift-report.component.scss",
+  templateUrl: './shift-report.component.html',
+  styleUrl: './shift-report.component.scss',
 })
 export class ShiftReportComponent {
   backendService = inject(BackendService);
@@ -51,19 +50,23 @@ export class ShiftReportComponent {
   formatTenantName = formatTenantName;
 
   pages: { [id: number]: string } = {
-    0: "Shift Report",
-    1: "Problems",
-    2: "FMCSA Inspections",
-    3: "Malfunction Letters",
-    4: "Marker Notes",
+    0: 'Shift Report',
+    1: 'Problems',
+    2: 'FMCSA Inspections',
+    3: 'Malfunction Letters',
+    4: 'Marker Notes',
   };
   page = signal(0);
   state = computed(() => {
     const page = this.page();
-    const data = this.backendService.backendData()?.[page];
+    const backendData = this.backendService.backendData();
+
+    const data = backendData?.[page];
     const name = this.pages[page];
 
-    return { name, data };
+    const customNotes = backendData?.customNotes;
+
+    return { name, data, customNotes };
   });
 
   sortArrayByPart = sortArrayByPart;
@@ -106,7 +109,7 @@ export class ShiftReportComponent {
 
     this.backendService.deleteNote(idsToDelete).subscribe({
       error: () => {
-        this._snackBar.open("Failed to delete note", "Close", {
+        this._snackBar.open('Failed to delete note', 'Close', {
           duration: 3000,
         });
         this.backendService.isDeletingNote.set(null);
@@ -118,17 +121,26 @@ export class ShiftReportComponent {
     });
   }
 
-  addNote() {
-    const dialogRef = this.dialog.open(DialogAddNoteComponent);
+  addCustomNote() {
+    const title = 'add Custom Note';
+    const eventTypeCode = 'IntermediateLogReducedLocationPrecision';
+    const tenant = { name: 'custom', id: 0 };
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result !== undefined) {
-        this.backendService.loadShiftReport();
-      }
+    return this.dialog.open(DialogAddNoteComponent, {
+      data: {
+        tenant,
+        driver: null,
+        eventTypeCode,
+        title,
+      },
     });
   }
 
   handlePageEvent(event: PageEvent) {
     this.page.set(event.pageIndex);
+  }
+
+  isEmpty(obj: any): boolean {
+    return Object.keys(obj).length === 0;
   }
 }

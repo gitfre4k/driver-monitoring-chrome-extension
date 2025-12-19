@@ -11,7 +11,6 @@
         minlength="2"
         (wheel)="onMouseWheel($event, 'hours')"
         autocomplete="off"
-        readonly
       />
       @if (!fullClock()) {
         <span class="label lbl-hrs">hours</span>
@@ -29,7 +28,6 @@
         minlength="2"
         (wheel)="onMouseWheel($event, 'minutes')"
         autocomplete="off"
-        readonly
       />
       @if (!fullClock()) {
         <span class="label lbl-min">minutes</span>
@@ -48,7 +46,6 @@
           minlength="2"
           (wheel)="onMouseWheel($event, 'seconds')"
           autocomplete="off"
-          readonly
       /></label>
     }
   </div>
@@ -57,13 +54,11 @@
       <input
         type="text"
         id="period"
-        readonly
         formControlName="period"
         #periodInput
         (focus)="periodInput.select()"
         (wheel)="onMouseWheel($event, 'period')"
         autocomplete="off"
-        readonly
     /></label>
   }
 </div>

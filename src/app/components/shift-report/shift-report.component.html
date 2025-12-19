@@ -43,6 +43,51 @@
 
   @if (state().data; as data) {
     <ul class="shift-report__list">
+      @if (
+        page() === 0 && !isEmpty(state().customNotes) && state().customNotes;
+        as customNotes
+      ) {
+        <li class="shift-report__list-item">
+          <p class="company" style="text-align: center; margin: 0">
+            ** Custom Notes **
+          </p>
+          <ul>
+            <li>
+              <span class="notes">
+                @for (
+                  singleNote of customNotes | keyvalue;
+                  track singleNote.key
+                ) {
+                  <div class="notes__note">
+                    <span class="notes__note__text">
+                      <span>
+                        {{ getNote(singleNote.value) }}
+                      </span>
+                      <br />
+                      <span class="notes__note__text-ts">
+                        {{ singleNote.key | dateAgo }}
+                      </span>
+                    </span>
+                    <a
+                      mat-icon-button
+                      matTooltip="Done"
+                      class="notes__note__delete"
+                      (click)="deleteNote(singleNote.value, singleNote.key)"
+                      [disabled]="backendService.isDeletingNote()"
+                    >
+                      @if (singleNote.key === backendService.isDeletingNote()) {
+                        <mat-spinner [diameter]="24"></mat-spinner>
+                      } @else {
+                        <span class="material-icons"> clear </span>
+                      }
+                    </a>
+                  </div>
+                }
+              </span>
+            </li>
+          </ul>
+        </li>
+      }
       @for (company of data | keyvalue; track company) {
         <li class="shift-report__list-item">
           <span class="company">
@@ -211,8 +256,8 @@
     </ul>
   }
 
-  <button class="shift-report__add" matButton="tonal" (click)="addNote()">
+  <button class="shift-report__add" matButton="tonal" (click)="addCustomNote()">
     <mat-icon>add_circle</mat-icon>
-    add Note
+    add Custom Note
   </button>
 </div>

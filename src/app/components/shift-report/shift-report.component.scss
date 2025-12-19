@@ -69,7 +69,7 @@
     padding: 0 16px;
     overflow: hidden;
     overflow-y: overlay;
-    margin: 0;
+    margin: 0 0 16px;
     &-item {
       font-size: 18px;
       font-weight: 800;
@@ -80,7 +80,7 @@
       box-shadow:
         0 4px 8px rgba(105, 105, 105, 0.082),
         0 0 1px rgba(22, 21, 21, 0.473);
-      background-color: #1a1a1a9f;
+      background-color: #35353a3f;
 
       .company {
         padding-left: 10px;
@@ -88,7 +88,7 @@
         text-decoration: none;
         font-size: 22px;
 
-        color: #4262af94;
+        color: rgb(229, 225, 230);
       }
       ul {
         padding: 2px 4px 4px 4px;
@@ -98,7 +98,8 @@
           flex-direction: column;
           gap: 0;
 
-          background-color: #21212185;
+          // background-color: #21212185;
+          background-color: #35353a;
           border-radius: 8px;
           padding: 3px 4px;
           margin: 0 0 6px 0;
@@ -128,7 +129,8 @@
               margin: 2px 0 2px 1px;
               border-radius: 8px;
 
-              background-color: #2c2c2c4f;
+              // background-color: #2c2c2c4f;
+              background-color: #2121216e;
 
               box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 
@@ -155,7 +157,11 @@
                 padding-right: 8px;
 
                 color: #ff66667c;
+                visibility: hidden;
               }
+            }
+            &__note:hover .notes__note__delete {
+              visibility: visible;
             }
           }
         }
@@ -165,5 +171,6 @@
 
   &__add {
     margin: auto 0 16px;
+    padding: 4px 18px;
   }
 }
