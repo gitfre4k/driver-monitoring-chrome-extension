@@ -88,6 +88,7 @@ export class MonitorHeaderComponent {
 
     const tenantId = ddle.tenantId;
     const driverId = ddle.driverId;
+    const truckId = ddle.vehicles[ddle.vehicles.length - 1].id;
 
     const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
     const driverProblems = backendData[1][tenantId]?.drivers[driverId]?.notes;
@@ -95,6 +96,16 @@ export class MonitorHeaderComponent {
     const driverMarkColor = driverMarker
       ? Object.values(driverMarker)?.[0]?.[0]?.markerColor
       : null;
+
+    const truckProblems = backendData[1][tenantId]?.companyNotes;
+    let isTruckProblem = false;
+    let truckProblemStamp = '';
+    for (let stamp in truckProblems) {
+      if (truckProblems[stamp][0].vehicleData?.id === truckId) {
+        isTruckProblem = true;
+        truckProblemStamp = stamp;
+      }
+    }
 
     const malf = backendData[3][tenantId]?.drivers[driverId]?.notes;
     let malfs: {
@@ -121,6 +132,7 @@ export class MonitorHeaderComponent {
       driverMarkColor: driverMarker ? driverMarkColor : null,
       companyMarkColor: companyMarker ? companyMarkColor : null,
       malfs,
+      isTruckProblem,
     };
   });
 

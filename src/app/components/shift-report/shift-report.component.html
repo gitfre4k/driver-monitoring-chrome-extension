@@ -256,8 +256,14 @@
     </ul>
   }
 
-  <button class="shift-report__add" matButton="tonal" (click)="addCustomNote()">
-    <mat-icon>add_circle</mat-icon>
-    add Custom Note
-  </button>
+  @if (page() === 0) {
+    <button
+      class="shift-report__add"
+      matButton="tonal"
+      (click)="addCustomNote()"
+    >
+      <mat-icon>add_circle</mat-icon>
+      add Custom Note
+    </button>
+  }
 </div>

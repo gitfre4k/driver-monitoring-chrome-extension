@@ -76,6 +76,15 @@
             matBadgePosition="above after"
             matBadgeSize="medium"
           ></div>
+          <div
+            class="mat-badge-custom-truck"
+            style="margin-bottom: 20px; margin-left: 2px"
+            [matBadge]="driverBackendData()?.isTruckProblem ? 1 : 0"
+            [matBadgeHidden]="!driverBackendData()?.isTruckProblem"
+            matBadgeColor="primary"
+            matBadgePosition="above after"
+            matBadgeSize="medium"
+          ></div>
         </span>
       </div>
       <div class="info__company-and-driver__2">

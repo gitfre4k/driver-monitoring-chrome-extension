@@ -61,6 +61,7 @@ export class InfoComponent {
   showGetLogInfo = true;
 
   getNote = getNote;
+  ddle = this.monitorService.driverDailyLog();
 
   constructor() {
     effect(() => {
@@ -79,7 +80,11 @@ export class InfoComponent {
   backendData = () => {
     const backendData = this.backendService.backendData();
     const tenantId = this.appService.currentTenant()?.id;
-    const driverId = this.monitorService.driverDailyLog()?.driverId;
+
+    const ddle = this.monitorService.driverDailyLog();
+
+    const driverId = ddle?.driverId;
+    const truckId = ddle?.vehicles[ddle?.vehicles.length - 1].id;
 
     if (!backendData || !tenantId) return null;
 
@@ -104,14 +109,33 @@ export class InfoComponent {
     const infoNotes = backendData[3][tenantId]?.drivers[driverId]?.notes;
     const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
 
+    const driverMarkColor = driverMarker
+      ? Object.values(driverMarker)?.[0]?.[0]?.markerColor
+      : null;
+
+    const truckProblems = backendData[1][tenantId]?.companyNotes;
+
+    let isTruckProblem = false;
+    let truckProblemStamp = '';
+    for (let stamp in truckProblems) {
+      if (truckProblems[stamp][0].vehicleData?.id === truckId) {
+        isTruckProblem = true;
+        truckProblemStamp = stamp;
+      }
+    }
+
     return {
       driverNotes,
       problems,
       fmscaInspections,
       infoNotes,
       driverMarker,
+      driverMarkColor,
       companyNotes,
       companyMarkers,
+      truckProblems,
+      isTruckProblem,
+      truckProblemStamp,
     };
   };
 
@@ -135,7 +159,8 @@ export class InfoComponent {
       (eventTypeCode === 'ChangeToOffDutyStatus' &&
         title === 'Add Company Note') ||
       (eventTypeCode === 'EnginePowerUpConventionalLocationPrecision' &&
-        title === 'Add Company Marker')
+        title === 'Add Company Marker') ||
+      eventTypeCode === 'ChangeToSleeperBerthStatus'
     ) {
       return this.dialog.open(DialogAddNoteComponent, {
         data: {
@@ -143,6 +168,7 @@ export class InfoComponent {
           driver: null,
           eventTypeCode,
           title,
+          vehicles,
         },
       });
     }

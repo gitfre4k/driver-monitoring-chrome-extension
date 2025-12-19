@@ -282,11 +282,53 @@
           </div>
         }
 
+        <!-- truck problems -->
+        @if (data.isTruckProblem && data.truckProblems; as problems) {
+          <div class="info-tab__log__data__issues">
+            <span class="info-tab__log__data__issues__title">truck issues</span>
+            @for (singleNote of problems | keyvalue; track singleNote.key) {
+              <div class="info-tab__log__data__issues__note">
+                <span class="info-tab__log__data__issues__note__text">
+                  @if (singleNote.value[0].vehicleData; as vehicleData) {
+                    <span class="info-tab__log__data__issues__note__text-truck">
+                      Truck ID:
+                      <span
+                        class="info-tab__log__data__issues__note__text-truck-id"
+                        >{{ vehicleData.name }}
+                      </span>
+                    </span>
+                    <br />
+                  }
+                  {{ getNote(singleNote.value) }}
+
+                  <br />
+                  <span class="info-tab__log__data__marker__note-ts">
+                    {{ singleNote.key | dateAgo }}
+                  </span>
+                </span>
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="info-tab__log__data__issues__note__delete"
+                  (click)="deleteNote(singleNote.value, singleNote.key)"
+                  [disabled]="backendService.isDeletingNote()"
+                >
+                  @if (singleNote.key === backendService.isDeletingNote()) {
+                    <mat-spinner [diameter]="24"></mat-spinner>
+                  } @else {
+                    <span class="material-icons"> clear </span>
+                  }
+                </a>
+              </div>
+            }
+          </div>
+        }
+
         <!-- problems -->
         @if (data.problems; as problems) {
           <div class="info-tab__log__data__issues">
             <span class="info-tab__log__data__issues__title"
-              >driver/truck issues</span
+              >driver issues</span
             >
             @for (singleNote of problems | keyvalue; track singleNote.key) {
               <div class="info-tab__log__data__issues__note">
