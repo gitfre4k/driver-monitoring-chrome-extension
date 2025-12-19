@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { BackendService } from '../../@services/backend.service';
 import { DatePipe, KeyValuePipe } from '@angular/common';
 import { ITenant } from '../../interfaces';
@@ -37,6 +43,7 @@ import {
   ],
   templateUrl: './shift-report.component.html',
   styleUrl: './shift-report.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShiftReportComponent {
   backendService = inject(BackendService);

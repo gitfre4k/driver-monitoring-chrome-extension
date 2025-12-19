@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
   templateUrl: './dialog-confirm.component.html',
   styleUrl: './dialog-confirm.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DialogConfirmComponent {
   constructor(

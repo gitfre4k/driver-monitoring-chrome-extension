@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ShiftPeriodComponent } from '../shift-period/shift-period.component';
@@ -29,6 +35,7 @@ import { DurationPipe } from '../../../pipes/duration.pipe';
   ],
   templateUrl: './dialog.component.html',
   styleUrl: './dialog.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DialogComponent {
   readonly dialogRef = inject(MatDialogRef<DialogComponent>);

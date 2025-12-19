@@ -1,4 +1,9 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -21,6 +26,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   ],
   templateUrl: './task-queue.component.html',
   styleUrl: './task-queue.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskQueueComponent {
   taskQueueService = inject(TaskQueueService);

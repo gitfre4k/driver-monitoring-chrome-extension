@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-resize',
   imports: [],
   templateUrl: './resize.component.html',
-  styleUrl: './resize.component.scss'
+  styleUrl: './resize.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ResizeComponent {
-
-}
+export class ResizeComponent {}

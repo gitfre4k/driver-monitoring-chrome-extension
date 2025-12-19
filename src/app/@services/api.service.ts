@@ -17,7 +17,6 @@ import { IDrivers } from '../interfaces/drivers.interface';
 import { IDriverLogs } from '../interfaces/daily-log.interface';
 import { DateService } from './date.service';
 import { IUnidentifiedEventsData } from '../interfaces/unidentified-events.interface';
-import { ISmartFixResponse } from '../interfaces/api.interface';
 
 @Injectable({
   providedIn: 'root',

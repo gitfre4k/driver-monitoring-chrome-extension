@@ -1,4 +1,11 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { Observable, Subscription, tap } from 'rxjs';
@@ -78,6 +85,7 @@ import { GlobalSmartfFixService } from '../../@services/global-smartf-fix.servic
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
   styleUrl: './scan.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScanComponent {
   scanService: ScanService = inject(ScanService);

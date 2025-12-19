@@ -1,16 +1,5 @@
-## 0.0.4.20
-
-
-monitor
- > break driving on inter
-
-~~~ fix ~~~
- > delete on dot
-
 add 
  > task list
-
-
 
  speeding red
 

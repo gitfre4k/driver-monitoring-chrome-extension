@@ -84,7 +84,9 @@ export class InfoComponent {
     const ddle = this.monitorService.driverDailyLog();
 
     const driverId = ddle?.driverId;
-    const truckId = ddle?.vehicles[ddle?.vehicles.length - 1].id;
+    const truckId =
+      ddle?.vehicles[ddle?.vehicles?.length ? ddle?.vehicles?.length - 1 : 0]
+        ?.id;
 
     if (!backendData || !tenantId) return null;
 
@@ -159,8 +161,7 @@ export class InfoComponent {
       (eventTypeCode === 'ChangeToOffDutyStatus' &&
         title === 'Add Company Note') ||
       (eventTypeCode === 'EnginePowerUpConventionalLocationPrecision' &&
-        title === 'Add Company Marker') ||
-      eventTypeCode === 'ChangeToSleeperBerthStatus'
+        title === 'Add Company Marker')
     ) {
       return this.dialog.open(DialogAddNoteComponent, {
         data: {

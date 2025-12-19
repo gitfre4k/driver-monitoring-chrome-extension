@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +34,6 @@ import {
   MatBottomSheet,
   MatBottomSheetModule,
 } from '@angular/material/bottom-sheet';
-import { BottomSheetComponent } from '../UI/bottom-sheet/bottom-sheet.component';
 import { getStatusDuration } from '../../helpers/app.helpers';
 import { ConstantsService } from '../../@services/constants.service';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
@@ -57,6 +62,7 @@ import { AdvancedScanService } from '../../@services/advanced-scan.service';
       },
     },
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScanResultComponent {
   private _snackBar = inject(MatSnackBar);
@@ -68,10 +74,6 @@ export class ScanResultComponent {
   constanstsService = inject(ConstantsService);
 
   private _bottomSheet = inject(MatBottomSheet);
-
-  openBottomSheet(): void {
-    this._bottomSheet.open(BottomSheetComponent);
-  }
 
   activeDriverCount = this.progressBarService.activeDriversCount;
 

@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -48,6 +53,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   providers: [provideNativeDateAdapter()],
   templateUrl: './dialog-add-note.component.html',
   styleUrl: './dialog-add-note.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DialogAddNoteComponent {
   private backendService = inject(BackendService);
@@ -115,10 +121,12 @@ export class DialogAddNoteComponent {
         ? JSON.stringify({ start, end, note: this.note().trim() })
         : this.note().trim();
 
+    const driver = this.isVehicleIssue() ? null : this.data.driver;
+
     this.backendService
       .uploadData(
         this.data.tenant,
-        this.data.driver,
+        driver,
         note,
         ![
           'EngineShutDownConventionalLocationPrecision',

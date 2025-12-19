@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -59,11 +60,9 @@ import { BackendService } from '../../@services/backend.service';
     MatProgressSpinnerModule,
     ContextMenuComponent,
     MatRippleModule,
-
     MatSliderModule,
     MonitorHeaderComponent,
     MatBadgeModule,
-
     FixButtonComponent,
     ResizeFormComponent,
     EditFormComponent,
@@ -73,6 +72,7 @@ import { BackendService } from '../../@services/backend.service';
   templateUrl: './monitor.component.html',
   styleUrl: './monitor.component.scss',
   providers: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonitorComponent {
   @ViewChild('updateChangesButton')

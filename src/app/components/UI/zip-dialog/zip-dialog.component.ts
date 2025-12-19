@@ -190,7 +190,7 @@ export class ZipDialogComponent {
 
         return this.zipService.engineOffIdleTimeSpawn.update((prevValue) => {
           let newValue = prevValue + (isScrollUp ? 1 : -1);
-          if (newValue > 15) return 15;
+          if (newValue > 30) return 30;
           else if (newValue < 1) return 1;
           else return newValue;
         });

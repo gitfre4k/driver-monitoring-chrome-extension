@@ -45,8 +45,8 @@ export class ZipService {
   isZipOpen = signal(false);
 
   resize = signal(true);
-  resizeSpeed = signal(64);
-  maxSpeedDeviation = signal(`±5`);
+  resizeSpeed = signal(66);
+  maxSpeedDeviation = signal(`±4`);
   resizeMinDuration = signal(7);
   resizeReductionTrashhold = signal(4);
 
@@ -55,7 +55,7 @@ export class ZipService {
   zippedOnDutyDuration = signal(15);
   shiftMinTimeFrame = signal(5);
   shiftBreak = signal<boolean | null>(true);
-  engineOffIdleTimeSpawn = signal(8);
+  engineOffIdleTimeSpawn = signal(12);
   shiftDirection = computed<'Past' | 'Future'>(() => {
     return this.selectedDirection() ? 'Future' : 'Past';
   });

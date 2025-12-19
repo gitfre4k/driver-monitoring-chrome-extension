@@ -156,12 +156,14 @@ export class ContextMenuService {
         const ids: number[] = [];
         computedEvents?.forEach((e) => {
           if (action !== 'DELETE_ENGINES_IN_DRIVING') {
-            e.statusName.includes('Engine') && ids.push(e.id);
+            e.statusName.includes('Engine') && !e.isLocked && ids.push(e.id);
           } else {
             if (e.engineInfo?.length) {
               e.engineInfo.forEach((engine) => {
                 e.nextDutyStatusInfo?.totalVehicleMiles !==
-                  engine.totalVehicleMiles && ids.push(engine.id);
+                  engine.totalVehicleMiles &&
+                  !e.isLocked &&
+                  ids.push(engine.id);
               });
             }
           }

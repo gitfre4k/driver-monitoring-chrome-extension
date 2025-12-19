@@ -88,7 +88,9 @@ export class MonitorHeaderComponent {
 
     const tenantId = ddle.tenantId;
     const driverId = ddle.driverId;
-    const truckId = ddle.vehicles[ddle.vehicles.length - 1].id;
+    const truckId =
+      ddle.vehicles?.[ddle.vehicles?.length ? ddle.vehicles?.length - 1 : 0]
+        ?.id;
 
     const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
     const driverProblems = backendData[1][tenantId]?.drivers[driverId]?.notes;
