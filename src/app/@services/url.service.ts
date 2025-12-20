@@ -1,11 +1,11 @@
-import { Injectable, signal, NgZone, inject, computed } from "@angular/core";
-import { BackgroundJsService } from "./background-js.service";
-import { ICompany } from "../interfaces";
-import { ExtensionTabNavigationService } from "./extension-tab-navigation.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { TFocusElementAction } from "../types";
+import { Injectable, signal, NgZone, inject, computed } from '@angular/core';
+import { BackgroundJsService } from './background-js.service';
+import { ICompany } from '../interfaces';
+import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TFocusElementAction } from '../types';
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class UrlService {
   private _snackBar = inject(MatSnackBar);
   backgroundJsService = inject(BackgroundJsService);
@@ -14,18 +14,18 @@ export class UrlService {
   tabId = signal<number | null>(null);
   url = signal<string | null>(null);
   tenant = signal<{ id: string; name: string } | null>(null);
-  provider = signal<"prologs" | "synergy" | "Prologs">("prologs");
+  provider = signal<'prologs' | 'synergy' | 'Prologs'>('prologs');
 
   hoveredElement = signal<{
     id: string | null;
-    action: "HOVER_START" | "HOVER_STOP";
+    action: 'HOVER_START' | 'HOVER_STOP';
   } | null>(null);
 
   currentView = computed(() => {
     const url = this.url();
     if (!url) return;
 
-    const parts = url.split("/");
+    const parts = url.split('/');
     const logs = parts[3];
     const id = +parts[4];
     const timestamp = parts[5];
@@ -35,12 +35,12 @@ export class UrlService {
 
   constructor(private ngZone: NgZone) {
     console.log(
-      "UrlService: Constructor called, setting up Chrome message listener.",
+      'UrlService: Constructor called, setting up Chrome message listener.',
     );
 
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       this.ngZone.run(() => {
-        if (request.action === "urlChanged") {
+        if (request.action === 'urlChanged') {
           console.log(
             "UrlService: Received 'urlChanged' message from background script.",
             request?.data,
@@ -51,41 +51,41 @@ export class UrlService {
             this.url.set(request.data.url);
           sendResponse(true);
           try {
-            if (typeof request.data.tenant === "string") {
+            if (typeof request.data.tenant === 'string') {
               const parsedTenant = JSON.parse(request.data.tenant);
               this.provider.set(
                 parsedTenant.prologs
-                  ? "prologs"
+                  ? 'prologs'
                   : parsedTenant.Prologs
-                    ? "Prologs"
-                    : "synergy",
+                    ? 'Prologs'
+                    : 'synergy',
               );
 
               if (parsedTenant) {
                 this.tenant.set(parsedTenant[this.provider()]);
               } else
                 console.log(
-                  "UrlService: Request data contains same tenant ID.",
+                  'UrlService: Request data contains same tenant ID.',
                 );
             } else if (request.data.tenant === null) {
-              console.warn("UrlService: Tenant data received as null.");
+              console.warn('UrlService: Tenant data received as null.');
               this.tenant.set(null);
             } else {
               console.error(
-                "UrlService: Unexpected tenant data type. Expected string or null.",
+                'UrlService: Unexpected tenant data type. Expected string or null.',
                 request.data.tenant,
               );
             }
           } catch (e) {
             console.error(
-              "UrlService: Error parsing tenant data:",
+              'UrlService: Error parsing tenant data:',
               e,
-              "Raw data:",
+              'Raw data:',
               request.data.tenant,
             );
           }
         }
-        if (request.action === "hoverEvent") {
+        if (request.action === 'hoverEvent') {
           // console.info(
           //   "UrlService: Received 'hoverEvent' message.",
           //   request.data
@@ -103,14 +103,14 @@ export class UrlService {
     if (!tabId)
       return this._snackBar.open(
         `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
-        "OK",
+        'OK',
         { duration: 3000 },
       );
 
     return this.backgroundJsService
       .refreshWebApp(tabId)
       .subscribe((success) =>
-        console.log("[backgroundJsService] refresh", success),
+        console.log('[backgroundJsService] refresh', success),
       );
   };
 
@@ -123,7 +123,7 @@ export class UrlService {
     if (!tabId)
       return this._snackBar.open(
         `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
-        "OK",
+        'OK',
         { duration: 3000 },
       );
 
@@ -140,14 +140,14 @@ export class UrlService {
     if (!tabId)
       return this._snackBar.open(
         `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
-        "OK",
+        'OK',
         { duration: 3000 },
       );
 
     const id = tenant ? tenant.id : this.tenant()!.id;
     const name = tenant ? tenant.name : this.tenant()!.name;
 
-    const key = "MASTER_TOOLS_PROVIDER_TENANT";
+    const key = 'MASTER_TOOLS_PROVIDER_TENANT';
     const value = JSON.stringify({
       [this.provider()]: {
         id,
