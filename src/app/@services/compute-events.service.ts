@@ -377,10 +377,10 @@ export class ComputeEventsService {
       events[i].id === currentDutyStatus.id
         ? ''
         : (events[i].parentClass =
-            'parent-' + currentDutyStatus.statusName.replace(/\s/g, ''));
+            'parent-' + currentDutyStatus?.statusName?.replace(/\s/g, ''));
 
       ////////////////////////////// mark break //////////////////////////////
-      events[i].break = currentDutyStatus.break ? currentDutyStatus.break : 0;
+      events[i].break = currentDutyStatus?.break ? currentDutyStatus.break : 0;
 
       ////////////////////
       // is shift ready to start ??
