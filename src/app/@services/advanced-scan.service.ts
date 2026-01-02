@@ -1,5 +1,5 @@
-import { inject, Injectable, signal } from "@angular/core";
-import { ApiService } from "./api.service";
+import { inject, Injectable, signal } from '@angular/core';
+import { ApiService } from './api.service';
 import {
   catchError,
   concatMap,
@@ -9,25 +9,25 @@ import {
   of,
   tap,
   toArray,
-} from "rxjs";
-import { IDriver, IScanResultDriver, ITenant } from "../interfaces";
+} from 'rxjs';
+import { IDriver, IScanResultDriver, ITenant } from '../interfaces';
 import {
   IDailyLogs,
   IEvent,
-} from "../interfaces/driver-daily-log-events.interface";
-import { ProgressBarService } from "./progress-bar.service";
-import { AppService } from "./app.service";
-import { ComputeEventsService } from "./compute-events.service";
-import { DateService } from "./date.service";
-import { isPcOrYm } from "../helpers/app.helpers";
-import { DateTime } from "luxon";
-import { ConstantsService } from "./constants.service";
-import { getNoSpaceNote } from "../helpers/monitor.helpers";
-import { isNoteValid } from "../helpers/advanced-scan.helpers";
-import { ApiOperationsService } from "./api-operations.service";
+} from '../interfaces/driver-daily-log-events.interface';
+import { ProgressBarService } from './progress-bar.service';
+import { AppService } from './app.service';
+import { ComputeEventsService } from './compute-events.service';
+import { DateService } from './date.service';
+import { isPcOrYm } from '../helpers/app.helpers';
+import { DateTime } from 'luxon';
+import { ConstantsService } from './constants.service';
+import { getNoSpaceNote } from '../helpers/monitor.helpers';
+import { isNoteValid } from '../helpers/advanced-scan.helpers';
+import { ApiOperationsService } from './api-operations.service';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AdvancedScanService {
   private appService = inject(AppService);
@@ -69,7 +69,7 @@ export class AdvancedScanService {
   getDriversDailyLogs(date: string) {
     this.analyzedCoDrivers.set({});
     const tenants = this.appService.tenantsSignal();
-    this.progressBarService.initializeState("advanced");
+    this.progressBarService.initializeState('advanced');
     this.progressBarService.scanning.set(true);
 
     return from(tenants).pipe(
@@ -104,12 +104,40 @@ export class AdvancedScanService {
             concatMap((log) => from(log.items)), // switchMap??
             mergeMap((driver) => {
               this.progressBarService.activeDriversCount.update((i) => i + 1);
+
               return this.dailyLogEvents$(
                 driver,
                 tenant,
                 this.dateService.analyzeCustomDate(qDate),
               ).pipe(
                 tap((logs) => {
+                  if (
+                    !logs.driverAssignedId.includes(
+                      logs.vehicles[logs.vehicles.length - 1]?.name,
+                    )
+                  ) {
+                    // driver/truck ID mismatch
+                    this.progressBarService.idMismatch.update((state) => {
+                      const newState = { ...state };
+
+                      const driver = {
+                        driverName: logs.driverFullName,
+                        driverViewId: logs.driverAssignedId,
+                        driverId: logs.driverId,
+                        vehicleViewId:
+                          logs.vehicles[logs.vehicles.length - 1]?.name,
+                        tenant,
+                      };
+
+                      if (!newState[`${tenant.name}`])
+                        newState[`${tenant.name}`] = [];
+
+                      newState[`${tenant.name}`].push(driver);
+
+                      return newState;
+                    });
+                  }
+
                   logs.coDrivers.length &&
                     this.analyzedCoDrivers.update((prev) => ({
                       ...prev,
@@ -232,7 +260,7 @@ export class AdvancedScanService {
     const statusOverflow: IEvent[] = [];
 
     computedEvents.forEach((event) => {
-      if (["Login", "Logout"].includes(event.statusName)) {
+      if (['Login', 'Logout'].includes(event.statusName)) {
         event.errorMessages.length && errorEvents.push(event);
       }
 
@@ -242,14 +270,14 @@ export class AdvancedScanService {
 
       if (
         event.driver.id === driverDailyLog.driverId &&
-        !["Login", "Logout", "DVIR", "Diagnostic", "Diag. CLR"].includes(
+        !['Login', 'Logout', 'DVIR', 'Diagnostic', 'Diag. CLR'].includes(
           event.statusName,
         )
       ) {
         if (event.eldStatusCount || event.engStatusCount)
           statusOverflow.push(event);
 
-        if (event.isTeleport || event.dutyStatus === "refuel") {
+        if (event.isTeleport || event.dutyStatus === 'refuel') {
           detectedTeleportEvents.push(event);
         }
         if (event.locationMismatch) {
@@ -278,13 +306,13 @@ export class AdvancedScanService {
         }
         if (
           event.engineMinutes < this.lowTotalEngineHoursCount() &&
-          event.statusName !== "Start Day"
+          event.statusName !== 'Start Day'
         ) {
           lowTotalEHEvents.push(event);
         }
         if (
           event.origin ===
-          "EditRequestedByAnAuthenticatedUserOtherThanTheDriver"
+          'EditRequestedByAnAuthenticatedUserOtherThanTheDriver'
         ) {
           fleetManagerEvents.push(event);
         }

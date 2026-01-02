@@ -21,12 +21,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { DateAgoPipe } from '../../pipes/date-ago.pipe';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import {
   getNote,
   parseDOTInspection,
   parseMalf,
   sortArrayByPart,
 } from '../../helpers/backend.helpers';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-shift-report',
@@ -39,6 +41,9 @@ import {
     KeyValuePipe,
     MatPaginatorModule,
     DatePipe,
+    MatAccordion,
+    MatExpansionModule,
+    MatBadgeModule,
     DateAgoPipe,
   ],
   templateUrl: './shift-report.component.html',

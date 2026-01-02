@@ -296,8 +296,27 @@ export class ComputeEventsService {
       date && (events[i].date = date);
       tenant && (events[i].tenant = tenant);
 
-      // missing engine on event
+      // inactive events
+      if (
+        events[i].eventRecordStatus &&
+        events[i].eventRecordStatus !== 'Active'
+      ) {
+        let warningMessage = '';
+        switch (events[i].eventRecordStatus) {
+          case 'InactiveChangeRejected':
+            warningMessage = 'Inactive Event: Change Rejected';
+            break;
+          case 'InactiveChangeRequest':
+            warningMessage = 'Inactive Event: Change Request';
+            break;
+          case 'InactiveChanged':
+            warningMessage = 'Inactive Event: Changed';
+            break;
+        }
+        warningMessage && events[i].warningMessages.push(warningMessage);
+      }
 
+      // missing engine on event
       events[i].isEventMissingPowerUp &&
         events[i].warningMessages.push('Missing Engine On event');
 
@@ -308,7 +327,7 @@ export class ComputeEventsService {
 
       // auto-assumed events
       events[i].origin === 'AssumedFromUnidentifiedDriverProfile' &&
-        events[i].errorMessages.push('origin: Auto-assumed');
+        events[i].errorMessages.push('Origin: Auto-assumed');
 
       // assign end of shift for current driver
       if (events[i].driver?.id !== currentDriver.id) {

@@ -42,6 +42,55 @@
   </h1>
 
   @if (state().data; as data) {
+    @if (
+      page() === 0 && !isEmpty(state().customNotes) && state().customNotes;
+      as customNotes
+    ) {
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title
+              >***
+              <div
+                style="margin-left: auto"
+                [matBadge]="10"
+                [matBadgeHidden]="false"
+                matBadgePosition="below after"
+                matBadgeSize="medium"
+              ></div
+            ></mat-panel-title>
+          </mat-expansion-panel-header>
+
+          @for (singleNote of customNotes | keyvalue; track singleNote.key) {
+            <div class="panel shift-report__list-item">
+              <span class="panel__text">
+                <span>
+                  {{ getNote(singleNote.value) }}
+                </span>
+                <br />
+                <span class="panel__text-ts">
+                  {{ singleNote.key | dateAgo }}
+                </span>
+              </span>
+              <a
+                mat-icon-button
+                matTooltip="Done"
+                class="panel__delete"
+                (click)="deleteNote(singleNote.value, singleNote.key)"
+                [disabled]="backendService.isDeletingNote()"
+              >
+                @if (singleNote.key === backendService.isDeletingNote()) {
+                  <mat-spinner [diameter]="24"></mat-spinner>
+                } @else {
+                  <span class="material-icons"> clear </span>
+                }
+              </a>
+            </div>
+          }
+        </mat-expansion-panel>
+      </mat-accordion>
+    }
+
     <ul class="shift-report__list">
       @if (
         page() === 0 && !isEmpty(state().customNotes) && state().customNotes;

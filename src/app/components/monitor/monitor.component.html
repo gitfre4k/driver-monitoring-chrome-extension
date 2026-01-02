@@ -105,6 +105,17 @@
                 ></app-fix-button>
               </li>
             }
+            @for (warning of event.warningMessages; track warning) {
+              @if (warning.includes("Inactive Event")) {
+                <li>
+                  <app-fix-button
+                    [event]="event"
+                    action="DELETE_INACTIVE_EVENT"
+                  ></app-fix-button>
+                </li>
+              }
+            }
+
             @if (
               event.isLocked &&
               !computedEvents[i + 1]?.isLocked &&

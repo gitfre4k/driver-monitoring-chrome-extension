@@ -2,6 +2,51 @@
   display: none !important;
 }
 
+::ng-deep {
+  mat-expansion-panel {
+    .mat-expansion-panel-body {
+      padding: 0px;
+      margin: 0;
+    }
+  }
+}
+
+.mat-accordion .mat-expansion-panel.mat-expanded {
+  margin: 6px 0;
+}
+
+.panel {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 4px;
+}
+
+.report__list-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: calc(100vh - 55px);
+  padding: 0 16px;
+  scroll-margin-right: 10px;
+
+  ::-webkit-scrollbar {
+    width: 7px;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+
+    background: #444444;
+  }
+}
+
 .shift-report {
   display: flex;
   flex-direction: column;

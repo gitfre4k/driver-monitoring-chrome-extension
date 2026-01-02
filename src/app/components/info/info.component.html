@@ -289,7 +289,11 @@
             @for (singleNote of problems | keyvalue; track singleNote.key) {
               <div class="info-tab__log__data__issues__note">
                 <span class="info-tab__log__data__issues__note__text">
-                  @if (singleNote.value[0].vehicleData; as vehicleData) {
+                  @if (
+                    singleNote.key === data.truckProblemStamp &&
+                      singleNote.value[0].vehicleData;
+                    as vehicleData
+                  ) {
                     <span class="info-tab__log__data__issues__note__text-truck">
                       Truck ID:
                       <span

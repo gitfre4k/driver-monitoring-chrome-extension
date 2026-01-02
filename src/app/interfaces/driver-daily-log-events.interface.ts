@@ -68,6 +68,11 @@ export interface IEvent {
   occurredAfterDriving: boolean;
   eldStatusCount: number;
   engStatusCount: number;
+  eventRecordStatus:
+    | 'Active'
+    | 'InactiveChanged'
+    | 'InactiveChangeRequest'
+    | 'InactiveChangeRejected';
 }
 
 export interface IStatusInfo {

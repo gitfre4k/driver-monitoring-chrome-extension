@@ -22,6 +22,7 @@ import { ProgressBarService } from '../../@services/progress-bar.service';
 import { UrlService } from '../../@services/url.service';
 import {
   ICertStatus,
+  IIdMismatch,
   IScanResult,
   ISmartFixResult,
   ITenant,
@@ -148,7 +149,9 @@ export class ScanResultComponent {
     return count;
   }
 
-  driverCount(result: IScanResult | ICertStatus | ISmartFixResult) {
+  driverCount(
+    result: IScanResult | ICertStatus | ISmartFixResult | IIdMismatch,
+  ) {
     let count = 0;
     for (let company in result) {
       count += result[company].length;

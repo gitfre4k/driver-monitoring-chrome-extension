@@ -1,7 +1,7 @@
-import { ProgressBarMode } from "@angular/material/progress-bar";
-import { IEvent as ICEvent } from "../interfaces/driver-daily-log-events.interface";
-import { IDailyLog } from "./daily-log.interface";
-import { TEventTypeCode } from "../types";
+import { ProgressBarMode } from '@angular/material/progress-bar';
+import { IEvent as ICEvent } from '../interfaces/driver-daily-log-events.interface';
+import { IDailyLog } from './daily-log.interface';
+import { TEventTypeCode } from '../types';
 
 export interface IViolations {
   company: ITenant;
@@ -159,6 +159,18 @@ export interface IEventDetails {
   totalVehicleMiles: number;
   trailerNumbers: string;
   vehicleId: number;
+}
+
+export interface IIdMismatch {
+  [company: string]: IIdMismatchDriver[];
+}
+
+export interface IIdMismatchDriver {
+  driverName: string;
+  driverViewId: string;
+  driverId: number;
+  vehicleViewId: string;
+  tenant: ITenant;
 }
 
 export interface ICertStatus {

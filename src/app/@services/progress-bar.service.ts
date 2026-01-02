@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 
 import {
   ICertStatus,
+  IIdMismatch,
   IScanAdminPortalResult,
   IScanDOTInspections,
   IScanErrors,
@@ -108,6 +109,9 @@ export class ProgressBarService {
 
   certStatus = signal<ICertStatus>({});
 
+  idMismatch = signal<IIdMismatch>({});
+  showIdMismatch = signal(false);
+
   inspections = signal<IScanDOTInspections[]>([]);
   totalDCount = signal(0);
 
@@ -209,6 +213,7 @@ export class ProgressBarService {
       !this.isEmpty(this.newDrivers()) ||
       !this.isEmpty(this.fleetManager()) ||
       !this.isEmpty(this.refuelWarning()) ||
+      !this.isEmpty(this.idMismatch()) ||
       !this.isEmpty(this.eventNotes()),
   );
 
@@ -239,6 +244,18 @@ export class ProgressBarService {
       (driver) => driver.driverId === driverId,
     );
     this.smartFixErrors.update((prev) => {
+      const newValue = { ...prev };
+      newValue[companyName].splice(index, 1);
+      if (newValue[companyName].length === 0) delete newValue[companyName];
+      return newValue;
+    });
+  }
+
+  removeIdMismatch(companyName: string, driverId: number) {
+    const index = this.idMismatch()[companyName].findIndex(
+      (driver) => driver.driverId === driverId,
+    );
+    this.idMismatch.update((prev) => {
       const newValue = { ...prev };
       newValue[companyName].splice(index, 1);
       if (newValue[companyName].length === 0) delete newValue[companyName];
@@ -337,6 +354,7 @@ export class ProgressBarService {
         this.fleetManager.set({});
         this.refuelWarning.set({});
         this.eventNotes.set({});
+        this.idMismatch.set({});
         this.aErrors.set([]);
         this.progressMode.set('determinate');
         break;

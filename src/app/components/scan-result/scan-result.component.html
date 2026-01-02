@@ -2579,6 +2579,110 @@
       }
 
       <!--  -->
+      <!-- driver/truck ID mismatch -->
+      @if (progressBarService.idMismatch(); as idMismatch) {
+        @if (!isEmpty(idMismatch)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                driver/truck ID mismatch
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{ driverCount(idMismatch) }}"
+                  [matBadgeHidden]="
+                    driverCount(idMismatch) === 0 ||
+                    !progressBarService.showIdMismatch()
+                  "
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              <mat-checkbox
+                class="scan-results__content__result__checkbox"
+                [(ngModel)]="progressBarService.showIdMismatch"
+                >show mismatches</mat-checkbox
+              >
+              @if (isEmpty(idMismatch)) {
+                <div class="scan-results__content__result__empty">
+                  No driver with uncertified daily log detected.
+                </div>
+              } @else if (progressBarService.showIdMismatch()) {
+                <ul class="list-of-tenants">
+                  @for (company of idMismatch | keyvalue; track company.key) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (driver of company.value; track driver.driverName) {
+                        <div class="driver">
+                          <div class="btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Open driver daily logs in web app"
+                              (click)="
+                                openLogs(
+                                  driver.driverId,
+                                  dateService.now
+                                    .setZone('America/New_York')
+                                    .toUTC()
+                                    .toISO()!,
+                                  driver.tenant
+                                )
+                              "
+                            >
+                              <mat-icon>open_in_browser</mat-icon>
+                            </a>
+                            <a
+                              mat-icon-button
+                              (click)="copyDriverName(driver.driverName)"
+                              matTooltip="Copy to clipboard"
+                            >
+                              <mat-icon>content_copy</mat-icon>
+                            </a>
+                          </div>
+
+                          <span class="bold">{{ driver.driverName }}</span>
+
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeIdMismatch(
+                                company.key,
+                                driver.driverId
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul">
+                          <li class="event-error">
+                            <span></span>
+                            <span></span>
+                            <span>driverID: {{ driver.driverViewId }}</span>
+                          </li>
+                          <li class="event-error">
+                            <span></span>
+                            <span></span>
+                            <span>truckID: {{ driver.vehicleViewId }}</span>
+                          </li>
+                          <li></li>
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      }
+
+      <!--  -->
       <!-- new Drivers -->
       @if (progressBarService.newDrivers(); as newDrivers) {
         @if (!isEmpty(newDrivers)) {
