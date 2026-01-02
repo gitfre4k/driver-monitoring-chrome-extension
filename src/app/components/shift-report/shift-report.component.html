@@ -69,7 +69,7 @@
                 </span>
                 <br />
                 <span class="panel__text-ts">
-                  {{ singleNote.key | dateAgo }}
+                  {{ singleNote.key | date: "medium" }}
                 </span>
               </span>
               <a
@@ -112,7 +112,7 @@
                       </span>
                       <br />
                       <span class="notes__note__text-ts">
-                        {{ singleNote.key | dateAgo }}
+                        {{ singleNote.key | date: "medium" }}
                       </span>
                     </span>
                     <a
@@ -172,14 +172,14 @@
                               parseDOTInspection(singleNote.value);
                             as fmcsaData
                           ) {
-                            {{ fmcsaData.time | dateAgo }}
+                            {{ fmcsaData.time | date: "medium" }}
                           } @else {
                             <span>
                               {{ getNote(singleNote.value) }}
                             </span>
                             <br />
                             <span class="notes__note__text-ts">
-                              {{ singleNote.key | dateAgo }}
+                              {{ singleNote.key | date: "medium" }}
                             </span>
                           }
                         </span>
@@ -255,7 +255,7 @@
                               parseDOTInspection(singleNote.value);
                             as fmcsaData
                           ) {
-                            {{ fmcsaData.time | dateAgo }}
+                            {{ fmcsaData.time | date: "medium" }}
                           } @else if (
                             state().name === "Malfunction Letters" &&
                               parseMalf(getNote(singleNote.value));
@@ -272,7 +272,7 @@
                             </span>
                             <br />
                             <span class="notes__note__text-ts">
-                              {{ singleNote.key | dateAgo }}
+                              {{ singleNote.key | date: "medium" }}
                             </span>
                           }
                         </span>

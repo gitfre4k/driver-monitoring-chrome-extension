@@ -20,7 +20,6 @@ import { formatTenantName } from '../../helpers/monitor.helpers';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { DateAgoPipe } from '../../pipes/date-ago.pipe';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import {
   getNote,
@@ -44,7 +43,6 @@ import { MatBadgeModule } from '@angular/material/badge';
     MatAccordion,
     MatExpansionModule,
     MatBadgeModule,
-    DateAgoPipe,
   ],
   templateUrl: './shift-report.component.html',
   styleUrl: './shift-report.component.scss',
