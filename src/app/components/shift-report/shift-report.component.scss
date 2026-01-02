@@ -219,3 +219,12 @@
     padding: 4px 18px;
   }
 }
+
+
+.mat-badge-custom {
+  .mat-badge-content {
+    z-index: 1000000000;
+    background: #343eff54;
+    color: white;
+  }
+}

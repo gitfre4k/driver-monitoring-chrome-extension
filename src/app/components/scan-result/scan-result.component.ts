@@ -31,10 +31,7 @@ import { ExtensionTabNavigationService } from '../../@services/extension-tab-nav
 import { DateService } from '../../@services/date.service';
 import { DateTime } from 'luxon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import {
-  MatBottomSheet,
-  MatBottomSheetModule,
-} from '@angular/material/bottom-sheet';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { getStatusDuration } from '../../helpers/app.helpers';
 import { ConstantsService } from '../../@services/constants.service';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
@@ -50,7 +47,6 @@ import { AdvancedScanService } from '../../@services/advanced-scan.service';
     MatBadgeModule,
     MatTooltipModule,
     MatCheckboxModule,
-    MatBottomSheetModule,
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',
@@ -73,8 +69,6 @@ export class ScanResultComponent {
   extensionNavigation = inject(ExtensionTabNavigationService);
   dateService = inject(DateService);
   constanstsService = inject(ConstantsService);
-
-  private _bottomSheet = inject(MatBottomSheet);
 
   activeDriverCount = this.progressBarService.activeDriversCount;
 

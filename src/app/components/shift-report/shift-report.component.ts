@@ -20,7 +20,11 @@ import { formatTenantName } from '../../helpers/monitor.helpers';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import {
+  MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
+  MatAccordion,
+  MatExpansionModule,
+} from '@angular/material/expansion';
 import {
   getNote,
   parseDOTInspection,
@@ -28,6 +32,11 @@ import {
   sortArrayByPart,
 } from '../../helpers/backend.helpers';
 import { MatBadgeModule } from '@angular/material/badge';
+import {
+  IDataDriver,
+  IDataDriverNotes,
+} from '../../interfaces/shift-report.interface';
+import { DialogConfirmComponent } from '../UI/dialog-confirm/dialog-confirm.component';
 
 @Component({
   selector: 'app-shift-report',
@@ -43,6 +52,15 @@ import { MatBadgeModule } from '@angular/material/badge';
     MatAccordion,
     MatExpansionModule,
     MatBadgeModule,
+  ],
+  providers: [
+    {
+      provide: MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
+      useValue: {
+        collapsedHeight: '28px',
+        expandedHeight: '36px',
+      },
+    },
   ],
   templateUrl: './shift-report.component.html',
   styleUrl: './shift-report.component.scss',
@@ -113,21 +131,32 @@ export class ShiftReportComponent {
     value: { note: string; part: number; eventId: number }[],
     key: string,
   ) {
-    this.backendService.isDeletingNote.set(key);
+    const dialogRef = this.dialog.open(DialogConfirmComponent, {
+      width: '250px',
+      data: {
+        title: 'Delete Note',
+        info: `Are you sure you want to proceed?`,
+      },
+    });
 
-    const idsToDelete = value.map((note) => note.eventId);
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.backendService.isDeletingNote.set(key);
+        const idsToDelete = value.map((note) => note.eventId);
 
-    this.backendService.deleteNote(idsToDelete).subscribe({
-      error: () => {
-        this._snackBar.open('Failed to delete note', 'Close', {
-          duration: 3000,
+        this.backendService.deleteNote(idsToDelete).subscribe({
+          error: () => {
+            this._snackBar.open('Failed to delete note', 'Close', {
+              duration: 3000,
+            });
+            this.backendService.isDeletingNote.set(null);
+          },
+          complete: () => {
+            this.backendService.isDeletingNote.set(null);
+            this.backendService.loadShiftReport();
+          },
         });
-        this.backendService.isDeletingNote.set(null);
-      },
-      complete: () => {
-        this.backendService.isDeletingNote.set(null);
-        this.backendService.loadShiftReport();
-      },
+      }
     });
   }
 
@@ -152,5 +181,20 @@ export class ShiftReportComponent {
 
   isEmpty(obj: any): boolean {
     return Object.keys(obj).length === 0;
+  }
+
+  resultCount(result: {
+    name: string;
+    drivers: IDataDriver;
+    companyNotes: IDataDriverNotes;
+  }) {
+    let count = 0;
+    for (let note in result.companyNotes) count++;
+    for (let driver in result.drivers) {
+      for (let note in result.drivers[driver].notes) {
+        count++;
+      }
+    }
+    return count;
   }
 }
