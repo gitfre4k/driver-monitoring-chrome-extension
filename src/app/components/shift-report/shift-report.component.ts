@@ -37,6 +37,7 @@ import {
   IDataDriverNotes,
 } from '../../interfaces/shift-report.interface';
 import { DialogConfirmComponent } from '../UI/dialog-confirm/dialog-confirm.component';
+import { DateAgoPipe } from '../../pipes/date-ago.pipe';
 
 @Component({
   selector: 'app-shift-report',
@@ -52,6 +53,7 @@ import { DialogConfirmComponent } from '../UI/dialog-confirm/dialog-confirm.comp
     MatAccordion,
     MatExpansionModule,
     MatBadgeModule,
+    DateAgoPipe,
   ],
   providers: [
     {

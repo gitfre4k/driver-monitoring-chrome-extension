@@ -31,7 +31,6 @@ import { ExtensionTabNavigationService } from '../../@services/extension-tab-nav
 import { DateService } from '../../@services/date.service';
 import { DateTime } from 'luxon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { getStatusDuration } from '../../helpers/app.helpers';
 import { ConstantsService } from '../../@services/constants.service';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';

@@ -47,7 +47,7 @@
       as customNotes
     ) {
       <mat-accordion>
-        <mat-expansion-panel>
+        <mat-expansion-panel class="expension-panel">
           <mat-expansion-panel-header>
             <mat-panel-title
               >***
@@ -68,8 +68,13 @@
                   {{ getNote(singleNote.value) }}
                 </span>
                 <br />
-                <span class="panel__text-ts">
-                  {{ singleNote.key | date: "medium" }}
+                <br />
+                <span class="notes__note__text-ts">
+                  {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                  -
+
+                  {{ singleNote.key | dateAgo }}
                 </span>
               </span>
               <a
@@ -104,169 +109,190 @@
                 ></div
               ></mat-panel-title>
             </mat-expansion-panel-header>
-
-            <ul>
-              @for (
-                driver of company.value.drivers | keyvalue;
-                track driver.key
-              ) {
-                @if (+driver.key === 999) {
-                  <li>
-                    <span class="notes">
-                      @for (
-                        singleNote of driver.value.notes | keyvalue;
-                        track singleNote.key
-                      ) {
-                        <div class="notes__note">
-                          <span class="notes__note__text">
-                            @if (
-                              singleNote.value[0].vehicleData;
-                              as vehicleData
-                            ) {
-                              <span class="notes__note__text-truck">
-                                Truck ID:
-                                <span class="notes__note__text-truck-id"
-                                  >{{ vehicleData.name }}
+            <div class="panel">
+              <ul>
+                @for (
+                  driver of company.value.drivers | keyvalue;
+                  track driver.key
+                ) {
+                  @if (+driver.key === 999) {
+                    <li>
+                      <span class="notes">
+                        @for (
+                          singleNote of driver.value.notes | keyvalue;
+                          track singleNote.key
+                        ) {
+                          <div class="notes__note">
+                            <span class="notes__note__text">
+                              @if (
+                                singleNote.value[0].vehicleData;
+                                as vehicleData
+                              ) {
+                                <span class="notes__note__text-truck">
+                                  Truck ID:
+                                  <span class="notes__note__text-truck-id"
+                                    >{{ vehicleData.name }}
+                                  </span>
                                 </span>
-                              </span>
-                              <br />
-                              <br />
-                            }
-                            @if (
-                              state().name === "FMCSA Inspections" &&
-                                parseDOTInspection(singleNote.value);
-                              as fmcsaData
-                            ) {
-                              {{ fmcsaData.time | date: "medium" }}
-                            } @else {
-                              <span>
-                                {{ getNote(singleNote.value) }}
-                              </span>
-                              <br />
-                              <span class="notes__note__text-ts">
-                                {{ singleNote.key | date: "medium" }}
-                              </span>
-                            }
-                          </span>
-                          <a
-                            mat-icon-button
-                            matTooltip="Done"
-                            class="notes__note__delete"
-                            (click)="
-                              deleteNote(singleNote.value, singleNote.key)
-                            "
-                            [disabled]="backendService.isDeletingNote()"
-                          >
-                            @if (
-                              singleNote.key === backendService.isDeletingNote()
-                            ) {
-                              <mat-spinner [diameter]="24"></mat-spinner>
-                            } @else {
-                              <span class="material-icons"> clear </span>
-                            }
-                          </a>
-                        </div>
-                      }
-                    </span>
-                  </li>
-                }
-              }
-              @for (
-                driver of company.value.drivers | keyvalue;
-                track driver.key
-              ) {
-                @if (+driver.key !== 999) {
-                  <li>
-                    <span class="driver">
-                      <a
-                        mat-icon-button
-                        matTooltip="Open driver daily logs in web app"
-                        matTooltipPosition="right"
-                        (click)="
-                          openLogs(
-                            +driver.key,
-                            dateService.now
-                              .setZone('America/New_York')
-                              .toUTC()
-                              .toISO()!,
-                            { id: company.key, name: company.value.name }
-                          )
-                        "
-                      >
-                        <mat-icon>open_in_browser</mat-icon> </a
-                      >{{ driver.value.name }}
-                    </span>
-
-                    <span class="notes">
-                      @for (
-                        singleNote of driver.value.notes | keyvalue;
-                        track singleNote.key
-                      ) {
-                        <div class="notes__note">
-                          <span class="notes__note__text">
-                            @if (
-                              singleNote.value[0].vehicleData;
-                              as vehicleData
-                            ) {
-                              <span class="notes__note__text-truck">
-                                Truck ID:
-                                <span class="notes__note__text-truck-id"
-                                  >{{ vehicleData.name }}
+                                <br />
+                                <br />
+                              }
+                              @if (
+                                state().name === "FMCSA Inspections" &&
+                                  parseDOTInspection(singleNote.value);
+                                as fmcsaData
+                              ) {
+                                {{ fmcsaData.time | date: "MMM d, y, h:mm a" }}
+                                <br />
+                                {{ fmcsaData.time | dateAgo }}
+                              } @else {
+                                <span>
+                                  {{ getNote(singleNote.value) }}
                                 </span>
-                              </span>
-                              <br />
-                              <br />
-                            }
-                            @if (
-                              state().name === "FMCSA Inspections" &&
-                                parseDOTInspection(singleNote.value);
-                              as fmcsaData
-                            ) {
-                              {{ fmcsaData.time | date: "medium" }}
-                            } @else if (
-                              state().name === "Malfunction Letters" &&
-                                parseMalf(getNote(singleNote.value));
-                              as malf
-                            ) {
-                              {{ malf.start | date: "mediumDate" }} -
-                              {{ malf.end | date: "mediumDate" }}
-                              <br />
-                              <br />
-                              {{ malf.note }}
-                            } @else {
-                              <span>
-                                {{ getNote(singleNote.value) }}
-                              </span>
-                              <br />
-                              <span class="notes__note__text-ts">
-                                {{ singleNote.key | date: "medium" }}
-                              </span>
-                            }
-                          </span>
-                          <a
-                            mat-icon-button
-                            matTooltip="Done"
-                            class="notes__note__delete"
-                            (click)="
-                              deleteNote(singleNote.value, singleNote.key)
-                            "
-                            [disabled]="backendService.isDeletingNote()"
-                          >
-                            @if (
-                              singleNote.key === backendService.isDeletingNote()
-                            ) {
-                              <mat-spinner [diameter]="24"></mat-spinner>
-                            } @else {
-                              <span class="material-icons"> clear </span>
-                            }
-                          </a>
-                        </div>
-                      }
-                    </span>
-                  </li>
+                                <br />
+                                <br />
+                                <span class="notes__note__text-ts">
+                                  {{
+                                    singleNote.key | date: "MMM d, y, h:mm a"
+                                  }}
+
+                                  -
+
+                                  {{ singleNote.key | dateAgo }}
+                                </span>
+                              }
+                            </span>
+                            <a
+                              mat-icon-button
+                              matTooltip="Done"
+                              class="notes__note__delete"
+                              (click)="
+                                deleteNote(singleNote.value, singleNote.key)
+                              "
+                              [disabled]="backendService.isDeletingNote()"
+                            >
+                              @if (
+                                singleNote.key ===
+                                backendService.isDeletingNote()
+                              ) {
+                                <mat-spinner [diameter]="24"></mat-spinner>
+                              } @else {
+                                <span class="material-icons"> clear </span>
+                              }
+                            </a>
+                          </div>
+                        }
+                      </span>
+                    </li>
+                  }
                 }
-              }
-            </ul>
+                @for (
+                  driver of company.value.drivers | keyvalue;
+                  track driver.key
+                ) {
+                  @if (+driver.key !== 999) {
+                    <li>
+                      <span class="driver">
+                        <a
+                          mat-icon-button
+                          matTooltip="Open driver daily logs in web app"
+                          matTooltipPosition="right"
+                          (click)="
+                            openLogs(
+                              +driver.key,
+                              dateService.now
+                                .setZone('America/New_York')
+                                .toUTC()
+                                .toISO()!,
+                              { id: company.key, name: company.value.name }
+                            )
+                          "
+                        >
+                          <mat-icon>open_in_browser</mat-icon> </a
+                        >{{ driver.value.name }}
+                      </span>
+
+                      <span class="notes">
+                        @for (
+                          singleNote of driver.value.notes | keyvalue;
+                          track singleNote.key
+                        ) {
+                          <div class="notes__note">
+                            <span class="notes__note__text">
+                              @if (
+                                singleNote.value[0].vehicleData;
+                                as vehicleData
+                              ) {
+                                <span class="notes__note__text-truck">
+                                  Truck ID:
+                                  <span class="notes__note__text-truck-id"
+                                    >{{ vehicleData.name }}
+                                  </span>
+                                </span>
+                                <br />
+                                <br />
+                              }
+                              @if (
+                                state().name === "FMCSA Inspections" &&
+                                  parseDOTInspection(singleNote.value);
+                                as fmcsaData
+                              ) {
+                                {{ fmcsaData.time | date: "MMM d, y, h:mm a" }}
+                                <br />
+                                {{ fmcsaData.time | dateAgo }}
+                              } @else if (
+                                state().name === "Malfunction Letters" &&
+                                  parseMalf(getNote(singleNote.value));
+                                as malf
+                              ) {
+                                {{ malf.start | date: "mediumDate" }} -
+                                {{ malf.end | date: "mediumDate" }}
+                                <br />
+                                <br />
+                                {{ malf.note }}
+                              } @else {
+                                <span>
+                                  {{ getNote(singleNote.value) }}
+                                </span>
+                                <br />
+                                <br />
+                                <span class="notes__note__text-ts">
+                                  {{
+                                    singleNote.key | date: "MMM d, y, h:mm a"
+                                  }}
+
+                                  -
+
+                                  {{ singleNote.key | dateAgo }}
+                                </span>
+                              }
+                            </span>
+                            <a
+                              mat-icon-button
+                              matTooltip="Done"
+                              class="notes__note__delete"
+                              (click)="
+                                deleteNote(singleNote.value, singleNote.key)
+                              "
+                              [disabled]="backendService.isDeletingNote()"
+                            >
+                              @if (
+                                singleNote.key ===
+                                backendService.isDeletingNote()
+                              ) {
+                                <mat-spinner [diameter]="24"></mat-spinner>
+                              } @else {
+                                <span class="material-icons"> clear </span>
+                              }
+                            </a>
+                          </div>
+                        }
+                      </span>
+                    </li>
+                  }
+                }
+              </ul>
+            </div>
           </mat-expansion-panel>
         }
       </mat-accordion>
@@ -292,8 +318,13 @@
                         {{ getNote(singleNote.value) }}
                       </span>
                       <br />
+                      <br />
                       <span class="notes__note__text-ts">
-                        {{ singleNote.key | date: "medium" }}
+                        {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                        -
+
+                        {{ singleNote.key | dateAgo }}
                       </span>
                     </span>
                     <a
@@ -353,14 +384,21 @@
                               parseDOTInspection(singleNote.value);
                             as fmcsaData
                           ) {
-                            {{ fmcsaData.time | date: "medium" }}
+                            {{ fmcsaData.time | date: "MMM d, y, h:mm a" }}
+                            <br />
+                            {{ fmcsaData.time | dateAgo }}
                           } @else {
                             <span>
                               {{ getNote(singleNote.value) }}
                             </span>
                             <br />
+                            <br />
                             <span class="notes__note__text-ts">
-                              {{ singleNote.key | date: "medium" }}
+                              {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                              -
+
+                              {{ singleNote.key | dateAgo }}
                             </span>
                           }
                         </span>
@@ -436,7 +474,9 @@
                               parseDOTInspection(singleNote.value);
                             as fmcsaData
                           ) {
-                            {{ fmcsaData.time | date: "medium" }}
+                            {{ fmcsaData.time | date: "MMM d, y, h:mm a" }}
+                            <br />
+                            {{ fmcsaData.time | dateAgo }}
                           } @else if (
                             state().name === "Malfunction Letters" &&
                               parseMalf(getNote(singleNote.value));
@@ -452,8 +492,13 @@
                               {{ getNote(singleNote.value) }}
                             </span>
                             <br />
+                            <br />
                             <span class="notes__note__text-ts">
-                              {{ singleNote.key | date: "medium" }}
+                              {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                              -
+
+                              {{ singleNote.key | dateAgo }}
                             </span>
                           }
                         </span>
