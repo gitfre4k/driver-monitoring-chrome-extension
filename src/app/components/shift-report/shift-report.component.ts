@@ -93,11 +93,44 @@ export class ShiftReportComponent {
 
     const data = backendData?.[page];
     const name = this.pages[page];
-
     const customNotes = backendData?.customNotes;
 
-    return { name, data, customNotes };
+    const sortedData: [
+      key: string,
+      data: {
+        name: string;
+        drivers: IDataDriver;
+        companyNotes: IDataDriverNotes;
+      },
+    ][] = [];
+    if (data) {
+      for (let key in data) {
+        sortedData.push([key, data[key]]);
+      }
+
+      sortedData.sort((a, b) => a[1].name.localeCompare(b[1].name));
+    }
+
+    return { name, customNotes, sortedData };
   });
+
+  isMultiMode = false;
+
+  handleExpandAll(accordion: any) {
+    // 1. Temporarily enable multi-expand mode
+    this.isMultiMode = true;
+
+    // 2. Use a small timeout or wait for the next tick so
+    // the accordion registers the 'multi' change before opening
+    setTimeout(() => {
+      accordion.openAll();
+
+      // 3. Revert to single-expand mode.
+      // Existing open panels stay open, but the next user click
+      // will collapse all except the one they clicked.
+      this.isMultiMode = false;
+    });
+  }
 
   sortArrayByPart = sortArrayByPart;
   getNote = getNote;

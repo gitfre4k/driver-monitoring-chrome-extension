@@ -8,7 +8,10 @@
       padding: 0px;
       margin: 0;
       .panel {
+        width: 100%;
+        display: flex;
         ul {
+          flex-grow: 1;
           width: 100%;
           padding: 2px 4px 4px 4px;
           list-style: none;
@@ -40,6 +43,7 @@
               align-items: flex-start;
               flex-direction: column;
               padding-right: 2px;
+              width: 100%;
 
               &__note {
                 width: 100%;
@@ -56,6 +60,7 @@
 
                 &__text {
                   // font-family: "Andale Mono", "AndaleMono", monospace;
+                  width: 100%;
                   line-height: 1.1;
                   margin-left: 20px;
                   padding: 12px 0 8px;
@@ -98,10 +103,29 @@
   margin: 6px 0;
 }
 
+.content {
+  overflow: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100vh - 120px);
+
+  &__action-buttons {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+}
+
 .panel {
   display: flex;
   justify-content: space-between;
-
+  overflow: auto;
+  width: 100%;
+  max-height: 42.5vh;
+  background-color: rgb(39 39 42);
+  position: relative;
   padding: 4px1;
 }
 
@@ -125,7 +149,6 @@
   ::-webkit-scrollbar-thumb {
     -webkit-border-radius: 10px;
     border-radius: 10px;
-
     background: #444444;
   }
 }
@@ -138,6 +161,7 @@
   height: calc(100vh - 55px);
   padding: 0 16px;
   scroll-margin-right: 10px;
+  overflow-y: hidden;
 
   ::-webkit-scrollbar {
     width: 7px;
