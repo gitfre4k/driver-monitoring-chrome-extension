@@ -470,7 +470,9 @@
         <!-- driverArchiveNotes -->
         @if (data.driverArchiveNotes; as driverArchiveNotes) {
           <div class="info-tab__log__data__notes">
-            <span class="info-tab__log__data__notes__title">driver notes</span>
+            <span class="info-tab__log__data__notes__title"
+              >driver archive notes</span
+            >
             @for (
               singleNote of driverArchiveNotes | keyvalue;
               track singleNote.key
