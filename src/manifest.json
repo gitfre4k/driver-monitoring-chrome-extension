@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Driver Monitoring Chrome Extension",
-  "version": "0.0.4.25",
-  "description": "An early-stage Chrome extension developed to assist with user interactions within the Driver Monitoring web application.",
+  "version": "0.0.4.27",
+  "description": "Chrome extension developed to assist with user interactions within the Driver Monitoring web application.",
   "icons": {
     "16": "favicon-dex.png",
     "32": "favicon-dex.png",

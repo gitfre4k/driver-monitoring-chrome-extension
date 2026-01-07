@@ -80,15 +80,19 @@
                     }
                   }
                 }
-                &__delete {
+
+                &__action-btns {
                   padding-right: 8px;
                   margin: 3px 2px;
-
-                  color: #ff66667c;
                   visibility: hidden;
+                  display: flex;
+                  flex-direction: column;
+                  &__delete {
+                    color: #ff66667c;
+                  }
                 }
               }
-              &__note:hover .notes__note__delete {
+              &__note:hover .notes__note__action-btns {
                 visibility: visible;
               }
             }

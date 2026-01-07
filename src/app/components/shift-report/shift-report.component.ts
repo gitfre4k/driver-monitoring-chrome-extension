@@ -33,6 +33,7 @@ import {
 } from '../../helpers/backend.helpers';
 import { MatBadgeModule } from '@angular/material/badge';
 import {
+  IData,
   IDataDriver,
   IDataDriverNotes,
 } from '../../interfaces/shift-report.interface';
@@ -85,16 +86,91 @@ export class ShiftReportComponent {
     2: 'FMCSA Inspections',
     3: 'Malfunction Letters',
     4: 'Marker Notes',
+    5: 'Archived Notes',
   };
   page = signal(0);
   state = computed(() => {
     const page = this.page();
     const backendData = this.backendService.backendData();
+    const archiveData = this.backendService.archiveData();
 
-    const data = backendData?.[page];
+    const isArchive = page === 5;
+
+    const data = isArchive ? archiveData?.[0] : backendData?.[page];
     const name = this.pages[page];
-    const customNotes = backendData?.customNotes;
+    const customNotes = isArchive
+      ? archiveData?.customNotes
+      : backendData?.customNotes;
 
+    const sortedData = this.sortData(data);
+
+    const sortedDataByTime: [
+      tenant: { id: string; name: string; stamp: string },
+      note: IDataDriverNotes,
+      driver?: {
+        name: string;
+        id: number;
+      },
+    ][] = [];
+
+    sortedData.forEach(([key, value]) => {
+      const tenantId = key;
+      const tenantName = value.name;
+      const companyNotes = value.companyNotes;
+
+      for (let stamp in companyNotes) {
+        sortedDataByTime.push([
+          { id: tenantId, name: tenantName, stamp },
+          { [stamp]: companyNotes[stamp] },
+        ]);
+      }
+      for (let driverId in value.drivers) {
+        const driver = value.drivers[driverId];
+        for (let stamp in driver.notes) {
+          sortedDataByTime.push([
+            { id: tenantId, name: tenantName, stamp },
+            { [stamp]: driver.notes[stamp] },
+            { name: driver.name, id: Number(driverId) },
+          ]);
+        }
+      }
+    });
+
+    sortedDataByTime.sort(
+      (a, b) => new Date(b[0].stamp).getTime() - new Date(a[0].stamp).getTime(),
+    );
+
+    return {
+      name,
+      customNotes,
+      sortedData,
+      sortedDataByTime,
+    };
+  });
+
+  isMultiMode = false;
+  isSortedByTime = false;
+
+  handleExpandAll(accordion: any) {
+    this.isMultiMode = true;
+    setTimeout(() => {
+      accordion.openAll();
+      this.isMultiMode = false;
+    });
+  }
+
+  sortArrayByPart = sortArrayByPart;
+  getNote = getNote;
+  parseDOTInspection = parseDOTInspection;
+  parseMalf = parseMalf;
+
+  constructor() {}
+
+  toggleSorting() {
+    this.isSortedByTime = !this.isSortedByTime;
+  }
+
+  sortData(data: IData | undefined) {
     const sortedData: [
       key: string,
       data: {
@@ -110,37 +186,12 @@ export class ShiftReportComponent {
 
       sortedData.sort((a, b) => a[1].name.localeCompare(b[1].name));
     }
-
-    return { name, customNotes, sortedData };
-  });
-
-  isMultiMode = false;
-
-  handleExpandAll(accordion: any) {
-    // 1. Temporarily enable multi-expand mode
-    this.isMultiMode = true;
-
-    // 2. Use a small timeout or wait for the next tick so
-    // the accordion registers the 'multi' change before opening
-    setTimeout(() => {
-      accordion.openAll();
-
-      // 3. Revert to single-expand mode.
-      // Existing open panels stay open, but the next user click
-      // will collapse all except the one they clicked.
-      this.isMultiMode = false;
-    });
+    return sortedData;
   }
-
-  sortArrayByPart = sortArrayByPart;
-  getNote = getNote;
-  parseDOTInspection = parseDOTInspection;
-  parseMalf = parseMalf;
-
-  constructor() {}
 
   ngOnInit(): void {
     this.backendService.loadShiftReport();
+    this.backendService.loadArchive();
   }
 
   ngOnDestroy(): void {
@@ -188,10 +239,33 @@ export class ShiftReportComponent {
           },
           complete: () => {
             this.backendService.isDeletingNote.set(null);
-            this.backendService.loadShiftReport();
+            if (this.page() === 5) this.backendService.loadArchive();
+            else this.backendService.loadShiftReport();
           },
         });
       }
+    });
+  }
+
+  archiveNote(
+    value: { note: string; part: number; eventId: number }[],
+    key: string,
+  ) {
+    this.backendService.isDeletingNote.set(key);
+    const idsToArchive = value.map((note) => note.eventId);
+
+    this.backendService.archiveNote(idsToArchive).subscribe({
+      error: () => {
+        this._snackBar.open('Failed to move note to archive', 'Close', {
+          duration: 3000,
+        });
+        this.backendService.isDeletingNote.set(null);
+      },
+      complete: () => {
+        this.backendService.isDeletingNote.set(null);
+        this.backendService.loadShiftReport();
+        this.backendService.loadArchive();
+      },
     });
   }
 

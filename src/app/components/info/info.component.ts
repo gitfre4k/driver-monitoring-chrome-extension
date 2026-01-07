@@ -79,19 +79,20 @@ export class InfoComponent {
 
   backendData = () => {
     const backendData = this.backendService.backendData();
+    const archiveData = this.backendService.archiveData();
+
     const tenantId = this.appService.currentTenant()?.id;
-
     const ddle = this.monitorService.driverDailyLog();
-
     const driverId = ddle?.driverId;
     const truckId =
       ddle?.vehicles[ddle?.vehicles?.length ? ddle?.vehicles?.length - 1 : 0]
         ?.id;
 
-    if (!backendData || !tenantId) return null;
+    if (!backendData || !archiveData || !tenantId) return null;
 
     const companyNotes = backendData[0][tenantId]?.companyNotes;
     const companyMarkers = backendData[4][tenantId]?.companyNotes;
+    const companyArchiveNotes = archiveData[0][tenantId]?.companyNotes;
 
     if (!driverId) {
       return {
@@ -101,11 +102,14 @@ export class InfoComponent {
         infoNotes: null,
         driverMarker: null,
         companyNotes,
+        companyArchiveNotes,
         companyMarkers,
       };
     }
 
     const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
+    const driverArchiveNotes =
+      archiveData[0][tenantId]?.drivers[driverId]?.notes;
     const problems = backendData[1][tenantId]?.drivers[driverId]?.notes;
     const fmscaInspections = backendData[2][tenantId]?.drivers[driverId]?.notes;
     const infoNotes = backendData[3][tenantId]?.drivers[driverId]?.notes;
@@ -128,12 +132,14 @@ export class InfoComponent {
 
     return {
       driverNotes,
+      driverArchiveNotes,
       problems,
       fmscaInspections,
       infoNotes,
       driverMarker,
       driverMarkColor,
       companyNotes,
+      companyArchiveNotes,
       companyMarkers,
       truckProblems,
       isTruckProblem,

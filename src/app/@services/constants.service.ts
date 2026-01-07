@@ -4,7 +4,7 @@ import { effect, Injectable, signal, WritableSignal } from '@angular/core';
   providedIn: 'root',
 })
 export class ConstantsService {
-  extensionVersion = signal('0.0.4.26');
+  extensionVersion = signal('0.0.4.27');
 
   httpLimit = signal(2);
 

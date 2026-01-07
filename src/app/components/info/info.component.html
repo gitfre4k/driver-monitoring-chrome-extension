@@ -69,6 +69,10 @@
                 {{ getNote(singleNote.value) }}
                 <br />
                 <span class="info-tab__log__data__marker__note-ts">
+                  {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                  -
+
                   {{ singleNote.key | dateAgo }}
                 </span>
               </span>
@@ -91,13 +95,58 @@
       }
       @if (!isEmpty(data.companyNotes) && data.companyNotes; as companyNotes) {
         <div class="info-tab__log__data__marker">
-          <span class="info-tab__log__data__marker__title">report notes</span>
+          <span class="info-tab__log__data__marker__title">company notes</span>
           @for (singleNote of companyNotes | keyvalue; track singleNote.key) {
             <div class="info-tab__log__data__marker__note">
               <span class="info-tab__log__data__marker__note__text">
                 {{ getNote(singleNote.value) }}
                 <br />
                 <span class="info-tab__log__data__marker__note-ts">
+                  {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                  -
+
+                  {{ singleNote.key | dateAgo }}
+                </span>
+              </span>
+              <a
+                mat-icon-button
+                matTooltip="Done"
+                class="info-tab__log__data__marker__note__delete"
+                (click)="deleteNote(singleNote.value, singleNote.key)"
+                [disabled]="backendService.isDeletingNote()"
+              >
+                @if (singleNote.key === backendService.isDeletingNote()) {
+                  <mat-spinner [diameter]="24"></mat-spinner>
+                } @else {
+                  <span class="material-icons"> clear </span>
+                }
+              </a>
+            </div>
+          }
+        </div>
+      }
+      @if (
+        !isEmpty(data.companyArchiveNotes) && data.companyArchiveNotes;
+        as companyArchiveNotes
+      ) {
+        <div class="info-tab__log__data__marker">
+          <span class="info-tab__log__data__marker__title"
+            >company archive notes</span
+          >
+          @for (
+            singleNote of companyArchiveNotes | keyvalue;
+            track singleNote.key
+          ) {
+            <div class="info-tab__log__data__marker__note">
+              <span class="info-tab__log__data__marker__note__text">
+                {{ getNote(singleNote.value) }}
+                <br />
+                <span class="info-tab__log__data__marker__note-ts">
+                  {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                  -
+
                   {{ singleNote.key | dateAgo }}
                 </span>
               </span>
@@ -261,6 +310,10 @@
                   {{ getNote(singleNote.value) }}
                   <br />
                   <span class="info-tab__log__data__marker__note-ts">
+                    {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                    -
+
                     {{ singleNote.key | dateAgo }}
                   </span>
                 </span>
@@ -307,6 +360,10 @@
 
                   <br />
                   <span class="info-tab__log__data__marker__note-ts">
+                    {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                    -
+
                     {{ singleNote.key | dateAgo }}
                   </span>
                 </span>
@@ -351,6 +408,10 @@
 
                   <br />
                   <span class="info-tab__log__data__marker__note-ts">
+                    {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                    -
+
                     {{ singleNote.key | dateAgo }}
                   </span>
                 </span>
@@ -375,15 +436,54 @@
         <!-- driverNotes -->
         @if (data.driverNotes; as driverNotes) {
           <div class="info-tab__log__data__notes">
-            <span class="info-tab__log__data__notes__title"
-              >notes from report</span
-            >
+            <span class="info-tab__log__data__notes__title">driver notes</span>
             @for (singleNote of driverNotes | keyvalue; track singleNote.key) {
               <div class="info-tab__log__data__notes__note">
                 <span class="info-tab__log__data__notes__note__text">
                   {{ getNote(singleNote.value) }}
                   <br />
                   <span class="info-tab__log__data__marker__note-ts">
+                    {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                    -
+
+                    {{ singleNote.key | dateAgo }}
+                  </span>
+                </span>
+                <a
+                  mat-icon-button
+                  matTooltip="Done"
+                  class="info-tab__log__data__notes__note__delete"
+                  (click)="deleteNote(singleNote.value, singleNote.key)"
+                  [disabled]="backendService.isDeletingNote()"
+                >
+                  @if (singleNote.key === backendService.isDeletingNote()) {
+                    <mat-spinner [diameter]="24"></mat-spinner>
+                  } @else {
+                    <span class="material-icons"> clear </span>
+                  }
+                </a>
+              </div>
+            }
+          </div>
+        }
+        <!-- driverArchiveNotes -->
+        @if (data.driverArchiveNotes; as driverArchiveNotes) {
+          <div class="info-tab__log__data__notes">
+            <span class="info-tab__log__data__notes__title">driver notes</span>
+            @for (
+              singleNote of driverArchiveNotes | keyvalue;
+              track singleNote.key
+            ) {
+              <div class="info-tab__log__data__notes__note">
+                <span class="info-tab__log__data__notes__note__text">
+                  {{ getNote(singleNote.value) }}
+                  <br />
+                  <span class="info-tab__log__data__marker__note-ts">
+                    {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                    -
+
                     {{ singleNote.key | dateAgo }}
                   </span>
                 </span>

@@ -26,11 +26,13 @@ export class BackendService {
   dataSubscription: Subscription | undefined;
 
   backendData = signal<IBackendData | null>(null);
+  archiveData = signal<IBackendData | null>(null);
 
   isLoadingShiftReport = signal(false);
   isDeletingNote = signal<string | null>(null);
 
   dataDate = '2025-09-01T04:00:00Z';
+  archiveDataDate = '2025-08-31T04:00:00Z';
 
   constructor() {}
 
@@ -39,6 +41,30 @@ export class BackendService {
     this.dataSubscription = this.shiftReport$.subscribe({
       next: (value) => {
         this.backendData.set(value);
+      },
+      error: (error) => {
+        this.isLoadingShiftReport.set(false);
+        this._snackBar.open(
+          'Error loading shift report data: ' +
+            (error.message ? error.message : error.error.message),
+          'Close',
+          {
+            duration: 7000,
+          },
+        );
+      },
+      complete: () => {
+        this.isLoadingShiftReport.set(false);
+      },
+    });
+  }
+
+  loadArchive() {
+    this.isLoadingShiftReport.set(true);
+    this.dataSubscription = this.archive$.subscribe({
+      next: (value) => {
+        console.log('Archive data loaded:', value);
+        this.archiveData.set(value);
       },
       error: (error) => {
         this.isLoadingShiftReport.set(false);
@@ -195,6 +221,121 @@ export class BackendService {
       }),
     );
 
+  archive$: Observable<IBackendData> = this.apiService
+    .getDriverDailyLogEvents(
+      2,
+      this.archiveDataDate,
+      '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+    )
+    .pipe(
+      map((ddle) => {
+        const events = ddle.events;
+
+        const archiveNotes = {} as IData;
+        const customNotes = {} as IDataDriverNotes;
+
+        events.forEach((event) => {
+          if (event.shippingDocuments.slice(-7) === '"null"}') window.close();
+          let state: IData;
+
+          if (event.dutyStatus === 'IntermediateLogReducedLocationPrecision') {
+            const stamp = event.attachedTrailers;
+
+            const currentNote = {
+              note: event.notes,
+              part: event.engineMinutes,
+              eventId: event.id,
+            };
+
+            if (customNotes[stamp]) {
+              customNotes[stamp].push(currentNote);
+            } else {
+              customNotes[stamp] = [currentNote];
+            }
+          } else {
+            switch (event.dutyStatus) {
+              case 'ChangeToOffDutyStatus':
+                state = archiveNotes;
+                break;
+
+              default:
+                state = archiveNotes;
+            }
+
+            if (event.notes === 'BACKEND__START') return;
+
+            // 1. Ensure tenant structure exists (Initialization)
+            const dataInfo = JSON.parse(event.shippingDocuments);
+            const tenant = dataInfo.tenant;
+            const vehicleData = dataInfo.vehicleData;
+            if (!state[tenant.id]) {
+              state[tenant.id] = {
+                name: tenant.name,
+                companyNotes: {},
+                drivers: {}, // Initialize drivers as an empty object
+              };
+            }
+            const markerColor = (): 'red' | 'blue' | null => {
+              switch (event.dutyStatus) {
+                case 'EngineShutDownConventionalLocationPrecision':
+                case 'EnginePowerUpConventionalLocationPrecision':
+                  return 'red';
+                case 'EngineShutDownReducedLocationPrecision':
+                case 'EnginePowerUpReducedLocationPrecision':
+                  return 'blue';
+                default:
+                  return null;
+              }
+            };
+
+            // 2. Extract common data
+            const currentNote = {
+              note: event.notes,
+              part: event.engineMinutes,
+              eventId: event.id,
+              vehicleData,
+              markerColor: markerColor(),
+            };
+            const driverId = event.odometer;
+            const stamp = event.attachedTrailers;
+            const tenantReport = state[tenant.id];
+
+            const companyNotes = tenantReport.companyNotes;
+
+            if (event.odometer === 999) {
+              if (companyNotes[stamp]) {
+                companyNotes[stamp].push(currentNote);
+              } else {
+                companyNotes[stamp] = [currentNote];
+              }
+            }
+
+            // 3. Ensure driver structure exists (Initialization)
+            if (!tenantReport.drivers[driverId]) {
+              tenantReport.drivers[driverId] = {
+                name: event.locationDisplayName,
+                notes: {}, // Initialize notes as an empty object
+              };
+            }
+
+            const driverNotes = tenantReport.drivers[driverId].notes;
+
+            // 4. Update the notes array for the stamp
+            if (driverNotes[stamp]) {
+              driverNotes[stamp].push(currentNote);
+            } else {
+              driverNotes[stamp] = [currentNote];
+            }
+          }
+        });
+
+        return {
+          0: archiveNotes,
+          customNotes,
+        };
+      }),
+    );
+
   uploadData = (
     tenant: ITenant,
     driver: {
@@ -262,6 +403,13 @@ export class BackendService {
 
   deleteNote(eventIds: number[]) {
     return this.apiOperationsService.deleteEvents(
+      { id: '3a0e2d3b-8214-edb4-c139-0d55051fc170' } as ITenant,
+      [...eventIds],
+    );
+  }
+
+  archiveNote(eventIds: number[]) {
+    return this.apiOperationsService.archiveEvents(
       { id: '3a0e2d3b-8214-edb4-c139-0d55051fc170' } as ITenant,
       [...eventIds],
     );

@@ -115,6 +115,11 @@ export class AppComponent {
       next: () => this.backendService.loadShiftReport(),
     });
 
+    // Auto-loadArchive()
+    this.timerSub = interval(300000).subscribe({
+      next: () => this.backendService.loadArchive(),
+    });
+
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({
       next: () => {
