@@ -127,11 +127,12 @@ export class ShiftReportComponent {
       for (let driverId in value.drivers) {
         const driver = value.drivers[driverId];
         for (let stamp in driver.notes) {
-          sortedDataByTime.push([
-            { id: tenantId, name: tenantName, stamp },
-            { [stamp]: driver.notes[stamp] },
-            { name: driver.name, id: Number(driverId) },
-          ]);
+          +driverId !== 999 &&
+            sortedDataByTime.push([
+              { id: tenantId, name: tenantName, stamp },
+              { [stamp]: driver.notes[stamp] },
+              { name: driver.name, id: Number(driverId) },
+            ]);
         }
       }
     });
@@ -281,6 +282,65 @@ export class ShiftReportComponent {
         eventTypeCode,
         title,
       },
+    });
+  }
+
+  generateShiftReport() {
+    if (this.page() !== 0) return;
+
+    const data = this.state().sortedData;
+    const customNotes = this.state().customNotes;
+
+    const reportParts: string[] = [];
+
+    if (customNotes) {
+      reportParts.push(`***`);
+      for (let key in customNotes) {
+        const note = getNote(customNotes[key]);
+        reportParts.push(`
+${' '}> ${note}`);
+      }
+      reportParts.push(`
+
+`);
+    }
+
+    data.forEach((tenant) => {
+      const company = tenant[1];
+      const { name, companyNotes, drivers } = company;
+
+      reportParts.push(`## ${formatTenantName(name)}`);
+
+      for (let key in companyNotes) {
+        const note = getNote(companyNotes[key]);
+        reportParts.push(`
+* ${note}`);
+      }
+
+      for (let id in drivers) {
+        const driver = drivers[id];
+        id !== '999' &&
+          reportParts.push(`
+${driver.name}`);
+        const driverNotes = driver.notes;
+
+        for (let key in driverNotes) {
+          const note = getNote(driverNotes[key]);
+          id !== '999' &&
+            reportParts.push(`
+${' '}> ${note}`);
+        }
+      }
+      reportParts.push(`
+
+`);
+    });
+
+    const report = reportParts.join('');
+
+    navigator.clipboard.writeText(report);
+    this._snackBar.open(`Sift Report copied to clipboard`, 'OK', {
+      duration: 2000,
     });
   }
 

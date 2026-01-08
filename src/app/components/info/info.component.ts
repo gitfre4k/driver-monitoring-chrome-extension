@@ -27,6 +27,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IVehicle } from '../../interfaces/driver-daily-log-events.interface';
 import { getNote } from '../../helpers/backend.helpers';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DialogConfirmComponent } from '../UI/dialog-confirm/dialog-confirm.component';
 
 @Component({
   selector: 'app-info',
@@ -198,23 +199,34 @@ export class InfoComponent {
     key: string,
     isArchiveNote?: boolean,
   ) {
-    this.backendService.isDeletingNote.set(key);
+    const dialogRef = this.dialog.open(DialogConfirmComponent, {
+      width: '250px',
+      data: {
+        title: 'Delete Note',
+        info: `Are you sure you want to proceed?`,
+      },
+    });
 
-    const idsToDelete = value.map((note) => note.eventId);
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.backendService.isDeletingNote.set(key);
+        const idsToDelete = value.map((note) => note.eventId);
 
-    this.backendService.deleteNote(idsToDelete).subscribe({
-      error: () => {
-        this._snackBar.open('Failed to delete note', 'Close', {
-          duration: 3000,
+        this.backendService.deleteNote(idsToDelete).subscribe({
+          error: () => {
+            this._snackBar.open('Failed to delete note', 'Close', {
+              duration: 3000,
+            });
+            this.backendService.isDeletingNote.set(null);
+          },
+          complete: () => {
+            this.backendService.isDeletingNote.set(null);
+            isArchiveNote
+              ? this.backendService.loadArchive()
+              : this.backendService.loadShiftReport();
+          },
         });
-        this.backendService.isDeletingNote.set(null);
-      },
-      complete: () => {
-        this.backendService.isDeletingNote.set(null);
-        isArchiveNote
-          ? this.backendService.loadArchive()
-          : this.backendService.loadShiftReport();
-      },
+      }
     });
   }
 

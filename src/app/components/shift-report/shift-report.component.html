@@ -284,7 +284,9 @@
           } @else if ([0, 5].includes(page())) {
             <mat-expansion-panel [expanded]="true" [disabled]="true" hideToggle>
               <mat-expansion-panel-header>
-                <mat-panel-title style="color: #fff"> *** </mat-panel-title>
+                <mat-panel-title style="color: #fff">
+                  {{ formatTenantName(item[0].name) }}
+                </mat-panel-title>
               </mat-expansion-panel-header>
               <div class="panel">
                 <ul>
@@ -719,13 +721,24 @@
   </div>
 
   @if (page() === 0) {
-    <button
-      class="shift-report__add"
-      matButton="tonal"
-      (click)="addCustomNote()"
-    >
-      <mat-icon>add_circle</mat-icon>
-      add Custom Note
-    </button>
+    <div class="shift-report__footer">
+      <button
+        class="shift-report__btn"
+        matButton="tonal"
+        (click)="addCustomNote()"
+      >
+        <mat-icon>add_circle</mat-icon>
+        add Custom Note
+      </button>
+
+      <button
+        class="shift-report__btn"
+        matButton="tonal"
+        (click)="generateShiftReport()"
+      >
+        <mat-icon>assignment</mat-icon>
+        generate Shift Report
+      </button>
+    </div>
   }
 </div>

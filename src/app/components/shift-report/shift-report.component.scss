@@ -326,9 +326,12 @@
     }
   }
 
-  &__add {
+  &__footer {
     margin: auto 0 16px;
-    padding: 4px 18px;
+    display: flex;
+    &__btn {
+      padding: 4px 18px;
+    }
   }
 }
 
