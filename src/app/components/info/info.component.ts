@@ -196,6 +196,7 @@ export class InfoComponent {
   deleteNote(
     value: { note: string; part: number; eventId: number }[],
     key: string,
+    isArchiveNote?: boolean,
   ) {
     this.backendService.isDeletingNote.set(key);
 
@@ -210,7 +211,9 @@ export class InfoComponent {
       },
       complete: () => {
         this.backendService.isDeletingNote.set(null);
-        this.backendService.loadShiftReport();
+        isArchiveNote
+          ? this.backendService.loadArchive()
+          : this.backendService.loadShiftReport();
       },
     });
   }

@@ -59,32 +59,51 @@
           "
         >
           {{ ddle.driverFullName }}
-          <div
-            class="mat-badge-custom"
-            style="margin-bottom: 20px"
-            [matBadge]="driverBackendData()?.noteCount"
-            [matBadgeHidden]="!driverBackendData()?.noteCount"
-            matBadgeColor="primary"
-            matBadgePosition="above after"
-            matBadgeSize="medium"
-          ></div>
-          <div
-            style="margin-bottom: 20px; margin-left: 2px"
-            [matBadge]="driverBackendData()?.issueCount"
-            [matBadgeHidden]="!driverBackendData()?.issueCount"
-            matBadgeColor="primary"
-            matBadgePosition="above after"
-            matBadgeSize="medium"
-          ></div>
-          <div
-            class="mat-badge-custom-truck"
-            style="margin-bottom: 20px; margin-left: 2px"
-            [matBadge]="driverBackendData()?.isTruckProblem ? 1 : 0"
-            [matBadgeHidden]="!driverBackendData()?.isTruckProblem"
-            matBadgeColor="primary"
-            matBadgePosition="above after"
-            matBadgeSize="medium"
-          ></div>
+          @if (driverBackendData()?.noteCount; as noteCount) {
+            <div
+              class="mat-badge-custom"
+              style="margin-bottom: 20px"
+              [matBadge]="noteCount"
+              [matBadgeHidden]="!noteCount"
+              matBadgeColor="primary"
+              matBadgePosition="above after"
+              matBadgeSize="medium"
+            ></div>
+          }
+
+          @if (
+            driverBackendData()?.driverArchiveNotesCount;
+            as driverArchiveNotesCount
+          ) {
+            <div
+              class="mat-badge-custom-archive"
+              style="margin-bottom: 20px"
+              [matBadge]="driverArchiveNotesCount"
+              matBadgeColor="primary"
+              matBadgePosition="above after"
+              matBadgeSize="medium"
+            ></div>
+          }
+          @if (driverBackendData()?.issueCount; as issueCount) {
+            <div
+              style="margin-bottom: 20px"
+              [matBadge]="issueCount"
+              matBadgeColor="primary"
+              matBadgePosition="above after"
+              matBadgeSize="medium"
+            ></div>
+          }
+
+          @if (driverBackendData()?.isTruckProblem; as isTruckProblem) {
+            <div
+              class="mat-badge-custom-truck"
+              style="margin-bottom: 20px"
+              [matBadge]="isTruckProblem ? 1 : 0"
+              matBadgeColor="primary"
+              matBadgePosition="above after"
+              matBadgeSize="medium"
+            ></div>
+          }
         </span>
       </div>
       <div class="info__company-and-driver__2">

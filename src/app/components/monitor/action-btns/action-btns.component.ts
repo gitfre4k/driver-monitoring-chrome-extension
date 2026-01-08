@@ -30,6 +30,7 @@ import { UrlService } from '../../../@services/url.service';
 import { SmartFixService } from '../../../@services/smart-fix.service';
 import { BackendService } from '../../../@services/backend.service';
 import { DatePipe } from '@angular/common';
+import { ConstantsService } from '../../../@services/constants.service';
 
 @Component({
   selector: 'app-action-btns',
@@ -59,6 +60,7 @@ export class ActionBtnsComponent {
   contextMenuService = inject(ContextMenuService);
   urlService = inject(UrlService);
   backendService = inject(BackendService);
+  constantsService = inject(ConstantsService);
   _dialog = inject(MatDialog);
   _snackBar = inject(MatSnackBar);
 

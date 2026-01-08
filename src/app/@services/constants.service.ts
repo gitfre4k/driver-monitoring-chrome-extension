@@ -15,6 +15,7 @@ export class ConstantsService {
     'hiddenViolations',
     [] as { startTime: string; type: string }[],
   );
+  disableSmartFixOnCoDrivers = signal(true);
 
   createSignal<T>(key: string, initialValue: T): WritableSignal<T> {
     const storedValue = localStorage.getItem(key);

@@ -3,22 +3,8 @@
 
   <div class="settings__container">
     <hr />
-    <div class="settings__container__side">
-      <p>Open extension window on</p>
-      <mat-radio-group [(ngModel)]="constantsService.rightSide">
-        <mat-radio-button [value]="false">Left side</mat-radio-button>
-        <mat-radio-button [value]="true">Right side</mat-radio-button>
-      </mat-radio-group>
-    </div>
-
-    <div class="settings__container__location">
-      <mat-checkbox [(ngModel)]="constantsService.showLocationDisplayName">
-        show Location Display Name
-      </mat-checkbox>
-    </div>
 
     <div class="settings__container__speed">
-      <p>Scan Speed</p>
       <mat-form-field class="settings__container__speed-form">
         <mat-label>Limit number of pending requests to</mat-label>
         <mat-select [(ngModel)]="constantsService.httpLimit">
@@ -40,6 +26,55 @@
           [(ngModel)]="constantsService.ptiName"
         />
       </mat-form-field>
+    </div>
+
+    <div class="settings__container__side">
+      <p>Open extension window on</p>
+      <mat-radio-group [(ngModel)]="constantsService.rightSide">
+        <mat-radio-button [value]="false">Left side</mat-radio-button>
+        <mat-radio-button [value]="true">Right side</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <div class="settings__container__location">
+      <mat-checkbox [(ngModel)]="constantsService.showLocationDisplayName">
+        show Location Display Name
+      </mat-checkbox>
+    </div>
+
+    <div class="settings__container__location">
+      <mat-checkbox [(ngModel)]="constantsService.disableSmartFixOnCoDrivers">
+        disable SmartFix button on co-drivers
+      </mat-checkbox>
+    </div>
+
+    <div class="settings__container__keybinds">
+      <h3>Keyboard Shortcuts</h3>
+
+      <div class="settings__container__keybinds__item">
+        <p>Shift Operation</p>
+        <span>SHIFT</span>
+      </div>
+
+      <div class="settings__container__keybinds__item">
+        <p>Delete Operation</p>
+        <span>DELETE</span>
+      </div>
+
+      <div class="settings__container__keybinds__item">
+        <p>Zip Operation</p>
+        <span>Z / 0</span>
+      </div>
+
+      <div class="settings__container__keybinds__item">
+        <p>navigate to next day</p>
+        <span>Right Arrow</span>
+      </div>
+
+      <div class="settings__container__keybinds__item">
+        <p>navigate to previous day</p>
+        <span>Left Arrow</span>
+      </div>
     </div>
 
     <!-- <div class="settings__container__keybinds">

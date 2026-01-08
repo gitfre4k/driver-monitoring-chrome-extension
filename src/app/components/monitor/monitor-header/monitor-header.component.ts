@@ -82,9 +82,10 @@ export class MonitorHeaderComponent {
 
   driverBackendData = computed(() => {
     const backendData = this.backendService.backendData();
+    const archiveData = this.backendService.archiveData();
     const ddle = this.monitorService.driverDailyLog();
 
-    if (!backendData || !ddle) return null;
+    if (!backendData || !archiveData || !ddle) return null;
 
     const tenantId = ddle.tenantId;
     const driverId = ddle.driverId;
@@ -93,6 +94,7 @@ export class MonitorHeaderComponent {
         ?.id;
 
     const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
+    const driverArchiveNotes = archiveData[0][tenantId]?.drivers[driverId];
     const driverProblems = backendData[1][tenantId]?.drivers[driverId]?.notes;
     const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
     const driverMarkColor = driverMarker
@@ -122,6 +124,7 @@ export class MonitorHeaderComponent {
     }
 
     const companyNotes = backendData[0][tenantId]?.companyNotes;
+    const companyArchiveNotes = archiveData[0][tenantId]?.companyNotes;
     const companyMarker = backendData[4][tenantId]?.companyNotes;
     const companyMarkColor = companyMarker
       ? Object.values(companyMarker)?.[0]?.[0]?.markerColor
@@ -135,6 +138,12 @@ export class MonitorHeaderComponent {
       companyMarkColor: companyMarker ? companyMarkColor : null,
       malfs,
       isTruckProblem,
+      driverArchiveNotesCount: driverArchiveNotes
+        ? Object.keys(driverArchiveNotes).length
+        : 0,
+      companyArchiveNotesCount: companyArchiveNotes
+        ? Object.keys(companyArchiveNotes).length
+        : 0,
     };
   });
 

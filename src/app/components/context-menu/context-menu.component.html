@@ -49,7 +49,7 @@
     }
 
     @if (
-    event.statusName === "On Duty" && (event.realDurationInSeconds > 1800 || event.durationInSeconds > 1800)
+    event.statusName === "On Duty" && (event.realDurationInSeconds > 900 || event.durationInSeconds > 900)
     ) {
     <li class="context-menu__item submenu">
       <!-- SUBMENU PARTIAL TRANSFORMATION -->

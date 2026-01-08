@@ -154,7 +154,7 @@
                 mat-icon-button
                 matTooltip="Done"
                 class="info-tab__log__data__marker__note__delete"
-                (click)="deleteNote(singleNote.value, singleNote.key)"
+                (click)="deleteNote(singleNote.value, singleNote.key, true)"
                 [disabled]="backendService.isDeletingNote()"
               >
                 @if (singleNote.key === backendService.isDeletingNote()) {
@@ -493,7 +493,7 @@
                   mat-icon-button
                   matTooltip="Done"
                   class="info-tab__log__data__notes__note__delete"
-                  (click)="deleteNote(singleNote.value, singleNote.key)"
+                  (click)="deleteNote(singleNote.value, singleNote.key, true)"
                   [disabled]="backendService.isDeletingNote()"
                 >
                   @if (singleNote.key === backendService.isDeletingNote()) {
