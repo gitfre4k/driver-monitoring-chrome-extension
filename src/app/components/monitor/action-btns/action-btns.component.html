@@ -44,7 +44,10 @@
       [matTooltipHideDelay]="0"
       matTooltipPosition="below"
       (click)="smartFix()"
-      [disabled]="isSmartFix() || constantsService.disableSmartFixOnCoDrivers()"
+      [disabled]="
+        isSmartFix() ||
+        (constantsService.disableSmartFixOnCoDrivers() && isCoDriver())
+      "
     >
       <mat-icon>published_with_changes</mat-icon>
     </button>

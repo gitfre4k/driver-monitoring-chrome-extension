@@ -66,6 +66,12 @@ export class ActionBtnsComponent {
 
   isLoading = signal(false);
   isSmartFix = signal(false);
+  isCoDriver = computed(() => {
+    const ddle = this.monitorService.driverDailyLog();
+    if (!ddle) return false;
+
+    return !!ddle.coDrivers?.length;
+  });
 
   deselectAllEvents() {
     this.monitorService.selectedEvents.set([]);
