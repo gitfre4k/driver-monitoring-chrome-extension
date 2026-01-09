@@ -19,15 +19,32 @@
           "
         >
           ## {{ formatTenantName(ddle.companyName) }}
-          <span
-            class="mat-badge-custom"
-            style="margin-bottom: 20px; margin-left: 12px"
-            [matBadge]="driverBackendData()?.companyNoteCount"
-            [matBadgeHidden]="!driverBackendData()?.companyNoteCount"
-            matBadgeColor="primary"
-            matBadgePosition="above after"
-            matBadgeSize="medium"
-          ></span>
+
+          @if (driverBackendData()?.companyNoteCount; as companyNoteCount) {
+            <span
+              class="mat-badge-custom"
+              [matBadge]="companyNoteCount"
+              style="margin-left: 18px"
+              [matBadgeHidden]="!companyNoteCount"
+              matBadgeColor="primary"
+              matBadgePosition="above after"
+              matBadgeSize="medium"
+            ></span>
+          }
+
+          @if (
+            driverBackendData()?.companyArchiveNotesCount;
+            as companyArchiveNotesCount
+          ) {
+            <span
+              class="mat-badge-custom-archive"
+              style="margin-left: 18px"
+              [matBadge]="companyArchiveNotesCount"
+              matBadgeColor="primary"
+              matBadgePosition="above after"
+              matBadgeSize="medium"
+            ></span>
+          }
         </span>
 
         <!-- 
@@ -71,19 +88,6 @@
             ></div>
           }
 
-          @if (
-            driverBackendData()?.driverArchiveNotesCount;
-            as driverArchiveNotesCount
-          ) {
-            <div
-              class="mat-badge-custom-archive"
-              style="margin-bottom: 20px"
-              [matBadge]="driverArchiveNotesCount"
-              matBadgeColor="primary"
-              matBadgePosition="above after"
-              matBadgeSize="medium"
-            ></div>
-          }
           @if (driverBackendData()?.issueCount; as issueCount) {
             <div
               style="margin-bottom: 20px"
@@ -99,6 +103,20 @@
               class="mat-badge-custom-truck"
               style="margin-bottom: 20px"
               [matBadge]="isTruckProblem ? 1 : 0"
+              matBadgeColor="primary"
+              matBadgePosition="above after"
+              matBadgeSize="medium"
+            ></div>
+          }
+
+          @if (
+            driverBackendData()?.driverArchiveNotesCount;
+            as driverArchiveNotesCount
+          ) {
+            <div
+              class="mat-badge-custom-archive"
+              style="margin-bottom: 20px"
+              [matBadge]="driverArchiveNotesCount"
               matBadgeColor="primary"
               matBadgePosition="above after"
               matBadgeSize="medium"

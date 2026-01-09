@@ -23,6 +23,7 @@
       width: calc(100vw - 128px);
       &-company {
         font-size: 22px;
+        display: flex;
         &-x,
         &-y {
           font-size: 22px;

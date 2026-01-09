@@ -94,7 +94,8 @@ export class MonitorHeaderComponent {
         ?.id;
 
     const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
-    const driverArchiveNotes = archiveData[0][tenantId]?.drivers[driverId];
+    const driverArchiveNotes =
+      archiveData[0][tenantId]?.drivers[driverId]?.notes;
     const driverProblems = backendData[1][tenantId]?.drivers[driverId]?.notes;
     const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
     const driverMarkColor = driverMarker
