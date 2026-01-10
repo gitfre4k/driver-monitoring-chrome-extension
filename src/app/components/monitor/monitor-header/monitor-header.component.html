@@ -1,14 +1,7 @@
 @if (driverDailyLog; as ddle) {
   <div class="info">
     <div class="info__company-and-driver">
-      <div
-        class="info__company-and-driver__1"
-        (click)="showInfo()"
-        matTooltip="Open Info"
-        matTooltipPosition="right"
-        [matTooltipShowDelay]="500"
-        [matTooltipHideDelay]="0"
-      >
+      <div class="info__company-and-driver__1" (click)="showInfo()">
         <span
           [class]="
             !driverBackendData()?.companyMarkColor
@@ -17,7 +10,11 @@
                 ? 'info__company-and-driver__1-company-x'
                 : 'info__company-and-driver__1-company-y'
           "
+          [matTooltip]="driverBackendData()?.companyMarkerText"
+          matTooltipPosition="above"
+          [matTooltipHideDelay]="0"
         >
+          <!-- [matTooltipShowDelay]="500" -->
           ## {{ formatTenantName(ddle.companyName) }}
 
           @if (driverBackendData()?.companyNoteCount; as companyNoteCount) {
@@ -74,7 +71,11 @@
                 ? 'info__company-and-driver__1-driver-x'
                 : 'info__company-and-driver__1-driver-y'
           "
+          [matTooltip]="driverBackendData()?.driverMarkText"
+          matTooltipPosition="below"
+          [matTooltipHideDelay]="0"
         >
+          <!-- [matTooltipShowDelay]="500" -->
           {{ ddle.driverFullName }}
           @if (driverBackendData()?.noteCount; as noteCount) {
             <div

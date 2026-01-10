@@ -62,7 +62,17 @@
         as companyMarkers
       ) {
         <div class="info-tab__log__data__marker">
-          <span class="info-tab__log__data__marker__title">*** marker ***</span>
+          <span
+            class="info-tab__log__data__marker__title"
+            [style]="
+              'color: ' +
+              (data.companyMarkColor === 'blue'
+                ? 'rgb(126, 133, 231)'
+                : 'red') +
+              ';'
+            "
+            >*** company marker
+          </span>
           @for (singleNote of companyMarkers | keyvalue; track singleNote.key) {
             <div class="info-tab__log__data__marker__note">
               <span class="info-tab__log__data__marker__note__text">
@@ -301,8 +311,16 @@
         <!-- driverMarker -->
         @if (data.driverMarker; as driverMarker) {
           <div class="info-tab__log__data__marker">
-            <span class="info-tab__log__data__marker__title"
-              >driver markers</span
+            <span
+              class="info-tab__log__data__marker__title"
+              [style]="
+                'color: ' +
+                (data.driverMarkColor === 'blue'
+                  ? 'rgb(126, 133, 231)'
+                  : 'red') +
+                ';'
+              "
+              >*** driver marker</span
             >
             @for (singleNote of driverMarker | keyvalue; track singleNote.key) {
               <div class="info-tab__log__data__marker__note">

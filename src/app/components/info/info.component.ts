@@ -92,8 +92,11 @@ export class InfoComponent {
     if (!backendData || !archiveData || !tenantId) return null;
 
     const companyNotes = backendData[0][tenantId]?.companyNotes;
-    const companyMarkers = backendData[4][tenantId]?.companyNotes;
     const companyArchiveNotes = archiveData[0][tenantId]?.companyNotes;
+    const companyMarkers = backendData[4][tenantId]?.companyNotes;
+    const companyMarkColor = companyMarkers
+      ? Object.values(companyMarkers)?.[0]?.[0]?.markerColor
+      : null;
 
     if (!driverId) {
       return {
@@ -105,6 +108,7 @@ export class InfoComponent {
         companyNotes,
         companyArchiveNotes,
         companyMarkers,
+        companyMarkColor,
       };
     }
 
@@ -114,8 +118,8 @@ export class InfoComponent {
     const problems = backendData[1][tenantId]?.drivers[driverId]?.notes;
     const fmscaInspections = backendData[2][tenantId]?.drivers[driverId]?.notes;
     const infoNotes = backendData[3][tenantId]?.drivers[driverId]?.notes;
-    const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
 
+    const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
     const driverMarkColor = driverMarker
       ? Object.values(driverMarker)?.[0]?.[0]?.markerColor
       : null;
@@ -142,6 +146,7 @@ export class InfoComponent {
       companyNotes,
       companyArchiveNotes,
       companyMarkers,
+      companyMarkColor,
       truckProblems,
       isTruckProblem,
       truckProblemStamp,

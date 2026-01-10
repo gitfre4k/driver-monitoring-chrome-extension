@@ -120,6 +120,13 @@
     top: 0;
     z-index: 1000;
   }
+
+  .expended-notes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 8px 0;
+  }
 }
 
 .panel {

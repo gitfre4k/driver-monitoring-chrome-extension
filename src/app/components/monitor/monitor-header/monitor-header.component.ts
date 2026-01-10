@@ -101,6 +101,9 @@ export class MonitorHeaderComponent {
     const driverMarkColor = driverMarker
       ? Object.values(driverMarker)?.[0]?.[0]?.markerColor
       : null;
+    const driverMarkText = driverMarker
+      ? getNote(Object.values(driverMarker)?.[0])
+      : null;
 
     const truckProblems = backendData[1][tenantId]?.companyNotes;
     let isTruckProblem = false;
@@ -130,6 +133,9 @@ export class MonitorHeaderComponent {
     const companyMarkColor = companyMarker
       ? Object.values(companyMarker)?.[0]?.[0]?.markerColor
       : null;
+    const companyMarkerText = companyMarker
+      ? getNote(Object.values(companyMarker)?.[0])
+      : null;
 
     return {
       noteCount: driverNotes ? Object.keys(driverNotes).length : 0,
@@ -142,9 +148,11 @@ export class MonitorHeaderComponent {
       driverArchiveNotesCount: driverArchiveNotes
         ? Object.keys(driverArchiveNotes).length
         : 0,
+      driverMarkText,
       companyArchiveNotesCount: companyArchiveNotes
         ? Object.keys(companyArchiveNotes).length
         : 0,
+      companyMarkerText,
     };
   });
 

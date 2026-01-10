@@ -111,7 +111,7 @@
         &__title {
           font-size: 13px;
           width: 100%;
-          text-align: center;
+          text-align: left;
           font-style: italic;
         }
         &__note {
@@ -152,6 +152,7 @@
 
       &__issues {
         &__title {
+          text-align: left;
           color: #e7b008b4;
         }
       }

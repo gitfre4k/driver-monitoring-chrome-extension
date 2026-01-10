@@ -112,6 +112,12 @@ export class ShiftReportComponent {
         id: number;
       },
     ][] = [];
+    for (let stamp in customNotes) {
+      sortedDataByTime.push([
+        { id: '#customNote', name: '***', stamp },
+        { [stamp]: customNotes[stamp] },
+      ]);
+    }
 
     sortedData.forEach(([key, value]) => {
       const tenantId = key;
@@ -124,6 +130,7 @@ export class ShiftReportComponent {
           { [stamp]: companyNotes[stamp] },
         ]);
       }
+
       for (let driverId in value.drivers) {
         const driver = value.drivers[driverId];
         for (let stamp in driver.notes) {
