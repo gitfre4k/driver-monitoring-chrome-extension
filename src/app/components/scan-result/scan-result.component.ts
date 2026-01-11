@@ -79,7 +79,7 @@ export class ScanResultComponent {
 
   getStatusDuration = getStatusDuration;
 
-  excludeCoDriversHighEngHrs = signal(false);
+  excludeCoDriversHighEngHrs = signal(true);
   filteredHighEngHrs = computed(() => {
     const engHrs = this.progressBarService.highEngineHours();
     const excludeCoDriversHighEngHrs = this.excludeCoDriversHighEngHrs();

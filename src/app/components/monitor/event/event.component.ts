@@ -19,10 +19,18 @@ import { ContextMenuService } from '../../../@services/context-menu.service';
 import { EventStatusComponent } from './event-status/event-status.component';
 import { FormsModule } from '@angular/forms';
 import { ConstantsService } from '../../../@services/constants.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-event',
-  imports: [DurationPipe, EventStatusComponent, FormsModule],
+  imports: [
+    DurationPipe,
+    EventStatusComponent,
+    FormsModule,
+    MatIconModule,
+    MatTooltipModule,
+  ],
   templateUrl: './event.component.html',
   styleUrl: './event.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +70,14 @@ export class EventComponent {
     }
 
     return breakShift;
+  }
+
+  toggleStatusGroupType() {
+    this.monitorService.isStatusGroupType.update((prev) => !prev);
+    const newEventTypeId = this.monitorService.newEventTypeId();
+    if (newEventTypeId === 4 && this.monitorService.isStatusGroupType()) {
+      this.monitorService.newEventTypeId.set(0);
+    }
   }
 
   addViolationClass(event: IEvent, violations: IDriverLogViolation[]) {

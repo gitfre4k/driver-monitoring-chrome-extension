@@ -11,11 +11,11 @@
                 : 'info__company-and-driver__1-company-y'
           "
           [matTooltip]="driverBackendData()?.companyMarkerText"
-          matTooltipPosition="above"
+          matTooltipPosition="below"
           [matTooltipHideDelay]="0"
         >
           <!-- [matTooltipShowDelay]="500" -->
-          ## {{ formatTenantName(ddle.companyName) }}
+          ## {{ formatTenantName(ddle.companyName).slice(0, 16) }}
 
           @if (driverBackendData()?.companyNoteCount; as companyNoteCount) {
             <span
@@ -76,7 +76,7 @@
           [matTooltipHideDelay]="0"
         >
           <!-- [matTooltipShowDelay]="500" -->
-          {{ ddle.driverFullName }}
+          {{ ddle.driverFullName.slice(0, 24) }}
           @if (driverBackendData()?.noteCount; as noteCount) {
             <div
               class="mat-badge-custom"

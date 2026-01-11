@@ -136,7 +136,7 @@ export class ProgressBarService {
 
   eventNotes = signal<IScanResult>({});
 
-  excludeOnDutyNotes = signal(false);
+  excludeOnDutyNotes = signal(true);
   filteredEventNotes = computed(() => {
     const eventNotes = this.eventNotes();
     const excludeOnDutyNotes = this.excludeOnDutyNotes();
@@ -231,10 +231,12 @@ export class ProgressBarService {
           (driver) => driver.id !== id,
         );
       });
+
       const index = violations.findIndex(
         (v) => v.violations.items?.length === 0,
       );
-      violations.splice(index, 1);
+      if (index !== -1) violations.splice(index, 1);
+
       return violations;
     });
   }

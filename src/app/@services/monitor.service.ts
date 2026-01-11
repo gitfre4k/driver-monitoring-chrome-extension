@@ -44,18 +44,26 @@ export class MonitorService {
   newOdometer = signal(0);
   newEventTypeId = signal(0);
   eventTypes: TEventTypeCode[] = [
-    'ChangeToOffDutyStatus',
-    'ChangeToSleeperBerthStatus',
-    'ChangeToDrivingStatus',
-    'ChangeToOnDutyNotDrivingStatus',
     'IntermediateLogConventionalLocationPrecision',
     'EnginePowerUpConventionalLocationPrecision',
     'EngineShutDownConventionalLocationPrecision',
     'AuthenticatedDriverLogin',
     'AuthenticatedDriverLogout',
   ];
+  statusTypes: TEventTypeCode[] = [
+    'ChangeToOffDutyStatus',
+    'ChangeToSleeperBerthStatus',
+    'ChangeToDrivingStatus',
+    'ChangeToOnDutyNotDrivingStatus',
+  ];
+  isStatusGroupType = signal(true);
 
-  newEventType = computed(() => this.eventTypes[this.newEventTypeId()]);
+  newEventType = computed(
+    () =>
+      (this.isStatusGroupType() ? this.statusTypes : this.eventTypes)[
+        this.newEventTypeId()
+      ],
+  );
 
   isResizingEvent = signal(false);
   showResize = signal<number | null>(null);

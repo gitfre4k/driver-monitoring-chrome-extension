@@ -5,23 +5,25 @@ import {
   ElementRef,
   inject,
   input,
+  signal,
   ViewChild,
-} from "@angular/core";
-import { IEvent } from "../../../../interfaces/driver-daily-log-events.interface";
-import { KeyboardService } from "../../../../@services/keyboard.service";
-import { MonitorService } from "../../../../@services/monitor.service";
-import { CommonModule } from "@angular/common";
-import { FormInputService } from "../../../../@services/form-input.service";
-import { IntermediateComponent } from "../../../UI/intermediate/intermediate.component";
-import { EngineOnComponent } from "../../../UI/engine-on/engine-on.component";
-import { EngineComponent } from "../../../UI/engine/engine.component";
-import { getNoSpaceNote } from "../../../../helpers/monitor.helpers";
-import { FormsModule } from "@angular/forms";
-import { getStatusName } from "../../../../helpers/app.helpers";
-import { A11yModule } from "@angular/cdk/a11y";
+} from '@angular/core';
+import { IEvent } from '../../../../interfaces/driver-daily-log-events.interface';
+import { KeyboardService } from '../../../../@services/keyboard.service';
+import { MonitorService } from '../../../../@services/monitor.service';
+import { CommonModule } from '@angular/common';
+import { FormInputService } from '../../../../@services/form-input.service';
+import { IntermediateComponent } from '../../../UI/intermediate/intermediate.component';
+import { EngineOnComponent } from '../../../UI/engine-on/engine-on.component';
+import { EngineComponent } from '../../../UI/engine/engine.component';
+import { getNoSpaceNote } from '../../../../helpers/monitor.helpers';
+import { FormsModule } from '@angular/forms';
+import { getStatusName } from '../../../../helpers/app.helpers';
+import { A11yModule } from '@angular/cdk/a11y';
+import { TEventTypeCode } from '../../../../types';
 
 @Component({
-  selector: "app-event-status",
+  selector: 'app-event-status',
   imports: [
     CommonModule,
     IntermediateComponent,
@@ -30,14 +32,14 @@ import { A11yModule } from "@angular/cdk/a11y";
     FormsModule,
     A11yModule,
   ],
-  templateUrl: "./event-status.component.html",
-  styleUrl: "./event-status.component.scss",
+  templateUrl: './event-status.component.html',
+  styleUrl: './event-status.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventStatusComponent {
   event = input.required<IEvent>();
 
-  @ViewChild("inputRef") myInputField!: ElementRef<HTMLInputElement>;
+  @ViewChild('inputRef') myInputField!: ElementRef<HTMLInputElement>;
 
   keyboardService = inject(KeyboardService);
   monitorService = inject(MonitorService);
@@ -61,20 +63,31 @@ export class EventStatusComponent {
     this.monitorService.newOdometer.set(event.odometer);
 
     this.formInputService.geolocation.set(null);
-    this.formInputService.latitude.set("");
-    this.formInputService.longitude.set("");
+    this.formInputService.latitude.set('');
+    this.formInputService.longitude.set('');
+
+    let type: TEventTypeCode[];
+    if (
+      this.monitorService.eventTypes.includes(
+        event.dutyStatus as TEventTypeCode,
+      )
+    ) {
+      type = this.monitorService.eventTypes;
+      this.monitorService.isStatusGroupType.set(false);
+    } else {
+      type = this.monitorService.statusTypes;
+      this.monitorService.isStatusGroupType.set(true);
+    }
 
     this.monitorService.newEventTypeId.set(
-      this.monitorService.eventTypes.findIndex(
-        (type) => type === event.dutyStatus,
-      ),
+      type.findIndex((type) => type === event.dutyStatus),
     );
-    this.monitorService.newNote.set("");
+    this.monitorService.newNote.set('');
     if (
       [
-        "ChangeToOffDutyStatus",
-        "ChangeToSleeperBerthStatus",
-        "ChangeToOnDutyNotDrivingStatus",
+        'ChangeToOffDutyStatus',
+        'ChangeToSleeperBerthStatus',
+        'ChangeToOnDutyNotDrivingStatus',
       ].includes(event.dutyStatus)
     ) {
       this.monitorService.newNote.set(event.notes);
@@ -85,8 +98,15 @@ export class EventStatusComponent {
 
   onEditStatusWheel(wheelEvent: WheelEvent) {
     wheelEvent.preventDefault();
-    const maxToggle = this.monitorService.eventTypes.length - 1;
     let toggle = this.monitorService.newEventTypeId();
+    const isStatusGroupType = this.monitorService.isStatusGroupType();
+
+    const type = isStatusGroupType
+      ? this.monitorService.statusTypes
+      : this.monitorService.eventTypes;
+
+    const maxToggle = type.length - 1;
+
     if (wheelEvent.deltaY > 0) {
       toggle === maxToggle ? (toggle = 0) : toggle++;
     } else {
@@ -97,7 +117,7 @@ export class EventStatusComponent {
   }
 
   isSpeedLegit(speed: number) {
-    return typeof speed === "number";
+    return typeof speed === 'number';
   }
 
   ngAfterViewInit(): void {

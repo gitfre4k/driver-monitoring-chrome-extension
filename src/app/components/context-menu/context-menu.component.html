@@ -59,9 +59,10 @@
       <ul class="context-menu submenu">
         @if (
         event.statusName === "On Duty" &&
-       (event.realDurationInSeconds > 1800 || event.durationInSeconds > 1800)
+       (event.realDurationInSeconds > 900 || event.durationInSeconds > 900)
         ) {
         <!--  -->
+
         <!-- to Off Duty -->
         <li (click)="
                   contextMenuService.handleAction('PARTIAL_ON_TO_OFF', event)

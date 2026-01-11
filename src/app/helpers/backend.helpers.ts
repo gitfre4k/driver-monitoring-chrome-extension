@@ -1,7 +1,7 @@
 import {
   IDriverFmcsaInspection,
   IVehicle,
-} from "../interfaces/driver-daily-log-events.interface";
+} from '../interfaces/driver-daily-log-events.interface';
 
 export const sortArrayByPart = (
   array: {
@@ -17,9 +17,13 @@ export const sortArrayByPart = (
 export const getNote = (
   array: { note: string; part: number; eventId: number }[],
 ) => {
+  if (!array || array.length === 0) {
+    return '';
+  }
+
   const sortedParts = sortArrayByPart(array);
 
-  let note = "";
+  let note = '';
   sortedParts.forEach((part) => (note += part.note));
 
   return note;
@@ -29,7 +33,7 @@ export const parseDOTInspection = (
   array: { note: string; part: number; eventId: number }[],
 ) => {
   const rawDOT = sortArrayByPart(array);
-  let message = "";
+  let message = '';
 
   rawDOT.forEach((part) => (message += part.note));
 

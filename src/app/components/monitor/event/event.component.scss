@@ -126,6 +126,31 @@ input::-webkit-inner-spin-button {
 
 .duration {
   justify-self: end;
+  position: relative;
+  &__toggle {
+    transform: scale(0.8);
+
+    position: absolute;
+    top: -13px;
+    left: -32px;
+    display: grid;
+    grid-template-columns: 30px auto;
+    align-items: center;
+    justify-items: center;
+    font-size: 12px;
+    border-radius: 4px;
+    background-color: rgb(33, 33, 36);
+    // margin: 20px 5px;
+    padding: 0 4px;
+    border: 1px solid rgb(82, 82, 82);
+  }
+  &__toggle:hover {
+    background-color: rgb(63, 63, 68);
+    border-left: 1px solid rgb(209, 100, 11);
+    -webkit-box-shadow: -14px -1px 14px -6px rgba(209, 100, 11, 0.5);
+    box-shadow: -14px -1px 14px -6px rgba(209, 100, 11, 0.5);
+    cursor: pointer;
+  }
 }
 
 .note {

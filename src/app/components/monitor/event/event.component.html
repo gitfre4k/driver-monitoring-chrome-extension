@@ -66,6 +66,17 @@
         as newResizeDuration
       ) {
         {{ newResizeDuration | duration }}
+      } @else if (monitorService.currentEditEvent()?.id === event.id) {
+        <button
+          class="duration__toggle"
+          matTooltip="toggle Event Type group"
+          matTooltipPosition="above"
+          [matTooltipHideDelay]="0"
+          [matTooltipShowDelay]="500"
+          (click)="toggleStatusGroupType()"
+        >
+          <mat-icon>swap_horiz</mat-icon>
+        </button>
       } @else {
         {{ getStatusDuration(event) | duration }}
       }
