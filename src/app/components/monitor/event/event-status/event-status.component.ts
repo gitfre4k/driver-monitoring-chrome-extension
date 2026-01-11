@@ -66,21 +66,10 @@ export class EventStatusComponent {
     this.formInputService.latitude.set('');
     this.formInputService.longitude.set('');
 
-    let type: TEventTypeCode[];
-    if (
-      this.monitorService.eventTypes.includes(
-        event.dutyStatus as TEventTypeCode,
-      )
-    ) {
-      type = this.monitorService.eventTypes;
-      this.monitorService.isStatusGroupType.set(false);
-    } else {
-      type = this.monitorService.statusTypes;
-      this.monitorService.isStatusGroupType.set(true);
-    }
-
     this.monitorService.newEventTypeId.set(
-      type.findIndex((type) => type === event.dutyStatus),
+      this.monitorService.eventTypes.findIndex(
+        (type) => type === event.dutyStatus,
+      ),
     );
     this.monitorService.newNote.set('');
     if (
@@ -99,13 +88,8 @@ export class EventStatusComponent {
   onEditStatusWheel(wheelEvent: WheelEvent) {
     wheelEvent.preventDefault();
     let toggle = this.monitorService.newEventTypeId();
-    const isStatusGroupType = this.monitorService.isStatusGroupType();
 
-    const type = isStatusGroupType
-      ? this.monitorService.statusTypes
-      : this.monitorService.eventTypes;
-
-    const maxToggle = type.length - 1;
+    const maxToggle = this.monitorService.eventTypes.length - 1;
 
     if (wheelEvent.deltaY > 0) {
       toggle === maxToggle ? (toggle = 0) : toggle++;

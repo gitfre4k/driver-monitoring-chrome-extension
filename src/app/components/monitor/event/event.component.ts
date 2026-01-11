@@ -72,14 +72,6 @@ export class EventComponent {
     return breakShift;
   }
 
-  toggleStatusGroupType() {
-    this.monitorService.isStatusGroupType.update((prev) => !prev);
-    const newEventTypeId = this.monitorService.newEventTypeId();
-    if (newEventTypeId === 4 && this.monitorService.isStatusGroupType()) {
-      this.monitorService.newEventTypeId.set(0);
-    }
-  }
-
   addViolationClass(event: IEvent, violations: IDriverLogViolation[]) {
     let isViolation = false;
     const eventStartTime = DateTime.fromISO(event.realStartTime)

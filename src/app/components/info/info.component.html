@@ -105,7 +105,11 @@
       }
       @if (!isEmpty(data.companyNotes) && data.companyNotes; as companyNotes) {
         <div class="info-tab__log__data__marker">
-          <span class="info-tab__log__data__marker__title">company notes</span>
+          <span
+            class="info-tab__log__data__marker__title"
+            style="color: #3b82f6"
+            >company notes</span
+          >
           @for (singleNote of companyNotes | keyvalue; track singleNote.key) {
             <div class="info-tab__log__data__marker__note">
               <span class="info-tab__log__data__marker__note__text">
@@ -356,7 +360,11 @@
         <!-- truck problems -->
         @if (data.isTruckProblem && data.truckProblems; as problems) {
           <div class="info-tab__log__data__issues">
-            <span class="info-tab__log__data__issues__title">truck issues</span>
+            <span
+              class="info-tab__log__data__issues__title"
+              style="color: #e7b008"
+              >truck issues</span
+            >
             @for (singleNote of problems | keyvalue; track singleNote.key) {
               <div class="info-tab__log__data__issues__note">
                 <span class="info-tab__log__data__issues__note__text">
@@ -406,7 +414,7 @@
         <!-- problems -->
         @if (data.problems; as problems) {
           <div class="info-tab__log__data__issues">
-            <span class="info-tab__log__data__issues__title"
+            <span class="info-tab__log__data__issues__title" `
               >driver issues</span
             >
             @for (singleNote of problems | keyvalue; track singleNote.key) {
@@ -454,7 +462,11 @@
         <!-- driverNotes -->
         @if (data.driverNotes; as driverNotes) {
           <div class="info-tab__log__data__notes">
-            <span class="info-tab__log__data__notes__title">driver notes</span>
+            <span
+              class="info-tab__log__data__notes__title"
+              style="color: #3b82f6"
+              >driver notes</span
+            >
             @for (singleNote of driverNotes | keyvalue; track singleNote.key) {
               <div class="info-tab__log__data__notes__note">
                 <span class="info-tab__log__data__notes__note__text">
