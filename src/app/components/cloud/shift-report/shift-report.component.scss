@@ -1,0 +1,56 @@
+.shift-report {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: calc(100vh - 160px);
+
+  &__content {
+    h3 {
+      margin: 0;
+      padding: 0;
+      font-size: 17px;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      li {
+        display: flex;
+        flex-direction: column;
+        .driver-name {
+          display: flex;
+          align-items: center;
+        }
+        .notes {
+          .note {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            .time {
+              font-size: 10px;
+              margin-left: auto;
+            }
+          }
+          .action-btns {
+            transform: scale(0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+          }
+        }
+      }
+    }
+  }
+}
+
+.mat-badge-custom {
+  .mat-badge-content {
+    z-index: 1000000000;
+    background: #343eff54;
+    color: white;
+  }
+}

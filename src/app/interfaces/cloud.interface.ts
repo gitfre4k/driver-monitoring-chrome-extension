@@ -28,3 +28,11 @@ export interface IDataDriverNotes {
     markerColor?: 'red' | 'blue' | null;
   }[];
 }
+
+export type TSortedNotes = [key: string, data: ISortedCompanyNotes][];
+
+export interface ISortedCompanyNotes {
+  name: string;
+  drivers: IDataDriver;
+  companyNotes: IDataDriverNotes;
+}

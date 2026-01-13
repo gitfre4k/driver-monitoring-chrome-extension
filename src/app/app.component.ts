@@ -29,7 +29,7 @@ import { AppService } from './@services/app.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ConstantsService } from './@services/constants.service';
 import { TaskQueueComponent } from './components/task-queue/task-queue.component';
-import { ShiftReportComponent } from './components/shift-report/shift-report.component';
+import { CloudComponent } from './components/cloud/cloud.component';
 import { MonitorService } from './@services/monitor.service';
 import { BackendService } from './@services/backend.service';
 
@@ -49,7 +49,7 @@ import { BackendService } from './@services/backend.service';
     MonitorComponent,
     ErrorsComponent,
     InfoComponent,
-    ShiftReportComponent,
+    CloudComponent,
     ScanResultComponent,
     MatProgressSpinnerModule,
     TaskQueueComponent,

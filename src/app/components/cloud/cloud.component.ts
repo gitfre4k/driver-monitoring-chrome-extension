@@ -14,9 +14,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogAddNoteComponent } from '../UI/dialog-add-note/dialog-add-note.component';
 import { AppService } from '../../@services/app.service';
 import { formatTenantName } from '../../helpers/monitor.helpers';
+import { sortData, isEmpty, resultCount } from '../../helpers/cloud.helpers';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -32,16 +32,13 @@ import {
   sortArrayByPart,
 } from '../../helpers/backend.helpers';
 import { MatBadgeModule } from '@angular/material/badge';
-import {
-  IData,
-  IDataDriver,
-  IDataDriverNotes,
-} from '../../interfaces/shift-report.interface';
+import { IDataDriverNotes } from '../../interfaces/cloud.interface';
 import { DialogConfirmComponent } from '../UI/dialog-confirm/dialog-confirm.component';
 import { DateAgoPipe } from '../../pipes/date-ago.pipe';
+import { ShiftReportComponent } from './shift-report/shift-report.component';
 
 @Component({
-  selector: 'app-shift-report',
+  selector: 'app-cloud',
   imports: [
     KeyValuePipe,
     MatIconModule,
@@ -55,6 +52,7 @@ import { DateAgoPipe } from '../../pipes/date-ago.pipe';
     MatExpansionModule,
     MatBadgeModule,
     DateAgoPipe,
+    ShiftReportComponent,
   ],
   providers: [
     {
@@ -65,11 +63,11 @@ import { DateAgoPipe } from '../../pipes/date-ago.pipe';
       },
     },
   ],
-  templateUrl: './shift-report.component.html',
-  styleUrl: './shift-report.component.scss',
+  templateUrl: './cloud.component.html',
+  styleUrl: './cloud.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ShiftReportComponent {
+export class CloudComponent {
   backendService = inject(BackendService);
   dateService = inject(DateService);
   urlService = inject(UrlService);
@@ -79,6 +77,9 @@ export class ShiftReportComponent {
   readonly dialog = inject(MatDialog);
 
   formatTenantName = formatTenantName;
+  sortData = sortData;
+  isEmpty = isEmpty;
+  resultCount = resultCount;
 
   pages: { [id: number]: string } = {
     0: 'Shift Report',
@@ -102,7 +103,7 @@ export class ShiftReportComponent {
       ? archiveData?.customNotes
       : backendData?.customNotes;
 
-    const sortedData = this.sortData(data);
+    const sortedData = sortData(data);
 
     const sortedDataByTime: [
       tenant: { id: string; name: string; stamp: string },
@@ -176,25 +177,6 @@ export class ShiftReportComponent {
 
   toggleSorting() {
     this.isSortedByTime = !this.isSortedByTime;
-  }
-
-  sortData(data: IData | undefined) {
-    const sortedData: [
-      key: string,
-      data: {
-        name: string;
-        drivers: IDataDriver;
-        companyNotes: IDataDriverNotes;
-      },
-    ][] = [];
-    if (data) {
-      for (let key in data) {
-        sortedData.push([key, data[key]]);
-      }
-
-      sortedData.sort((a, b) => a[1].name.localeCompare(b[1].name));
-    }
-    return sortedData;
   }
 
   ngOnInit(): void {
@@ -277,100 +259,7 @@ export class ShiftReportComponent {
     });
   }
 
-  addCustomNote() {
-    const title = 'add Custom Note';
-    const eventTypeCode = 'IntermediateLogReducedLocationPrecision';
-    const tenant = { name: 'custom', id: 0 };
-
-    return this.dialog.open(DialogAddNoteComponent, {
-      data: {
-        tenant,
-        driver: null,
-        eventTypeCode,
-        title,
-      },
-    });
-  }
-
-  generateShiftReport() {
-    if (this.page() !== 0) return;
-
-    const data = this.state().sortedData;
-    const customNotes = this.state().customNotes;
-
-    const reportParts: string[] = [];
-
-    if (customNotes) {
-      reportParts.push(`***`);
-      for (let key in customNotes) {
-        const note = getNote(customNotes[key]);
-        reportParts.push(`
-${' '}> ${note}`);
-      }
-      reportParts.push(`
-
-`);
-    }
-
-    data.forEach((tenant) => {
-      const company = tenant[1];
-      const { name, companyNotes, drivers } = company;
-
-      reportParts.push(`## ${formatTenantName(name)}`);
-
-      for (let key in companyNotes) {
-        const note = getNote(companyNotes[key]);
-        reportParts.push(`
-* ${note}`);
-      }
-
-      for (let id in drivers) {
-        const driver = drivers[id];
-        id !== '999' &&
-          reportParts.push(`
-${driver.name}`);
-        const driverNotes = driver.notes;
-
-        for (let key in driverNotes) {
-          const note = getNote(driverNotes[key]);
-          id !== '999' &&
-            reportParts.push(`
-${' '}> ${note}`);
-        }
-      }
-      reportParts.push(`
-
-`);
-    });
-
-    const report = reportParts.join('');
-
-    navigator.clipboard.writeText(report);
-    this._snackBar.open(`Sift Report copied to clipboard`, 'OK', {
-      duration: 2000,
-    });
-  }
-
   handlePageEvent(event: PageEvent) {
     this.page.set(event.pageIndex);
-  }
-
-  isEmpty(obj: any): boolean {
-    return Object.keys(obj).length === 0;
-  }
-
-  resultCount(result: {
-    name: string;
-    drivers: IDataDriver;
-    companyNotes: IDataDriverNotes;
-  }) {
-    let count = 0;
-    for (let note in result.companyNotes) count++;
-    for (let driver in result.drivers) {
-      for (let note in result.drivers[driver].notes) {
-        count++;
-      }
-    }
-    return count;
   }
 }

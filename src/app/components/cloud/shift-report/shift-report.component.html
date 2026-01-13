@@ -1,0 +1,142 @@
+<div class="shift-report">
+  <div class="shift-report__content">
+    @for (company of sortedNotes(); track company[0]) {
+      <h3 class="shift-report__content__company-name">
+        ## {{ formatTenantName(company[1].name) }}
+        <span
+          style="margin-left: 16px"
+          class="mat-badge-custom"
+          [matBadge]="resultCount(company[1])"
+          [matBadgeHidden]="false"
+          matBadgePosition="above after"
+          matBadgeSize="medium"
+        ></span>
+      </h3>
+      <ul>
+        @for (driver of company[1].drivers | keyvalue; track driver.key) {
+          @if (+driver.key === 999) {
+            <li>
+              @for (
+                singleNote of driver.value.notes | keyvalue;
+                track singleNote.key
+              ) {
+                <span>
+                  {{ getNote(singleNote.value) }}
+                </span>
+              }
+            </li>
+          } @else {
+            <li>
+              <div class="driver-name">
+                <a
+                  mat-icon-button
+                  matTooltip="Open driver daily logs in web app"
+                  matTooltipPosition="right"
+                  (click)="
+                    cloudService.openLogs(
+                      +driver.key,
+                      dateService.now
+                        .setZone('America/New_York')
+                        .toUTC()
+                        .toISO()!,
+                      { id: company[0], name: company[1].name }
+                    )
+                  "
+                >
+                  <mat-icon>open_in_browser</mat-icon> </a
+                >{{ driver.value.name }}
+              </div>
+
+              <div class="notes">
+                @for (
+                  singleNote of driver.value.notes | keyvalue;
+                  track singleNote.key
+                ) {
+                  <div class="note">
+                    <div class="text">
+                      <span>
+                        {{ getNote(singleNote.value) }}
+                      </span>
+                      <br />
+                      <br />
+                      <span class="time">
+                        {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+                        -
+                        {{ singleNote.key | dateAgo }}
+                      </span>
+                    </div>
+                    <div class="action-btns">
+                      <a
+                        mat-icon-button
+                        matTooltip="Done"
+                        class="notes__note__action-btns__delete"
+                        (click)="
+                          cloudService.deleteNote(
+                            singleNote.value,
+                            singleNote.key
+                          )
+                        "
+                        [disabled]="backendService.isDeletingNote()"
+                      >
+                        @if (
+                          singleNote.key === backendService.isDeletingNote()
+                        ) {
+                          <mat-spinner [diameter]="24"></mat-spinner>
+                        } @else {
+                          <span class="material-icons"> clear </span>
+                        }
+                      </a>
+
+                      <a
+                        mat-icon-button
+                        matTooltip="Move to Archive"
+                        class="notes__note__action-btns__archive"
+                        (click)="
+                          cloudService.archiveNote(
+                            singleNote.value,
+                            singleNote.key
+                          )
+                        "
+                        [disabled]="backendService.isDeletingNote()"
+                      >
+                        @if (
+                          singleNote.key === backendService.isDeletingNote()
+                        ) {
+                          <mat-spinner [diameter]="24"></mat-spinner>
+                        } @else {
+                          <span class="material-icons"> move_down </span>
+                        }
+                      </a>
+                    </div>
+                  </div>
+                }
+              </div>
+            </li>
+          }
+        }
+      </ul>
+      <br />
+      <br />
+    }
+
+    <div class="shift-report__footer">
+      <button
+        class="shift-report__btn"
+        matButton="tonal"
+        (click)="addCustomNote()"
+      >
+        <mat-icon>add_circle</mat-icon>
+        add Custom Note
+      </button>
+
+      <button
+        class="shift-report__btn"
+        matButton="tonal"
+        (click)="generateShiftReport()"
+      >
+        <mat-icon>assignment</mat-icon>
+        generate Shift Report
+      </button>
+    </div>
+  </div>
+</div>
