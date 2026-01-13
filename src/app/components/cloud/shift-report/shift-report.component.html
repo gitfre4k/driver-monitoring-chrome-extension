@@ -32,6 +32,7 @@
                   mat-icon-button
                   matTooltip="Open driver daily logs in web app"
                   matTooltipPosition="right"
+                  class="driver-nam"
                   (click)="
                     cloudService.openLogs(
                       +driver.key,
@@ -58,7 +59,7 @@
                         {{ getNote(singleNote.value) }}
                       </span>
                       <br />
-                      <br />
+
                       <span class="time">
                         {{ singleNote.key | date: "MMM d, y, h:mm a" }}
                         -
@@ -68,29 +69,8 @@
                     <div class="action-btns">
                       <a
                         mat-icon-button
-                        matTooltip="Done"
-                        class="notes__note__action-btns__delete"
-                        (click)="
-                          cloudService.deleteNote(
-                            singleNote.value,
-                            singleNote.key
-                          )
-                        "
-                        [disabled]="backendService.isDeletingNote()"
-                      >
-                        @if (
-                          singleNote.key === backendService.isDeletingNote()
-                        ) {
-                          <mat-spinner [diameter]="24"></mat-spinner>
-                        } @else {
-                          <span class="material-icons"> clear </span>
-                        }
-                      </a>
-
-                      <a
-                        mat-icon-button
                         matTooltip="Move to Archive"
-                        class="notes__note__action-btns__archive"
+                        class="action-btns__archive"
                         (click)="
                           cloudService.archiveNote(
                             singleNote.value,
@@ -105,6 +85,26 @@
                           <mat-spinner [diameter]="24"></mat-spinner>
                         } @else {
                           <span class="material-icons"> move_down </span>
+                        }
+                      </a>
+                      <a
+                        mat-icon-button
+                        matTooltip="Done"
+                        class="action-btns__delete"
+                        (click)="
+                          cloudService.deleteNote(
+                            singleNote.value,
+                            singleNote.key
+                          )
+                        "
+                        [disabled]="backendService.isDeletingNote()"
+                      >
+                        @if (
+                          singleNote.key === backendService.isDeletingNote()
+                        ) {
+                          <mat-spinner [diameter]="24"></mat-spinner>
+                        } @else {
+                          <span class="material-icons"> clear </span>
                         }
                       </a>
                     </div>
