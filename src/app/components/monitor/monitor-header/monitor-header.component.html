@@ -1,7 +1,8 @@
 @if (driverDailyLog; as ddle) {
   <div class="info">
     <div class="info__company-and-driver">
-      <div class="info__company-and-driver__1" (click)="showInfo()">
+      <div class="info__company-and-driver__1">
+        <!-- (click)="showInfo()" -->
         <span
           [class]="
             !driverBackendData()?.companyMarkColor

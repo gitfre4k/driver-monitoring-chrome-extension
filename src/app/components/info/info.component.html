@@ -1,5 +1,5 @@
 <div class="info-tab">
-  <div class="info-tab__tenant">
+  <!-- <div class="info-tab__tenant">
     @if (appService.currentTenant(); as tenant) {
       <h2>## {{ tenant.name }}</h2>
 
@@ -53,9 +53,9 @@
         ><span>{{ tenant.customerContactPhone }}</span>
       </div>
     }
-  </div>
+  </div> -->
 
-  @if (backendData(); as data) {
+  <!-- @if (backendData(); as data) {
     <div class="info-tab__log">
       @if (
         !isEmpty(data.companyMarkers) && data.companyMarkers;
@@ -182,10 +182,10 @@
         </div>
       }
     </div>
-  }
+  } -->
 
-  @if (monitorService.driverDailyLog(); as driverDailyLog) {
-    <div class="info-tab__info">
+  <!-- @if (monitorService.driverDailyLog(); as driverDailyLog) { -->
+  <!-- <div class="info-tab__info">
       <h2 class="info-tab__info__driver-name">
         {{ driverDailyLog.driverFullName }}
       </h2>
@@ -309,10 +309,10 @@
     </div>
 
     <div class="info-tab__log">
-      <!--  -->
-      <!-- backendData -->
+      
+      
       @if (backendData(); as data) {
-        <!-- driverMarker -->
+        
         @if (data.driverMarker; as driverMarker) {
           <div class="info-tab__log__data__marker">
             <span
@@ -357,7 +357,7 @@
           </div>
         }
 
-        <!-- truck problems -->
+        
         @if (data.isTruckProblem && data.truckProblems; as problems) {
           <div class="info-tab__log__data__issues">
             <span
@@ -411,7 +411,7 @@
           </div>
         }
 
-        <!-- problems -->
+        
         @if (data.problems; as problems) {
           <div class="info-tab__log__data__issues">
             <span class="info-tab__log__data__issues__title" `
@@ -459,7 +459,7 @@
           </div>
         }
 
-        <!-- driverNotes -->
+        
         @if (data.driverNotes; as driverNotes) {
           <div class="info-tab__log__data__notes">
             <span
@@ -497,7 +497,7 @@
             }
           </div>
         }
-        <!-- driverArchiveNotes -->
+        
         @if (data.driverArchiveNotes; as driverArchiveNotes) {
           <div class="info-tab__log__data__notes">
             <span class="info-tab__log__data__notes__title"
@@ -537,13 +537,13 @@
           </div>
         }
       }
-    </div>
-    <!-- 
+    </div> -->
+  <!-- 
     <button class="info-tab__back" matButton="tonal" (click)="hideInfo()">
       <mat-icon>arrow_back</mat-icon>
       back to Monitor tab
     </button> -->
-  }
+  <!-- } -->
 
   <!-- <button
     (click)="logActiveDriversPerCompany()"
@@ -554,8 +554,8 @@
     botón para el Conejo
   </button> -->
 
-  <!-- <div class="info-tab__extension-version">
-    <p>Driver Monitoring Chrome Extension</p>
-    <p>version: {{ constService.extensionVersion() }}</p>
-  </div> -->
+  <div class="info-tab__extension-version">
+    <h1>Driver Monitoring Chrome Extension</h1>
+    <span>version: {{ constService.extensionVersion() }}</span>
+  </div>
 </div>

@@ -6,11 +6,11 @@ import {
   signal,
 } from '@angular/core';
 import { AppService } from '../../@services/app.service';
-import { CommonModule, KeyValuePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ApiService } from '../../@services/api.service';
 import { IDriver, ITenant } from '../../interfaces';
 import { MonitorService } from '../../@services/monitor.service';
-import { DateAgoPipe } from '../../pipes/date-ago.pipe';
+
 import { from, map, mergeMap, switchMap, tap } from 'rxjs';
 import { DateTime } from 'luxon';
 import { DateService } from '../../@services/date.service';
@@ -33,10 +33,10 @@ import { DialogConfirmComponent } from '../UI/dialog-confirm/dialog-confirm.comp
   selector: 'app-info',
   imports: [
     CommonModule,
-    DateAgoPipe,
+
     MatButtonModule,
     MatIconModule,
-    KeyValuePipe,
+
     MatProgressSpinnerModule,
     MatTooltipModule,
   ],

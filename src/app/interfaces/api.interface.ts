@@ -64,3 +64,20 @@ export interface ISmartFixParsedErrorDetails {
   ReportTimeFrom: string;
   ReportTimeTo: string;
 }
+
+export interface IUser {
+  id: number;
+  status: string;
+  editable: boolean;
+  name: string;
+  surname: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  roleName: string;
+}
+
+export interface IGetUsers {
+  totalCount: number;
+  items: IUser[];
+}

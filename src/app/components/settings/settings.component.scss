@@ -1,14 +1,12 @@
 .settings {
   width: calc(100vw - 42px);
-  height: calc(100vh - 55px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
   padding: 0px 18px;
 
   &__title {
-    margin: 12px 0;
+    margin: 64px 0 12px;
   }
 
   &__container {
@@ -16,10 +14,11 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+
     width: 100%;
     height: calc(100vh - 100px);
     align-items: center;
-    gap: 16px;
+
     hr {
       width: 90%;
     }
@@ -64,18 +63,17 @@
       width: 100%;
       gap: 8px;
       padding: 0;
-      margin: 0;
+      margin: 32px 0;
       &__item {
         display: grid;
         width: 280px;
-        grid-template-columns: 110px 55px 55px;
-        column-gap: 12px;
-        &-name {
+        grid-template-columns: 150px 150px;
+        column-gap: 24px;
+        :first-child {
           text-align: right;
-          padding-right: 38px;
         }
-        input {
-          border-radius: 8px;
+        :last-child {
+          font-weight: 800;
         }
       }
     }

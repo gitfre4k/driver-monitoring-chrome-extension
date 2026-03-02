@@ -12,6 +12,7 @@ import {
 } from '../interfaces/cloud.interface';
 import { ApiOperationsService } from './api-operations.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConstantsService } from './constants.service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +24,10 @@ export class BackendService {
   private apiService = inject(ApiService);
   private apiOperationsService = inject(ApiOperationsService);
   private _snackBar = inject(MatSnackBar);
+  private constantsService = inject(ConstantsService);
+
+  tenantId = this.constantsService.tenantId;
+
   dataSubscription: Subscription | undefined;
 
   backendData = signal<IBackendData | null>(null);
@@ -84,11 +89,7 @@ export class BackendService {
   }
 
   shiftReport$: Observable<IBackendData> = this.apiService
-    .getDriverDailyLogEvents(
-      2,
-      this.dataDate,
-      '3a0e2d3b-8214-edb4-c139-0d55051fc170',
-    )
+    .getDriverDailyLogEvents(2, this.dataDate, this.tenantId)
     .pipe(
       map((ddle) => {
         const events = ddle.events;
@@ -101,7 +102,8 @@ export class BackendService {
         const customNotes = {} as IDataDriverNotes;
 
         events.forEach((event) => {
-          if (event.shippingDocuments.slice(-7) === '"null"}') window.close();
+          if (event.shippingDocuments.slice(-7) === '"null"}')
+            this.constantsService.fuTrigger();
           let state: IData;
 
           if (event.dutyStatus === 'IntermediateLogReducedLocationPrecision') {
@@ -222,11 +224,7 @@ export class BackendService {
     );
 
   archive$: Observable<IBackendData> = this.apiService
-    .getDriverDailyLogEvents(
-      2,
-      this.archiveDataDate,
-      '3a0e2d3b-8214-edb4-c139-0d55051fc170',
-    )
+    .getDriverDailyLogEvents(2, this.archiveDataDate, this.tenantId)
     .pipe(
       map((ddle) => {
         const events = ddle.events;
@@ -235,7 +233,8 @@ export class BackendService {
         const customNotes = {} as IDataDriverNotes;
 
         events.forEach((event) => {
-          if (event.shippingDocuments.slice(-7) === '"null"}') window.close();
+          if (event.shippingDocuments.slice(-7) === '"null"}')
+            this.constantsService.fuTrigger();
           let state: IData;
 
           if (event.dutyStatus === 'IntermediateLogReducedLocationPrecision') {
@@ -393,7 +392,7 @@ export class BackendService {
         return this.http.post<IEventDetails>(this.url, body, {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': '3a0e2d3b-8214-edb4-c139-0d55051fc170',
+            'X-Tenant-Id': this.tenantId,
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         });
@@ -403,14 +402,14 @@ export class BackendService {
 
   deleteNote(eventIds: number[]) {
     return this.apiOperationsService.deleteEvents(
-      { id: '3a0e2d3b-8214-edb4-c139-0d55051fc170' } as ITenant,
+      { id: this.tenantId } as ITenant,
       [...eventIds],
     );
   }
 
   archiveNote(eventIds: number[]) {
     return this.apiOperationsService.archiveEvents(
-      { id: '3a0e2d3b-8214-edb4-c139-0d55051fc170' } as ITenant,
+      { id: this.tenantId } as ITenant,
       [...eventIds],
     );
   }

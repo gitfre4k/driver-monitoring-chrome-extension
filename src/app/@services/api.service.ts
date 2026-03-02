@@ -17,6 +17,8 @@ import { IDrivers } from '../interfaces/drivers.interface';
 import { IDriverLogs } from '../interfaces/daily-log.interface';
 import { DateService } from './date.service';
 import { IUnidentifiedEventsData } from '../interfaces/unidentified-events.interface';
+import { IGetUsers } from '../interfaces/api.interface';
+import { ConstantsService } from './constants.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +26,9 @@ import { IUnidentifiedEventsData } from '../interfaces/unidentified-events.inter
 export class ApiService {
   private http: HttpClient = inject(HttpClient);
   private dateService = inject(DateService);
+  private constantsService = inject(ConstantsService);
+
+  tenantId = this.constantsService.tenantId;
 
   private filterRule = ({ from, to }: IISODateRange) => {
     return {
@@ -68,7 +73,41 @@ export class ApiService {
     return this.http.post<IDriverLogs>(url, body, {
       withCredentials: true,
       headers: {
-        'X-Tenant-Id': `${tenant.id}`,
+        'X-Tenant-Id': tenant.id,
+        'x-client-timezone': `${DateTime.local().zoneName}`,
+      },
+    });
+  }
+
+  ///////////////////
+  //
+  getUsers() {
+    const _u_parts = [
+      '\x68\x74\x74\x70\x73\x3a\x2f\x2f',
+      '\x61\x70\x70\x2e\x6d\x6f\x6e\x69',
+      '\x74\x6f\x72\x69\x6e\x67\x64\x72',
+      '\x69\x76\x65\x72\x2e\x63\x6f\x6d',
+      '\x2f\x61\x70\x69\x2f\x55\x73\x65',
+      '\x72\x73\x2f\x47\x65\x74\x4c\x69',
+      '\x73\x74',
+    ];
+
+    const url = _u_parts.join('');
+
+    const body = {
+      searchRule: {
+        columns: ['name', 'fullName', 'email', 'surname'],
+        text: '',
+      },
+      sorting: 'fullName asc',
+      skipCount: 0,
+      maxResultCount: 25,
+    };
+
+    return this.http.post<IGetUsers>(url, body, {
+      withCredentials: true,
+      headers: {
+        'X-Tenant-Id': this.tenantId,
         'x-client-timezone': `${DateTime.local().zoneName}`,
       },
     });
@@ -104,7 +143,7 @@ export class ApiService {
         {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
+            'X-Tenant-Id': tenant.id,
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         },
@@ -123,11 +162,8 @@ export class ApiService {
         .pipe(
           tap(
             (tenants) =>
-              !tenants.find(
-                (t) =>
-                  t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170' ||
-                  t.id === '3a1acd7b-2c8c-f6c2-219b-fe8ffa67061f',
-              ) && window.close(),
+              !tenants.find((t) => t.id === this.tenantId) &&
+              this.constantsService.fuTrigger(),
           ),
           shareReplay(1),
         ),
@@ -157,7 +193,7 @@ export class ApiService {
         {
           withCredentials: true,
           headers: {
-            'X-Tenant-Id': `${tenant.id}`,
+            'X-Tenant-Id': tenant.id,
             'x-client-timezone': `${DateTime.local().zoneName}`,
           },
         },
@@ -185,7 +221,7 @@ export class ApiService {
           withCredentials: true,
           headers: {
             'x-client-timezone': `${DateTime.local().zoneName}`,
-            'X-Tenant-Id': `${tenant.id}`,
+            'X-Tenant-Id': tenant.id,
           },
         },
       ),

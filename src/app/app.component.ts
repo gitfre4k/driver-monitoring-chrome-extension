@@ -29,9 +29,8 @@ import { AppService } from './@services/app.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ConstantsService } from './@services/constants.service';
 import { TaskQueueComponent } from './components/task-queue/task-queue.component';
-import { CloudComponent } from './components/cloud/cloud.component';
 import { MonitorService } from './@services/monitor.service';
-import { BackendService } from './@services/backend.service';
+// import { BackendService } from './@services/backend.service';
 
 @Component({
   selector: 'app-root',
@@ -49,7 +48,6 @@ import { BackendService } from './@services/backend.service';
     MonitorComponent,
     ErrorsComponent,
     InfoComponent,
-    CloudComponent,
     ScanResultComponent,
     MatProgressSpinnerModule,
     TaskQueueComponent,
@@ -73,7 +71,7 @@ export class AppComponent {
   private _snackBar = inject(MatSnackBar);
   private dateService = inject(DateService);
   private constantsService = inject(ConstantsService);
-  private backendService = inject(BackendService);
+  // private backendService = inject(BackendService);
   private subscriptions: Subscription = new Subscription();
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
@@ -111,14 +109,14 @@ export class AppComponent {
     // this.appService.initializeApp$().subscribe();
 
     // Auto-loadShiftReport()
-    this.timerSub = interval(60000).subscribe({
-      next: () => this.backendService.loadShiftReport(),
-    });
+    // this.timerSub = interval(60000).subscribe({
+    //   next: () => this.backendService.loadShiftReport(),
+    // });
 
     // Auto-loadArchive()
-    this.timerSub = interval(300000).subscribe({
-      next: () => this.backendService.loadArchive(),
-    });
+    // this.timerSub = interval(300000).subscribe({
+    //   next: () => this.backendService.loadArchive(),
+    // });
 
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({
@@ -205,7 +203,7 @@ export class AppComponent {
     let height = window.screen.availHeight;
     const windowFeatures = `width=444,height=${height},left=${rightSide ? 6846845 : 0},top=0`;
     window.open('index.html', '', windowFeatures);
-    window.close();
+    this.constantsService.fuTrigger();
   }
 
   hideContextMenu() {
