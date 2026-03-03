@@ -35,7 +35,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { IDataDriverNotes } from '../../interfaces/cloud.interface';
 import { DialogConfirmComponent } from '../UI/dialog-confirm/dialog-confirm.component';
 import { DateAgoPipe } from '../../pipes/date-ago.pipe';
-import { ShiftReportComponent } from './shift-report/shift-report.component';
+// import { ShiftReportComponent } from './shift-report/shift-report.component';
 
 @Component({
   selector: 'app-cloud',
@@ -52,7 +52,7 @@ import { ShiftReportComponent } from './shift-report/shift-report.component';
     MatExpansionModule,
     MatBadgeModule,
     DateAgoPipe,
-    ShiftReportComponent,
+    // ShiftReportComponent,
   ],
   providers: [
     {

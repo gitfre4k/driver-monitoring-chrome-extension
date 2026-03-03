@@ -40,7 +40,7 @@ export class ScanService {
 
   autoScan = signal(true);
   autofocus = signal(true);
-  selectedRange = signal<'week' | 'month' | 'custom'>('week');
+  selectedRange = signal<'week' | 'month' | 'custom'>('month');
   cycleAlertExcludeNonWorking = signal(true);
 
   constructor() {}

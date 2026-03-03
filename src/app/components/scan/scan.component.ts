@@ -147,7 +147,7 @@ export class ScanComponent {
         dateFrom = violationsMonthAgo;
         break;
       default:
-        dateFrom = violationsSevenDaysAgo;
+        dateFrom = violationsMonthAgo;
         dateTo = violationsToday;
     }
 
@@ -209,10 +209,11 @@ export class ScanComponent {
     const dialogRef = this.dialog.open(ReportComponent);
     let instance = dialogRef.componentInstance;
     instance.analyzeError = this.progressBarService.aErrors();
+    this.progressBarService.initializeProgressBar();
 
-    dialogRef
-      .afterClosed()
-      .subscribe(() => this.progressBarService.initializeProgressBar());
+    // dialogRef
+    //   .afterClosed()
+    //   .subscribe(() => this.progressBarService.initializeProgressBar());
   }
 
   handleDriverLogs(driverLogs: IDriverLogs) {
@@ -299,7 +300,7 @@ export class ScanComponent {
 
   startScan = () => {
     this.disableScan = true;
-    setTimeout(() => (this.disableScan = false), 2000);
+    setTimeout(() => (this.disableScan = false), 500);
 
     this.taskQueueServoce.addPendingTask(this.scanMode.value);
 

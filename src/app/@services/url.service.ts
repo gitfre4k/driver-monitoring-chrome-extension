@@ -14,7 +14,7 @@ export class UrlService {
   tabId = signal<number | null>(null);
   url = signal<string | null>(null);
   tenant = signal<{ id: string; name: string } | null>(null);
-  provider = signal<'prologs' | 'synergy' | 'Prologs'>('prologs');
+  provider = signal<'prologs' | 'synergy' | 'Prologs' | ''>('');
 
   hoveredElement = signal<{
     id: string | null;

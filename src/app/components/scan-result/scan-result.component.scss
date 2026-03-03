@@ -158,6 +158,7 @@
               display: grid;
               grid-template-columns: 33px 90px auto;
               align-items: center;
+              position: relative;
               .view-id {
                 margin: 0 3px 0 0;
                 text-align: left;
@@ -176,6 +177,11 @@
               }
               .error-msg.note {
                 font-weight: 700;
+              }
+              .hide {
+                position: absolute;
+                right: 0;
+                padding-right: 5px;
               }
             }
 

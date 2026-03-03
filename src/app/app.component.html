@@ -97,15 +97,17 @@
           <app-info></app-info>
         </mat-tab>
 
-        <mat-tab label="Shift Report">
-          <ng-template mat-tab-label>
-            <mat-icon>cloud</mat-icon>
+        @if (["Prologs", "prologs"].includes(urlService.provider())) {
+          <mat-tab label="Shift Report">
+            <ng-template mat-tab-label>
+              <mat-icon>cloud</mat-icon>
 
-            <span class="hide">Shift Report</span>
-          </ng-template>
+              <span class="hide">Shift Report</span>
+            </ng-template>
 
-          <app-cloud></app-cloud>
-        </mat-tab>
+            <app-cloud></app-cloud>
+          </mat-tab>
+        }
 
         <mat-tab label="Settings">
           <ng-template mat-tab-label>

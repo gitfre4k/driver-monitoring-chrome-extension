@@ -34,6 +34,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { getStatusDuration } from '../../helpers/app.helpers';
 import { ConstantsService } from '../../@services/constants.service';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
+import { THiddenScanResult } from '../../types';
+import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
 
 @Component({
   selector: 'app-scan-result',
@@ -114,6 +116,13 @@ export class ScanResultComponent {
   });
 
   constructor() {}
+  // THiddenScanResult
+  hideScanResult(target: 'teleports', event: IEvent) {
+    this.constanstsService.hiddenScanResults.update((prev) => ({
+      ...prev,
+      [target]: [...prev[target], event],
+    }));
+  }
 
   removeHiddenViolations() {
     this.constanstsService.hiddenViolations.set([]);

@@ -45,38 +45,465 @@
     </div>
   </h1>
 
-  @if (this.backendService.backendData(); as backendData) {
+  <!-- @if (this.backendService.backendData(); as backendData) {
     <app-shift-report
       [notes]="backendData[0]"
       [customNotes]="backendData.customNotes"
     ></app-shift-report>
-  }
+  } -->
 
-  @if (page() !== 0) {
-    <div class="content">
-      @if (isSortedByTime && state().sortedDataByTime; as data) {
-        <div class="content__action-buttons">
-          <button mat-button (click)="toggleSorting()">Sort by Company</button>
-        </div>
-        <mat-accordion #accordion="matAccordion" [multi]="true">
-          @for (item of data; track item) {
-            @if (item[2] && +item[2].id === 999) {
-              <mat-expansion-panel
-                [expanded]="true"
-                [disabled]="true"
-                hideToggle
-              >
-                <mat-expansion-panel-header style="display: none">
-                  <mat-panel-title style="color: #fff"
-                    >{{ formatTenantName(item[0].name) }}
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <div class="panel">
-                  <ul>
+  <!-- @if (page() !== 0) { -->
+  <div class="content">
+    @if (isSortedByTime && state().sortedDataByTime; as data) {
+      <div class="content__action-buttons">
+        <button mat-button (click)="toggleSorting()">Sort by Company</button>
+      </div>
+      <mat-accordion #accordion="matAccordion" [multi]="true">
+        @for (item of data; track item) {
+          @if (item[2] && +item[2].id === 999) {
+            <mat-expansion-panel [expanded]="true" [disabled]="true" hideToggle>
+              <mat-expansion-panel-header style="display: none">
+                <mat-panel-title style="color: #fff"
+                  >{{ formatTenantName(item[0].name) }}
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="panel">
+                <ul>
+                  <li>
+                    <span class="notes">
+                      @for (
+                        singleNote of item[1] | keyvalue;
+                        track singleNote.key
+                      ) {
+                        <div class="notes__note">
+                          <span class="notes__note__text">
+                            @if (
+                              singleNote.value[0].vehicleData;
+                              as vehicleData
+                            ) {
+                              <span class="notes__note__text-truck">
+                                Truck ID:
+                                <span class="notes__note__text-truck-id"
+                                  >{{ vehicleData.name }}
+                                </span>
+                              </span>
+                              <br />
+                              <br />
+                            }
+                            <span>
+                              {{ getNote(singleNote.value) }}
+                            </span>
+                            <br />
+                            <br />
+                            <span class="notes__note__text-ts">
+                              {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                              -
+
+                              {{ singleNote.key | dateAgo }}
+                            </span>
+                          </span>
+                          <div class="notes__note__action-btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Done"
+                              class="notes__note__action-btns__delete"
+                              (click)="
+                                deleteNote(singleNote.value, singleNote.key)
+                              "
+                              [disabled]="backendService.isDeletingNote()"
+                            >
+                              @if (
+                                singleNote.key ===
+                                backendService.isDeletingNote()
+                              ) {
+                                <mat-spinner [diameter]="24"></mat-spinner>
+                              } @else {
+                                <span class="material-icons"> clear </span>
+                              }
+                            </a>
+
+                            @if (page() === 0) {
+                              <a
+                                mat-icon-button
+                                matTooltip="Move to Archive"
+                                class="notes__note__action-btns__archive"
+                                (click)="
+                                  archiveNote(singleNote.value, singleNote.key)
+                                "
+                                [disabled]="backendService.isDeletingNote()"
+                              >
+                                @if (
+                                  singleNote.key ===
+                                  backendService.isDeletingNote()
+                                ) {
+                                  <mat-spinner [diameter]="24"></mat-spinner>
+                                } @else {
+                                  <span class="material-icons">
+                                    move_down
+                                  </span>
+                                }
+                              </a>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </mat-expansion-panel>
+          }
+
+          @if (item[2] && +item[2].id !== 999) {
+            <mat-expansion-panel [expanded]="true" [disabled]="true" hideToggle>
+              <mat-expansion-panel-header>
+                <mat-panel-title style="color: #fff"
+                  >{{ formatTenantName(item[0].name) }}
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="panel">
+                <ul>
+                  <li>
+                    <span class="driver">
+                      <a
+                        mat-icon-button
+                        matTooltip="Open driver daily logs in web app"
+                        matTooltipPosition="right"
+                        (click)="
+                          openLogs(
+                            +item[2].id,
+                            dateService.now
+                              .setZone('America/New_York')
+                              .toUTC()
+                              .toISO()!,
+                            { id: item[0].id, name: item[0].name }
+                          )
+                        "
+                      >
+                        <mat-icon>open_in_browser</mat-icon> </a
+                      >{{ item[2].name }}
+                    </span>
+
+                    <span class="notes">
+                      @for (
+                        singleNote of item[1] | keyvalue;
+                        track singleNote.key
+                      ) {
+                        <div class="notes__note">
+                          <span class="notes__note__text">
+                            @if (
+                              singleNote.value[0].vehicleData;
+                              as vehicleData
+                            ) {
+                              <span class="notes__note__text-truck">
+                                Truck ID:
+                                <span class="notes__note__text-truck-id"
+                                  >{{ vehicleData.name }}
+                                </span>
+                              </span>
+                              <br />
+                              <br />
+                            }
+                            @if (
+                              state().name === "FMCSA Inspections" &&
+                                parseDOTInspection(singleNote.value);
+                              as fmcsaData
+                            ) {
+                              {{ fmcsaData.time | date: "MMM d, y, h:mm a" }}
+                              <br />
+                              <span class="notes__note__text-ts">
+                                {{ fmcsaData.time | dateAgo }}
+                              </span>
+                            } @else if (
+                              state().name === "Malfunction Letters" &&
+                                parseMalf(getNote(singleNote.value));
+                              as malf
+                            ) {
+                              {{ malf.start | date: "mediumDate" }} -
+                              {{ malf.end | date: "mediumDate" }}
+                              <br />
+                              <br />
+                              {{ malf.note }}
+                            } @else {
+                              <span>
+                                {{ getNote(singleNote.value) }}
+                              </span>
+                              <br />
+                              <br />
+                              <span class="notes__note__text-ts">
+                                {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                                -
+
+                                {{ singleNote.key | dateAgo }}
+                              </span>
+                            }
+                          </span>
+                          <div class="notes__note__action-btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Done"
+                              class="notes__note__action-btns__delete"
+                              (click)="
+                                deleteNote(singleNote.value, singleNote.key)
+                              "
+                              [disabled]="backendService.isDeletingNote()"
+                            >
+                              @if (
+                                singleNote.key ===
+                                backendService.isDeletingNote()
+                              ) {
+                                <mat-spinner [diameter]="24"></mat-spinner>
+                              } @else {
+                                <span class="material-icons"> clear </span>
+                              }
+                            </a>
+                            @if (page() === 0) {
+                              <a
+                                mat-icon-button
+                                matTooltip="Move to Archive"
+                                class="notes__note__action-btns__archive"
+                                (click)="
+                                  archiveNote(singleNote.value, singleNote.key)
+                                "
+                                [disabled]="backendService.isDeletingNote()"
+                              >
+                                @if (
+                                  singleNote.key ===
+                                  backendService.isDeletingNote()
+                                ) {
+                                  <mat-spinner [diameter]="24"></mat-spinner>
+                                } @else {
+                                  <span class="material-icons">
+                                    move_down
+                                  </span>
+                                }
+                              </a>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </mat-expansion-panel>
+          } @else if ([0, 5].includes(page())) {
+            <mat-expansion-panel [expanded]="true" [disabled]="true" hideToggle>
+              <mat-expansion-panel-header>
+                <mat-panel-title style="color: #fff">
+                  {{ formatTenantName(item[0].name) }}
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="panel">
+                <ul>
+                  <li>
+                    @for (
+                      singleNote of item[1] | keyvalue;
+                      track singleNote.key
+                    ) {
+                      <li>
+                        <span class="notes__note">
+                          <span class="notes__note__text">
+                            <span>
+                              {{ getNote(singleNote.value) }}
+                            </span>
+                            <br />
+                            <br />
+                            <span class="notes__note__text-ts">
+                              {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                              -
+
+                              {{ singleNote.key | dateAgo }}
+                            </span>
+                          </span>
+                          <div class="notes__note__action-btns">
+                            <a
+                              mat-icon-button
+                              matTooltip="Done"
+                              class="notes__note__action-btns__delete"
+                              (click)="
+                                deleteNote(singleNote.value, singleNote.key)
+                              "
+                              [disabled]="backendService.isDeletingNote()"
+                            >
+                              @if (
+                                singleNote.key ===
+                                backendService.isDeletingNote()
+                              ) {
+                                <mat-spinner [diameter]="24"></mat-spinner>
+                              } @else {
+                                <span class="material-icons"> clear </span>
+                              }
+                            </a>
+                            @if (page() === 0) {
+                              <a
+                                mat-icon-button
+                                matTooltip="Move to Archive"
+                                class="notes__note__action-btns__archive"
+                                (click)="
+                                  archiveNote(singleNote.value, singleNote.key)
+                                "
+                                [disabled]="backendService.isDeletingNote()"
+                              >
+                                @if (
+                                  singleNote.key ===
+                                  backendService.isDeletingNote()
+                                ) {
+                                  <mat-spinner [diameter]="24"></mat-spinner>
+                                } @else {
+                                  <span class="material-icons">
+                                    move_down
+                                  </span>
+                                }
+                              </a>
+                            }
+                          </div>
+                        </span>
+                      </li>
+                    }
+                  </li>
+                </ul>
+              </div>
+            </mat-expansion-panel>
+          }
+        }
+      </mat-accordion>
+    } @else if (state().sortedData; as data) {
+      <div class="content__action-buttons">
+        <button mat-button (click)="handleExpandAll(accordion)">
+          Expand All
+        </button>
+        <button mat-button (click)="accordion.closeAll()">Collapse All</button>
+        <button mat-button (click)="toggleSorting()">Sort by time</button>
+      </div>
+      <mat-accordion #accordion="matAccordion" [multi]="isMultiMode">
+        @if ([0, 5].includes(page())) {
+          @if (
+            state().customNotes &&
+              !isEmpty(state().customNotes) &&
+              state().customNotes;
+            as customNotes
+          ) {
+            <mat-expansion-panel class="expension-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title
+                  >***
+                  <div
+                    style="margin-left: auto"
+                    class="mat-badge-custom"
+                    [matBadge]="
+                      resultCount({
+                        name: '***',
+                        drivers: {},
+                        companyNotes: customNotes,
+                      })
+                    "
+                    [matBadgeHidden]="false"
+                    matBadgePosition="below after"
+                    matBadgeSize="medium"
+                  ></div
+                ></mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="panel">
+                <ul>
+                  @for (
+                    singleNote of customNotes | keyvalue;
+                    track singleNote.key
+                  ) {
+                    <li>
+                      <span class="notes__note">
+                        <span class="notes__note__text">
+                          <span>
+                            {{ getNote(singleNote.value) }}
+                          </span>
+                          <br />
+                          <br />
+                          <span class="notes__note__text-ts">
+                            {{ singleNote.key | date: "MMM d, y, h:mm a" }}
+
+                            -
+
+                            {{ singleNote.key | dateAgo }}
+                          </span>
+                        </span>
+                        <div class="notes__note__action-btns">
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="notes__note__action-btns__delete"
+                            (click)="
+                              deleteNote(singleNote.value, singleNote.key)
+                            "
+                            [disabled]="backendService.isDeletingNote()"
+                          >
+                            @if (
+                              singleNote.key === backendService.isDeletingNote()
+                            ) {
+                              <mat-spinner [diameter]="24"></mat-spinner>
+                            } @else {
+                              <span class="material-icons"> clear </span>
+                            }
+                          </a>
+                          @if (page() === 0) {
+                            <a
+                              mat-icon-button
+                              matTooltip="Move to Archive"
+                              class="notes__note__action-btns__archive"
+                              (click)="
+                                archiveNote(singleNote.value, singleNote.key)
+                              "
+                              [disabled]="backendService.isDeletingNote()"
+                            >
+                              @if (
+                                singleNote.key ===
+                                backendService.isDeletingNote()
+                              ) {
+                                <mat-spinner [diameter]="24"></mat-spinner>
+                              } @else {
+                                <span class="material-icons"> move_down </span>
+                              }
+                            </a>
+                          }
+                        </div>
+                      </span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            </mat-expansion-panel>
+          }
+        }
+
+        @for (company of data; track company[0]) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title
+                >{{ formatTenantName(company[1].name) }}
+                <div
+                  style="margin-left: auto"
+                  class="mat-badge-custom"
+                  [matBadge]="resultCount(company[1])"
+                  [matBadgeHidden]="false"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div
+              ></mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="panel">
+              <ul>
+                @for (
+                  driver of company[1].drivers | keyvalue;
+                  track driver.key
+                ) {
+                  @if (+driver.key === 999) {
                     <li>
                       <span class="notes">
                         @for (
-                          singleNote of item[1] | keyvalue;
+                          singleNote of driver.value.notes | keyvalue;
                           track singleNote.key
                         ) {
                           <div class="notes__note">
@@ -157,24 +584,13 @@
                         }
                       </span>
                     </li>
-                  </ul>
-                </div>
-              </mat-expansion-panel>
-            }
-
-            @if (item[2] && +item[2].id !== 999) {
-              <mat-expansion-panel
-                [expanded]="true"
-                [disabled]="true"
-                hideToggle
-              >
-                <mat-expansion-panel-header>
-                  <mat-panel-title style="color: #fff"
-                    >{{ formatTenantName(item[0].name) }}
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <div class="panel">
-                  <ul>
+                  }
+                }
+                @for (
+                  driver of company[1].drivers | keyvalue;
+                  track driver.key
+                ) {
+                  @if (+driver.key !== 999) {
                     <li>
                       <span class="driver">
                         <a
@@ -183,22 +599,22 @@
                           matTooltipPosition="right"
                           (click)="
                             openLogs(
-                              +item[2].id,
+                              +driver.key,
                               dateService.now
                                 .setZone('America/New_York')
                                 .toUTC()
                                 .toISO()!,
-                              { id: item[0].id, name: item[0].name }
+                              { id: company[0], name: company[1].name }
                             )
                           "
                         >
                           <mat-icon>open_in_browser</mat-icon> </a
-                        >{{ item[2].name }}
+                        >{{ driver.value.name }}
                       </span>
 
                       <span class="notes">
                         @for (
-                          singleNote of item[1] | keyvalue;
+                          singleNote of driver.value.notes | keyvalue;
                           track singleNote.key
                         ) {
                           <div class="notes__note">
@@ -302,466 +718,14 @@
                         }
                       </span>
                     </li>
-                  </ul>
-                </div>
-              </mat-expansion-panel>
-            } @else if ([0, 5].includes(page())) {
-              <mat-expansion-panel
-                [expanded]="true"
-                [disabled]="true"
-                hideToggle
-              >
-                <mat-expansion-panel-header>
-                  <mat-panel-title style="color: #fff">
-                    {{ formatTenantName(item[0].name) }}
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <div class="panel">
-                  <ul>
-                    <li>
-                      @for (
-                        singleNote of item[1] | keyvalue;
-                        track singleNote.key
-                      ) {
-                        <li>
-                          <span class="notes__note">
-                            <span class="notes__note__text">
-                              <span>
-                                {{ getNote(singleNote.value) }}
-                              </span>
-                              <br />
-                              <br />
-                              <span class="notes__note__text-ts">
-                                {{ singleNote.key | date: "MMM d, y, h:mm a" }}
-
-                                -
-
-                                {{ singleNote.key | dateAgo }}
-                              </span>
-                            </span>
-                            <div class="notes__note__action-btns">
-                              <a
-                                mat-icon-button
-                                matTooltip="Done"
-                                class="notes__note__action-btns__delete"
-                                (click)="
-                                  deleteNote(singleNote.value, singleNote.key)
-                                "
-                                [disabled]="backendService.isDeletingNote()"
-                              >
-                                @if (
-                                  singleNote.key ===
-                                  backendService.isDeletingNote()
-                                ) {
-                                  <mat-spinner [diameter]="24"></mat-spinner>
-                                } @else {
-                                  <span class="material-icons"> clear </span>
-                                }
-                              </a>
-                              @if (page() === 0) {
-                                <a
-                                  mat-icon-button
-                                  matTooltip="Move to Archive"
-                                  class="notes__note__action-btns__archive"
-                                  (click)="
-                                    archiveNote(
-                                      singleNote.value,
-                                      singleNote.key
-                                    )
-                                  "
-                                  [disabled]="backendService.isDeletingNote()"
-                                >
-                                  @if (
-                                    singleNote.key ===
-                                    backendService.isDeletingNote()
-                                  ) {
-                                    <mat-spinner [diameter]="24"></mat-spinner>
-                                  } @else {
-                                    <span class="material-icons">
-                                      move_down
-                                    </span>
-                                  }
-                                </a>
-                              }
-                            </div>
-                          </span>
-                        </li>
-                      }
-                    </li>
-                  </ul>
-                </div>
-              </mat-expansion-panel>
-            }
-          }
-        </mat-accordion>
-      } @else if (state().sortedData; as data) {
-        <div class="content__action-buttons">
-          <button mat-button (click)="handleExpandAll(accordion)">
-            Expand All
-          </button>
-          <button mat-button (click)="accordion.closeAll()">
-            Collapse All
-          </button>
-          <button mat-button (click)="toggleSorting()">Sort by time</button>
-        </div>
-        <mat-accordion #accordion="matAccordion" [multi]="isMultiMode">
-          @if ([0, 5].includes(page())) {
-            @if (
-              state().customNotes &&
-                !isEmpty(state().customNotes) &&
-                state().customNotes;
-              as customNotes
-            ) {
-              <mat-expansion-panel class="expension-panel">
-                <mat-expansion-panel-header>
-                  <mat-panel-title
-                    >***
-                    <div
-                      style="margin-left: auto"
-                      class="mat-badge-custom"
-                      [matBadge]="
-                        resultCount({
-                          name: '***',
-                          drivers: {},
-                          companyNotes: customNotes,
-                        })
-                      "
-                      [matBadgeHidden]="false"
-                      matBadgePosition="below after"
-                      matBadgeSize="medium"
-                    ></div
-                  ></mat-panel-title>
-                </mat-expansion-panel-header>
-
-                <div class="panel">
-                  <ul>
-                    @for (
-                      singleNote of customNotes | keyvalue;
-                      track singleNote.key
-                    ) {
-                      <li>
-                        <span class="notes__note">
-                          <span class="notes__note__text">
-                            <span>
-                              {{ getNote(singleNote.value) }}
-                            </span>
-                            <br />
-                            <br />
-                            <span class="notes__note__text-ts">
-                              {{ singleNote.key | date: "MMM d, y, h:mm a" }}
-
-                              -
-
-                              {{ singleNote.key | dateAgo }}
-                            </span>
-                          </span>
-                          <div class="notes__note__action-btns">
-                            <a
-                              mat-icon-button
-                              matTooltip="Done"
-                              class="notes__note__action-btns__delete"
-                              (click)="
-                                deleteNote(singleNote.value, singleNote.key)
-                              "
-                              [disabled]="backendService.isDeletingNote()"
-                            >
-                              @if (
-                                singleNote.key ===
-                                backendService.isDeletingNote()
-                              ) {
-                                <mat-spinner [diameter]="24"></mat-spinner>
-                              } @else {
-                                <span class="material-icons"> clear </span>
-                              }
-                            </a>
-                            @if (page() === 0) {
-                              <a
-                                mat-icon-button
-                                matTooltip="Move to Archive"
-                                class="notes__note__action-btns__archive"
-                                (click)="
-                                  archiveNote(singleNote.value, singleNote.key)
-                                "
-                                [disabled]="backendService.isDeletingNote()"
-                              >
-                                @if (
-                                  singleNote.key ===
-                                  backendService.isDeletingNote()
-                                ) {
-                                  <mat-spinner [diameter]="24"></mat-spinner>
-                                } @else {
-                                  <span class="material-icons">
-                                    move_down
-                                  </span>
-                                }
-                              </a>
-                            }
-                          </div>
-                        </span>
-                      </li>
-                    }
-                  </ul>
-                </div>
-              </mat-expansion-panel>
-            }
-          }
-
-          @for (company of data; track company[0]) {
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title
-                  >{{ formatTenantName(company[1].name) }}
-                  <div
-                    style="margin-left: auto"
-                    class="mat-badge-custom"
-                    [matBadge]="resultCount(company[1])"
-                    [matBadgeHidden]="false"
-                    matBadgePosition="below after"
-                    matBadgeSize="medium"
-                  ></div
-                ></mat-panel-title>
-              </mat-expansion-panel-header>
-              <div class="panel">
-                <ul>
-                  @for (
-                    driver of company[1].drivers | keyvalue;
-                    track driver.key
-                  ) {
-                    @if (+driver.key === 999) {
-                      <li>
-                        <span class="notes">
-                          @for (
-                            singleNote of driver.value.notes | keyvalue;
-                            track singleNote.key
-                          ) {
-                            <div class="notes__note">
-                              <span class="notes__note__text">
-                                @if (
-                                  singleNote.value[0].vehicleData;
-                                  as vehicleData
-                                ) {
-                                  <span class="notes__note__text-truck">
-                                    Truck ID:
-                                    <span class="notes__note__text-truck-id"
-                                      >{{ vehicleData.name }}
-                                    </span>
-                                  </span>
-                                  <br />
-                                  <br />
-                                }
-                                <span>
-                                  {{ getNote(singleNote.value) }}
-                                </span>
-                                <br />
-                                <br />
-                                <span class="notes__note__text-ts">
-                                  {{
-                                    singleNote.key | date: "MMM d, y, h:mm a"
-                                  }}
-
-                                  -
-
-                                  {{ singleNote.key | dateAgo }}
-                                </span>
-                              </span>
-                              <div class="notes__note__action-btns">
-                                <a
-                                  mat-icon-button
-                                  matTooltip="Done"
-                                  class="notes__note__action-btns__delete"
-                                  (click)="
-                                    deleteNote(singleNote.value, singleNote.key)
-                                  "
-                                  [disabled]="backendService.isDeletingNote()"
-                                >
-                                  @if (
-                                    singleNote.key ===
-                                    backendService.isDeletingNote()
-                                  ) {
-                                    <mat-spinner [diameter]="24"></mat-spinner>
-                                  } @else {
-                                    <span class="material-icons"> clear </span>
-                                  }
-                                </a>
-
-                                @if (page() === 0) {
-                                  <a
-                                    mat-icon-button
-                                    matTooltip="Move to Archive"
-                                    class="notes__note__action-btns__archive"
-                                    (click)="
-                                      archiveNote(
-                                        singleNote.value,
-                                        singleNote.key
-                                      )
-                                    "
-                                    [disabled]="backendService.isDeletingNote()"
-                                  >
-                                    @if (
-                                      singleNote.key ===
-                                      backendService.isDeletingNote()
-                                    ) {
-                                      <mat-spinner
-                                        [diameter]="24"
-                                      ></mat-spinner>
-                                    } @else {
-                                      <span class="material-icons">
-                                        move_down
-                                      </span>
-                                    }
-                                  </a>
-                                }
-                              </div>
-                            </div>
-                          }
-                        </span>
-                      </li>
-                    }
                   }
-                  @for (
-                    driver of company[1].drivers | keyvalue;
-                    track driver.key
-                  ) {
-                    @if (+driver.key !== 999) {
-                      <li>
-                        <span class="driver">
-                          <a
-                            mat-icon-button
-                            matTooltip="Open driver daily logs in web app"
-                            matTooltipPosition="right"
-                            (click)="
-                              openLogs(
-                                +driver.key,
-                                dateService.now
-                                  .setZone('America/New_York')
-                                  .toUTC()
-                                  .toISO()!,
-                                { id: company[0], name: company[1].name }
-                              )
-                            "
-                          >
-                            <mat-icon>open_in_browser</mat-icon> </a
-                          >{{ driver.value.name }}
-                        </span>
-
-                        <span class="notes">
-                          @for (
-                            singleNote of driver.value.notes | keyvalue;
-                            track singleNote.key
-                          ) {
-                            <div class="notes__note">
-                              <span class="notes__note__text">
-                                @if (
-                                  singleNote.value[0].vehicleData;
-                                  as vehicleData
-                                ) {
-                                  <span class="notes__note__text-truck">
-                                    Truck ID:
-                                    <span class="notes__note__text-truck-id"
-                                      >{{ vehicleData.name }}
-                                    </span>
-                                  </span>
-                                  <br />
-                                  <br />
-                                }
-                                @if (
-                                  state().name === "FMCSA Inspections" &&
-                                    parseDOTInspection(singleNote.value);
-                                  as fmcsaData
-                                ) {
-                                  {{
-                                    fmcsaData.time | date: "MMM d, y, h:mm a"
-                                  }}
-                                  <br />
-                                  <span class="notes__note__text-ts">
-                                    {{ fmcsaData.time | dateAgo }}
-                                  </span>
-                                } @else if (
-                                  state().name === "Malfunction Letters" &&
-                                    parseMalf(getNote(singleNote.value));
-                                  as malf
-                                ) {
-                                  {{ malf.start | date: "mediumDate" }} -
-                                  {{ malf.end | date: "mediumDate" }}
-                                  <br />
-                                  <br />
-                                  {{ malf.note }}
-                                } @else {
-                                  <span>
-                                    {{ getNote(singleNote.value) }}
-                                  </span>
-                                  <br />
-                                  <br />
-                                  <span class="notes__note__text-ts">
-                                    {{
-                                      singleNote.key | date: "MMM d, y, h:mm a"
-                                    }}
-
-                                    -
-
-                                    {{ singleNote.key | dateAgo }}
-                                  </span>
-                                }
-                              </span>
-                              <div class="notes__note__action-btns">
-                                <a
-                                  mat-icon-button
-                                  matTooltip="Done"
-                                  class="notes__note__action-btns__delete"
-                                  (click)="
-                                    deleteNote(singleNote.value, singleNote.key)
-                                  "
-                                  [disabled]="backendService.isDeletingNote()"
-                                >
-                                  @if (
-                                    singleNote.key ===
-                                    backendService.isDeletingNote()
-                                  ) {
-                                    <mat-spinner [diameter]="24"></mat-spinner>
-                                  } @else {
-                                    <span class="material-icons"> clear </span>
-                                  }
-                                </a>
-                                @if (page() === 0) {
-                                  <a
-                                    mat-icon-button
-                                    matTooltip="Move to Archive"
-                                    class="notes__note__action-btns__archive"
-                                    (click)="
-                                      archiveNote(
-                                        singleNote.value,
-                                        singleNote.key
-                                      )
-                                    "
-                                    [disabled]="backendService.isDeletingNote()"
-                                  >
-                                    @if (
-                                      singleNote.key ===
-                                      backendService.isDeletingNote()
-                                    ) {
-                                      <mat-spinner
-                                        [diameter]="24"
-                                      ></mat-spinner>
-                                    } @else {
-                                      <span class="material-icons">
-                                        move_down
-                                      </span>
-                                    }
-                                  </a>
-                                }
-                              </div>
-                            </div>
-                          }
-                        </span>
-                      </li>
-                    }
-                  }
-                </ul>
-              </div>
-            </mat-expansion-panel>
-          }
-        </mat-accordion>
-      }
-    </div>
-  }
+                }
+              </ul>
+            </div>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    }
+  </div>
+  <!-- } -->
 </div>

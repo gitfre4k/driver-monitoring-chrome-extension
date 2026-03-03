@@ -12,6 +12,7 @@ import {
 } from '../interfaces/cloud.interface';
 import { ApiOperationsService } from './api-operations.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UrlService } from './url.service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +24,7 @@ export class BackendService {
   private apiService = inject(ApiService);
   private apiOperationsService = inject(ApiOperationsService);
   private _snackBar = inject(MatSnackBar);
+  private urlService = inject(UrlService);
   dataSubscription: Subscription | undefined;
 
   backendData = signal<IBackendData | null>(null);
@@ -37,50 +39,54 @@ export class BackendService {
   constructor() {}
 
   loadShiftReport() {
-    this.isLoadingShiftReport.set(true);
-    this.dataSubscription = this.shiftReport$.subscribe({
-      next: (value) => {
-        this.backendData.set(value);
-      },
-      error: (error) => {
-        this.isLoadingShiftReport.set(false);
-        this._snackBar.open(
-          'Error loading shift report data: ' +
-            (error.message ? error.message : error.error.message),
-          'Close',
-          {
-            duration: 7000,
-          },
-        );
-      },
-      complete: () => {
-        this.isLoadingShiftReport.set(false);
-      },
-    });
+    if (['Prologs', 'prologs'].includes(this.urlService.provider())) {
+      this.isLoadingShiftReport.set(true);
+      this.dataSubscription = this.shiftReport$.subscribe({
+        next: (value) => {
+          this.backendData.set(value);
+        },
+        error: (error) => {
+          this.isLoadingShiftReport.set(false);
+          this._snackBar.open(
+            'Error loading shift report data: ' +
+              (error.message ? error.message : error.error.message),
+            'Close',
+            {
+              duration: 7000,
+            },
+          );
+        },
+        complete: () => {
+          this.isLoadingShiftReport.set(false);
+        },
+      });
+    }
   }
 
   loadArchive() {
-    this.isLoadingShiftReport.set(true);
-    this.dataSubscription = this.archive$.subscribe({
-      next: (value) => {
-        console.log('Archive data loaded:', value);
-        this.archiveData.set(value);
-      },
-      error: (error) => {
-        this.isLoadingShiftReport.set(false);
-        this._snackBar.open(
-          'Error loading shift report data: ' +
-            (error.message ? error.message : error.error.message),
-          'Close',
-          {
-            duration: 7000,
-          },
-        );
-      },
-      complete: () => {
-        this.isLoadingShiftReport.set(false);
-      },
-    });
+    if (['Prologs', 'prologs'].includes(this.urlService.provider())) {
+      this.isLoadingShiftReport.set(true);
+      this.dataSubscription = this.archive$.subscribe({
+        next: (value) => {
+          console.log('Archive data loaded:', value);
+          this.archiveData.set(value);
+        },
+        error: (error) => {
+          this.isLoadingShiftReport.set(false);
+          this._snackBar.open(
+            'Error loading shift report data: ' +
+              (error.message ? error.message : error.error.message),
+            'Close',
+            {
+              duration: 7000,
+            },
+          );
+        },
+        complete: () => {
+          this.isLoadingShiftReport.set(false);
+        },
+      });
+    }
   }
 
   shiftReport$: Observable<IBackendData> = this.apiService

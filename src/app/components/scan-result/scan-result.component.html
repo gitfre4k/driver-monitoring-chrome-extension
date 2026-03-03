@@ -898,6 +898,20 @@
                                       : "odometer decreased"
                                   }}
                                 </span>
+
+                                <div class="hide">
+                                  <a
+                                    mat-icon-button
+                                    (click)="hideScanResult('teleports', event)"
+                                    matTooltip="Hide from view"
+                                    matTooltipPosition="left"
+                                    style="transform: scale(0.7)"
+                                  >
+                                    <mat-icon style="margin-bottom: 3px">
+                                      visibility_off</mat-icon
+                                    >
+                                  </a>
+                                </div>
                               </li>
                             }
                           }

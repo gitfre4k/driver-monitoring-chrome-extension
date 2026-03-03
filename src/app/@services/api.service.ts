@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { from, map, Observable, shareReplay, tap } from 'rxjs';
+import { filter, from, map, Observable, shareReplay, tap } from 'rxjs';
 
 import { DateTime } from 'luxon';
 
@@ -129,6 +129,12 @@ export class ApiService {
                   t.id === '3a1acd7b-2c8c-f6c2-219b-fe8ffa67061f',
               ) && window.close(),
           ),
+          map((tenants) => {
+            const filteredTenants = tenants.filter(
+              (tenant) => tenant.id !== '3a16527f-ea27-7acc-f16b-98c74b4ab25e',
+            );
+            return filteredTenants;
+          }),
           shareReplay(1),
         ),
     );

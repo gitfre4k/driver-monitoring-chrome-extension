@@ -1,10 +1,12 @@
 import { effect, Injectable, signal, WritableSignal } from '@angular/core';
+import { THiddenScanResult } from '../types';
+import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConstantsService {
-  extensionVersion = signal('0.0.4.29');
+  extensionVersion = signal('0.0.4.30');
 
   httpLimit = signal(2);
 
@@ -14,6 +16,12 @@ export class ConstantsService {
   hiddenViolations = this.createSignal(
     'hiddenViolations',
     [] as { startTime: string; type: string }[],
+  );
+  hiddenScanResults = this.createSignal(
+    'hiddenScanResults',
+    {} as {
+      teleports: IEvent[];
+    },
   );
   disableSmartFixOnCoDrivers = signal(true);
 
@@ -40,7 +48,6 @@ export class ConstantsService {
     effect(() => {
       try {
         const valueToStore = stateSignal();
-        // localStorage only stores strings, so we JSON.stringify the value
         localStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (e) {
         console.error('Error saving to localStorage', e);

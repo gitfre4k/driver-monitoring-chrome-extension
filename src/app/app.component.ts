@@ -32,6 +32,7 @@ import { TaskQueueComponent } from './components/task-queue/task-queue.component
 import { CloudComponent } from './components/cloud/cloud.component';
 import { MonitorService } from './@services/monitor.service';
 import { BackendService } from './@services/backend.service';
+import { UrlService } from './@services/url.service';
 
 @Component({
   selector: 'app-root',
@@ -74,6 +75,8 @@ export class AppComponent {
   private dateService = inject(DateService);
   private constantsService = inject(ConstantsService);
   private backendService = inject(BackendService);
+  urlService = inject(UrlService);
+
   private subscriptions: Subscription = new Subscription();
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
@@ -110,15 +113,17 @@ export class AppComponent {
     this.appService.initializeAppDevMode$().subscribe();
     // this.appService.initializeApp$().subscribe();
 
-    // Auto-loadShiftReport()
-    this.timerSub = interval(60000).subscribe({
-      next: () => this.backendService.loadShiftReport(),
-    });
+    if (['Prologs', 'prologs'].includes(this.urlService.provider())) {
+      // Auto-loadShiftReport()
+      this.timerSub = interval(60000).subscribe({
+        next: () => this.backendService.loadShiftReport(),
+      });
 
-    // Auto-loadArchive()
-    this.timerSub = interval(300000).subscribe({
-      next: () => this.backendService.loadArchive(),
-    });
+      // Auto-loadArchive()
+      this.timerSub = interval(300000).subscribe({
+        next: () => this.backendService.loadArchive(),
+      });
+    }
 
     // Auto-Scan
     this.timerSub = interval(300000).subscribe({
