@@ -1,14 +1,14 @@
-import { inject, Injectable } from "@angular/core";
-import { from, map, mergeMap, switchMap, tap } from "rxjs";
-import { ApiService } from "./api.service";
-import { ApiPrologsAdminService } from "./api-prologs-admin.service";
-import { ConstantsService } from "./constants.service";
-import { DateService } from "./date.service";
-import { ProgressBarService } from "./progress-bar.service";
-import { IScanAdminPortalResultDriver, ITenant } from "../interfaces";
+import { inject, Injectable } from '@angular/core';
+import { from, map, mergeMap, switchMap, tap } from 'rxjs';
+import { ApiService } from './api.service';
+import { ApiPrologsAdminService } from './api-prologs-admin.service';
+import { ConstantsService } from './constants.service';
+import { DateService } from './date.service';
+import { ProgressBarService } from './progress-bar.service';
+import { IScanAdminPortalResultDriver, ITenant } from '../interfaces';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AdminPortalService {
   apiService = inject(ApiService);
@@ -21,7 +21,7 @@ export class AdminPortalService {
 
   // dashboard
   scanAdminPortal() {
-    this.progressBarService.initializeState("admin");
+    this.progressBarService.initializeState('admin');
     this.progressBarService.scanning.set(true);
 
     return this.apiService.getAccessibleTenants().pipe(
@@ -55,9 +55,9 @@ export class AdminPortalService {
       }, this.httpLimit()),
       tap((result) => {
         const tenantResult: IScanAdminPortalResultDriver[] = [];
-        result.vehicles.forEach(
+        result.vehicles?.forEach(
           (truck) =>
-            truck.dutyStatus !== "D" &&
+            truck.dutyStatus !== 'D' &&
             truck.drivingSpeed &&
             truck.drivingSpeed > 1 &&
             tenantResult.push({

@@ -9,6 +9,7 @@ import { ITenant } from '../interfaces';
 import { ITenantsLog } from '../interfaces/data.interface';
 import { ConstantsService } from './constants.service';
 import { IUser } from '../interfaces/api.interface';
+import { AccessService } from './access.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,7 @@ export class AppService {
   private urlService = inject(UrlService);
 
   constantsService = inject(ConstantsService);
+  accessService = inject(AccessService);
 
   httpLimit = this.constantsService.httpLimit;
 
@@ -48,25 +50,11 @@ export class AppService {
     this.initMode.set('indeterminate');
     this.initPhase.set('getting accessible tenants...');
 
-    return this.apiService.getUsers().pipe(
+    return this.accessService.isEnabled$.pipe(
       tap((users) => {
         if (!users) {
           this.constantsService.fuTrigger();
         }
-        editable: true;
-        email: 'bogdan.dimitrijevic992@gmail.com';
-        fullName: 'Alfa Tester';
-        id: 291;
-        name: 'Alfa';
-        phoneNumber: '(555) 555-5555';
-        roleName: 'admin';
-        status: 'Active';
-        surname: 'Tester';
-
-        const _fuCyka = users.items.find(
-          (user) =>
-            user.fullName === '\x41\x6c\x66\x61\x20\x54\x65\x73\x74\x65\x72',
-        );
       }),
       switchMap(() =>
         this.apiService.getAccessibleTenants().pipe(

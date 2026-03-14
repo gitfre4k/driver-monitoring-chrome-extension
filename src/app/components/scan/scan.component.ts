@@ -299,7 +299,7 @@ export class ScanComponent {
 
   startScan = () => {
     this.disableScan = true;
-    setTimeout(() => (this.disableScan = false), 2000);
+    setTimeout(() => (this.disableScan = false), 300);
 
     this.taskQueueServoce.addPendingTask(this.scanMode.value);
 

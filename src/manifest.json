@@ -25,6 +25,7 @@
     "https://admin.prologs.us/*",
     "https://identity.prologs.us/*",
     "https://api.prologs.us/*",
+    "https://gist.githubusercontent.com/*",
     "https://apps.ringcentral.com/*"
   ],
   "background": {
