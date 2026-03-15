@@ -169,9 +169,16 @@ export class ActionBtnsComponent {
       .pipe(
         switchMap((data) => {
           this.isLoading.set(false);
-          return this._dialog
-            .open(DialogVehicleMaintanenceComponent, { data })
-            .afterClosed();
+
+          if (!data) {
+            this._snackBar.open(`[Admin Portal] error: no data`, 'Close', {
+              duration: 3000,
+            });
+            return of();
+          } else
+            return this._dialog
+              .open(DialogVehicleMaintanenceComponent, { data })
+              .afterClosed();
         }),
       )
       .subscribe({
@@ -186,4 +193,7 @@ export class ActionBtnsComponent {
         complete: () => this.isLoading.set(false),
       });
   }
+}
+function of(): any {
+  throw new Error('Function not implemented.');
 }

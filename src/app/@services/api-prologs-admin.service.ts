@@ -14,14 +14,12 @@ export class ApiPrologsAdminService {
   private http: HttpClient = inject(HttpClient);
   private urlService = inject(UrlService);
 
-  /** Helper to determine the base API URL */
   private getBaseUrl(): string {
     return ['prologs', 'Prologs'].includes(this.urlService.provider())
       ? `https://api.prologs.us/api/`
       : `https://api.synergyeld.com/api/`;
   }
 
-  /** Helper for default headers */
   private getHeaders(token: string) {
     return {
       Authorization: `Bearer ${token}`,
@@ -79,7 +77,7 @@ export class ApiPrologsAdminService {
         }),
         catchError((err) => {
           console.error('Error fetching dashboard locations:', err);
-          return of(null); // Continue stream with null
+          return of(null);
         }),
       );
   }

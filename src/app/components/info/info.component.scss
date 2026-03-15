@@ -3,7 +3,7 @@
   flex-direction: column;
 
   align-items: center;
-  // height: calc(100vh - 55px);
+  flex-grow: 1;
   scroll-margin-right: 10px;
 
   &__extension-version {
@@ -12,7 +12,10 @@
 
     align-items: center;
     width: 100%;
+    margin: 12px;
+
     h1 {
+      font-size: 21px;
       margin-bottom: 4px;
     }
     span {

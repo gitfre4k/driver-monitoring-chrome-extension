@@ -309,6 +309,19 @@ export class ScanComponent {
         this.scanSubscribtion = this.adminPortalsService
           .scanAdminPortal()
           .subscribe({
+            next: (data) => {
+              if (!data || data.vehicles === null) {
+                setTimeout(() => {
+                  this._snackBar.open(
+                    `[Admin Portal] error: no data`,
+                    'Close',
+                    {
+                      duration: 3000,
+                    },
+                  );
+                }, 2000);
+              }
+            },
             error: (err) =>
               this._snackBar
                 .open(`An error occurred: ${err.message}`, 'Close', {
@@ -323,6 +336,7 @@ export class ScanComponent {
               console.log(this.progressBarService.adminPortalResults());
               this.progressBarService.initializeProgressBar();
               this.scanMode.setValue('violations');
+
               this._snackBar.open(
                 `Admin Portal scan complete. Results are avaiable in Report tab.`,
                 'OK',
@@ -332,20 +346,20 @@ export class ScanComponent {
               );
             },
           });
-        return;
+        return (this.disableScan = false);
 
       // Analyze Driver Logs
       case 'advanced':
         const date = this.analyzeDate();
         if (!date) {
-          return;
+          return (this.disableScan = false);
         }
         this.scanSubscribtion = this.advancedScanService
           .getDriversDailyLogs(date)
           .subscribe({
             complete: () => this.handleAdvancedScanComplete(),
           });
-        return;
+        return (this.disableScan = false);
 
       // pre-Violation || low Cycle alert
       case 'pre':
@@ -357,7 +371,7 @@ export class ScanComponent {
             complete: () =>
               this.scanService.handleScanComplete(this.scanMode.value),
           });
-        return;
+        return (this.disableScan = false);
 
       // Driver Certifications
       case 'cert':
@@ -367,7 +381,7 @@ export class ScanComponent {
           complete: () =>
             this.scanService.handleScanComplete(this.scanMode.value),
         });
-        return;
+        return (this.disableScan = false);
 
       // Violations || DOT Inspections
       case 'dot':
@@ -375,7 +389,7 @@ export class ScanComponent {
         const { dateFrom, dateTo } = this.dateRange();
         const dotDate = this.dotDate();
         if (!dateFrom || !dateTo || !dotDate) {
-          return;
+          return (this.disableScan = false);
         }
         this.scanSubscribtion = (
           this.scanMode.value === 'violations'
@@ -390,9 +404,9 @@ export class ScanComponent {
           complete: () =>
             this.scanService.handleScanComplete(this.scanMode.value),
         });
-        return;
+        return (this.disableScan = false);
       default:
-        return;
+        return (this.disableScan = false);
     }
   };
 }

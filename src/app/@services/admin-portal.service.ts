@@ -55,11 +55,15 @@ export class AdminPortalService {
       }, this.httpLimit()),
       tap((result) => {
         const tenantResult: IScanAdminPortalResultDriver[] = [];
-        result.vehicles?.forEach(
-          (truck) =>
+        result.vehicles?.forEach((truck) => {
+          // console.log('```````` ');
+          // console.log('ID: ', truck.vehicleName);
+          // console.log(truck.dutyStatus, truck.drivingSpeed);
+          if (
             truck.dutyStatus !== 'D' &&
             truck.drivingSpeed &&
-            truck.drivingSpeed > 1 &&
+            truck.drivingSpeed > 1
+          ) {
             tenantResult.push({
               tenant: result.tenant,
               driverName: truck.driverFullName,
@@ -69,8 +73,9 @@ export class AdminPortalService {
               drivingSpeed: truck.drivingSpeed,
               drivingSpeedUnit: truck.drivingSpeedUnit,
               location: truck.location,
-            }),
-        );
+            });
+          }
+        });
         tenantResult.length > 0 &&
           this.progressBarService.adminPortalResults.update((prev) => ({
             ...prev,
