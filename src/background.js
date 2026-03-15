@@ -60,9 +60,10 @@ async function findPrologTabAndGetAuthToken() {
     const authToken = results[0]?.result;
 
     if (authToken) {
-      // console.log(
-      //   ">> [background.js] Successfully retrieved token from admin.prologs.us session storage.",
-      // );
+      console.log(
+        ">> [background.js] Successfully retrieved authToken, ",
+        authToken,
+      );
       return authToken;
     } else {
       console.warn(

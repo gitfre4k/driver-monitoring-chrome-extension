@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { DateTime } from 'luxon';
 import { UrlService } from './url.service';
-import { switchMap, catchError, of, Observable } from 'rxjs';
+import { switchMap, catchError, of, Observable, tap, map } from 'rxjs';
 import { IDriverVehicleStatus } from '../interfaces/dashboard-locations-data.interface';
 import { IVehicleMaintenance } from '../interfaces/vehicle-maintenance.interface';
 import { IVehicleLocationHistory } from '../interfaces/vehicle-location-history.interface';
@@ -29,53 +29,59 @@ export class ApiPrologsAdminService {
     };
   }
 
-  acquireTenantAdminToken(tenantId: string) {
-    const url = this.getBaseUrl() + `app/tenant/acquiretenantadminaccesstoken`;
+  // acquireTenantAdminToken(tenantId: string) {
+  //   const url = this.getBaseUrl() + `app/tenant/acquiretenantadminaccesstoken`;
 
-    return this.urlService.onGetAdminProLogsToken().pipe(
-      switchMap((token) => {
-        const body = {
-          id: tenantId,
-          requestedScopes: [
-            'openid',
-            'profile',
-            'email',
-            'offline_access',
-            'EldApi',
-            'role',
-          ],
-        };
-        return this.http.post<{ accessToken: string }>(url, body, {
-          withCredentials: true,
-          headers: this.getHeaders(token),
-        });
-      }),
-      catchError((err) => {
-        console.error('Failed to acquire admin token', err);
-        // Returning of({ accessToken: '' }) allows dependent switchMaps to trigger
-        // but they will likely fail and be caught by their own catchError.
-        return of({ accessToken: '' });
-      }),
-    );
-  }
+  //   return this.urlService.onGetAdminProLogsToken().pipe(
+  //     tap((token) => console.log('urlService -- tokentokentoken', token)),
+  //     switchMap((token) => {
+  //       const body = {
+  //         id: tenantId,
+  //         requestedScopes: [
+  //           'openid',
+  //           'profile',
+  //           'email',
+  //           'offline_access',
+  //           'EldApi',
+  //           'role',
+  //         ],
+  //       };
+  //       return this.http.post<{ accessToken: string }>(url, body, {
+  //         withCredentials: true,
+  //         headers: this.getHeaders(token),
+  //       });
+  //     }),
+  //     catchError((err) => {
+  //       console.error('Failed to acquire admin token', err);
+  //       // Returning of({ accessToken: '' }) allows dependent switchMaps to trigger
+  //       // but they will likely fail and be caught by their own catchError.
+  //       return this.urlService
+  //         .onGetAdminProLogsToken()
+  //         .pipe(map((t) => ({ accessToken: t })));
+  //     }),
+  //   );
+  // }
 
   getDashboardLocationsData(
     tenantId: string,
   ): Observable<IDriverVehicleStatus[] | null> {
     const url = this.getBaseUrl() + `app/dashboard/dashboardlocationsdata`;
 
-    return this.acquireTenantAdminToken(tenantId).pipe(
-      switchMap(({ accessToken }) => {
-        return this.http.get<IDriverVehicleStatus[]>(url, {
-          withCredentials: true,
-          headers: this.getHeaders(accessToken),
-        });
-      }),
-      catchError((err) => {
-        console.error('Error fetching dashboard locations:', err);
-        return of(null); // Continue stream with null
-      }),
-    );
+    return this.urlService
+      .onGetAdminProLogsToken()
+      .pipe(map((t) => ({ accessToken: t })))
+      .pipe(
+        switchMap(({ accessToken }) => {
+          return this.http.get<IDriverVehicleStatus[]>(url, {
+            withCredentials: true,
+            headers: this.getHeaders(accessToken),
+          });
+        }),
+        catchError((err) => {
+          console.error('Error fetching dashboard locations:', err);
+          return of(null); // Continue stream with null
+        }),
+      );
   }
 
   getVehicleMaintenance(
@@ -85,22 +91,25 @@ export class ApiPrologsAdminService {
     const url =
       this.getBaseUrl() + `app/maintenancedashboard/${vehicleId}/vehicle`;
 
-    return this.acquireTenantAdminToken(tenantId).pipe(
-      switchMap(({ accessToken }) => {
-        if (!accessToken) return of(null);
-        return this.http.get<IVehicleMaintenance>(url, {
-          withCredentials: true,
-          headers: this.getHeaders(accessToken),
-        });
-      }),
-      catchError((err) => {
-        console.error(
-          `Error fetching maintenance for vehicle ${vehicleId}:`,
-          err,
-        );
-        return of(null);
-      }),
-    );
+    return this.urlService
+      .onGetAdminProLogsToken()
+      .pipe(map((t) => ({ accessToken: t })))
+      .pipe(
+        switchMap(({ accessToken }) => {
+          if (!accessToken) return of(null);
+          return this.http.get<IVehicleMaintenance>(url, {
+            withCredentials: true,
+            headers: this.getHeaders(accessToken),
+          });
+        }),
+        catchError((err) => {
+          console.error(
+            `Error fetching maintenance for vehicle ${vehicleId}:`,
+            err,
+          );
+          return of(null);
+        }),
+      );
   }
 
   getVehicleLocationHistory(
@@ -112,21 +121,28 @@ export class ApiPrologsAdminService {
       this.getBaseUrl() +
       `app/location/vehicle-location-history?vehicleId=${vehicleId}&date=${dateStr}`;
 
-    return this.acquireTenantAdminToken(tenantId).pipe(
-      switchMap(({ accessToken }) => {
-        if (!accessToken) return of(null);
-        return this.http.get<IVehicleLocationHistory>(url, {
-          withCredentials: true,
-          headers: this.getHeaders(accessToken),
-        });
-      }),
-      catchError((err) => {
-        console.error(
-          `Error fetching location history for vehicle ${vehicleId}:`,
-          err,
-        );
-        return of(null);
-      }),
-    );
+    return this.urlService
+      .onGetAdminProLogsToken()
+      .pipe(map((t) => ({ accessToken: t })))
+      .pipe(
+        switchMap(({ accessToken }) => {
+          if (!accessToken) return of(null);
+          return this.http.get<IVehicleLocationHistory>(url, {
+            withCredentials: true,
+            headers: this.getHeaders(accessToken),
+          });
+        }),
+        catchError((err) => {
+          console.error(
+            `Error fetching location history for vehicle ${vehicleId}:`,
+            err,
+          );
+          return of(null);
+        }),
+      );
   }
 }
+
+// const t = [
+
+// ];
