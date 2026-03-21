@@ -27,11 +27,7 @@ export class FixButtonComponent {
 
   event = input.required<IEvent>();
   action = input.required<
-    | 'ADD_PTI'
-    | 'EXTEND_PTI'
-    | 'ADD_PTI_NOTE'
-    | 'POST_FMCSA'
-    | 'DELETE_INACTIVE_EVENT'
+    'ADD_PTI' | 'EXTEND_PTI' | 'ADD_PTI_NOTE' | 'DELETE_INACTIVE_EVENT'
   >();
   payload = input<IDriverFmcsaInspection>();
 
@@ -62,13 +58,6 @@ export class FixButtonComponent {
           name: 'add the missing Pre-Trip Inspection note',
           iconClass: 'fix-error__button__icon',
         };
-      case 'POST_FMCSA': {
-        return {
-          icon: 'local_police',
-          name: 'bring attention to this FMCSA Inspection',
-          iconClass: 'fix-error__button__icon',
-        };
-      }
       case 'DELETE_INACTIVE_EVENT': {
         return {
           icon: 'delete_forever',
