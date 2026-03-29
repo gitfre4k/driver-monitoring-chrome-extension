@@ -2,14 +2,12 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 
 import { ApiService } from './api.service';
 import { UrlService } from './url.service';
-import { finalize, switchMap, tap } from 'rxjs';
+import { finalize, tap } from 'rxjs';
 
 import { ITenant } from '../interfaces';
 
 import { ITenantsLog } from '../interfaces/data.interface';
 import { ConstantsService } from './constants.service';
-import { IUser } from '../interfaces/api.interface';
-import { AccessService } from './access.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +17,6 @@ export class AppService {
   private urlService = inject(UrlService);
 
   constantsService = inject(ConstantsService);
-  accessService = inject(AccessService);
 
   httpLimit = this.constantsService.httpLimit;
 
@@ -50,21 +47,12 @@ export class AppService {
     this.initMode.set('indeterminate');
     this.initPhase.set('getting accessible tenants...');
 
-    return this.accessService.isEnabled$.pipe(
-      tap((users) => {
-        if (!users) {
-          this.constantsService.fuTrigger();
-        }
+    return this.apiService.getAccessibleTenants().pipe(
+      tap((tenants) => {
+        this.tenantsSignal.set(tenants);
       }),
-      switchMap(() =>
-        this.apiService.getAccessibleTenants().pipe(
-          tap((tenants) => {
-            this.tenantsSignal.set(tenants);
-          }),
 
-          finalize(() => this.isLoading.set(false)),
-        ),
-      ),
+      finalize(() => this.isLoading.set(false)),
     );
   };
 }

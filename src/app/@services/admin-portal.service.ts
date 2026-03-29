@@ -5,7 +5,7 @@ import { ApiPrologsAdminService } from './api-prologs-admin.service';
 import { ConstantsService } from './constants.service';
 import { DateService } from './date.service';
 import { ProgressBarService } from './progress-bar.service';
-import { IScanAdminPortalResultDriver, ITenant } from '../interfaces';
+import { IScanAdminPortalResultDriver } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
