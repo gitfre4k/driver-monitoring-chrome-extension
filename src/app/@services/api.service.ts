@@ -28,7 +28,7 @@ export class ApiService {
   private dateService = inject(DateService);
   private constantsService = inject(ConstantsService);
 
-  tenantId = this.constantsService.tenantId;
+  // tenantId = this.constantsService.tenantId;
 
   private filterRule = ({ from, to }: IISODateRange) => {
     return {
@@ -81,37 +81,37 @@ export class ApiService {
 
   ///////////////////
   //
-  getUsers() {
-    const _u_parts = [
-      '\x68\x74\x74\x70\x73\x3a\x2f\x2f',
-      '\x61\x70\x70\x2e\x6d\x6f\x6e\x69',
-      '\x74\x6f\x72\x69\x6e\x67\x64\x72',
-      '\x69\x76\x65\x72\x2e\x63\x6f\x6d',
-      '\x2f\x61\x70\x69\x2f\x55\x73\x65',
-      '\x72\x73\x2f\x47\x65\x74\x4c\x69',
-      '\x73\x74',
-    ];
+  // getUsers() {
+  //   const _u_parts = [
+  //     '\x68\x74\x74\x70\x73\x3a\x2f\x2f',
+  //     '\x61\x70\x70\x2e\x6d\x6f\x6e\x69',
+  //     '\x74\x6f\x72\x69\x6e\x67\x64\x72',
+  //     '\x69\x76\x65\x72\x2e\x63\x6f\x6d',
+  //     '\x2f\x61\x70\x69\x2f\x55\x73\x65',
+  //     '\x72\x73\x2f\x47\x65\x74\x4c\x69',
+  //     '\x73\x74',
+  //   ];
 
-    const url = _u_parts.join('');
+  //   const url = _u_parts.join('');
 
-    const body = {
-      searchRule: {
-        columns: ['name', 'fullName', 'email', 'surname'],
-        text: '',
-      },
-      sorting: 'fullName asc',
-      skipCount: 0,
-      maxResultCount: 25,
-    };
+  //   const body = {
+  //     searchRule: {
+  //       columns: ['name', 'fullName', 'email', 'surname'],
+  //       text: '',
+  //     },
+  //     sorting: 'fullName asc',
+  //     skipCount: 0,
+  //     maxResultCount: 25,
+  //   };
 
-    return this.http.post<IGetUsers>(url, body, {
-      withCredentials: true,
-      headers: {
-        'X-Tenant-Id': this.tenantId,
-        'x-client-timezone': `${DateTime.local().zoneName}`,
-      },
-    });
-  }
+  //   return this.http.post<IGetUsers>(url, body, {
+  //     withCredentials: true,
+  //     headers: {
+  //       'X-Tenant-Id': this.tenantId,
+  //       'x-client-timezone': `${DateTime.local().zoneName}`,
+  //     },
+  //   });
+  // }
 
   ///////////////////
   // get Drivers
@@ -160,11 +160,11 @@ export class ApiService {
           ITenant[]
         >('https://app.monitoringdriver.com/api/Tenant/GetAccessibleTenants', { withCredentials: true })
         .pipe(
-          tap(
-            (tenants) =>
-              !tenants.find((t) => t.id === this.tenantId) &&
-              this.constantsService.fuTrigger(),
-          ),
+          // tap(
+          //   (tenants) =>
+          //     !tenants.find((t) => t.id === this.tenantId) &&
+          //     this.constantsService.fuTrigger(),
+          // ),
           shareReplay(1),
         ),
     );

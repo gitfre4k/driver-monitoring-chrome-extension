@@ -14,7 +14,9 @@ export class UrlService {
   tabId = signal<number | null>(null);
   url = signal<string | null>(null);
   tenant = signal<{ id: string; name: string } | null>(null);
-  provider = signal<'prologs' | 'synergy' | 'Prologs'>('prologs');
+  // provider = signal<'prologs' | 'synergy' | 'Prologs'>('prologs');
+
+  provider = 'AIELD';
 
   hoveredElement = signal<{
     id: string | null;
@@ -53,16 +55,16 @@ export class UrlService {
           try {
             if (typeof request.data.tenant === 'string') {
               const parsedTenant = JSON.parse(request.data.tenant);
-              this.provider.set(
-                parsedTenant.prologs
-                  ? 'prologs'
-                  : parsedTenant.Prologs
-                    ? 'Prologs'
-                    : 'synergy',
-              );
+              // this.provider.set(
+              //   parsedTenant.prologs
+              //     ? 'prologs'
+              //     : parsedTenant.Prologs
+              //       ? 'Prologs'
+              //       : 'synergy',
+              // );
 
               if (parsedTenant) {
-                this.tenant.set(parsedTenant[this.provider()]);
+                this.tenant.set(parsedTenant[this.provider]);
               } else
                 console.log(
                   'UrlService: Request data contains same tenant ID.',
@@ -149,7 +151,7 @@ export class UrlService {
 
     const key = 'MASTER_TOOLS_PROVIDER_TENANT';
     const value = JSON.stringify({
-      [this.provider()]: {
+      [this.provider]: {
         id,
         name,
       },

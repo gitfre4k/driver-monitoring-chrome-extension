@@ -3,31 +3,31 @@ import {
   Component,
   inject,
   input,
-} from "@angular/core";
+} from '@angular/core';
 
-import { MatIconModule } from "@angular/material/icon";
-import { MatRippleModule } from "@angular/material/core";
-import { CdkMenuModule } from "@angular/cdk/menu";
+import { MatIconModule } from '@angular/material/icon';
+import { MatRippleModule } from '@angular/material/core';
+import { CdkMenuModule } from '@angular/cdk/menu';
 
-import { TContextMenuAction } from "../../../types";
-import { IEvent } from "../../../interfaces/driver-daily-log-events.interface";
-import { ContextMenuService } from "../../../@services/context-menu.service";
-import { MatDialog } from "@angular/material/dialog";
-import { MonitorService } from "../../../@services/monitor.service";
-import { DialogConfirmComponent } from "../../UI/dialog-confirm/dialog-confirm.component";
-import { ZipService } from "../../../@services/zip.service";
-import { MOCK__EVENT_DETAILS } from "../../../data/mock-ddle";
-import { concatMap, delay, from, mergeMap, tap, toArray } from "rxjs";
-import { ApiOperationsService } from "../../../@services/api-operations.service";
-import { IEventDetails, ITenant } from "../../../interfaces";
-import { UrlService } from "../../../@services/url.service";
-import { BackendService } from "../../../@services/backend.service";
+import { TContextMenuAction } from '../../../types';
+import { IEvent } from '../../../interfaces/driver-daily-log-events.interface';
+import { ContextMenuService } from '../../../@services/context-menu.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MonitorService } from '../../../@services/monitor.service';
+import { DialogConfirmComponent } from '../../UI/dialog-confirm/dialog-confirm.component';
+import { ZipService } from '../../../@services/zip.service';
+import { MOCK__EVENT_DETAILS } from '../../../data/mock-ddle';
+import { concatMap, delay, from, mergeMap, tap, toArray } from 'rxjs';
+import { ApiOperationsService } from '../../../@services/api-operations.service';
+import { IEventDetails, ITenant } from '../../../interfaces';
+import { UrlService } from '../../../@services/url.service';
+// import { BackendService } from "../../../@services/backend.service";
 
 @Component({
-  selector: "app-monitor-menu",
+  selector: 'app-monitor-menu',
   imports: [MatIconModule, MatRippleModule, CdkMenuModule],
-  templateUrl: "./monitor-menu.component.html",
-  styleUrl: "./monitor-menu.component.scss",
+  templateUrl: './monitor-menu.component.html',
+  styleUrl: './monitor-menu.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonitorMenuComponent {
@@ -37,7 +37,7 @@ export class MonitorMenuComponent {
   zipService = inject(ZipService);
   apiOperationsService = inject(ApiOperationsService);
   urlService = inject(UrlService);
-  backendService = inject(BackendService);
+  // backendService = inject(BackendService);
 
   readonly dialog = inject(MatDialog);
 
@@ -64,19 +64,19 @@ export class MonitorMenuComponent {
     const eventsOnSameDay = events.every((ev) => ev.date === events[0].date);
 
     const dialogRef = this.dialog.open(DialogConfirmComponent, {
-      width: "250px",
+      width: '250px',
       data: {
-        title: "Delete Events",
+        title: 'Delete Events',
         message: `Are you sure you want to proceed?`,
-        info: `[${events.length}] event${events.length === 1 ? "" : "s"} selected`,
-        warning: eventsOnSameDay ? null : "NOT ALL EVENTS ARE ON THE SAME DAY",
+        info: `[${events.length}] event${events.length === 1 ? '' : 's'} selected`,
+        warning: eventsOnSameDay ? null : 'NOT ALL EVENTS ARE ON THE SAME DAY',
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.contextMenuService.handleMultiEventAction(
-          "DELETE_SELECTED_EVENTS",
+          'DELETE_SELECTED_EVENTS',
           events,
         );
       }

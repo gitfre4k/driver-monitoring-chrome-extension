@@ -15,7 +15,7 @@ export class ApiPrologsAdminService {
   private urlService = inject(UrlService);
 
   private getBaseUrl(): string {
-    return ['prologs', 'Prologs'].includes(this.urlService.provider())
+    return ['prologs', 'Prologs'].includes(this.urlService.provider)
       ? `https://api.prologs.us/api/`
       : `https://api.synergyeld.com/api/`;
   }

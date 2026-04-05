@@ -2,12 +2,14 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 
 import { ApiService } from './api.service';
 import { UrlService } from './url.service';
-import { finalize, tap } from 'rxjs';
+import { finalize, switchMap, tap } from 'rxjs';
 
 import { ITenant } from '../interfaces';
 
 import { ITenantsLog } from '../interfaces/data.interface';
 import { ConstantsService } from './constants.service';
+import { IUser } from '../interfaces/api.interface';
+// import { AccessService } from './access.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +19,7 @@ export class AppService {
   private urlService = inject(UrlService);
 
   constantsService = inject(ConstantsService);
+  // accessService = inject(AccessService);
 
   httpLimit = this.constantsService.httpLimit;
 

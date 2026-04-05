@@ -22,7 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { formatTenantName } from '../../../helpers/monitor.helpers';
-import { BackendService } from '../../../@services/backend.service';
+// import { BackendService } from '../../../@services/backend.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -56,7 +56,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DialogAddNoteComponent {
-  private backendService = inject(BackendService);
+  // private backendService = inject(BackendService);
   private _snackBar = inject(MatSnackBar);
 
   readonly dialogRef = inject(MatDialogRef<DialogAddNoteComponent>);
@@ -123,34 +123,34 @@ export class DialogAddNoteComponent {
 
     const driver = this.isVehicleIssue() ? null : this.data.driver;
 
-    this.backendService
-      .uploadData(
-        this.data.tenant,
-        driver,
-        note,
-        ![
-          'EngineShutDownConventionalLocationPrecision',
-          'EnginePowerUpConventionalLocationPrecision',
-        ].includes(eventTypeCode)
-          ? eventTypeCode
-          : selectedMarkerColor,
-        vehicleData,
-      )
-      .subscribe({
-        error: () => {
-          this._snackBar.open('Error posting note', 'Close', {
-            duration: 3000,
-          });
-          this.isPosting.set(false);
-        },
-        complete: () => {
-          this._snackBar.open('Note successfully posted', 'Close', {
-            duration: 3000,
-          });
-          this.backendService.loadShiftReport();
-          this.isPosting.set(false);
-          this.dialogRef.close(true);
-        },
-      });
+    // this.backendService
+    //   .uploadData(
+    //     this.data.tenant,
+    //     driver,
+    //     note,
+    //     ![
+    //       'EngineShutDownConventionalLocationPrecision',
+    //       'EnginePowerUpConventionalLocationPrecision',
+    //     ].includes(eventTypeCode)
+    //       ? eventTypeCode
+    //       : selectedMarkerColor,
+    //     vehicleData,
+    //   )
+    //   .subscribe({
+    //     error: () => {
+    //       this._snackBar.open('Error posting note', 'Close', {
+    //         duration: 3000,
+    //       });
+    //       this.isPosting.set(false);
+    //     },
+    //     complete: () => {
+    //       this._snackBar.open('Note successfully posted', 'Close', {
+    //         duration: 3000,
+    //       });
+    //       this.backendService.loadShiftReport();
+    //       this.isPosting.set(false);
+    //       this.dialogRef.close(true);
+    //     },
+    //   });
   }
 }

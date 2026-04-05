@@ -103,7 +103,8 @@
       >
         <mat-icon>developer_board_off</mat-icon>
       </button>
-    } @else if (fmcsaDate(); as dotDate) {
+    }
+    <!-- @else if (fmcsaDate(); as dotDate) {
       <button
         mat-icon-button
         matTooltip="FMCSA Inspected {{ dotDate | date }}"
@@ -114,7 +115,7 @@
       >
         <mat-icon style="margin: 5px 0 0 0">local_police</mat-icon>
       </button>
-    }
+    } -->
   }
 
   <button [cdkMenuTriggerFor]="menu" mat-icon-button>

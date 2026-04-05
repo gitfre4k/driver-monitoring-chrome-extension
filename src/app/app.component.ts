@@ -203,7 +203,8 @@ export class AppComponent {
     let height = window.screen.availHeight;
     const windowFeatures = `width=444,height=${height},left=${rightSide ? 6846845 : 0},top=0`;
     window.open('index.html', '', windowFeatures);
-    this.constantsService.fuTrigger();
+    window.close();
+    // this.constantsService.fuTrigger();
   }
 
   hideContextMenu() {

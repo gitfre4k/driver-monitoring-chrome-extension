@@ -21,7 +21,7 @@ import { ProgressBarService } from '../../@services/progress-bar.service';
 import { MatIconModule } from '@angular/material/icon';
 import { DialogAddNoteComponent } from '../UI/dialog-add-note/dialog-add-note.component';
 import { MatDialog } from '@angular/material/dialog';
-import { BackendService } from '../../@services/backend.service';
+// import { BackendService } from '../../@services/backend.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IVehicle } from '../../interfaces/driver-daily-log-events.interface';
@@ -51,7 +51,7 @@ export class InfoComponent {
   dateService = inject(DateService);
   constService = inject(ConstantsService);
   progressBarService = inject(ProgressBarService);
-  backendService = inject(BackendService);
+  // backendService = inject(BackendService);
   private _snackBar = inject(MatSnackBar);
 
   readonly dialog = inject(MatDialog);
@@ -78,162 +78,162 @@ export class InfoComponent {
     });
   }
 
-  backendData = () => {
-    const backendData = this.backendService.backendData();
-    const archiveData = this.backendService.archiveData();
+  // backendData = () => {
+  //   // const backendData = this.backendService.backendData();
+  //   // const archiveData = this.backendService.archiveData();
 
-    const tenantId = this.appService.currentTenant()?.id;
-    const ddle = this.monitorService.driverDailyLog();
-    const driverId = ddle?.driverId;
-    const truckId =
-      ddle?.vehicles[ddle?.vehicles?.length ? ddle?.vehicles?.length - 1 : 0]
-        ?.id;
+  //   const tenantId = this.appService.currentTenant()?.id;
+  //   const ddle = this.monitorService.driverDailyLog();
+  //   const driverId = ddle?.driverId;
+  //   const truckId =
+  //     ddle?.vehicles[ddle?.vehicles?.length ? ddle?.vehicles?.length - 1 : 0]
+  //       ?.id;
 
-    if (!backendData || !archiveData || !tenantId) return null;
+  //   if (!backendData || !archiveData || !tenantId) return null;
 
-    const companyNotes = backendData[0][tenantId]?.companyNotes;
-    const companyArchiveNotes = archiveData[0][tenantId]?.companyNotes;
-    const companyMarkers = backendData[4][tenantId]?.companyNotes;
-    const companyMarkColor = companyMarkers
-      ? Object.values(companyMarkers)?.[0]?.[0]?.markerColor
-      : null;
+  //   const companyNotes = backendData[0][tenantId]?.companyNotes;
+  //   const companyArchiveNotes = archiveData[0][tenantId]?.companyNotes;
+  //   const companyMarkers = backendData[4][tenantId]?.companyNotes;
+  //   const companyMarkColor = companyMarkers
+  //     ? Object.values(companyMarkers)?.[0]?.[0]?.markerColor
+  //     : null;
 
-    if (!driverId) {
-      return {
-        driverNotes: null,
-        problems: null,
-        fmscaInspections: null,
-        infoNotes: null,
-        driverMarker: null,
-        companyNotes,
-        companyArchiveNotes,
-        companyMarkers,
-        companyMarkColor,
-      };
-    }
+  //   if (!driverId) {
+  //     return {
+  //       driverNotes: null,
+  //       problems: null,
+  //       fmscaInspections: null,
+  //       infoNotes: null,
+  //       driverMarker: null,
+  //       companyNotes,
+  //       companyArchiveNotes,
+  //       companyMarkers,
+  //       companyMarkColor,
+  //     };
+  //   }
 
-    const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
-    const driverArchiveNotes =
-      archiveData[0][tenantId]?.drivers[driverId]?.notes;
-    const problems = backendData[1][tenantId]?.drivers[driverId]?.notes;
-    const fmscaInspections = backendData[2][tenantId]?.drivers[driverId]?.notes;
-    const infoNotes = backendData[3][tenantId]?.drivers[driverId]?.notes;
+  //   const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
+  //   const driverArchiveNotes =
+  //     archiveData[0][tenantId]?.drivers[driverId]?.notes;
+  //   const problems = backendData[1][tenantId]?.drivers[driverId]?.notes;
+  //   const fmscaInspections = backendData[2][tenantId]?.drivers[driverId]?.notes;
+  //   const infoNotes = backendData[3][tenantId]?.drivers[driverId]?.notes;
 
-    const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
-    const driverMarkColor = driverMarker
-      ? Object.values(driverMarker)?.[0]?.[0]?.markerColor
-      : null;
+  //   const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
+  //   const driverMarkColor = driverMarker
+  //     ? Object.values(driverMarker)?.[0]?.[0]?.markerColor
+  //     : null;
 
-    const truckProblems = backendData[1][tenantId]?.companyNotes;
+  //   const truckProblems = backendData[1][tenantId]?.companyNotes;
 
-    let isTruckProblem = false;
-    let truckProblemStamp = '';
-    for (let stamp in truckProblems) {
-      if (truckProblems[stamp][0].vehicleData?.id === truckId) {
-        isTruckProblem = true;
-        truckProblemStamp = stamp;
-      }
-    }
+  //   let isTruckProblem = false;
+  //   let truckProblemStamp = '';
+  //   for (let stamp in truckProblems) {
+  //     if (truckProblems[stamp][0].vehicleData?.id === truckId) {
+  //       isTruckProblem = true;
+  //       truckProblemStamp = stamp;
+  //     }
+  //   }
 
-    return {
-      driverNotes,
-      driverArchiveNotes,
-      problems,
-      fmscaInspections,
-      infoNotes,
-      driverMarker,
-      driverMarkColor,
-      companyNotes,
-      companyArchiveNotes,
-      companyMarkers,
-      companyMarkColor,
-      truckProblems,
-      isTruckProblem,
-      truckProblemStamp,
-    };
-  };
+  //   return {
+  //     driverNotes,
+  //     driverArchiveNotes,
+  //     problems,
+  //     fmscaInspections,
+  //     infoNotes,
+  //     driverMarker,
+  //     driverMarkColor,
+  //     companyNotes,
+  //     companyArchiveNotes,
+  //     companyMarkers,
+  //     companyMarkColor,
+  //     truckProblems,
+  //     isTruckProblem,
+  //     truckProblemStamp,
+  //   };
+  // };
 
-  uploadData(
-    title: string,
-    eventTypeCode:
-      | 'ChangeToOffDutyStatus'
-      | 'ChangeToSleeperBerthStatus'
-      | 'ChangeToOnDutyNotDrivingStatus'
-      | 'IntermediateLogConventionalLocationPrecision'
-      | 'EnginePowerUpConventionalLocationPrecision'
-      | 'EngineShutDownConventionalLocationPrecision',
-    vehicles?: IVehicle[],
-  ) {
-    const tenant = this.appService.currentTenant();
-    const driver = this.monitorService.driverDailyLog();
+  // uploadData(
+  //   title: string,
+  //   eventTypeCode:
+  //     | 'ChangeToOffDutyStatus'
+  //     | 'ChangeToSleeperBerthStatus'
+  //     | 'ChangeToOnDutyNotDrivingStatus'
+  //     | 'IntermediateLogConventionalLocationPrecision'
+  //     | 'EnginePowerUpConventionalLocationPrecision'
+  //     | 'EngineShutDownConventionalLocationPrecision',
+  //   vehicles?: IVehicle[],
+  // ) {
+  //   const tenant = this.appService.currentTenant();
+  //   const driver = this.monitorService.driverDailyLog();
 
-    if (!tenant) return;
+  //   if (!tenant) return;
 
-    if (
-      (eventTypeCode === 'ChangeToOffDutyStatus' &&
-        title === 'Add Company Note') ||
-      (eventTypeCode === 'EnginePowerUpConventionalLocationPrecision' &&
-        title === 'Add Company Marker')
-    ) {
-      return this.dialog.open(DialogAddNoteComponent, {
-        data: {
-          tenant,
-          driver: null,
-          eventTypeCode,
-          title,
-          vehicles,
-        },
-      });
-    }
+  //   if (
+  //     (eventTypeCode === 'ChangeToOffDutyStatus' &&
+  //       title === 'Add Company Note') ||
+  //     (eventTypeCode === 'EnginePowerUpConventionalLocationPrecision' &&
+  //       title === 'Add Company Marker')
+  //   ) {
+  //     return this.dialog.open(DialogAddNoteComponent, {
+  //       data: {
+  //         tenant,
+  //         driver: null,
+  //         eventTypeCode,
+  //         title,
+  //         vehicles,
+  //       },
+  //     });
+  //   }
 
-    if (!driver) return;
+  //   if (!driver) return;
 
-    return this.dialog.open(DialogAddNoteComponent, {
-      data: {
-        tenant,
-        driver,
-        eventTypeCode,
-        title,
-        vehicles,
-      },
-    });
-  }
+  //   return this.dialog.open(DialogAddNoteComponent, {
+  //     data: {
+  //       tenant,
+  //       driver,
+  //       eventTypeCode,
+  //       title,
+  //       vehicles,
+  //     },
+  //   });
+  // }
 
-  deleteNote(
-    value: { note: string; part: number; eventId: number }[],
-    key: string,
-    isArchiveNote?: boolean,
-  ) {
-    const dialogRef = this.dialog.open(DialogConfirmComponent, {
-      width: '250px',
-      data: {
-        title: 'Delete Note',
-        info: `Are you sure you want to proceed?`,
-      },
-    });
+  // deleteNote(
+  //   value: { note: string; part: number; eventId: number }[],
+  //   key: string,
+  //   isArchiveNote?: boolean,
+  // ) {
+  //   const dialogRef = this.dialog.open(DialogConfirmComponent, {
+  //     width: '250px',
+  //     data: {
+  //       title: 'Delete Note',
+  //       info: `Are you sure you want to proceed?`,
+  //     },
+  //   });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.backendService.isDeletingNote.set(key);
-        const idsToDelete = value.map((note) => note.eventId);
+  //   dialogRef.afterClosed().subscribe((result) => {
+  //     if (result) {
+  //       this.backendService.isDeletingNote.set(key);
+  //       const idsToDelete = value.map((note) => note.eventId);
 
-        this.backendService.deleteNote(idsToDelete).subscribe({
-          error: () => {
-            this._snackBar.open('Failed to delete note', 'Close', {
-              duration: 3000,
-            });
-            this.backendService.isDeletingNote.set(null);
-          },
-          complete: () => {
-            this.backendService.isDeletingNote.set(null);
-            isArchiveNote
-              ? this.backendService.loadArchive()
-              : this.backendService.loadShiftReport();
-          },
-        });
-      }
-    });
-  }
+  //       this.backendService.deleteNote(idsToDelete).subscribe({
+  //         error: () => {
+  //           this._snackBar.open('Failed to delete note', 'Close', {
+  //             duration: 3000,
+  //           });
+  //           this.backendService.isDeletingNote.set(null);
+  //         },
+  //         complete: () => {
+  //           this.backendService.isDeletingNote.set(null);
+  //           isArchiveNote
+  //             ? this.backendService.loadArchive()
+  //             : this.backendService.loadShiftReport();
+  //         },
+  //       });
+  //     }
+  //   });
+  // }
 
   isEmpty(obj: any): boolean {
     if (!obj) return true;

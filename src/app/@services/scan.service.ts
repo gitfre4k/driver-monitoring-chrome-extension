@@ -43,8 +43,6 @@ export class ScanService {
   selectedRange = signal<'week' | 'month' | 'custom'>('week');
   cycleAlertExcludeNonWorking = signal(true);
 
-  tenantId = this.constantsService.tenantId;
-
   constructor() {}
 
   ngOnInit() {}
@@ -282,14 +280,7 @@ export class ScanService {
 
     return this.apiService
       .getAccessibleTenants()
-      .pipe(
-        tap(
-          (tenants) =>
-            !tenants.find((t) => t.id === this.tenantId) &&
-            this.constantsService.fuTrigger(),
-        ),
-        switchMap((tenants) => from(tenants)),
-      )
+      .pipe(switchMap((tenants) => from(tenants)))
       .pipe(
         mergeMap((tenant) => {
           this.progressBarService.currentCompany.set(tenant.name);
@@ -332,14 +323,7 @@ export class ScanService {
 
     return this.apiService
       .getAccessibleTenants()
-      .pipe(
-        tap(
-          (tenants) =>
-            !tenants.find((t) => t.id === this.tenantId) &&
-            this.constantsService.fuTrigger(),
-        ),
-        switchMap((tenants) => from(tenants)),
-      )
+      .pipe(switchMap((tenants) => from(tenants)))
       .pipe(
         mergeMap((tenant) => {
           this.progressBarService.currentCompany.set(tenant.name);

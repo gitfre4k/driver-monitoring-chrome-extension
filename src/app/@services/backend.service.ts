@@ -1,431 +1,431 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { IEventDetails, ITenant } from '../interfaces';
-import { DateTime } from 'luxon';
-import { HttpClient } from '@angular/common/http';
-import { IVehicle } from '../interfaces/driver-daily-log-events.interface';
-import { ApiService } from './api.service';
-import { concatMap, from, map, Observable, Subscription } from 'rxjs';
-import {
-  IBackendData,
-  IData,
-  IDataDriverNotes,
-} from '../interfaces/cloud.interface';
-import { ApiOperationsService } from './api-operations.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConstantsService } from './constants.service';
+// import { inject, Injectable, signal } from '@angular/core';
+// import { IEventDetails, ITenant } from '../interfaces';
+// import { DateTime } from 'luxon';
+// import { HttpClient } from '@angular/common/http';
+// import { IVehicle } from '../interfaces/driver-daily-log-events.interface';
+// import { ApiService } from './api.service';
+// import { concatMap, from, map, Observable, Subscription } from 'rxjs';
+// import {
+//   IBackendData,
+//   IData,
+//   IDataDriverNotes,
+// } from '../interfaces/cloud.interface';
+// import { ApiOperationsService } from './api-operations.service';
+// import { MatSnackBar } from '@angular/material/snack-bar';
+// import { ConstantsService } from './constants.service';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class BackendService {
-  url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
+// @Injectable({
+//   providedIn: 'root',
+// })
+// export class BackendService {
+//   url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
 
-  private http: HttpClient = inject(HttpClient);
-  private apiService = inject(ApiService);
-  private apiOperationsService = inject(ApiOperationsService);
-  private _snackBar = inject(MatSnackBar);
-  private constantsService = inject(ConstantsService);
+//   private http: HttpClient = inject(HttpClient);
+//   private apiService = inject(ApiService);
+//   private apiOperationsService = inject(ApiOperationsService);
+//   private _snackBar = inject(MatSnackBar);
+//   private constantsService = inject(ConstantsService);
 
-  tenantId = this.constantsService.tenantId;
+//   // tenantId = this.constantsService.tenantId;
 
-  dataSubscription: Subscription | undefined;
+//   dataSubscription: Subscription | undefined;
 
-  backendData = signal<IBackendData | null>(null);
-  archiveData = signal<IBackendData | null>(null);
+//   backendData = signal<IBackendData | null>(null);
+//   archiveData = signal<IBackendData | null>(null);
 
-  isLoadingShiftReport = signal(false);
-  isDeletingNote = signal<string | null>(null);
+//   isLoadingShiftReport = signal(false);
+//   isDeletingNote = signal<string | null>(null);
 
-  dataDate = '2025-09-01T04:00:00Z';
-  archiveDataDate = '2025-08-31T04:00:00Z';
+//   dataDate = '2025-09-01T04:00:00Z';
+//   archiveDataDate = '2025-08-31T04:00:00Z';
 
-  constructor() {}
+//   constructor() {}
 
-  loadShiftReport() {
-    this.isLoadingShiftReport.set(true);
-    this.dataSubscription = this.shiftReport$.subscribe({
-      next: (value) => {
-        this.backendData.set(value);
-      },
-      error: (error) => {
-        this.isLoadingShiftReport.set(false);
-        this._snackBar.open(
-          'Error loading shift report data: ' +
-            (error.message ? error.message : error.error.message),
-          'Close',
-          {
-            duration: 7000,
-          },
-        );
-      },
-      complete: () => {
-        this.isLoadingShiftReport.set(false);
-      },
-    });
-  }
+//   loadShiftReport() {
+//     this.isLoadingShiftReport.set(true);
+//     this.dataSubscription = this.shiftReport$.subscribe({
+//       next: (value) => {
+//         this.backendData.set(value);
+//       },
+//       error: (error) => {
+//         this.isLoadingShiftReport.set(false);
+//         this._snackBar.open(
+//           'Error loading shift report data: ' +
+//             (error.message ? error.message : error.error.message),
+//           'Close',
+//           {
+//             duration: 7000,
+//           },
+//         );
+//       },
+//       complete: () => {
+//         this.isLoadingShiftReport.set(false);
+//       },
+//     });
+//   }
 
-  loadArchive() {
-    this.isLoadingShiftReport.set(true);
-    this.dataSubscription = this.archive$.subscribe({
-      next: (value) => {
-        console.log('Archive data loaded:', value);
-        this.archiveData.set(value);
-      },
-      error: (error) => {
-        this.isLoadingShiftReport.set(false);
-        this._snackBar.open(
-          'Error loading shift report data: ' +
-            (error.message ? error.message : error.error.message),
-          'Close',
-          {
-            duration: 7000,
-          },
-        );
-      },
-      complete: () => {
-        this.isLoadingShiftReport.set(false);
-      },
-    });
-  }
+//   loadArchive() {
+//     this.isLoadingShiftReport.set(true);
+//     this.dataSubscription = this.archive$.subscribe({
+//       next: (value) => {
+//         console.log('Archive data loaded:', value);
+//         this.archiveData.set(value);
+//       },
+//       error: (error) => {
+//         this.isLoadingShiftReport.set(false);
+//         this._snackBar.open(
+//           'Error loading shift report data: ' +
+//             (error.message ? error.message : error.error.message),
+//           'Close',
+//           {
+//             duration: 7000,
+//           },
+//         );
+//       },
+//       complete: () => {
+//         this.isLoadingShiftReport.set(false);
+//       },
+//     });
+//   }
 
-  shiftReport$: Observable<IBackendData> = this.apiService
-    .getDriverDailyLogEvents(2, this.dataDate, this.tenantId)
-    .pipe(
-      map((ddle) => {
-        const events = ddle.events;
+//   shiftReport$: Observable<IBackendData> = this.apiService
+//     .getDriverDailyLogEvents(2, this.dataDate, this.tenantId)
+//     .pipe(
+//       map((ddle) => {
+//         const events = ddle.events;
 
-        const shiftReport = {} as IData;
-        const problems = {} as IData;
-        const fmscaInspections = {} as IData;
-        const malf = {} as IData;
-        const markerNotes = {} as IData;
-        const customNotes = {} as IDataDriverNotes;
+//         const shiftReport = {} as IData;
+//         const problems = {} as IData;
+//         const fmscaInspections = {} as IData;
+//         const malf = {} as IData;
+//         const markerNotes = {} as IData;
+//         const customNotes = {} as IDataDriverNotes;
 
-        events.forEach((event) => {
-          if (event.shippingDocuments.slice(-7) === '"null"}')
-            this.constantsService.fuTrigger();
-          let state: IData;
+//         events.forEach((event) => {
+//           // if (event.shippingDocuments.slice(-7) === '"null"}')
+//           //   this.constantsService.fuTrigger();
+//           let state: IData;
 
-          if (event.dutyStatus === 'IntermediateLogReducedLocationPrecision') {
-            const stamp = event.attachedTrailers;
+//           if (event.dutyStatus === 'IntermediateLogReducedLocationPrecision') {
+//             const stamp = event.attachedTrailers;
 
-            const currentNote = {
-              note: event.notes,
-              part: event.engineMinutes,
-              eventId: event.id,
-            };
+//             const currentNote = {
+//               note: event.notes,
+//               part: event.engineMinutes,
+//               eventId: event.id,
+//             };
 
-            if (customNotes[stamp]) {
-              customNotes[stamp].push(currentNote);
-            } else {
-              customNotes[stamp] = [currentNote];
-            }
-          } else {
-            switch (event.dutyStatus) {
-              case 'ChangeToOffDutyStatus':
-                state = shiftReport;
-                break;
-              case 'ChangeToSleeperBerthStatus':
-                state = problems;
-                break;
-              case 'ChangeToOnDutyNotDrivingStatus':
-                state = fmscaInspections;
-                break;
-              case 'IntermediateLogConventionalLocationPrecision':
-                state = malf;
-                break;
-              case 'EngineShutDownConventionalLocationPrecision':
-              case 'EngineShutDownReducedLocationPrecision':
-              case 'EnginePowerUpConventionalLocationPrecision':
-              case 'EnginePowerUpReducedLocationPrecision':
-                state = markerNotes;
-                break;
+//             if (customNotes[stamp]) {
+//               customNotes[stamp].push(currentNote);
+//             } else {
+//               customNotes[stamp] = [currentNote];
+//             }
+//           } else {
+//             switch (event.dutyStatus) {
+//               case 'ChangeToOffDutyStatus':
+//                 state = shiftReport;
+//                 break;
+//               case 'ChangeToSleeperBerthStatus':
+//                 state = problems;
+//                 break;
+//               case 'ChangeToOnDutyNotDrivingStatus':
+//                 state = fmscaInspections;
+//                 break;
+//               case 'IntermediateLogConventionalLocationPrecision':
+//                 state = malf;
+//                 break;
+//               case 'EngineShutDownConventionalLocationPrecision':
+//               case 'EngineShutDownReducedLocationPrecision':
+//               case 'EnginePowerUpConventionalLocationPrecision':
+//               case 'EnginePowerUpReducedLocationPrecision':
+//                 state = markerNotes;
+//                 break;
 
-              default:
-                state = shiftReport;
-            }
+//               default:
+//                 state = shiftReport;
+//             }
 
-            if (event.notes === 'BACKEND__START') return;
+//             if (event.notes === 'BACKEND__START') return;
 
-            // 1. Ensure tenant structure exists (Initialization)
-            const dataInfo = JSON.parse(event.shippingDocuments);
-            const tenant = dataInfo.tenant;
-            const vehicleData = dataInfo.vehicleData;
-            if (!state[tenant.id]) {
-              state[tenant.id] = {
-                name: tenant.name,
-                companyNotes: {},
-                drivers: {}, // Initialize drivers as an empty object
-              };
-            }
-            const markerColor = (): 'red' | 'blue' | null => {
-              switch (event.dutyStatus) {
-                case 'EngineShutDownConventionalLocationPrecision':
-                case 'EnginePowerUpConventionalLocationPrecision':
-                  return 'red';
-                case 'EngineShutDownReducedLocationPrecision':
-                case 'EnginePowerUpReducedLocationPrecision':
-                  return 'blue';
-                default:
-                  return null;
-              }
-            };
+//             // 1. Ensure tenant structure exists (Initialization)
+//             const dataInfo = JSON.parse(event.shippingDocuments);
+//             const tenant = dataInfo.tenant;
+//             const vehicleData = dataInfo.vehicleData;
+//             if (!state[tenant.id]) {
+//               state[tenant.id] = {
+//                 name: tenant.name,
+//                 companyNotes: {},
+//                 drivers: {}, // Initialize drivers as an empty object
+//               };
+//             }
+//             const markerColor = (): 'red' | 'blue' | null => {
+//               switch (event.dutyStatus) {
+//                 case 'EngineShutDownConventionalLocationPrecision':
+//                 case 'EnginePowerUpConventionalLocationPrecision':
+//                   return 'red';
+//                 case 'EngineShutDownReducedLocationPrecision':
+//                 case 'EnginePowerUpReducedLocationPrecision':
+//                   return 'blue';
+//                 default:
+//                   return null;
+//               }
+//             };
 
-            // 2. Extract common data
-            const currentNote = {
-              note: event.notes,
-              part: event.engineMinutes,
-              eventId: event.id,
-              vehicleData,
-              markerColor: markerColor(),
-            };
-            const driverId = event.odometer;
-            const stamp = event.attachedTrailers;
-            const tenantReport = state[tenant.id];
+//             // 2. Extract common data
+//             const currentNote = {
+//               note: event.notes,
+//               part: event.engineMinutes,
+//               eventId: event.id,
+//               vehicleData,
+//               markerColor: markerColor(),
+//             };
+//             const driverId = event.odometer;
+//             const stamp = event.attachedTrailers;
+//             const tenantReport = state[tenant.id];
 
-            const companyNotes = tenantReport.companyNotes;
+//             const companyNotes = tenantReport.companyNotes;
 
-            if (event.odometer === 999) {
-              if (companyNotes[stamp]) {
-                companyNotes[stamp].push(currentNote);
-              } else {
-                companyNotes[stamp] = [currentNote];
-              }
-            }
+//             if (event.odometer === 999) {
+//               if (companyNotes[stamp]) {
+//                 companyNotes[stamp].push(currentNote);
+//               } else {
+//                 companyNotes[stamp] = [currentNote];
+//               }
+//             }
 
-            // 3. Ensure driver structure exists (Initialization)
-            if (!tenantReport.drivers[driverId]) {
-              tenantReport.drivers[driverId] = {
-                name: event.locationDisplayName,
-                notes: {}, // Initialize notes as an empty object
-              };
-            }
+//             // 3. Ensure driver structure exists (Initialization)
+//             if (!tenantReport.drivers[driverId]) {
+//               tenantReport.drivers[driverId] = {
+//                 name: event.locationDisplayName,
+//                 notes: {}, // Initialize notes as an empty object
+//               };
+//             }
 
-            const driverNotes = tenantReport.drivers[driverId].notes;
+//             const driverNotes = tenantReport.drivers[driverId].notes;
 
-            // 4. Update the notes array for the stamp
-            if (driverNotes[stamp]) {
-              driverNotes[stamp].push(currentNote);
-            } else {
-              driverNotes[stamp] = [currentNote];
-            }
-          }
-        });
+//             // 4. Update the notes array for the stamp
+//             if (driverNotes[stamp]) {
+//               driverNotes[stamp].push(currentNote);
+//             } else {
+//               driverNotes[stamp] = [currentNote];
+//             }
+//           }
+//         });
 
-        return {
-          0: shiftReport,
-          1: problems,
-          2: fmscaInspections,
-          3: malf,
-          4: markerNotes,
-          customNotes,
-        };
-      }),
-    );
+//         return {
+//           0: shiftReport,
+//           1: problems,
+//           2: fmscaInspections,
+//           3: malf,
+//           4: markerNotes,
+//           customNotes,
+//         };
+//       }),
+//     );
 
-  archive$: Observable<IBackendData> = this.apiService
-    .getDriverDailyLogEvents(2, this.archiveDataDate, this.tenantId)
-    .pipe(
-      map((ddle) => {
-        const events = ddle.events;
+//   archive$: Observable<IBackendData> = this.apiService
+//     .getDriverDailyLogEvents(2, this.archiveDataDate, this.tenantId)
+//     .pipe(
+//       map((ddle) => {
+//         const events = ddle.events;
 
-        const archiveNotes = {} as IData;
-        const customNotes = {} as IDataDriverNotes;
+//         const archiveNotes = {} as IData;
+//         const customNotes = {} as IDataDriverNotes;
 
-        events.forEach((event) => {
-          if (event.shippingDocuments.slice(-7) === '"null"}')
-            this.constantsService.fuTrigger();
-          let state: IData;
+//         events.forEach((event) => {
+//           // if (event.shippingDocuments.slice(-7) === '"null"}')
+//           //   this.constantsService.fuTrigger();
+//           let state: IData;
 
-          if (event.dutyStatus === 'IntermediateLogReducedLocationPrecision') {
-            const stamp = event.attachedTrailers;
+//           if (event.dutyStatus === 'IntermediateLogReducedLocationPrecision') {
+//             const stamp = event.attachedTrailers;
 
-            const currentNote = {
-              note: event.notes,
-              part: event.engineMinutes,
-              eventId: event.id,
-            };
+//             const currentNote = {
+//               note: event.notes,
+//               part: event.engineMinutes,
+//               eventId: event.id,
+//             };
 
-            if (customNotes[stamp]) {
-              customNotes[stamp].push(currentNote);
-            } else {
-              customNotes[stamp] = [currentNote];
-            }
-          } else {
-            switch (event.dutyStatus) {
-              case 'ChangeToOffDutyStatus':
-                state = archiveNotes;
-                break;
+//             if (customNotes[stamp]) {
+//               customNotes[stamp].push(currentNote);
+//             } else {
+//               customNotes[stamp] = [currentNote];
+//             }
+//           } else {
+//             switch (event.dutyStatus) {
+//               case 'ChangeToOffDutyStatus':
+//                 state = archiveNotes;
+//                 break;
 
-              default:
-                state = archiveNotes;
-            }
+//               default:
+//                 state = archiveNotes;
+//             }
 
-            if (event.notes === 'BACKEND__START') return;
+//             if (event.notes === 'BACKEND__START') return;
 
-            // 1. Ensure tenant structure exists (Initialization)
-            const dataInfo = JSON.parse(event.shippingDocuments);
-            const tenant = dataInfo.tenant;
-            const vehicleData = dataInfo.vehicleData;
-            if (!state[tenant.id]) {
-              state[tenant.id] = {
-                name: tenant.name,
-                companyNotes: {},
-                drivers: {}, // Initialize drivers as an empty object
-              };
-            }
-            const markerColor = (): 'red' | 'blue' | null => {
-              switch (event.dutyStatus) {
-                case 'EngineShutDownConventionalLocationPrecision':
-                case 'EnginePowerUpConventionalLocationPrecision':
-                  return 'red';
-                case 'EngineShutDownReducedLocationPrecision':
-                case 'EnginePowerUpReducedLocationPrecision':
-                  return 'blue';
-                default:
-                  return null;
-              }
-            };
+//             // 1. Ensure tenant structure exists (Initialization)
+//             const dataInfo = JSON.parse(event.shippingDocuments);
+//             const tenant = dataInfo.tenant;
+//             const vehicleData = dataInfo.vehicleData;
+//             if (!state[tenant.id]) {
+//               state[tenant.id] = {
+//                 name: tenant.name,
+//                 companyNotes: {},
+//                 drivers: {}, // Initialize drivers as an empty object
+//               };
+//             }
+//             const markerColor = (): 'red' | 'blue' | null => {
+//               switch (event.dutyStatus) {
+//                 case 'EngineShutDownConventionalLocationPrecision':
+//                 case 'EnginePowerUpConventionalLocationPrecision':
+//                   return 'red';
+//                 case 'EngineShutDownReducedLocationPrecision':
+//                 case 'EnginePowerUpReducedLocationPrecision':
+//                   return 'blue';
+//                 default:
+//                   return null;
+//               }
+//             };
 
-            // 2. Extract common data
-            const currentNote = {
-              note: event.notes,
-              part: event.engineMinutes,
-              eventId: event.id,
-              vehicleData,
-              markerColor: markerColor(),
-            };
-            const driverId = event.odometer;
-            const stamp = event.attachedTrailers;
-            const tenantReport = state[tenant.id];
+//             // 2. Extract common data
+//             const currentNote = {
+//               note: event.notes,
+//               part: event.engineMinutes,
+//               eventId: event.id,
+//               vehicleData,
+//               markerColor: markerColor(),
+//             };
+//             const driverId = event.odometer;
+//             const stamp = event.attachedTrailers;
+//             const tenantReport = state[tenant.id];
 
-            const companyNotes = tenantReport.companyNotes;
+//             const companyNotes = tenantReport.companyNotes;
 
-            if (event.odometer === 999) {
-              if (companyNotes[stamp]) {
-                companyNotes[stamp].push(currentNote);
-              } else {
-                companyNotes[stamp] = [currentNote];
-              }
-            }
+//             if (event.odometer === 999) {
+//               if (companyNotes[stamp]) {
+//                 companyNotes[stamp].push(currentNote);
+//               } else {
+//                 companyNotes[stamp] = [currentNote];
+//               }
+//             }
 
-            // 3. Ensure driver structure exists (Initialization)
-            if (!tenantReport.drivers[driverId]) {
-              tenantReport.drivers[driverId] = {
-                name: event.locationDisplayName,
-                notes: {}, // Initialize notes as an empty object
-              };
-            }
+//             // 3. Ensure driver structure exists (Initialization)
+//             if (!tenantReport.drivers[driverId]) {
+//               tenantReport.drivers[driverId] = {
+//                 name: event.locationDisplayName,
+//                 notes: {}, // Initialize notes as an empty object
+//               };
+//             }
 
-            const driverNotes = tenantReport.drivers[driverId].notes;
+//             const driverNotes = tenantReport.drivers[driverId].notes;
 
-            // 4. Update the notes array for the stamp
-            if (driverNotes[stamp]) {
-              driverNotes[stamp].push(currentNote);
-            } else {
-              driverNotes[stamp] = [currentNote];
-            }
-          }
-        });
+//             // 4. Update the notes array for the stamp
+//             if (driverNotes[stamp]) {
+//               driverNotes[stamp].push(currentNote);
+//             } else {
+//               driverNotes[stamp] = [currentNote];
+//             }
+//           }
+//         });
 
-        return {
-          0: archiveNotes,
-          customNotes,
-        };
-      }),
-    );
+//         return {
+//           0: archiveNotes,
+//           customNotes,
+//         };
+//       }),
+//     );
 
-  uploadData = (
-    tenant: ITenant,
-    driver: {
-      driverId: number;
-      driverFullName: string;
-    } | null,
-    note: string,
-    eventTypeCode:
-      | 'ChangeToOffDutyStatus'
-      | 'ChangeToSleeperBerthStatus'
-      | 'ChangeToOnDutyNotDrivingStatus'
-      | 'IntermediateLogConventionalLocationPrecision'
-      | 'IntermediateLogReducedLocationPrecision'
-      | 'EnginePowerUpConventionalLocationPrecision'
-      | 'EnginePowerUpReducedLocationPrecision'
-      | 'EngineShutDownConventionalLocationPrecision'
-      | 'EngineShutDownReducedLocationPrecision',
-    vehicleData?: IVehicle | null,
-  ) => {
-    const dataInfo = {
-      tenant: { id: tenant.id, name: tenant.name },
-      vehicleData,
-    };
+//   uploadData = (
+//     tenant: ITenant,
+//     driver: {
+//       driverId: number;
+//       driverFullName: string;
+//     } | null,
+//     note: string,
+//     eventTypeCode:
+//       | 'ChangeToOffDutyStatus'
+//       | 'ChangeToSleeperBerthStatus'
+//       | 'ChangeToOnDutyNotDrivingStatus'
+//       | 'IntermediateLogConventionalLocationPrecision'
+//       | 'IntermediateLogReducedLocationPrecision'
+//       | 'EnginePowerUpConventionalLocationPrecision'
+//       | 'EnginePowerUpReducedLocationPrecision'
+//       | 'EngineShutDownConventionalLocationPrecision'
+//       | 'EngineShutDownReducedLocationPrecision',
+//     vehicleData?: IVehicle | null,
+//   ) => {
+//     const dataInfo = {
+//       tenant: { id: tenant.id, name: tenant.name },
+//       vehicleData,
+//     };
 
-    const chunks = note.match(/.{1,50}/g);
+//     const chunks = note.match(/.{1,50}/g);
 
-    const transformedChunks = chunks!.map((chunk, index) => {
-      const part = index + 1;
-      return [part, chunk] as [number, string];
-    });
+//     const transformedChunks = chunks!.map((chunk, index) => {
+//       const part = index + 1;
+//       return [part, chunk] as [number, string];
+//     });
 
-    const stamp = DateTime.now().toUTC().toISO();
+//     const stamp = DateTime.now().toUTC().toISO();
 
-    return from(transformedChunks).pipe(
-      concatMap((notePart) => {
-        const body: Partial<IEventDetails> = {
-          note: notePart[1],
-          eventTypeCode,
-          startTime: this.randomTime(),
-          shippingDocumentNumber: JSON.stringify(dataInfo),
-          totalVehicleMiles: driver?.driverId ? driver.driverId : 999,
-          totalEngineHours: notePart[0],
-          trailerNumbers: stamp,
-          locationSource: 'SelectedFromMap',
-          latitude: '31.279850',
-          longitude: '-98.454710',
-          geolocation: driver?.driverFullName
-            ? driver.driverFullName
-            : tenant.name,
-          eventSequenceIdNumber: '1',
-          vehicleId: 2,
-          driverId: 2,
-        };
+//     return from(transformedChunks).pipe(
+//       concatMap((notePart) => {
+//         const body: Partial<IEventDetails> = {
+//           note: notePart[1],
+//           eventTypeCode,
+//           startTime: this.randomTime(),
+//           shippingDocumentNumber: JSON.stringify(dataInfo),
+//           totalVehicleMiles: driver?.driverId ? driver.driverId : 999,
+//           totalEngineHours: notePart[0],
+//           trailerNumbers: stamp,
+//           locationSource: 'SelectedFromMap',
+//           latitude: '31.279850',
+//           longitude: '-98.454710',
+//           geolocation: driver?.driverFullName
+//             ? driver.driverFullName
+//             : tenant.name,
+//           eventSequenceIdNumber: '1',
+//           vehicleId: 2,
+//           driverId: 2,
+//         };
 
-        return this.http.post<IEventDetails>(this.url, body, {
-          withCredentials: true,
-          headers: {
-            'X-Tenant-Id': this.tenantId,
-            'x-client-timezone': `${DateTime.local().zoneName}`,
-          },
-        });
-      }),
-    );
-  };
+//         return this.http.post<IEventDetails>(this.url, body, {
+//           withCredentials: true,
+//           headers: {
+//             'X-Tenant-Id': this.tenantId,
+//             'x-client-timezone': `${DateTime.local().zoneName}`,
+//           },
+//         });
+//       }),
+//     );
+//   };
 
-  deleteNote(eventIds: number[]) {
-    return this.apiOperationsService.deleteEvents(
-      { id: this.tenantId } as ITenant,
-      [...eventIds],
-    );
-  }
+//   deleteNote(eventIds: number[]) {
+//     return this.apiOperationsService.deleteEvents(
+//       { id: this.tenantId } as ITenant,
+//       [...eventIds],
+//     );
+//   }
 
-  archiveNote(eventIds: number[]) {
-    return this.apiOperationsService.archiveEvents(
-      { id: this.tenantId } as ITenant,
-      [...eventIds],
-    );
-  }
+//   archiveNote(eventIds: number[]) {
+//     return this.apiOperationsService.archiveEvents(
+//       { id: this.tenantId } as ITenant,
+//       [...eventIds],
+//     );
+//   }
 
-  randomTime() {
-    const MAX_MS_IN_24_HOURS = 86400000;
-    const randomMs = Math.floor(Math.random() * MAX_MS_IN_24_HOURS);
-    const startDateString = this.dataDate;
-    const startDate = DateTime.fromISO(startDateString, { zone: 'utc' });
-    if (!startDate.isValid) {
-      console.error('Failed to parse start date:', startDate.invalidReason);
-      return 'ERROR: Invalid Date';
-    }
+//   randomTime() {
+//     const MAX_MS_IN_24_HOURS = 86400000;
+//     const randomMs = Math.floor(Math.random() * MAX_MS_IN_24_HOURS);
+//     const startDateString = this.dataDate;
+//     const startDate = DateTime.fromISO(startDateString, { zone: 'utc' });
+//     if (!startDate.isValid) {
+//       console.error('Failed to parse start date:', startDate.invalidReason);
+//       return 'ERROR: Invalid Date';
+//     }
 
-    const newDate = startDate.plus({ milliseconds: randomMs });
+//     const newDate = startDate.plus({ milliseconds: randomMs });
 
-    return newDate.toISO({ includeOffset: true });
-  }
-}
+//     return newDate.toISO({ includeOffset: true });
+//   }
+// }

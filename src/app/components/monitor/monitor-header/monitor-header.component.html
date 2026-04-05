@@ -3,22 +3,11 @@
     <div class="info__company-and-driver">
       <div class="info__company-and-driver__1">
         <!-- (click)="showInfo()" -->
-        <span
-          [class]="
-            !driverBackendData()?.companyMarkColor
-              ? 'info__company-and-driver__1-company'
-              : driverBackendData()?.companyMarkColor === 'red'
-                ? 'info__company-and-driver__1-company-x'
-                : 'info__company-and-driver__1-company-y'
-          "
-          [matTooltip]="driverBackendData()?.companyMarkerText"
-          matTooltipPosition="below"
-          [matTooltipHideDelay]="0"
-        >
+        <span>
           <!-- [matTooltipShowDelay]="500" -->
           ## {{ formatTenantName(ddle.companyName).slice(0, 16) }}
 
-          @if (driverBackendData()?.companyNoteCount; as companyNoteCount) {
+          <!-- @if (driverBackendData()?.companyNoteCount; as companyNoteCount) {
             <span
               class="mat-badge-custom"
               [matBadge]="companyNoteCount"
@@ -28,8 +17,8 @@
               matBadgePosition="above after"
               matBadgeSize="medium"
             ></span>
-          }
-
+          } -->
+          <!-- 
           @if (
             driverBackendData()?.companyArchiveNotesCount;
             as companyArchiveNotesCount
@@ -42,7 +31,7 @@
               matBadgePosition="above after"
               matBadgeSize="medium"
             ></span>
-          }
+          } -->
         </span>
 
         <!-- 
@@ -64,21 +53,10 @@
               ? 'info__company-and-driver__1-driver-name'
               : 'info__company-and-driver__1-driver-x'
           " -->
-        <span
-          [class]="
-            !driverBackendData()?.driverMarkColor
-              ? 'info__company-and-driver__1-driver-name'
-              : driverBackendData()?.driverMarkColor === 'red'
-                ? 'info__company-and-driver__1-driver-x'
-                : 'info__company-and-driver__1-driver-y'
-          "
-          [matTooltip]="driverBackendData()?.driverMarkText"
-          matTooltipPosition="below"
-          [matTooltipHideDelay]="0"
-        >
+        <span>
           <!-- [matTooltipShowDelay]="500" -->
           {{ ddle.driverFullName.slice(0, 24) }}
-          @if (driverBackendData()?.noteCount; as noteCount) {
+          <!-- @if (driverBackendData()?.noteCount; as noteCount) {
             <div
               class="mat-badge-custom"
               style="margin-bottom: 20px"
@@ -123,7 +101,7 @@
               matBadgePosition="above after"
               matBadgeSize="medium"
             ></div>
-          }
+          } -->
         </span>
       </div>
       <div class="info__company-and-driver__2">
@@ -206,11 +184,7 @@
 
             <div
               class="info__nav__date"
-              [class.malf]="date && isMalfDate(date)"
               (click)="viewDatePicker.open()"
-              [matTooltip]="
-                date && isMalfDate(date) ? 'driving on paper logs' : null
-              "
               matRipple
             >
               <span>

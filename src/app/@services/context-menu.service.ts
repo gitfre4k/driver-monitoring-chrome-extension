@@ -19,7 +19,7 @@ import {
 import { parseErrorMessage } from '../helpers/context-menu.helpers';
 import { from, mergeMap, switchMap } from 'rxjs';
 import { ConstantsService } from './constants.service';
-import { BackendService } from './backend.service';
+// import { BackendService } from './backend.service';
 
 @Injectable({ providedIn: 'root' })
 export class ContextMenuService {
@@ -28,7 +28,7 @@ export class ContextMenuService {
   monitorService = inject(MonitorService);
   urlService = inject(UrlService);
   constantsService = inject(ConstantsService);
-  backendService = inject(BackendService);
+  // backendService = inject(BackendService);
   _snackBar = inject(MatSnackBar);
 
   computedEvents = this.monitorService.computedDailyLogEvents;
@@ -196,56 +196,56 @@ export class ContextMenuService {
         });
       }
 
-      case 'POST_FMCSA': {
-        if (!event || !payload) return;
-        this.monitorService.isUpdatingEvent.set(true);
-        this.monitorService.disableFixButtons.set(true);
+      // case 'POST_FMCSA': {
+      //   if (!event || !payload) return;
+      //   this.monitorService.isUpdatingEvent.set(true);
+      //   this.monitorService.disableFixButtons.set(true);
 
-        const driver = {
-          driverId: event.driver.id,
-          driverFullName: event.driver.name,
-        };
-        const fmcsaData = payload as IDriverFmcsaInspection;
+      //   const driver = {
+      //     driverId: event.driver.id,
+      //     driverFullName: event.driver.name,
+      //   };
+      //   const fmcsaData = payload as IDriverFmcsaInspection;
 
-        return this.backendService
-          .uploadData(
-            event.tenant,
-            driver,
-            JSON.stringify(fmcsaData),
-            'ChangeToOnDutyNotDrivingStatus',
-            null,
-          )
-          .subscribe({
-            error: (err) => {
-              this.urlService.refreshWebApp();
-              this.monitorService.refresh.update((value) => value + 1);
-              this.monitorService.isUpdatingEvent.set(false);
-              this.monitorService.showUpdateEvent.set(null);
-              this.monitorService.disableFixButtons.set(false);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
-            },
-            complete: () => {
-              this.backendService.loadShiftReport();
-              this.urlService.refreshWebApp();
-              this.monitorService.refresh.update((value) => value + 1);
-              setTimeout(
-                () => this.monitorService.isUpdatingEvent.set(false),
-                2000,
-              );
-              this.monitorService.showUpdateEvent.set(null);
-              this.monitorService.disableFixButtons.set(false);
-              this._snackBar.open(
-                'FMCSA Inspection successfully posted',
-                'OK',
-                {
-                  duration: 3000,
-                },
-              );
-            },
-          });
-      }
+      //   return this.backendService
+      //     .uploadData(
+      //       event.tenant,
+      //       driver,
+      //       JSON.stringify(fmcsaData),
+      //       'ChangeToOnDutyNotDrivingStatus',
+      //       null,
+      //     )
+      //     .subscribe({
+      //       error: (err) => {
+      //         this.urlService.refreshWebApp();
+      //         this.monitorService.refresh.update((value) => value + 1);
+      //         this.monitorService.isUpdatingEvent.set(false);
+      //         this.monitorService.showUpdateEvent.set(null);
+      //         this.monitorService.disableFixButtons.set(false);
+      //         this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+      //           duration: 7000,
+      //         });
+      //       },
+      //       complete: () => {
+      //         this.backendService.loadShiftReport();
+      //         this.urlService.refreshWebApp();
+      //         this.monitorService.refresh.update((value) => value + 1);
+      //         setTimeout(
+      //           () => this.monitorService.isUpdatingEvent.set(false),
+      //           2000,
+      //         );
+      //         this.monitorService.showUpdateEvent.set(null);
+      //         this.monitorService.disableFixButtons.set(false);
+      //         this._snackBar.open(
+      //           'FMCSA Inspection successfully posted',
+      //           'OK',
+      //           {
+      //             duration: 3000,
+      //           },
+      //         );
+      //       },
+      //     });
+      // }
 
       case 'UPDATE_EVENT': {
         if (!event || !payload) return;

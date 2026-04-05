@@ -33,8 +33,8 @@ import { IDriverDailyLogEvents } from '../../../interfaces/driver-daily-log-even
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatBadgeModule } from '@angular/material/badge';
-import { BackendService } from '../../../@services/backend.service';
-import { getNote, parseMalf } from '../../../helpers/backend.helpers';
+// import { BackendService } from '../../../@services/backend.service';
+// import { getNote, parseMalf } from '../../../helpers/backend.helpers';
 
 @Component({
   selector: 'app-monitor-header',
@@ -70,7 +70,7 @@ export class MonitorHeaderComponent {
 
   private monitorService = inject(MonitorService);
   private extTabNavService = inject(ExtensionTabNavigationService);
-  private backendService = inject(BackendService);
+  // private backendService = inject(BackendService);
   private _snackBar = inject(MatSnackBar);
 
   DateTime = DateTime;
@@ -80,140 +80,140 @@ export class MonitorHeaderComponent {
   selectedTabIndex = this.extTabNavService.selectedTabIndex;
   datePicker = new FormControl<Date>(DateTime.now().toJSDate());
 
-  driverBackendData = computed(() => {
-    const backendData = this.backendService.backendData();
-    const archiveData = this.backendService.archiveData();
-    const ddle = this.monitorService.driverDailyLog();
+  // driverBackendData = computed(() => {
+  //   const backendData = this.backendService.backendData();
+  //   const archiveData = this.backendService.archiveData();
+  //   const ddle = this.monitorService.driverDailyLog();
 
-    if (!backendData || !archiveData || !ddle) return null;
+  //   if (!backendData || !archiveData || !ddle) return null;
 
-    const tenantId = ddle.tenantId;
-    const driverId = ddle.driverId;
-    const truckId =
-      ddle.vehicles?.[ddle.vehicles?.length ? ddle.vehicles?.length - 1 : 0]
-        ?.id;
+  //   const tenantId = ddle.tenantId;
+  //   const driverId = ddle.driverId;
+  //   const truckId =
+  //     ddle.vehicles?.[ddle.vehicles?.length ? ddle.vehicles?.length - 1 : 0]
+  //       ?.id;
 
-    const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
-    const driverArchiveNotes =
-      archiveData[0][tenantId]?.drivers[driverId]?.notes;
-    const driverProblems = backendData[1][tenantId]?.drivers[driverId]?.notes;
-    const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
-    const driverMarkColor = driverMarker
-      ? Object.values(driverMarker)?.[0]?.[0]?.markerColor
-      : null;
-    const driverMarkText = driverMarker
-      ? getNote(Object.values(driverMarker)?.[0])
-      : null;
+  //   const driverNotes = backendData[0][tenantId]?.drivers[driverId]?.notes;
+  //   const driverArchiveNotes =
+  //     archiveData[0][tenantId]?.drivers[driverId]?.notes;
+  //   const driverProblems = backendData[1][tenantId]?.drivers[driverId]?.notes;
+  //   const driverMarker = backendData[4][tenantId]?.drivers[driverId]?.notes;
+  //   const driverMarkColor = driverMarker
+  //     ? Object.values(driverMarker)?.[0]?.[0]?.markerColor
+  //     : null;
+  //   const driverMarkText = driverMarker
+  //     ? getNote(Object.values(driverMarker)?.[0])
+  //     : null;
 
-    const truckProblems = backendData[1][tenantId]?.companyNotes;
-    let isTruckProblem = false;
-    let truckProblemStamp = '';
-    for (let stamp in truckProblems) {
-      if (truckProblems[stamp][0].vehicleData?.id === truckId) {
-        isTruckProblem = true;
-        truckProblemStamp = stamp;
-      }
-    }
+  //   const truckProblems = backendData[1][tenantId]?.companyNotes;
+  //   let isTruckProblem = false;
+  //   let truckProblemStamp = '';
+  //   for (let stamp in truckProblems) {
+  //     if (truckProblems[stamp][0].vehicleData?.id === truckId) {
+  //       isTruckProblem = true;
+  //       truckProblemStamp = stamp;
+  //     }
+  //   }
 
-    const malf = backendData[3][tenantId]?.drivers[driverId]?.notes;
-    let malfs: {
-      start: string;
-      end: string;
-      note: string;
-    }[] = [];
-    if (malf) {
-      for (let stamp in malf) {
-        malfs.push(parseMalf(getNote(malf[stamp])));
-      }
-    }
+  //   const malf = backendData[3][tenantId]?.drivers[driverId]?.notes;
+  //   let malfs: {
+  //     start: string;
+  //     end: string;
+  //     note: string;
+  //   }[] = [];
+  //   if (malf) {
+  //     for (let stamp in malf) {
+  //       malfs.push(parseMalf(getNote(malf[stamp])));
+  //     }
+  //   }
 
-    const companyNotes = backendData[0][tenantId]?.companyNotes;
-    const companyArchiveNotes = archiveData[0][tenantId]?.companyNotes;
-    const companyMarker = backendData[4][tenantId]?.companyNotes;
-    const companyMarkColor = companyMarker
-      ? Object.values(companyMarker)?.[0]?.[0]?.markerColor
-      : null;
-    const companyMarkerText = companyMarker
-      ? getNote(Object.values(companyMarker)?.[0])
-      : null;
+  //   const companyNotes = backendData[0][tenantId]?.companyNotes;
+  //   const companyArchiveNotes = archiveData[0][tenantId]?.companyNotes;
+  //   const companyMarker = backendData[4][tenantId]?.companyNotes;
+  //   const companyMarkColor = companyMarker
+  //     ? Object.values(companyMarker)?.[0]?.[0]?.markerColor
+  //     : null;
+  //   const companyMarkerText = companyMarker
+  //     ? getNote(Object.values(companyMarker)?.[0])
+  //     : null;
 
-    return {
-      noteCount: driverNotes ? Object.keys(driverNotes).length : 0,
-      companyNoteCount: companyNotes ? Object.keys(companyNotes).length : 0,
-      issueCount: driverProblems ? Object.keys(driverProblems).length : 0,
-      driverMarkColor: driverMarker ? driverMarkColor : null,
-      companyMarkColor: companyMarker ? companyMarkColor : null,
-      malfs,
-      isTruckProblem,
-      driverArchiveNotesCount: driverArchiveNotes
-        ? Object.keys(driverArchiveNotes).length
-        : 0,
-      driverMarkText,
-      companyArchiveNotesCount: companyArchiveNotes
-        ? Object.keys(companyArchiveNotes).length
-        : 0,
-      companyMarkerText,
-    };
-  });
+  //   return {
+  //     noteCount: driverNotes ? Object.keys(driverNotes).length : 0,
+  //     companyNoteCount: companyNotes ? Object.keys(companyNotes).length : 0,
+  //     issueCount: driverProblems ? Object.keys(driverProblems).length : 0,
+  //     driverMarkColor: driverMarker ? driverMarkColor : null,
+  //     companyMarkColor: companyMarker ? companyMarkColor : null,
+  //     malfs,
+  //     isTruckProblem,
+  //     driverArchiveNotesCount: driverArchiveNotes
+  //       ? Object.keys(driverArchiveNotes).length
+  //       : 0,
+  //     driverMarkText,
+  //     companyArchiveNotesCount: companyArchiveNotes
+  //       ? Object.keys(companyArchiveNotes).length
+  //       : 0,
+  //     companyMarkerText,
+  //   };
+  // });
 
   formatTenantName = formatTenantName;
 
-  malfDates = computed(() => {
-    const data = this.driverBackendData();
-    if (!data) return [{ startDateString: '', endDateString: '' }];
+  // malfDates = computed(() => {
+  //   const data = this.driverBackendData();
+  //   if (!data) return [{ startDateString: '', endDateString: '' }];
 
-    const malfDates: { startDateString: string; endDateString: string }[] = [];
-    data.malfs.forEach((malf) => {
-      const malfDate = { startDateString: malf.start, endDateString: malf.end };
-      malfDates.push(malfDate);
-    });
-    return malfDates;
-  });
+  //   const malfDates: { startDateString: string; endDateString: string }[] = [];
+  //   data.malfs.forEach((malf) => {
+  //     const malfDate = { startDateString: malf.start, endDateString: malf.end };
+  //     malfDates.push(malfDate);
+  //   });
+  //   return malfDates;
+  // });
 
-  isMalfDate(date: string) {
-    let isMalfDate = false;
+  // isMalfDate(date: string) {
+  //   let isMalfDate = false;
 
-    const malfDates = this.malfDates();
-    malfDates.forEach((malf) => {
-      const startDate = new Date(malf.startDateString);
-      const endDate = new Date(malf.endDateString);
-      const cellDate = new Date(date);
+  //   const malfDates = this.malfDates();
+  //   malfDates.forEach((malf) => {
+  //     const startDate = new Date(malf.startDateString);
+  //     const endDate = new Date(malf.endDateString);
+  //     const cellDate = new Date(date);
 
-      const normalizedCellDate = new Date(
-        cellDate.getFullYear(),
-        cellDate.getMonth(),
-        cellDate.getDate(),
-      ).getTime();
+  //     const normalizedCellDate = new Date(
+  //       cellDate.getFullYear(),
+  //       cellDate.getMonth(),
+  //       cellDate.getDate(),
+  //     ).getTime();
 
-      const normalizedStartDate = new Date(
-        startDate.getFullYear(),
-        startDate.getMonth(),
-        startDate.getDate(),
-      ).getTime();
+  //     const normalizedStartDate = new Date(
+  //       startDate.getFullYear(),
+  //       startDate.getMonth(),
+  //       startDate.getDate(),
+  //     ).getTime();
 
-      const normalizedEndDate = new Date(
-        endDate.getFullYear(),
-        endDate.getMonth(),
-        endDate.getDate(),
-      ).getTime();
+  //     const normalizedEndDate = new Date(
+  //       endDate.getFullYear(),
+  //       endDate.getMonth(),
+  //       endDate.getDate(),
+  //     ).getTime();
 
-      if (
-        normalizedCellDate >= normalizedStartDate &&
-        normalizedCellDate <= normalizedEndDate
-      ) {
-        isMalfDate = true;
-      }
-    });
+  //     if (
+  //       normalizedCellDate >= normalizedStartDate &&
+  //       normalizedCellDate <= normalizedEndDate
+  //     ) {
+  //       isMalfDate = true;
+  //     }
+  //   });
 
-    return isMalfDate;
-  }
+  //   return isMalfDate;
+  // }
 
   dateClass: MatCalendarCellClassFunction<Date> = (cellDate: Date, view) => {
     if (view !== 'month') {
       return '';
     }
 
-    const malfPeriods = this.malfDates();
+    // const malfPeriods = this.malfDates();
 
     const normalizedCellDate = new Date(
       cellDate.getFullYear(),
@@ -221,35 +221,34 @@ export class MonitorHeaderComponent {
       cellDate.getDate(),
     ).getTime();
 
-    for (const period of malfPeriods) {
-      if (!period.startDateString || !period.endDateString) {
-        continue;
-      }
+    // for (const period of malfPeriods) {
+    //   if (!period.startDateString || !period.endDateString) {
+    //     continue;
+    //   }
 
-      const startDate = new Date(period.startDateString);
-      const endDate = new Date(period.endDateString);
+    //   const startDate = new Date(period.startDateString);
+    //   const endDate = new Date(period.endDateString);
 
-      const normalizedStartDate = new Date(
-        startDate.getFullYear(),
-        startDate.getMonth(),
-        startDate.getDate(),
-      ).getTime();
+    //   const normalizedStartDate = new Date(
+    //     startDate.getFullYear(),
+    //     startDate.getMonth(),
+    //     startDate.getDate(),
+    //   ).getTime();
 
-      const normalizedEndDate = new Date(
-        endDate.getFullYear(),
-        endDate.getMonth(),
-        endDate.getDate(),
-      ).getTime();
+    //   const normalizedEndDate = new Date(
+    //     endDate.getFullYear(),
+    //     endDate.getMonth(),
+    //     endDate.getDate(),
+    //   ).getTime();
 
-      if (
-        normalizedCellDate >= normalizedStartDate &&
-        normalizedCellDate <= normalizedEndDate
-      ) {
-        return 'example-custom-date-class';
-      }
-    }
+    //   if (
+    //     normalizedCellDate >= normalizedStartDate &&
+    //     normalizedCellDate <= normalizedEndDate
+    //   ) {
+    //     return 'example-custom-date-class';
+    //   }
+    // }
 
-    // 5. If no period matched, return an empty string
     return '';
   };
 
