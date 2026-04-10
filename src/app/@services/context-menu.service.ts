@@ -174,6 +174,7 @@ export class ContextMenuService {
             duration: 3000,
           });
 
+        // milena
         return this.apiOperationsService.deleteEvents(tenant, ids).subscribe({
           error: (err) => {
             this.urlService.refreshWebApp();

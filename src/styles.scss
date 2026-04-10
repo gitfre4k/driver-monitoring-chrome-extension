@@ -67,3 +67,7 @@ body {
   transform: scale(0.6) translateX(-10px);
   transform-origin: left center;
 }
+
+.custom-option-height {
+  max-height: 600px !important;
+}

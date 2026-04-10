@@ -46,6 +46,31 @@ export class ApiService {
   constructor() {}
 
   ///////////////////
+  // Certify Log Day
+  certifyLogDay(
+    tenant: ITenant,
+    driverId: number,
+    logDate: string,
+  ): Observable<IViolations> {
+    return from(
+      this.http.post<IViolations>(
+        'https://app.monitoringdriver.com/api/Logs/CertifyLogDay',
+        {
+          driverId,
+          logDate,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+            'X-Tenant-Id': `${tenant.id}`,
+          },
+        },
+      ),
+    );
+  }
+
+  ///////////////////
   // getDriverLogs
   getDriverLogs(tenant: ITenant, driverID: number) {
     const url = 'https://app.monitoringdriver.com/api/Logs/GetDriverLogs';

@@ -49,6 +49,11 @@ export class DateService {
   analyzeCustomDate = (date: Date) => this.formatedDate(date).startOfDay;
 
   /////////////////////////////
+  // >> Certify Logs Date (end?)
+  certifyDate = this.startOfToday.minus({ days: 1 }).toUTC().toISO();
+  certifyCustomDate = (date: Date) => this.formatedDate(date).startOfDay;
+
+  /////////////////////////////
   // >> getLog Date Range (end)
   getLogsDateRange = () => ({
     from: this.endOfToday.minus({ days: 7 }).toUTC().toISO(),

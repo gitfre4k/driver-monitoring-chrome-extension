@@ -1,13 +1,13 @@
-import { inject, Injectable, signal } from "@angular/core";
-import { AppService } from "./app.service";
-import { catchError, from, map, mergeMap, of, switchMap, tap } from "rxjs";
-import { ApiService } from "./api.service";
-import { DateService } from "./date.service";
-import { ProgressBarService } from "./progress-bar.service";
-import { ConstantsService } from "./constants.service";
+import { inject, Injectable, signal } from '@angular/core';
+import { AppService } from './app.service';
+import { catchError, from, map, mergeMap, of, switchMap, tap } from 'rxjs';
+import { ApiService } from './api.service';
+import { DateService } from './date.service';
+import { ProgressBarService } from './progress-bar.service';
+import { ConstantsService } from './constants.service';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class CertificationsScanService {
   appService = inject(AppService);
@@ -21,7 +21,7 @@ export class CertificationsScanService {
   excludeNonWorkDays = signal(true);
 
   get driverLogs$() {
-    this.progressBarService.initializeState("cert");
+    this.progressBarService.initializeState('cert');
     this.progressBarService.scanning.set(true);
 
     const tenants = this.appService.tenantsSignal();

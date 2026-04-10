@@ -298,7 +298,20 @@
 
         <div class="scan__log-analysis__options">
           <span class="scan__log-analysis__options-title"></span>
-          <app-advanced-scan></app-advanced-scan>
+
+          <mat-slide-toggle
+            [(ngModel)]="showAnalasysOptions"
+            style="transform: scale(0.75)"
+            class="scan__violations__sync__auto"
+          >
+            <span style="font-size: 16px; padding-left: 6px"
+              >Show Analasys Parameters</span
+            >
+          </mat-slide-toggle>
+
+          @if (showAnalasysOptions()) {
+            <app-advanced-scan></app-advanced-scan>
+          }
         </div>
 
         <mat-form-field style="display: none">
@@ -337,6 +350,14 @@
               Analyze
             </button>
           </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="scan__log-analysis margin__TOP">
+        <legend>Log Certification</legend>
+
+        <div class="scan__log-analysis__form">
+          <app-cert-form></app-cert-form>
         </div>
       </fieldset>
     </div>

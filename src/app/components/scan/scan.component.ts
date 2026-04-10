@@ -59,6 +59,7 @@ import { AdminPortalService } from '../../@services/admin-portal.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TaskQueueService } from '../../@services/task-queue.service';
 import { GlobalSmartfFixService } from '../../@services/global-smartf-fix.service';
+import { CertFormComponent } from '../cert-form/cert-form.component';
 
 @Component({
   selector: 'app-scan',
@@ -81,6 +82,7 @@ import { GlobalSmartfFixService } from '../../@services/global-smartf-fix.servic
     MatCheckboxModule,
     MatSliderModule,
     MatBadgeModule,
+    CertFormComponent,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
@@ -101,6 +103,8 @@ export class ScanComponent {
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
+
+  showAnalasysOptions = signal(false);
 
   // Analyze Date
   date = new FormControl<Date>(
