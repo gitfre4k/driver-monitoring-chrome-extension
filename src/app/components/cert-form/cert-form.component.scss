@@ -8,33 +8,38 @@
     border-radius: 12px;
   }
 
-  &__date {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    align-self: center;
-    justify-self: center;
-    margin-bottom: 8px;
-  }
-
   &__form {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
-    margin-bottom: 4px;
+    margin-top: 24px;
     width: 330px;
   }
 
-  &__button {
+  &-group {
     display: flex;
-    justify-content: center;
-    margin-bottom: 12px;
-    button {
-      width: 154px;
-      height: 32px;
+    align-items: center;
+    justify-content: space-around;
+    margin: 16px 0;
+    &__date {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      align-self: center;
+      justify-self: center;
+      margin-bottom: 4px;
+    }
+    &__button {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+      button {
+        width: 154px;
+        height: 32px;
+      }
     }
   }
 }

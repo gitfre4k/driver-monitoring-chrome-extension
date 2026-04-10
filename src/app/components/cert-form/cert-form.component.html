@@ -1,31 +1,13 @@
 <div class="cert">
   @if (tenantList(); as tenants) {
     <div>
-      <mat-form-field style="display: none">
-        <input
-          matInput
-          [matDatepicker]="picker"
-          [formControl]="date"
-          (dateChange)="changeDate($event)"
-        />
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
-
-      <div class="cert__date">
-        <mat-datepicker-toggle
-          matIconSuffix
-          [for]="picker"
-        ></mat-datepicker-toggle>
-        <span>{{ date.value | date: "mediumDate" }}</span>
-      </div>
-
       <ng-container>
-        <mat-form-field class="cert__form">
+        <mat-form-field class="cert__form small-select">
           <mat-label>Company</mat-label>
           <mat-select
             [formControl]="companies"
             multiple
-            panelClass="custom-option-height"
+            panelClass="custom-option-height my-custom-select"
           >
             <mat-select-trigger>
               @if (companies.value?.length === tenants.length) {
@@ -52,14 +34,34 @@
         </mat-form-field>
       </ng-container>
 
-      <div class="cert__button">
-        <button
-          [disabled]="disableScan"
-          matButton="tonal"
-          (click)="onCertifyLogs()"
-        >
-          Certify Logs
-        </button>
+      <div class="cert-group">
+        <mat-form-field style="display: none">
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [formControl]="date"
+            (dateChange)="changeDate($event)"
+          />
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <div class="cert-group__date">
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <span>{{ date.value | date: "mediumDate" }}</span>
+        </div>
+
+        <div class="cert-group__button">
+          <button
+            [disabled]="disableScan"
+            matButton="tonal"
+            (click)="onCertifyLogs()"
+          >
+            Certify Logs
+          </button>
+        </div>
       </div>
     </div>
   } @else {

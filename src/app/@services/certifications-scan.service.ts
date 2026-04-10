@@ -5,6 +5,7 @@ import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { ProgressBarService } from './progress-bar.service';
 import { ConstantsService } from './constants.service';
+import { ITenant } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -20,11 +21,14 @@ export class CertificationsScanService {
 
   excludeNonWorkDays = signal(true);
 
-  get driverLogs$() {
+  driverLogs$(certTenants?: ITenant[]) {
     this.progressBarService.initializeState('cert');
     this.progressBarService.scanning.set(true);
 
-    const tenants = this.appService.tenantsSignal();
+    const certifyLogs = !!certTenants;
+
+    const tenants = certifyLogs ? certTenants : this.appService.tenantsSignal();
+
     const companyLogs$ = from(tenants).pipe(
       mergeMap((tenant) => {
         return this.apiService

@@ -366,7 +366,7 @@ export class ScanComponent {
 
       // Driver Certifications
       case 'cert':
-        this.scanSubscribtion = this.certScanService.driverLogs$.subscribe({
+        this.scanSubscribtion = this.certScanService.driverLogs$().subscribe({
           next: (driverLogs) => this.handleDriverLogs(driverLogs),
           error: (err) => this.scanService.handleError(err),
           complete: () =>

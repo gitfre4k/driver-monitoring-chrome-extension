@@ -71,3 +71,15 @@ body {
 .custom-option-height {
   max-height: 600px !important;
 }
+
+.my-custom-select {
+  @include mat.form-field-density(-2);
+}
+
+.mat-mdc-option {
+  min-height: 24px !important;
+}
+
+.small-select {
+  @include mat.form-field-density(-1); // Supports values from 0 to -4
+}
