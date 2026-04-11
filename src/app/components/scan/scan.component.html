@@ -28,7 +28,7 @@
                   mat-icon-button
                   (click)="startViolationsScan()"
                   matTooltip="Check for violations"
-                  [disabled]="disableScan"
+                  [disabled]="disableScan()"
                 >
                   <mat-icon class="icon-display">sync</mat-icon></a
                 >
@@ -38,7 +38,7 @@
                 <button
                   matButton="tonal"
                   (click)="startViolationsScan()"
-                  [disabled]="disableScan"
+                  [disabled]="disableScan()"
                 >
                   Scan
                 </button>
@@ -177,7 +177,7 @@
             ></mat-checkbox
           >
           <button
-            [disabled]="disableScan"
+            [disabled]="disableScan()"
             matButton="tonal"
             (click)="getPreViolationAlert()"
           >
@@ -225,7 +225,7 @@
             </div>
             <div class="scan__log-analysis__form-submit">
               <button
-                [disabled]="disableScan"
+                [disabled]="disableScan()"
                 matButton="tonal"
                 (click)="startDOTScan()"
               >
@@ -249,7 +249,7 @@
           <button
             class="scan__log-analysis__form-submit"
             matButton="tonal"
-            [disabled]="disableScan"
+            [disabled]="disableScan()"
             (click)="startCertScan()"
           >
             Scan
@@ -282,7 +282,7 @@
           <button
             class="scan__log-analysis__form-submit"
             matButton="tonal"
-            [disabled]="disableScan"
+            [disabled]="disableScan()"
             (click)="globalSmartFix()"
           >
             Smart Fix
@@ -343,7 +343,7 @@
           >
           <div class="scan__log-analysis__form-submit+">
             <button
-              [disabled]="disableScan"
+              [disabled]="disableScan()"
               matButton="tonal"
               (click)="analyzeDriverLogs()"
             >
@@ -356,9 +356,56 @@
       <fieldset class="scan__log-analysis margin__TOP">
         <legend>Log Certification</legend>
 
-        <div class="scan__log-analysis__form">
-          <app-cert-form></app-cert-form>
-        </div>
+        @if (tenantList(); as tenants) {
+          <div class="scan__log-analysis__form">
+            <ng-container>
+              <mat-form-field class="cert__form small-select">
+                <mat-label>Company</mat-label>
+                <mat-select
+                  [formControl]="certTenants"
+                  multiple
+                  panelClass="custom-option-height my-custom-select"
+                >
+                  <mat-select-trigger>
+                    @if (certTenants.value?.length === tenants.length) {
+                      All selected ({{ certTenants.value?.length }})
+                    } @else {
+                      {{ certTenants.value?.[0]?.name }}
+                      @if ((certTenants.value?.length || 0) > 1) {
+                        <span>
+                          (+{{ (certTenants.value?.length || 0) - 1 }}
+                          {{
+                            certTenants.value?.length === 2
+                              ? "other"
+                              : "others"
+                          }})
+                        </span>
+                      }
+                    }
+                  </mat-select-trigger>
+
+                  <mat-option value="select-all" selectAll [allValues]="tenants"
+                    >Select all</mat-option
+                  >
+
+                  @for (tenant of tenants; track tenant.id) {
+                    <mat-option [value]="tenant">{{ tenant.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </ng-container>
+          </div>
+          <div class="scan__log-analysis__form-submit+">
+            <button
+              [disabled]="disableScan()"
+              matButton="tonal"
+              (click)="certifyLogs()"
+              class="cert-button"
+            >
+              Certify Logs
+            </button>
+          </div>
+        }
       </fieldset>
     </div>
   } @else {

@@ -52,6 +52,8 @@ export class ApiService {
     driverId: number,
     logDate: string,
   ): Observable<IViolations> {
+    const url = `https://app.monitoringdriver.com/logs`;
+
     return from(
       this.http.post<IViolations>(
         'https://app.monitoringdriver.com/api/Logs/CertifyLogDay',
@@ -62,6 +64,7 @@ export class ApiService {
         {
           withCredentials: true,
           headers: {
+            Referer: `${url}/${driverId}/${logDate}`,
             'x-client-timezone': `${DateTime.local().zoneName}`,
             'X-Tenant-Id': `${tenant.id}`,
           },

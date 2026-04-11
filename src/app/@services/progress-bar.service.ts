@@ -11,6 +11,7 @@ import {
   IScanResult,
   IScanViolations,
   ISmartFixResult,
+  ITenant,
 } from '../interfaces';
 import { TProgressMode, TScanMode, TScanResult } from '../types';
 import { IScanPreViolations } from '../interfaces/drivers.interface';
@@ -26,7 +27,14 @@ export class ProgressBarService {
   scanning = signal(false);
   bufferValue = signal(0);
   progressMode = signal<TProgressMode>('determinate');
-  constant = computed(() => 100 / this.appService.tenantsSignal().length);
+  constant = computed(
+    () =>
+      100 /
+      (this.certTenants().length
+        ? this.certTenants().length
+        : this.appService.tenantsSignal().length),
+  );
+  certTenants = signal<ITenant[]>([]);
   progressValue = signal(0);
   currentDriver = signal('');
   currentCompany = signal('Dex Solutions');
@@ -322,7 +330,7 @@ export class ProgressBarService {
     this.currentCompany.set('');
   }
 
-  initializeState(scanMode: TScanMode) {
+  initializeState(scanMode: TScanMode, certTenants?: ITenant[]) {
     this.initializeProgressBar();
 
     switch (scanMode) {
@@ -370,6 +378,7 @@ export class ProgressBarService {
         this.activeDriversCount.set(0);
         this.certStatus.set({});
         this.cErrors.set([]);
+        certTenants && certTenants?.length && this.certTenants.set(certTenants);
         this.progressMode.set('indeterminate');
         break;
       case 'deleteUE':

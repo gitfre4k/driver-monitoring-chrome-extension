@@ -35,6 +35,7 @@ import {
 import {
   ICertStatusDriver,
   IDOTInspections,
+  ITenant,
   IViolations,
 } from '../../interfaces';
 import { TScanMode } from '../../types';
@@ -59,7 +60,7 @@ import { AdminPortalService } from '../../@services/admin-portal.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TaskQueueService } from '../../@services/task-queue.service';
 import { GlobalSmartfFixService } from '../../@services/global-smartf-fix.service';
-import { CertFormComponent } from '../cert-form/cert-form.component';
+import { SelectAllDirective } from '../../directive/select-all.directive';
 
 @Component({
   selector: 'app-scan',
@@ -82,7 +83,7 @@ import { CertFormComponent } from '../cert-form/cert-form.component';
     MatCheckboxModule,
     MatSliderModule,
     MatBadgeModule,
-    CertFormComponent,
+    SelectAllDirective,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
@@ -105,6 +106,9 @@ export class ScanComponent {
   private _snackBar = inject(MatSnackBar);
 
   showAnalasysOptions = signal(false);
+  certTenants = new FormControl([] as ITenant[]);
+
+  tenantList = this.appService.tenantsSignal;
 
   // Analyze Date
   date = new FormControl<Date>(
@@ -162,7 +166,7 @@ export class ScanComponent {
     nonNullable: true,
   });
 
-  disableScan = false;
+  disableScan = signal(false);
   clientTimeZone = DateTime.local().zoneName;
   scanSubscribtion = new Subscription();
   scanning = this.progressBarService.scanning;
@@ -221,15 +225,15 @@ export class ScanComponent {
   }
 
   handleDriverLogs(driverLogs: IDriverLogs) {
-    let certifiedLogsCount = 0;
-    const logs = driverLogs.items;
-    const driverName = driverLogs.driverName;
-    const company = driverLogs.tenant.name;
-    console.log('logs ', logs);
-    logs.forEach((log) => log.certified && certifiedLogsCount++);
-    console.log(`## [${company}] ${driverName}`);
-    console.log(`certified Logs Count: ${certifiedLogsCount}`);
-    console.log('`````````````````````````````````````````````````````');
+    // let certifiedLogsCount = 0;
+    // const logs = driverLogs.items;
+    // const driverName = driverLogs.driverName;
+    // const company = driverLogs.tenant.name;
+    // console.log('logs ', logs);
+    // logs.forEach((log) => log.certified && certifiedLogsCount++);
+    // console.log(`## [${company}] ${driverName}`);
+    // console.log(`certified Logs Count: ${certifiedLogsCount}`);
+    // console.log('`````````````````````````````````````````````````````');
 
     this.progressBarService.certStatus.update((prev) => {
       const newValue = { ...prev };
@@ -252,9 +256,23 @@ export class ScanComponent {
     });
   }
 
+  handleLogCertification() {
+    this._snackBar.open(
+      `Loc Certification completed. Certified days: ${this.certScanService.certifiedLogCount()}`,
+      'OK',
+      {
+        duration: 3000,
+      },
+    );
+  }
+
   startCertScan() {
     this.scanMode.setValue('cert');
     this.startScan();
+  }
+  certifyLogs() {
+    this.scanMode.setValue('cert');
+    this.startScan(true);
   }
   startViolationsScan = () => {
     this.scanMode.setValue('violations');
@@ -302,9 +320,9 @@ export class ScanComponent {
       });
   }
 
-  startScan = () => {
-    this.disableScan = true;
-    setTimeout(() => (this.disableScan = false), 500);
+  startScan = (certifyLogs?: boolean) => {
+    this.disableScan.set(true);
+    setTimeout(() => this.disableScan.set(false), 500);
 
     this.taskQueueServoce.addPendingTask(this.scanMode.value);
 
@@ -365,14 +383,29 @@ export class ScanComponent {
         return;
 
       // Driver Certifications
-      case 'cert':
-        this.scanSubscribtion = this.certScanService.driverLogs$().subscribe({
-          next: (driverLogs) => this.handleDriverLogs(driverLogs),
-          error: (err) => this.scanService.handleError(err),
-          complete: () =>
-            this.scanService.handleScanComplete(this.scanMode.value),
-        });
+      case 'cert': {
+        if (certifyLogs) {
+          const certTenants = this.certTenants.value;
+          if (!certTenants || !certTenants.length) return;
+
+          this.scanSubscribtion = this.certScanService
+            .driverLogs$(certTenants)
+            .subscribe({
+              next: () => this.handleLogCertification(),
+              error: (err) => this.scanService.handleError(err),
+              complete: () => this.progressBarService.initializeProgressBar(),
+            });
+        } else {
+          this.scanSubscribtion = this.certScanService.driverLogs$().subscribe({
+            next: (driverLogs) => this.handleDriverLogs(driverLogs),
+            error: (err) => this.scanService.handleError(err),
+            complete: () =>
+              this.scanService.handleScanComplete(this.scanMode.value),
+          });
+        }
+
         return;
+      }
 
       // Violations || DOT Inspections
       case 'dot':

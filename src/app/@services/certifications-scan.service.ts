@@ -20,13 +20,15 @@ export class CertificationsScanService {
   httpLimit = this.constantsService.httpLimit;
 
   excludeNonWorkDays = signal(true);
+  certifiedLogCount = signal(0);
 
   driverLogs$(certTenants?: ITenant[]) {
-    this.progressBarService.initializeState('cert');
+    this.progressBarService.initializeState('cert', certTenants);
     this.progressBarService.scanning.set(true);
 
-    const certifyLogs = !!certTenants;
+    this.certifiedLogCount.set(0);
 
+    const certifyLogs = !!certTenants;
     const tenants = certifyLogs ? certTenants : this.appService.tenantsSignal();
 
     const companyLogs$ = from(tenants).pipe(
@@ -46,7 +48,11 @@ export class CertificationsScanService {
               },
             }),
             catchError(() => of()),
-
+            // tap(() =>
+            //   this.progressBarService.progressValue.update(
+            //     (prevValue) => prevValue + this.progressBarService.constant(),
+            //   ),
+            // ),
             switchMap((logs) => {
               let drivers = logs.items;
               drivers.forEach((driver) => {
@@ -86,19 +92,46 @@ export class CertificationsScanService {
               const dateB = new Date(b.id);
               return dateB.getTime() - dateA.getTime();
             });
-            uncertifiedDays.shift();
+
             uncertifiedDays = uncertifiedDays.filter((day) => !day.certified);
 
-            this.excludeNonWorkDays() &&
-              (uncertifiedDays = uncertifiedDays.filter(
-                (day) => day.minutesWorked,
-              ));
+            if (certifyLogs) {
+              const certDays = [...uncertifiedDays];
+              certDays.shift();
 
-            newLogs.tenant = driver.tenant!;
-            newLogs.driverName = driver.fullName;
-            newLogs.driverId = driver.id;
-            newLogs.zone = driver.homeTerminalTimeZone;
-            newLogs.items = uncertifiedDays;
+              const lastDayOnDutyIndex = certDays.findIndex(
+                (day) => day.minutesWorked && day.minutesWorked > 0,
+              );
+
+              const daysToCertify = certDays.slice(lastDayOnDutyIndex);
+              daysToCertify.filter((day) => day.minutesWorked);
+
+              from(daysToCertify)
+                .pipe(
+                  mergeMap((uncertDay) => {
+                    this.certifiedLogCount.update((prev) => prev + 1);
+                    return this.apiService.certifyLogDay(
+                      driver.tenant!,
+                      driver.id,
+                      uncertDay.id,
+                    );
+                  }),
+                )
+                .subscribe();
+            } else {
+              uncertifiedDays.shift();
+
+              this.excludeNonWorkDays() &&
+                (uncertifiedDays = uncertifiedDays.filter(
+                  (day) => day.minutesWorked,
+                ));
+
+              newLogs.tenant = driver.tenant!;
+              newLogs.driverName = driver.fullName;
+              newLogs.driverId = driver.id;
+              newLogs.zone = driver.homeTerminalTimeZone;
+              newLogs.items = uncertifiedDays;
+            }
             return newLogs;
           }),
         );
