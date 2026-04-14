@@ -32,7 +32,8 @@
     isEmpty(progressBarService.preViolations()) &&
     isEmpty(progressBarService.cycleHours()) &&
     isEmpty(progressBarService.certStatus()) &&
-    isEmpty(progressBarService.adminPortalResults())
+    isEmpty(progressBarService.adminPortalDisconnected()) &&
+    isEmpty(progressBarService.adminPortalUnplugged())
   ) {
     <span style="text-align: center; margin-top: 16px">
       Scan results will appear here.
@@ -488,9 +489,12 @@
       }
 
       <!--  -->
-      <!-- [Admin Portal] vehicles dashboard  -->
-      @if (progressBarService.adminPortalResults(); as adminPortalResults) {
-        @if (!isEmpty(adminPortalResults)) {
+      <!-- [Admin Portal] disconnected driving  -->
+      @if (
+        progressBarService.adminPortalDisconnected();
+        as adminPortalDisconnected
+      ) {
+        @if (!isEmpty(adminPortalDisconnected)) {
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -498,9 +502,11 @@
                 <div
                   class="mat-badge-custom"
                   style="margin-left: auto"
-                  matBadge="{{ progressBarService.adminPortalResultsCount() }}"
+                  matBadge="{{
+                    progressBarService.adminPortalDisconnectedCount()
+                  }}"
                   [matBadgeHidden]="
-                    progressBarService.adminPortalResultsCount() === 0
+                    progressBarService.adminPortalDisconnectedCount() === 0
                   "
                   matBadgeColor="primary"
                   matBadgePosition="below after"
@@ -509,14 +515,14 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <div class="scan-results__content__result">
-              @if (isEmpty(adminPortalResults)) {
+              @if (isEmpty(adminPortalDisconnected)) {
                 <div class="scan-results__content__result__empty">
                   No disconnected driving detected.
                 </div>
               } @else {
                 <ul class="list-of-tenants">
                   @for (
-                    company of adminPortalResults | keyvalue;
+                    company of adminPortalDisconnected | keyvalue;
                     track company.key
                   ) {
                     <li class="company">
@@ -535,7 +541,7 @@
                                       .setZone('America/New_York')
                                       .toUTC()
                                       .toISO()!,
-                                    truck.tenant
+                                    truck.tenant!
                                   )
                                 "
                               >
@@ -543,7 +549,7 @@
                               </a>
                               <a
                                 mat-icon-button
-                                (click)="copyDriverName(truck.driverName)"
+                                (click)="copyDriverName(truck.driverName!)"
                                 matTooltip="Copy to clipboard"
                               >
                                 <mat-icon>content_copy</mat-icon>
@@ -557,9 +563,9 @@
                             matTooltip="Done"
                             class="on-hover"
                             (click)="
-                              progressBarService.removeAdminPortalResult(
+                              progressBarService.removeAdminPortalDisconnectedResult(
                                 company.key,
-                                truck.vehicleName
+                                truck.vehicleName!
                               )
                             "
                             ><span class="material-icons"> clear </span></a
@@ -590,6 +596,134 @@
                               >{{ truck.drivingSpeed }}
                               {{ truck.drivingSpeedUnit }}</span
                             >
+                          </li>
+                          <li style="font-size: 12px">
+                            last recorded activity:
+                            <span style="font-weight: 700"
+                              >{{
+                                truck.lastActivity
+                                  ? `${truck.lastActivity}min ago`
+                                  : `less then 1min ago`
+                              }}
+                            </span>
+                          </li>
+                        </ul>
+                      }
+                      <hr />
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      }
+
+      <!--  -->
+      <!-- [Admin Portal] recently unplugged ELD -->
+      @if (progressBarService.adminPortalUnplugged(); as adminPortalUnplugged) {
+        @if (!isEmpty(adminPortalUnplugged)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                recently unplugged ELD
+                <div
+                  class="mat-badge-custom"
+                  style="margin-left: auto"
+                  matBadge="{{
+                    progressBarService.adminPortalUnpluggedCount()
+                  }}"
+                  [matBadgeHidden]="
+                    progressBarService.adminPortalUnpluggedCount() === 0
+                  "
+                  matBadgeColor="primary"
+                  matBadgePosition="below after"
+                  matBadgeSize="medium"
+                ></div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="scan-results__content__result">
+              @if (isEmpty(adminPortalUnplugged)) {
+                <div class="scan-results__content__result__empty">
+                  No recently unplugged ELD detected.
+                </div>
+              } @else {
+                <ul class="list-of-tenants">
+                  @for (
+                    company of adminPortalUnplugged | keyvalue;
+                    track company.key
+                  ) {
+                    <li class="company">
+                      <span class="company-name">{{ company.key }}</span>
+                      @for (truck of company.value; track truck.vehicleName) {
+                        <div class="driver">
+                          @if (truck.driverId) {
+                            <div class="btns">
+                              <a
+                                mat-icon-button
+                                matTooltip="Open driver daily logs in web app"
+                                (click)="
+                                  openLogs(
+                                    truck.driverId,
+                                    dateService.now
+                                      .setZone('America/New_York')
+                                      .toUTC()
+                                      .toISO()!,
+                                    truck.tenant!
+                                  )
+                                "
+                              >
+                                <mat-icon>open_in_browser</mat-icon>
+                              </a>
+                              <a
+                                mat-icon-button
+                                (click)="copyDriverName(truck.driverName!)"
+                                matTooltip="Copy to clipboard"
+                              >
+                                <mat-icon>content_copy</mat-icon>
+                              </a>
+                            </div>
+
+                            <span class="bold">{{ truck.driverName }}</span>
+                          }
+                          <a
+                            mat-icon-button
+                            matTooltip="Done"
+                            class="on-hover"
+                            (click)="
+                              progressBarService.removeAdminPortalUnpluggedResult(
+                                company.key,
+                                truck.vehicleName!
+                              )
+                            "
+                            ><span class="material-icons"> clear </span></a
+                          >
+                        </div>
+                        <ul class="inner-ul add-margin">
+                          <li style="font-size: 12px">
+                            truckID:
+                            <span style="font-weight: 700">{{
+                              truck.vehicleName
+                            }}</span>
+                          </li>
+                          <li style="font-size: 12px">
+                            location:
+                            <span style="font-weight: 700">{{
+                              truck.location
+                            }}</span>
+                          </li>
+                          <li style="font-size: 12px">
+                            unplugged:
+                            <span style="font-weight: 700">
+                              {{
+                                truck.lastActivity! > 60
+                                  ? (truck.lastActivity! / 60
+                                      | number: "1.0-0") + "h ago"
+                                  : truck.lastActivity
+                                    ? truck.lastActivity + "min ago"
+                                    : "less than 1min ago"
+                              }}
+                            </span>
                           </li>
                         </ul>
                       }
@@ -899,7 +1033,7 @@
                                   }}
                                 </span>
 
-                                <div class="hide">
+                                <!-- <div class="hide">
                                   <a
                                     mat-icon-button
                                     (click)="hideScanResult('teleports', event)"
@@ -911,7 +1045,7 @@
                                       visibility_off</mat-icon
                                     >
                                   </a>
-                                </div>
+                                </div> -->
                               </li>
                             }
                           }

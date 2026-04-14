@@ -21,6 +21,8 @@ export class CertificationsScanService {
 
   excludeNonWorkDays = signal(true);
   certifiedLogCount = signal(0);
+  certifyOnlyWorkingDays = signal(false);
+  doNotCertPastLastWorkDay = signal(true);
 
   driverLogs$(certTenants?: ITenant[]) {
     this.progressBarService.initializeState('cert', certTenants);
@@ -85,28 +87,36 @@ export class CertificationsScanService {
           map((driverLogs) => {
             let newLogs = { ...driverLogs };
 
-            let uncertifiedDays = [...driverLogs.items];
+            let allDriverDays = [...driverLogs.items];
 
-            uncertifiedDays.sort((a, b) => {
+            allDriverDays.sort((a, b) => {
               const dateA = new Date(a.id);
               const dateB = new Date(b.id);
               return dateB.getTime() - dateA.getTime();
             });
 
-            uncertifiedDays = uncertifiedDays.filter((day) => !day.certified);
-
             if (certifyLogs) {
-              const certDays = [...uncertifiedDays];
-              certDays.shift();
+              let daysToCertify = [...allDriverDays];
+              daysToCertify.shift();
 
-              const lastDayOnDutyIndex = certDays.findIndex(
-                (day) => day.minutesWorked && day.minutesWorked > 0,
-              );
+              if (this.certifyOnlyWorkingDays()) {
+                daysToCertify = daysToCertify.filter(
+                  (day) => day.minutesWorked,
+                );
+              } else {
+                if (this.doNotCertPastLastWorkDay()) {
+                  const lastWorkDayIndex = daysToCertify.findIndex(
+                    (day) => day.minutesWorked && day.minutesWorked > 0,
+                  );
+                  if (lastWorkDayIndex === -1) {
+                    daysToCertify = [];
+                  } else {
+                    daysToCertify = daysToCertify.slice(lastWorkDayIndex);
+                  }
+                }
+              }
 
-              const daysToCertify = certDays.slice(lastDayOnDutyIndex);
-              daysToCertify.filter((day) => day.minutesWorked);
-
-              from(daysToCertify)
+              from(daysToCertify.filter((day) => !day.certified))
                 .pipe(
                   mergeMap((uncertDay) => {
                     this.certifiedLogCount.update((prev) => prev + 1);
@@ -119,7 +129,10 @@ export class CertificationsScanService {
                 )
                 .subscribe();
             } else {
+              let uncertifiedDays = [...allDriverDays];
               uncertifiedDays.shift();
+
+              uncertifiedDays = uncertifiedDays.filter((day) => !day.certified);
 
               this.excludeNonWorkDays() &&
                 (uncertifiedDays = uncertifiedDays.filter(

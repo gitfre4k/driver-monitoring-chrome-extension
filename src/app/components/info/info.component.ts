@@ -59,7 +59,7 @@ export class InfoComponent {
   isDisabledElConejo = false;
 
   driver = signal<IDriver | null>(null);
-  showGetLogInfo = true;
+  showGetLogInfo = signal(true);
 
   getNote = getNote;
   ddle = this.monitorService.driverDailyLog();
@@ -69,9 +69,9 @@ export class InfoComponent {
       const driver = this.driver();
       const driverDailyLog = this.monitorService.driverDailyLog();
 
-      if (!driver || !driverDailyLog) return (this.showGetLogInfo = true);
+      if (!driver || !driverDailyLog) return this.showGetLogInfo.set(true);
       else if (driver.id !== driverDailyLog.driverId) {
-        return (this.showGetLogInfo = true);
+        return this.showGetLogInfo.set(true);
       }
 
       return;
@@ -254,7 +254,7 @@ export class InfoComponent {
             );
             if (currentDriver) {
               this.driver.set(currentDriver);
-              this.showGetLogInfo = false;
+              this.showGetLogInfo.set(false);
             } else {
               this.driver.set({
                 companyId: 0,
@@ -270,7 +270,7 @@ export class InfoComponent {
                 tenant: { name: 'error', id: 'error' } as ITenant,
               });
 
-              this.showGetLogInfo = false;
+              this.showGetLogInfo.set(false);
             }
           },
         });
@@ -279,7 +279,7 @@ export class InfoComponent {
 
   hideLogs() {
     this.driver.set(null);
-    this.showGetLogInfo = false;
+    this.showGetLogInfo.set(false);
   }
 
   logActiveDriversPerCompany() {

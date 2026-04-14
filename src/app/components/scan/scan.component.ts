@@ -256,23 +256,15 @@ export class ScanComponent {
     });
   }
 
-  handleLogCertification() {
-    this._snackBar.open(
-      `Loc Certification completed. Certified days: ${this.certScanService.certifiedLogCount()}`,
-      'OK',
-      {
-        duration: 3000,
-      },
-    );
-  }
+  handleLogCertification() {}
 
   startCertScan() {
     this.scanMode.setValue('cert');
     this.startScan();
   }
   certifyLogs() {
-    this.scanMode.setValue('cert');
-    this.startScan(true);
+    this.scanMode.setValue('cert-logs');
+    this.startScan();
   }
   startViolationsScan = () => {
     this.scanMode.setValue('violations');
@@ -320,9 +312,12 @@ export class ScanComponent {
       });
   }
 
-  startScan = (certifyLogs?: boolean) => {
+  startScan = () => {
     this.disableScan.set(true);
     setTimeout(() => this.disableScan.set(false), 500);
+
+    if (this.scanMode.value !== 'cert')
+      this.progressBarService.certTenants.set([]);
 
     this.taskQueueServoce.addPendingTask(this.scanMode.value);
 
@@ -343,7 +338,6 @@ export class ScanComponent {
                 )
                 .subscribe(),
             complete: () => {
-              console.log(this.progressBarService.adminPortalResults());
               this.progressBarService.initializeProgressBar();
               this.scanMode.setValue('violations');
               this._snackBar.open(
@@ -382,30 +376,44 @@ export class ScanComponent {
           });
         return;
 
-      // Driver Certifications
-      case 'cert': {
-        if (certifyLogs) {
-          const certTenants = this.certTenants.value;
-          if (!certTenants || !certTenants.length) return;
+      // Certifications Scan
+      case 'cert':
+        this.scanSubscribtion = this.certScanService.driverLogs$().subscribe({
+          next: (driverLogs) => this.handleDriverLogs(driverLogs),
+          error: (err) => this.scanService.handleError(err),
+          complete: () =>
+            this.scanService.handleScanComplete(this.scanMode.value),
+        });
+        return;
 
-          this.scanSubscribtion = this.certScanService
-            .driverLogs$(certTenants)
-            .subscribe({
-              next: () => this.handleLogCertification(),
-              error: (err) => this.scanService.handleError(err),
-              complete: () => this.progressBarService.initializeProgressBar(),
-            });
-        } else {
-          this.scanSubscribtion = this.certScanService.driverLogs$().subscribe({
-            next: (driverLogs) => this.handleDriverLogs(driverLogs),
-            error: (err) => this.scanService.handleError(err),
-            complete: () =>
-              this.scanService.handleScanComplete(this.scanMode.value),
+      // Log Certification
+      case 'cert-logs':
+        const certTenants = this.certTenants.value;
+        if (!certTenants || !certTenants.length) {
+          this._snackBar.open('No company selected.', 'Close', {
+            duration: 3000,
           });
+          return;
         }
 
+        this.scanSubscribtion = this.certScanService
+          .driverLogs$(certTenants)
+          .subscribe({
+            next: () => this.handleLogCertification(),
+            error: (err) => this.scanService.handleError(err),
+            complete: () => {
+              this._snackBar.open(
+                `Loc Certification completed. Certified days: ${this.certScanService.certifiedLogCount()}`,
+                'OK',
+                {
+                  duration: 4500,
+                },
+              );
+              this.progressBarService.initializeProgressBar();
+            },
+          });
+
         return;
-      }
 
       // Violations || DOT Inspections
       case 'dot':

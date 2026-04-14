@@ -115,6 +115,9 @@ export class ProgressBarService {
     return count;
   });
 
+  adminLastActivity = signal(60);
+  adminELDUnplugged = signal(4);
+
   certStatus = signal<ICertStatus>({});
 
   idMismatch = signal<IIdMismatch>({});
@@ -174,12 +177,21 @@ export class ProgressBarService {
     }
   });
 
-  adminPortalResults = signal<IScanAdminPortalResult>({});
-  adminPortalResultsCount = computed(() => {
-    const adminPortalResults = this.adminPortalResults();
+  adminPortalDisconnected = signal<IScanAdminPortalResult>({});
+  adminPortalDisconnectedCount = computed(() => {
+    const adminPortalDisconnected = this.adminPortalDisconnected();
     let count = 0;
-    for (const company in adminPortalResults) {
-      count = count + adminPortalResults[company].length;
+    for (const company in adminPortalDisconnected) {
+      count = count + adminPortalDisconnected[company].length;
+    }
+    return count;
+  });
+  adminPortalUnplugged = signal<IScanAdminPortalResult>({});
+  adminPortalUnpluggedCount = computed(() => {
+    const adminPortalUnplugged = this.adminPortalUnplugged();
+    let count = 0;
+    for (const company in adminPortalUnplugged) {
+      count = count + adminPortalUnplugged[company].length;
     }
     return count;
   });
@@ -273,11 +285,25 @@ export class ProgressBarService {
     });
   }
 
-  removeAdminPortalResult(companyName: string, vehicleName: string) {
-    const index = this.adminPortalResults()[companyName].findIndex(
+  removeAdminPortalDisconnectedResult(
+    companyName: string,
+    vehicleName: string,
+  ) {
+    const index = this.adminPortalDisconnected()[companyName].findIndex(
       (truck) => truck.vehicleName === vehicleName,
     );
-    this.adminPortalResults.update((prev) => {
+    this.adminPortalDisconnected.update((prev) => {
+      const newValue = { ...prev };
+      newValue[companyName].splice(index, 1);
+      if (newValue[companyName].length === 0) delete newValue[companyName];
+      return newValue;
+    });
+  }
+  removeAdminPortalUnpluggedResult(companyName: string, vehicleName: string) {
+    const index = this.adminPortalUnplugged()[companyName].findIndex(
+      (truck) => truck.vehicleName === vehicleName,
+    );
+    this.adminPortalUnplugged.update((prev) => {
       const newValue = { ...prev };
       newValue[companyName].splice(index, 1);
       if (newValue[companyName].length === 0) delete newValue[companyName];
@@ -386,7 +412,8 @@ export class ProgressBarService {
         this.progressMode.set('indeterminate');
         break;
       case 'admin':
-        this.adminPortalResults.set({});
+        this.adminPortalDisconnected.set({});
+        this.adminPortalUnplugged.set({});
         this.adminErrors.set([]);
         this.progressMode.set('determinate');
         break;

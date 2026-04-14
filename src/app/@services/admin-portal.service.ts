@@ -1,14 +1,15 @@
-import { inject, Injectable } from "@angular/core";
-import { from, map, mergeMap, switchMap, tap } from "rxjs";
-import { ApiService } from "./api.service";
-import { ApiPrologsAdminService } from "./api-prologs-admin.service";
-import { ConstantsService } from "./constants.service";
-import { DateService } from "./date.service";
-import { ProgressBarService } from "./progress-bar.service";
-import { IScanAdminPortalResultDriver, ITenant } from "../interfaces";
+import { inject, Injectable } from '@angular/core';
+import { from, map, mergeMap, switchMap, tap } from 'rxjs';
+import { ApiService } from './api.service';
+import { ApiPrologsAdminService } from './api-prologs-admin.service';
+import { ConstantsService } from './constants.service';
+import { DateService } from './date.service';
+import { ProgressBarService } from './progress-bar.service';
+import { IScanAdminPortalResultDriver, ITenant } from '../interfaces';
+import { DateTime } from 'luxon';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AdminPortalService {
   apiService = inject(ApiService);
@@ -19,9 +20,18 @@ export class AdminPortalService {
 
   httpLimit = this.constantService.httpLimit;
 
+  getMinutesAgoFromNow(lastTimestamp: string) {
+    const startTime = DateTime.fromISO(lastTimestamp);
+    const now = DateTime.now();
+
+    const diff = now.diff(startTime, 'minutes').minutes;
+
+    return Math.floor(diff);
+  }
+
   // dashboard
   scanAdminPortal() {
-    this.progressBarService.initializeState("admin");
+    this.progressBarService.initializeState('admin');
     this.progressBarService.scanning.set(true);
 
     return this.apiService.getAccessibleTenants().pipe(
@@ -54,13 +64,27 @@ export class AdminPortalService {
           );
       }, this.httpLimit()),
       tap((result) => {
-        const tenantResult: IScanAdminPortalResultDriver[] = [];
-        result.vehicles.forEach(
-          (truck) =>
-            truck.dutyStatus !== "D" &&
+        const tenantDisconnectedResult: Partial<IScanAdminPortalResultDriver>[] =
+          [];
+        const tenantUnpluggedResult: Partial<IScanAdminPortalResultDriver>[] =
+          [];
+
+        result.vehicles.forEach((truck) => {
+          // disconnected
+          if (
+            truck.dutyStatus !== 'D' &&
             truck.drivingSpeed &&
             truck.drivingSpeed > 1 &&
-            tenantResult.push({
+            this.getMinutesAgoFromNow(truck.lastTimestamp) <
+              this.progressBarService.adminLastActivity()
+          ) {
+            console.log(
+              truck.vehicleName,
+              truck.lastTimestamp,
+              this.getMinutesAgoFromNow(truck.lastTimestamp),
+            );
+
+            tenantDisconnectedResult.push({
               tenant: result.tenant,
               driverName: truck.driverFullName,
               vehicleName: truck.vehicleName,
@@ -69,12 +93,39 @@ export class AdminPortalService {
               drivingSpeed: truck.drivingSpeed,
               drivingSpeedUnit: truck.drivingSpeedUnit,
               location: truck.location,
-            }),
-        );
-        tenantResult.length > 0 &&
-          this.progressBarService.adminPortalResults.update((prev) => ({
+              lastActivity: this.getMinutesAgoFromNow(truck.lastTimestamp),
+            });
+          }
+          // unplugged
+          if (
+            !truck.isPlugged &&
+            this.getMinutesAgoFromNow(truck.isPluggedUpdateTime) <
+              this.progressBarService.adminELDUnplugged() * 60
+          ) {
+            tenantUnpluggedResult.push({
+              tenant: result.tenant,
+              driverName: truck.driverFullName,
+              vehicleName: truck.vehicleName,
+              driverId: truck.driverId,
+              dutyStatus: truck.dutyStatus,
+              drivingSpeed: truck.drivingSpeed ?? 0,
+              drivingSpeedUnit: truck.drivingSpeedUnit,
+              location: truck.location,
+              lastActivity: this.getMinutesAgoFromNow(
+                truck.isPluggedUpdateTime,
+              ),
+            });
+          }
+        });
+        tenantDisconnectedResult.length > 0 &&
+          this.progressBarService.adminPortalDisconnected.update((prev) => ({
             ...prev,
-            [result.tenant.name]: tenantResult,
+            [result.tenant.name]: tenantDisconnectedResult,
+          }));
+        tenantUnpluggedResult.length > 0 &&
+          this.progressBarService.adminPortalUnplugged.update((prev) => ({
+            ...prev,
+            [result.tenant.name]: tenantUnpluggedResult,
           }));
       }),
     );

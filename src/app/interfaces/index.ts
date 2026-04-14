@@ -123,7 +123,7 @@ export interface IScanResultDriver {
   events: ICEvent[];
 }
 export interface IScanAdminPortalResult {
-  [company: string]: IScanAdminPortalResultDriver[];
+  [company: string]: Partial<IScanAdminPortalResultDriver>[];
 }
 
 export interface IScanAdminPortalResultDriver {
@@ -135,6 +135,9 @@ export interface IScanAdminPortalResultDriver {
   drivingSpeedUnit: string;
   location: string;
   vehicleName: string;
+  isPlugged: boolean;
+  lastTimestamp: string;
+  lastActivity: number;
 }
 
 export interface IEventDetails {

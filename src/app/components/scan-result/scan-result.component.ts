@@ -36,6 +36,7 @@ import { ConstantsService } from '../../@services/constants.service';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { THiddenScanResult } from '../../types';
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
+import { DurationPipe } from '../../pipes/duration.pipe';
 
 @Component({
   selector: 'app-scan-result',

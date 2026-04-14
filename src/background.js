@@ -251,7 +251,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       {
         target: { tabId: tabId },
         function: (id, status, action) => {
-          console.log("id, status, action", id, status, action);
           const listElement = document.getElementById(`row-${id}`);
           const graphLineElement = document.getElementById(`hos-event-${id}`);
           const graphParent =

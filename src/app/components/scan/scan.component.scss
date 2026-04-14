@@ -14,11 +14,19 @@
 
 .cert__form {
   width: 300px;
-  margin: 12px 0;
+  margin: 4px 0 -4px;
+}
+
+.sert-checkboxes {
+  display: flex;
+  flex-direction: column;
+  &_item {
+    margin-top: -8px;
+  }
 }
 
 .cert-button {
-  margin-bottom: 12px;
+  margin: 8px 0 6px;
 }
 
 .scan {
@@ -39,7 +47,7 @@
 
   &__tools,
   &__admin {
-    margin-top: 4px;
+    margin-top: 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -104,6 +112,7 @@
       flex-direction: column;
       justify-content: start;
       align-items: start;
+      margin: -12px 0;
 
       :last-child {
         margin-bottom: 0;
@@ -111,12 +120,13 @@
 
       &-group {
         width: 90vw;
-        max-width: 300px;
+        max-width: 270px;
         display: grid;
         align-items: center;
-        grid-template-columns: 26fr auto 22fr;
+        grid-template-columns: 30fr auto 20fr;
         font-size: 13;
-        margin-bottom: -10px;
+        margin-bottom: -16px;
+
         :first-child {
           text-align: left;
         }
@@ -125,20 +135,19 @@
         }
       }
     }
+    &__form.admin {
+      margin: -4px 0;
+    }
 
     &__submit {
       display: flex;
       justify-content: space-between;
-      // span {
-      //   margin-right: auto;
-      // }
-
-      // width: 100%;
+      margin-top: 4px;
 
       button {
         width: 100px;
         height: 32px;
-        margin: 4px 12px 4px 0;
+        margin: 4px 12px 0px 0;
       }
     }
   }
@@ -185,6 +194,7 @@
       &-date.dot-date {
         flex-direction: row;
         gap: 4px;
+        margin: -4px 0;
       }
 
       &-submit {
@@ -308,7 +318,7 @@
       &__autofocus {
         width: 100%;
         text-align: center;
-        margin: -4px;
+        margin: -12px 0 -4px;
       }
     }
 

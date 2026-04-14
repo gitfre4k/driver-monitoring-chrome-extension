@@ -1,5 +1,5 @@
 export interface IDriverVehicleStatus {
-  ignitionStatus: "IgnitionOnIdle" | "IgnitionOnDriving";
+  ignitionStatus: 'IgnitionOnIdle' | 'IgnitionOnDriving';
   safetyStatus: boolean;
   healthStatus: boolean;
   violationsCount: number;
@@ -29,6 +29,7 @@ export interface IDriverVehicleStatus {
   drivingSpeedUnit: string;
   location: string;
   attachedTrailer: string;
+  lastTimestamp: string;
 }
 
 export interface IHosDetails {

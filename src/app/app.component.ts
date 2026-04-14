@@ -3,6 +3,7 @@ import {
   Component,
   HostListener,
   inject,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,6 +34,7 @@ import { CloudComponent } from './components/cloud/cloud.component';
 import { MonitorService } from './@services/monitor.service';
 import { BackendService } from './@services/backend.service';
 import { UrlService } from './@services/url.service';
+import { ActiveDriverCountService } from './@services/active-driver-count.service';
 
 @Component({
   selector: 'app-root',
@@ -75,9 +77,12 @@ export class AppComponent {
   private dateService = inject(DateService);
   private constantsService = inject(ConstantsService);
   private backendService = inject(BackendService);
+  private activeDriversService = inject(ActiveDriverCountService);
   urlService = inject(UrlService);
 
   private subscriptions: Subscription = new Subscription();
+
+  activeDriverData = signal<{ [tenantName: string]: number }>({});
 
   selectedTabIndex = this.extensionTabNavigationService.selectedTabIndex;
   scanning = this.progressBarService.scanning;
@@ -102,6 +107,36 @@ export class AppComponent {
 
   constructor() {}
 
+  logData() {
+    this.activeDriversService.getDriversDailyLogs().subscribe({
+      next: (log) =>
+        this.activeDriverData.update((prev) => ({
+          ...prev,
+          [log.tenant.name]: log.totalCount,
+        })),
+      complete: () => this.handleLogogoog(),
+    });
+  }
+
+  handleLogogoog() {
+    console.log(this.activeDriverData());
+    const activeDriverData = this.activeDriverData();
+
+    let total = 0;
+
+    const sortedTenants = Object.entries(activeDriverData).sort(
+      (a, b) => b[1] - a[1],
+    );
+
+    sortedTenants.forEach(([name, amount], index) => {
+      console.log(`${index + 1}. ${name}: ${amount}`);
+      total += amount;
+    });
+
+    console.log('---');
+    console.log(`total: ${total}`);
+  }
+
   ngOnInit(): void {
     if (typeof chrome !== 'undefined' && chrome.extension) {
       const views = chrome.extension.getViews({ type: 'popup' });
@@ -113,9 +148,12 @@ export class AppComponent {
     this.appService.initializeAppDevMode$().subscribe();
     // this.appService.initializeApp$().subscribe();
 
+    ///////////////////////
+    // active drivers count
+
     if (['Prologs', 'prologs'].includes(this.urlService.provider())) {
       // Auto-loadShiftReport()
-      this.timerSub = interval(60000).subscribe({
+      this.timerSub = interval(300000).subscribe({
         next: () => this.backendService.loadShiftReport(),
       });
 

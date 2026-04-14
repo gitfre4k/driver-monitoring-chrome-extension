@@ -254,7 +254,7 @@
         </button>
       </div>
 
-      @if (!showGetLogInfo && driver(); as driver) {
+      @if (!showGetLogInfo() && driver(); as driver) {
         <br />
         <div class="info-tab__info__group">
           <span>driver id</span><span>{{ driver.driverId }}</span>
@@ -289,7 +289,7 @@
           monitorService.driverDailyLog()?.windowsHomeTerminalZone
         }}</span>
       }
-      @if (showGetLogInfo) {
+      @if (showGetLogInfo()) {
         <button
           (click)="getLogs()"
           matButton="tonal"

@@ -1,34 +1,38 @@
 <div class="container">
   <mat-card id="mat-card-wrapper-2">
     <mat-card-content>
-      @if (scanMode === "admin") {
-        <h2>Admin Portal scan in progress...</h2>
-      } @else if (scanMode === "advanced") {
-        <h2>Driver Log Analysis in progress...</h2>
+      @if (scanMode === "cert-logs") {
+        <h2>Log Certification in progress...</h2>
       } @else {
-        @if (scanMode === "deleteUE") {
-          <h2>Detecting and deleting unidentified events...</h2>
-        } @else if (scanMode === "smartFix") {
-          <h2>Performing Global Smart Fix...</h2>
+        @if (scanMode === "admin") {
+          <h2>Admin Portal scan in progress...</h2>
+        } @else if (scanMode === "advanced") {
+          <h2>Driver Log Analysis in progress...</h2>
         } @else {
-          <h2>
-            Scanning for
+          @if (scanMode === "deleteUE") {
+            <h2>Detecting and deleting unidentified events...</h2>
+          } @else if (scanMode === "smartFix") {
+            <h2>Performing Global Smart Fix...</h2>
+          } @else {
+            <h2>
+              Scanning for
 
-            @switch (scanMode) {
-              @case ("cert") {
-                driver certifications
+              @switch (scanMode) {
+                @case ("cert") {
+                  driver certifications
+                }
+                @case ("violations") {
+                  Violations
+                }
+                @case ("dot") {
+                  FMCSA inspections
+                }
+                @case ("pre") {
+                  alerts
+                }
               }
-              @case ("violations") {
-                Violations
-              }
-              @case ("dot") {
-                FMCSA inspections
-              }
-              @case ("pre") {
-                alerts
-              }
-            }
-          </h2>
+            </h2>
+          }
         }
       }
 
@@ -44,13 +48,13 @@
         >
         </mat-progress-bar>
       </section>
-      <button mat-button (click)="stopScan()">Stop</button>
     </mat-card-content>
     @if (scanMode !== "deleteUE") {
-      <p class="total-count">
+      <span class="total-count">
         @switch (scanMode) {
           @case ("admin") {
-            Total count: {{ adminPortalResultsCount() }}
+            Total count:
+            {{ adminPortalDisconnectedCount() + adminPortalUnpluggedCount() }}
           }
 
           @case ("violations") {
@@ -73,9 +77,11 @@
             Total count: {{ preVCount() + lowCCount() }}
           }
         }
-      </p>
+      </span>
     }
   </mat-card>
+
+  <button mat-button (click)="stopScan()">Stop</button>
 
   <div class="tsunade">
     <div class="overlay">

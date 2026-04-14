@@ -4,6 +4,7 @@ export type TScanMode =
   | 'advanced'
   | 'pre'
   | 'cert'
+  | 'cert-logs'
   | 'deleteUE'
   | 'admin'
   | 'smartFix';

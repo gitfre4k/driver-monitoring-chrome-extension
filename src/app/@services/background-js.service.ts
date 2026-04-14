@@ -118,10 +118,10 @@ export class BackgroundJsService {
           .pipe(
             map((response) => {
               if (response && response.success) {
-                console.log(
-                  'Local storage update successful:',
-                  response.message,
-                );
+                // console.log(
+                //   'Local storage update successful:',
+                //   response.message,
+                // );
                 return true;
               } else {
                 const errorMessage =

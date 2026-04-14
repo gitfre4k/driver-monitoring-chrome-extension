@@ -26,6 +26,7 @@ import { IScanErrors } from '../../interfaces';
 export class ProgressBarComponent {
   @Input({ required: true }) scanSubscription!: Subscription;
   @Input({ required: true }) scanMode: TScanMode = 'violations';
+  @Input() certifyLogs?: boolean;
 
   private progressBarService = inject(ProgressBarService);
 
@@ -52,7 +53,9 @@ export class ProgressBarComponent {
   lowCCount = this.progressBarService.cycleHoursCount;
 
   activeDriversCount = this.progressBarService.activeDriversCount;
-  adminPortalResultsCount = this.progressBarService.adminPortalResultsCount;
+  adminPortalDisconnectedCount =
+    this.progressBarService.adminPortalDisconnectedCount;
+  adminPortalUnpluggedCount = this.progressBarService.adminPortalUnpluggedCount;
 
   constructor() {}
 

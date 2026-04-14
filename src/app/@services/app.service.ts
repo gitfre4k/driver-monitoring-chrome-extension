@@ -50,7 +50,6 @@ export class AppService {
       tap((tenants) => this.tenantsSignal.set(tenants)),
       finalize(() => {
         this.isLoading.set(false);
-        console.log(this.tenantsSignal(), this.tenantsLogSignal());
       }),
     );
   };

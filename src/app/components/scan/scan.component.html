@@ -191,8 +191,32 @@
       <fieldset class="scan__admin">
         <legend>Admin Portal</legend>
         <span>
-          Scan for vehicles that are currently moving outside Driving duty
-          status
+          <div class="scan__alerts__form admin">
+            <div class="scan__alerts__form-group">
+              <mat-label>last recorded activity</mat-label>
+              <mat-slider class="slider" [max]="180" [min]="1" [step]="1">
+                <input
+                  matSliderThumb
+                  [(ngModel)]="progressBarService.adminLastActivity"
+                />
+              </mat-slider>
+              <mat-label>
+                < {{ progressBarService.adminLastActivity() }}min
+              </mat-label>
+            </div>
+            <div class="scan__alerts__form-group">
+              <mat-label>ELD unplugged duration</mat-label>
+              <mat-slider class="slider" [max]="8" [min]="1" [step]="1">
+                <input
+                  matSliderThumb
+                  [(ngModel)]="progressBarService.adminELDUnplugged"
+                />
+              </mat-slider>
+              <mat-label>
+                < {{ progressBarService.adminELDUnplugged() }}h
+              </mat-label>
+            </div>
+          </div>
         </span>
         <button matButton="tonal" (click)="getDashboardLocationsData()">
           Scan
@@ -395,6 +419,26 @@
               </mat-form-field>
             </ng-container>
           </div>
+          <div class="sert-checkboxes">
+            <mat-checkbox
+              style="transform: scale(0.9)"
+              class="sert-checkboxes_item"
+              [(ngModel)]="certScanService.certifyOnlyWorkingDays"
+              ><span scan__group__cert-checkbox
+                >only certify driver's working days</span
+              ></mat-checkbox
+            >
+            <mat-checkbox
+              style="transform: scale(0.9)"
+              class="sert-checkboxes_item"
+              [(ngModel)]="certScanService.doNotCertPastLastWorkDay"
+              [disabled]="certScanService.certifyOnlyWorkingDays()"
+              ><span scan__group__cert-checkbox
+                >do not certify days past driver's last day worked</span
+              ></mat-checkbox
+            >
+          </div>
+
           <div class="scan__log-analysis__form-submit+">
             <button
               [disabled]="disableScan()"

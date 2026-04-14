@@ -174,7 +174,6 @@ export class ApiService {
     tenant: ITenant,
     range: IISODateRange,
   ): Observable<IDOTInspections> {
-    console.log(JSON.stringify(this.filterRule(range)));
     return from(
       this.http.post<IDOTInspections>(
         'https://app.monitoringdriver.com/api/FmcsaInspections/GetList',
@@ -233,7 +232,6 @@ export class ApiService {
       driverId,
       logDate: date,
     };
-    console.log('[API Service] getDriverDailyLogEvents > ', body.logDate);
     return this.http
       .post<IDriverDailyLogEvents>(
         'https://app.monitoringdriver.com/api/Logs/GetDriverDailyLog',
@@ -256,7 +254,6 @@ export class ApiService {
   ///////////////////
   // get Logs of Company Drivers
   getLogs(tenant: ITenant, { from, to }: IISODateRange) {
-    console.log('[API Service] getLogs > ');
     const url = 'https://app.monitoringdriver.com/api/Logs/GetLogs';
     const body = {
       filterRule: {
