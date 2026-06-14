@@ -12,366 +12,508 @@
   }
 }
 
+// ——— Utility ———
+
+.date-md {
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.date-y {
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 0.88em;
+}
+
+.toggle--small {
+  transform: scale(0.75);
+}
+
+.toggle__label {
+  font-size: 15px;
+  padding-left: 6px;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.04em;
+}
+
+.checkbox--small {
+  transform: scale(0.9);
+
+  .mdc-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65);
+    letter-spacing: 0.02em;
+  }
+}
+
+.visually-hidden {
+  display: none;
+}
+
+// ——— Card ———
+
+.scan__group__dot.card {
+  width: fit-content;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  border: 1px solid rgba(77, 208, 225, 0.25);
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+
+  &__label {
+    position: absolute;
+    top: -5px;
+    left: 10px;
+    padding: 0 5px;
+    background-color: rgb(68, 68, 74);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #4dd0e1;
+    line-height: 1;
+  }
+}
+
+// ——— Cert ———
+
 .cert__form {
-  width: 300px;
-  margin: 4px 0 -4px;
+  width: 100%;
+  margin: 2px 0 -4px;
 }
 
 .sert-checkboxes {
   display: flex;
   flex-direction: column;
+
   &_item {
     margin-top: -8px;
   }
 }
 
 .cert-button {
-  margin: 8px 0 6px;
+  margin: 4px 0 2px;
+  height: 28px;
 }
 
+// ——— Button design ———
+
+.scan button[matButton] {
+  border-radius: 6px !important;
+  background-color: rgba(77, 208, 225, 0.1) !important;
+  border: 1px solid rgba(77, 208, 225, 0.28) !important;
+  color: #4dd0e1 !important;
+  white-space: nowrap !important;
+  letter-spacing: 0.03em;
+  font-size: 12px;
+  padding: 0 10px !important;
+  min-width: 0 !important;
+  width: 96px !important;
+  height: 28px !important;
+
+  &[disabled] {
+    background-color: rgba(77, 208, 225, 0.04) !important;
+    border-color: rgba(77, 208, 225, 0.1) !important;
+    color: rgba(77, 208, 225, 0.35) !important;
+  }
+}
+
+// ——— Scan layout ———
+
 .scan {
+  // ——— Checkbox ———
+  --mdc-checkbox-unselected-icon-color: rgba(77, 208, 225, 0.4);
+  --mdc-checkbox-unselected-hover-icon-color: rgba(77, 208, 225, 0.65);
+  --mdc-checkbox-unselected-focus-icon-color: rgba(77, 208, 225, 0.65);
+  --mdc-checkbox-unselected-pressed-icon-color: rgba(77, 208, 225, 0.65);
+  --mdc-checkbox-selected-icon-color: #4dd0e1;
+  --mdc-checkbox-selected-hover-icon-color: #4dd0e1;
+  --mdc-checkbox-selected-focus-icon-color: #4dd0e1;
+  --mdc-checkbox-selected-pressed-icon-color: #4dd0e1;
+  --mdc-checkbox-selected-checkmark-color: #1e1e22;
+
+  // ——— Radio ———
+  --mdc-radio-unselected-icon-color: rgba(77, 208, 225, 0.4);
+  --mdc-radio-unselected-hover-icon-color: rgba(77, 208, 225, 0.65);
+  --mdc-radio-unselected-focus-icon-color: rgba(77, 208, 225, 0.65);
+  --mdc-radio-selected-icon-color: #4dd0e1;
+  --mdc-radio-selected-hover-icon-color: #4dd0e1;
+  --mdc-radio-selected-focus-icon-color: #4dd0e1;
+  --mdc-radio-selected-pressed-icon-color: #4dd0e1;
+  --mat-radio-ripple-color: rgba(77, 208, 225, 0.1);
+  --mat-radio-checked-ripple-color: rgba(77, 208, 225, 0.15);
+
+  // ——— Slide toggle ———
+  --mdc-switch-selected-track-color: rgba(77, 208, 225, 0.45);
+  --mdc-switch-selected-focus-track-color: rgba(77, 208, 225, 0.55);
+  --mdc-switch-selected-hover-track-color: rgba(77, 208, 225, 0.55);
+  --mdc-switch-selected-pressed-track-color: rgba(77, 208, 225, 0.45);
+  --mdc-switch-selected-handle-color: #4dd0e1;
+  --mdc-switch-selected-focus-handle-color: #a8edf5;
+  --mdc-switch-selected-hover-handle-color: #a8edf5;
+  --mdc-switch-selected-pressed-handle-color: #4dd0e1;
+  --mdc-switch-unselected-track-color: rgba(255, 255, 255, 0.1);
+  --mdc-switch-unselected-focus-track-color: rgba(255, 255, 255, 0.15);
+  --mdc-switch-unselected-hover-track-color: rgba(255, 255, 255, 0.15);
+  --mdc-switch-unselected-pressed-track-color: rgba(255, 255, 255, 0.1);
+  --mdc-switch-unselected-handle-color: rgba(77, 208, 225, 0.5);
+  --mdc-switch-unselected-focus-handle-color: rgba(77, 208, 225, 0.7);
+  --mdc-switch-unselected-hover-handle-color: rgba(77, 208, 225, 0.7);
+  --mdc-switch-unselected-pressed-handle-color: rgba(77, 208, 225, 0.5);
+
+  // ——— Slider ———
+  --mdc-slider-active-track-color: #4dd0e1;
+  --mdc-slider-inactive-track-color: rgba(77, 208, 225, 0.18);
+  --mdc-slider-handle-color: #4dd0e1;
+  --mdc-slider-focus-handle-color: #a8edf5;
+  --mdc-slider-hover-handle-color: #a8edf5;
+  --mdc-slider-pressed-handle-color: #4dd0e1;
+  --mat-slider-ripple-color: rgba(77, 208, 225, 0.12);
+  --mat-slider-hover-state-layer-color: rgba(77, 208, 225, 0.08);
+  --mat-slider-focus-state-layer-color: rgba(77, 208, 225, 0.12);
+
+  // ——— Form field / select ———
+  --mdc-outlined-text-field-container-shape: 6px;
+  --mdc-outlined-text-field-outline-color: rgba(77, 208, 225, 0.28);
+  --mdc-outlined-text-field-hover-outline-color: rgba(77, 208, 225, 0.5);
+  --mdc-outlined-text-field-focus-outline-color: #4dd0e1;
+  --mdc-outlined-text-field-label-text-color: rgba(77, 208, 225, 0.65);
+  --mdc-outlined-text-field-hover-label-text-color: rgba(77, 208, 225, 0.8);
+  --mdc-outlined-text-field-focus-label-text-color: #4dd0e1;
+  --mdc-outlined-text-field-input-text-color: rgba(255, 255, 255, 0.87);
+  --mat-select-trigger-text-color: rgba(255, 255, 255, 0.87);
+  --mat-select-enabled-arrow-color: rgba(77, 208, 225, 0.6);
+  --mat-select-focused-arrow-color: #4dd0e1;
+  --mat-option-selected-state-label-text-color: #4dd0e1;
+  --mat-option-hover-state-layer-color: rgba(77, 208, 225, 0.08);
+  --mat-option-focus-state-layer-color: rgba(77, 208, 225, 0.1);
+
   width: calc(100vw - 42px);
   height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
-  padding: 0px 18px;
+  padding: 0 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   @media (min-width: 687px) {
     flex-direction: row;
     height: 100%;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    overflow-y: hidden;
   }
 
-  &__tools,
-  &__admin {
-    margin-top: 5px;
+  // ——— Column ———
+
+  &__col {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     width: 100%;
-    max-width: 432px;
-    border-radius: 12px;
-    &__unidentified {
-      border-radius: 12px;
-      width: 35%;
-      margin-left: -8px;
-      margin-right: 6px;
+    padding-top: 8px;
+    padding-bottom: 10px;
+    gap: 4px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    @media (min-width: 687px) {
+      height: 100%;
+    }
+  }
+
+  // ——— Violations ———
+
+  &__violations {
+    &__sync {
       display: flex;
-      justify-content: center;
       align-items: center;
-      height: 52px;
+      justify-content: space-between;
+
+      &__auto {
+        margin-left: -8px;
+      }
+
+      &-stats {
+        height: 36px;
+
+        &__auto-scan {
+          display: flex;
+          align-items: center;
+          text-align: right;
+          line-height: 16px;
+          gap: 8px;
+
+          .icon-display {
+            margin: 0;
+            padding: 0;
+          }
+
+          a {
+            margin-right: 8px;
+          }
+        }
+
+        &__manual-scan {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          padding: 0;
+          margin: 2px 8px 0 0;
+
+          button {
+            font-size: 13px;
+            margin-bottom: 8px;
+          }
+        }
+      }
     }
-    button {
-      height: 32px;
+
+    &__options {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      &-radio {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        &-button {
+          transform: scale(0.85);
+          margin: -2px -8px -2px 0;
+        }
+      }
+
+      &-daterange {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 11px;
+        line-height: 18px;
+        color: rgba(255, 255, 255, 0.55);
+        letter-spacing: 0.02em;
+        margin-left: 4px;
+      }
+    }
+
+    &__autofocus {
+      width: 100%;
+      text-align: center;
+      margin: -6px 0 -4px;
     }
   }
 
-  &__admin {
-    flex-direction: row;
-    justify-content: space-between;
-    span {
-      width: 50%;
-      margin-left: 12px;
-    }
-    button {
-      margin-right: 12px;
-    }
-  }
-
-  &__tools {
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: -2px;
-    margin-bottom: 4px;
-
-    button {
-      width: 86px;
-      height: 32px;
-    }
-  }
+  // ——— Alerts + Admin sliders ———
 
   &__alerts {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 4px;
     padding-bottom: 12px;
-    & {
-      width: 100%;
-      max-width: 432px;
-      border-radius: 12px;
-    }
-    @media (min-width: 687px) {
-      // width: 432px;
-    }
+
     &__form {
       display: flex;
       flex-direction: column;
       justify-content: start;
-      align-items: start;
-      margin: -12px 0;
+      align-items: stretch;
+      margin: -8px 0;
 
       :last-child {
         margin-bottom: 0;
       }
 
       &-group {
-        width: 90vw;
-        max-width: 270px;
+        width: 100%;
         display: grid;
         align-items: center;
-        grid-template-columns: 30fr auto 20fr;
-        font-size: 13;
+        grid-template-columns: minmax(0, 1.5fr) minmax(80px, 2.5fr) minmax(
+            0,
+            1fr
+          );
+        font-size: 11px;
         margin-bottom: -16px;
 
         :first-child {
           text-align: left;
+          min-width: 0;
+          word-break: break-word;
+          color: rgba(255, 255, 255, 0.5);
+          letter-spacing: 0.02em;
         }
         :last-child {
           text-align: right;
+          min-width: 0;
+          white-space: nowrap;
+          color: #4dd0e1;
+          font-weight: 500;
         }
       }
     }
+
     &__form.admin {
-      margin: -4px 0;
+      margin: -2px 0;
     }
 
     &__submit {
       display: flex;
       justify-content: space-between;
-      margin-top: 4px;
+      margin-top: 2px;
 
       button {
-        width: 100px;
-        height: 32px;
-        margin: 4px 12px 0px 0;
+        margin: 2px 8px 0 0;
       }
     }
   }
 
+  // ——— Admin Portal ———
+
+  &__admin {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+
+    .scan__alerts__form {
+      flex: 1;
+      min-width: 0;
+    }
+
+    button {
+      flex-shrink: 0;
+    }
+  }
+
+  // ——— Tools row (Unidentified + Smart Fix) ———
+
+  &__tools {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    gap: 6px;
+
+    &__unidentified {
+      width: 35%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 46px;
+    }
+  }
+
+  // ——— Group row (DOT + Cert) ———
+
+  &__group {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    align-items: stretch;
+
+    &__dot {
+      flex: 0 0 auto;
+      width: fit-content;
+      display: flex;
+      flex-direction: column;
+
+      &__form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    &__cert {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 4px;
+
+      // checkbox (card__label is absolutely positioned, still child 2)
+      :nth-child(2) {
+        margin-left: -8px;
+      }
+
+      button {
+        align-self: flex-end;
+      }
+    }
+
+    &__smart {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: 4px;
+
+      :nth-child(2) {
+        flex: 1;
+        margin-left: -8px;
+        min-width: 0;
+      }
+
+      button {
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  // ——— Log Analysis ———
+
   &__log-analysis {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    & {
-      width: 100%;
-      max-width: 432px;
-      border-radius: 12px;
-    }
-    @media (min-width: 687px) {
-      // width: 432px;
-    }
 
     &__options {
       text-align: center;
-      &-title {
-        font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    &__params {
+      max-height: 220px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin: 4px -2px;
+      padding: 0 2px;
+      flex-shrink: 1;
+      border-top: 1px solid rgba(77, 208, 225, 0.15);
+      padding-top: 4px;
+
+      &::-webkit-scrollbar {
+        width: 3px;
+      }
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: rgba(77, 208, 225, 0.3);
+        border-radius: 2px;
       }
     }
 
     &__form {
-      // display: grid;
-      // grid-template-columns: 0fr auto 1fr;
       display: flex;
       align-items: center;
       justify-content: space-evenly;
       width: 100%;
-      height: 100%;
-      // background-color: gray;
+      flex-shrink: 0;
+      margin-top: 6px;
 
       &-date {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        align-self: center;
-        justify-self: center;
       }
 
       &-date.dot-date {
         flex-direction: row;
         gap: 4px;
-        margin: -4px 0;
-      }
-
-      &-submit {
-        button {
-          width: 154px;
-          height: 32px;
-        }
-      }
-    }
-  }
-
-  &_ {
-    display: flex;
-    width: calc(100vw - 42px);
-    border-radius: 12px;
-    padding: 0px 18px;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-
-    @media (min-width: 687px) {
-      height: 100%;
-      width: 432px;
-    }
-
-    &_violations {
-      margin-top: 4px;
-      & {
-        width: 100%;
-        max-width: 432px;
-        border-radius: 12px;
-      }
-      @media (min-width: 500px) {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-
-        // background-color: gray;
-      }
-
-      &__select {
-        width: 150px;
-      }
-
-      &__sync {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        &__auto {
-          margin-left: -12px;
-        }
-
-        &-stats {
-          height: 40px;
-
-          &__auto-scan {
-            display: flex;
-            align-items: center;
-            text-align: right;
-            margin: 0;
-            padding: 0;
-            line-height: 16px;
-            gap: 8px;
-
-            .icon-display {
-              // transform: scale(1.4);
-              margin: 0;
-              padding: 0;
-            }
-
-            a {
-              margin-right: 8px;
-            }
-          }
-
-          &__manual-scan {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            padding: 0;
-            margin: 0;
-            margin-top: 4px;
-            margin-right: 10px;
-            button {
-              height: 32px;
-              width: 70px;
-              font-size: 13px;
-              margin-bottom: 16px;
-            }
-          }
-        }
-      }
-
-      &__options {
-        display: flex;
-        &-radio {
-          margin-top: -8px;
-          display: flex;
-          min-width: 35%;
-          flex-direction: column;
-
-          &-button {
-            transform: scale(0.9);
-            margin-bottom: -12px;
-          }
-        }
-        &-daterange {
-          align-self: flex-end;
-          display: flex;
-          align-items: center;
-          text-align: right;
-          gap: 5px;
-          font-size: 12px;
-          line-height: 20px;
-          margin: 48px 12px 0 auto !important;
-        }
-      }
-
-      &__autofocus {
-        width: 100%;
-        text-align: center;
-        margin: -12px 0 -4px;
-      }
-    }
-
-    &_group {
-      display: flex;
-      width: 100%;
-      max-width: 432px;
-      margin-top: 4px;
-      margin-bottom: 4px;
-      padding: 0 18px;
-      gap: 4px;
-      &__dot {
-        min-width: 33%;
-        border-radius: 12px;
-        align-self: flex-start;
-        margin-left: -9px;
-        &__form {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          button {
-            margin-top: -4px;
-            width: 80px;
-          }
-        }
-      }
-      &__cert,
-      &__smart {
-        display: flex;
-
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        border-radius: 12px;
-        margin-right: -9px;
-
-        :nth-child(2) {
-          margin-left: -8px;
-          width: 74%;
-        }
-        button {
-          width: 64px;
-          height: 32px;
-        }
-      }
-
-      &__smart {
-        width: 59%;
-        button {
-          width: 138px;
-          height: 32px;
-        }
+        margin: -2px 0;
       }
     }
   }
@@ -389,14 +531,4 @@
     background: #343eff54;
     color: white;
   }
-}
-
-.all-in-one {
-  margin: auto 0;
-  width: 150px;
-  height: 40px;
-}
-
-.margin__TOP {
-  margin-top: 6px;
 }

@@ -79,7 +79,7 @@
     >
       @if (keyboardService.ctrlPressed()) {
         <span [class]="['show', event.parentClass]">
-          {{ event.realStartTime | date: "shortTime" }}
+          {{ event.realStartTime | date: "shortTime" : timezoneOffset() }}
         </span>
         <span class="hide">
           {{

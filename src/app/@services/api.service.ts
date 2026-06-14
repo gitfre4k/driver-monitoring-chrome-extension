@@ -212,7 +212,7 @@ export class ApiService {
           searchRule: { columns: ['driverName'], text: '' },
           sorting: 'driverName asc',
           skipCount: 0,
-          maxResultCount: 1000,
+          maxResultCount: 25,
         },
         {
           withCredentials: true,

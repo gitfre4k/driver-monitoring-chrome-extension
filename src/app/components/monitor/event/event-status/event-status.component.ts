@@ -49,6 +49,18 @@ export class EventStatusComponent {
     return getStatusName(this.monitorService.newEventType());
   });
 
+  timezoneOffset = computed(() => {
+    const events = this.monitorService.computedDailyLogEvents();
+    if (!events?.length) return undefined;
+    // startTime of the first event is always 00:00:00 in the driver's timezone
+    // Parse its UTC equivalent to derive the fixed offset
+    const d = new Date(events[0].startTime);
+    const offsetMins = -(d.getUTCHours() * 60 + d.getUTCMinutes());
+    const sign = offsetMins >= 0 ? '+' : '-';
+    const abs = Math.abs(offsetMins);
+    return `${sign}${String(Math.floor(abs / 60)).padStart(2, '0')}${String(abs % 60).padStart(2, '0')}`;
+  });
+
   getNoSpaceNote = getNoSpaceNote;
 
   handleDoubleClick(event: IEvent) {

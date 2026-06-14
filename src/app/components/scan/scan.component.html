@@ -1,19 +1,15 @@
 <div class="scan">
   @if (!scanning()) {
-    <div class="scan_">
-      <!--////////////////////  -->
+    <div class="scan__col">
       <!-- Violations -->
-      <fieldset class="scan__violations">
-        <legend>Violations</legend>
+      <div class="card scan__violations">
+        <div class="card__label">Violations</div>
         <div class="scan__violations__sync">
           <mat-slide-toggle
             [(ngModel)]="scanService.autoScan"
-            style="transform: scale(0.75)"
-            class="scan__violations__sync__auto"
+            class="toggle--small scan__violations__sync__auto"
           >
-            <span style="font-size: 16px; padding-left: 6px"
-              >Enable Auto-Scan</span
-            >
+            <span class="toggle__label">Enable Auto-Scan</span>
           </mat-slide-toggle>
           <div class="scan__violations__sync-stats">
             @if (scanService.autoScan()) {
@@ -64,13 +60,11 @@
               [value]="'week'"
               >last week</mat-radio-button
             >
-
             <mat-radio-button
               class="scan__violations__options-radio-button"
               [value]="'month'"
               >last month</mat-radio-button
             >
-
             <mat-radio-button
               class="scan__violations__options-radio-button"
               [value]="'custom'"
@@ -81,7 +75,7 @@
                   <mat-date-range-input
                     [rangePicker]="rangePicker"
                     [formGroup]="range"
-                    style="display: none"
+                    class="visually-hidden"
                   >
                     <input
                       matStartDate
@@ -116,10 +110,9 @@
           </mat-radio-group>
 
           <span class="scan__violations__options-daterange">
-            {{ range.value.start | date: "MMM d, yyyy" }}
-            <br class="hide show" />
-            -
-            {{ range.value.end | date: "MMM d, yyyy" }}
+            <span class="date-md">{{ range.value.start | date: "MMM d" }}</span><span class="date-y">, {{ range.value.start | date: "yyyy" }}</span>
+            –
+            <span class="date-md">{{ range.value.end | date: "MMM d" }}</span><span class="date-y">, {{ range.value.end | date: "yyyy" }}</span>
             <mat-datepicker-toggle
               matIconSuffix
               [for]="rangePicker"
@@ -128,17 +121,16 @@
         </div>
         <div class="scan__violations__autofocus">
           <mat-checkbox
-            style="transform: scale(0.9)"
+            class="checkbox--small"
             [(ngModel)]="scanService.autofocus"
             >Autofocus results on detection</mat-checkbox
           >
         </div>
-      </fieldset>
+      </div>
 
-      <!--///////////////////  -->
       <!-- Alerts -->
-      <fieldset class="scan__alerts">
-        <legend>Alerts</legend>
+      <div class="card scan__alerts">
+        <div class="card__label">Alerts</div>
 
         <div class="scan__alerts__form">
           <div class="scan__alerts__form-group">
@@ -169,9 +161,9 @@
 
         <div class="scan__alerts__submit">
           <mat-checkbox
-            style="transform: scale(0.9)"
+            class="checkbox--small"
             [(ngModel)]="scanService.cycleAlertExcludeNonWorking"
-            ><span scan__group__cert-checkbox
+            ><span
               >show low Cycle only for <br />
               currently working drivers</span
             ></mat-checkbox
@@ -184,52 +176,14 @@
             Scan
           </button>
         </div>
-      </fieldset>
+      </div>
 
-      <!--////////////////////  -->
-      <!-- Admin Portal -->
-      <fieldset class="scan__admin">
-        <legend>Admin Portal</legend>
-        <span>
-          <div class="scan__alerts__form admin">
-            <div class="scan__alerts__form-group">
-              <mat-label>last recorded activity</mat-label>
-              <mat-slider class="slider" [max]="180" [min]="1" [step]="1">
-                <input
-                  matSliderThumb
-                  [(ngModel)]="progressBarService.adminLastActivity"
-                />
-              </mat-slider>
-              <mat-label>
-                < {{ progressBarService.adminLastActivity() }}min
-              </mat-label>
-            </div>
-            <div class="scan__alerts__form-group">
-              <mat-label>ELD unplugged duration</mat-label>
-              <mat-slider class="slider" [max]="8" [min]="1" [step]="1">
-                <input
-                  matSliderThumb
-                  [(ngModel)]="progressBarService.adminELDUnplugged"
-                />
-              </mat-slider>
-              <mat-label>
-                < {{ progressBarService.adminELDUnplugged() }}h
-              </mat-label>
-            </div>
-          </div>
-        </span>
-        <button matButton="tonal" (click)="getDashboardLocationsData()">
-          Scan
-        </button>
-      </fieldset>
-
-      <!--////////////////////  -->
-      <!-- DOT Inspections -->
+      <!-- DOT Inspections + Driver Certifications -->
       <div class="scan__group">
-        <fieldset class="scan__group__dot">
-          <legend>FMCSA Inpsections</legend>
+        <div class="card scan__group__dot">
+          <div class="card__label">FMCSA Inspections</div>
 
-          <mat-form-field style="display: none">
+          <mat-form-field class="visually-hidden">
             <input
               matInput
               [matDatepicker]="pickerDOT"
@@ -241,7 +195,7 @@
 
           <div class="scan__group__dot__form">
             <div class="scan__log-analysis__form-date dot-date">
-              <span>{{ date2.value | date: "mediumDate" }}</span>
+              <span><span class="date-md">{{ date2.value | date: "MMM d" }}</span><span class="date-y">, {{ date2.value | date: "yyyy" }}</span></span>
               <mat-datepicker-toggle
                 matIconSuffix
                 [for]="pickerDOT"
@@ -257,88 +211,113 @@
               </button>
             </div>
           </div>
-        </fieldset>
-        <!--////////////////////  -->
-        <!--Driver Certifications -->
-        <fieldset class="scan__group__cert">
-          <legend>Driver Certifications</legend>
+        </div>
+
+        <div class="card scan__group__cert">
+          <div class="card__label">Driver Certifications</div>
           <mat-checkbox
-            style="transform: scale(0.9)"
+            class="checkbox--small"
             [(ngModel)]="certScanService.excludeNonWorkDays"
-            ><span scan__group__cert-checkbox
+            ><span
               >exclude driver's <br />
               non-working days</span
             ></mat-checkbox
           >
           <button
-            class="scan__log-analysis__form-submit"
             matButton="tonal"
             [disabled]="disableScan()"
             (click)="startCertScan()"
           >
             Scan
           </button>
-        </fieldset>
+        </div>
+      </div>
+
+      <!-- Admin Portal -->
+      <div class="card scan__admin">
+        <div class="card__label">Admin Portal</div>
+        <div class="scan__alerts__form admin">
+          <div class="scan__alerts__form-group">
+            <mat-label>last recorded activity</mat-label>
+            <mat-slider class="slider" [max]="180" [min]="1" [step]="1">
+              <input
+                matSliderThumb
+                [(ngModel)]="progressBarService.adminLastActivity"
+              />
+            </mat-slider>
+            <mat-label>
+              < {{ progressBarService.adminLastActivity() }}min
+            </mat-label>
+          </div>
+          <div class="scan__alerts__form-group">
+            <mat-label>ELD unplugged duration</mat-label>
+            <mat-slider class="slider" [max]="8" [min]="1" [step]="1">
+              <input
+                matSliderThumb
+                [(ngModel)]="progressBarService.adminELDUnplugged"
+              />
+            </mat-slider>
+            <mat-label>
+              < {{ progressBarService.adminELDUnplugged() }}h
+            </mat-label>
+          </div>
+        </div>
+        <button matButton="tonal" (click)="getDashboardLocationsData()">
+          Scan
+        </button>
       </div>
     </div>
 
-    <div class="scan_">
-      <!--////////////////////  -->
-      <!-- Tools -->
+    <div class="scan__col">
+      <!-- Unidentified Events + Global Smart Fix -->
       <div class="scan__tools">
-        <fieldset class="scan__tools__unidentified">
-          <legend>Unidentified Events</legend>
+        <div class="card scan__tools__unidentified">
+          <div class="card__label">Unidentified Events</div>
           <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
             Delete
           </button>
-        </fieldset>
+        </div>
 
-        <fieldset class="scan__group__smart">
-          <legend>Global Smart Fix</legend>
+        <div class="card scan__group__smart">
+          <div class="card__label">Global Smart Fix</div>
           <mat-checkbox
-            style="transform: scale(0.9)"
+            class="checkbox--small"
             [(ngModel)]="globalSmartfFixService.excludeCoDrivers"
-            ><span scan__group__smart-checkbox
+            ><span
               >exclude <br />
               co-drivers</span
             ></mat-checkbox
           >
           <button
-            class="scan__log-analysis__form-submit"
             matButton="tonal"
             [disabled]="disableScan()"
             (click)="globalSmartFix()"
           >
             Smart Fix
           </button>
-        </fieldset>
+        </div>
       </div>
 
-      <!--////////////////////  -->
-      <!-- Druver Log Analysis -->
-
-      <fieldset class="scan__log-analysis">
-        <legend>Driver Log Analysis</legend>
+      <!-- Driver Log Analysis -->
+      <div class="card scan__log-analysis">
+        <div class="card__label">Driver Log Analysis</div>
 
         <div class="scan__log-analysis__options">
-          <span class="scan__log-analysis__options-title"></span>
-
           <mat-slide-toggle
             [(ngModel)]="showAnalasysOptions"
-            style="transform: scale(0.75)"
-            class="scan__violations__sync__auto"
+            class="toggle--small"
           >
-            <span style="font-size: 16px; padding-left: 6px"
-              >Show Analasys Parameters</span
-            >
+            <span class="toggle__label">Show Analysis Parameters</span>
           </mat-slide-toggle>
-
-          @if (showAnalasysOptions()) {
-            <app-advanced-scan></app-advanced-scan>
-          }
         </div>
 
-        <mat-form-field style="display: none">
+        @if (showAnalasysOptions()) {
+          <div class="scan__log-analysis__params">
+            <app-advanced-scan></app-advanced-scan>
+          </div>
+        }
+
+        <mat-form-field class="visually-hidden">
           <input
             matInput
             [matDatepicker]="picker"
@@ -354,13 +333,13 @@
               matIconSuffix
               [for]="picker"
             ></mat-datepicker-toggle>
-            <span>{{ date.value | date: "mediumDate" }}</span>
+            <span><span class="date-md">{{ date.value | date: "MMM d" }}</span><span class="date-y">, {{ date.value | date: "yyyy" }}</span></span>
           </div>
 
           <mat-checkbox
-            style="transform: scale(0.9)"
+            class="checkbox--small"
             [(ngModel)]="advancedScanService.removeEngineDuringDriving"
-            ><span scan__group__cert-checkbox
+            ><span
               >remove Engine events <br />
               during Driving</span
             ></mat-checkbox
@@ -375,10 +354,11 @@
             </button>
           </div>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="scan__log-analysis margin__TOP">
-        <legend>Log Certification</legend>
+      <!-- Log Certification -->
+      <div class="card scan__log-analysis">
+        <div class="card__label">Log Certification</div>
 
         @if (tenantList(); as tenants) {
           <div class="scan__log-analysis__form">
@@ -421,19 +401,15 @@
           </div>
           <div class="sert-checkboxes">
             <mat-checkbox
-              style="transform: scale(0.9)"
-              class="sert-checkboxes_item"
+              class="checkbox--small sert-checkboxes_item"
               [(ngModel)]="certScanService.certifyOnlyWorkingDays"
-              ><span scan__group__cert-checkbox
-                >only certify driver's working days</span
-              ></mat-checkbox
+              ><span>only certify driver's working days</span></mat-checkbox
             >
             <mat-checkbox
-              style="transform: scale(0.9)"
-              class="sert-checkboxes_item"
+              class="checkbox--small sert-checkboxes_item"
               [(ngModel)]="certScanService.doNotCertPastLastWorkDay"
               [disabled]="certScanService.certifyOnlyWorkingDays()"
-              ><span scan__group__cert-checkbox
+              ><span
                 >do not certify days past driver's last day worked</span
               ></mat-checkbox
             >
@@ -450,7 +426,7 @@
             </button>
           </div>
         }
-      </fieldset>
+      </div>
     </div>
   } @else {
     <app-progress-bar

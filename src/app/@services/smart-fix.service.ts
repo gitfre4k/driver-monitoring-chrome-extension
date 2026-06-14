@@ -73,7 +73,7 @@ export class SmartFixService {
 
               const tryFrom = DateTime.fromISO(errorDetails.ReportTimeTo)
                 .startOf('day')
-                .plus({ days: nextRetryAttempt });
+                .plus({ days: 1 });
 
               const tryFromDay = tryFrom.toJSDate().getTime();
               const currentDayDay = currentDay.toJSDate().getTime();

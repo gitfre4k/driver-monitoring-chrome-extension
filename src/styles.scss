@@ -12,7 +12,7 @@
 :root {
   @include mat.expansion-overrides(
     (
-      container-background-color: rgb(53, 53, 58),
+      container-background-color: rgb(68, 68, 74),
     )
   );
 }
@@ -29,7 +29,7 @@ html {
   color-scheme: dark;
   @include mat.theme(
     (
-      color: mat.$blue-palette,
+      color: mat.$cyan-palette,
       typography: Roboto,
       density: 0,
     )
@@ -52,7 +52,7 @@ body {
 
   font-family: Roboto, "Electrolize", sans-serif !important;
 
-  background-color: rgb(53, 53, 58);
+  background-color: rgb(68, 68, 74);
 
   @media (min-width: 440px) {
     width: 100%;
@@ -82,4 +82,44 @@ body {
 
 .small-select {
   @include mat.form-field-density(-1); // Supports values from 0 to -4
+}
+
+// ——— Select / form-field: match button style ———
+.scan .mat-mdc-form-field {
+  .mdc-text-field--outlined {
+    background-color: rgba(77, 208, 225, 0.08);
+    border-radius: 6px;
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: rgba(77, 208, 225, 0.28);
+      border-width: 1px;
+    }
+  }
+
+  &:hover .mdc-text-field--outlined:not(.mdc-text-field--focused) {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: rgba(77, 208, 225, 0.5);
+    }
+  }
+
+  .mdc-text-field--outlined.mdc-text-field--focused {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: #4dd0e1;
+      border-width: 1px;
+    }
+  }
+
+  .mat-mdc-floating-label {
+    color: rgba(77, 208, 225, 0.65);
+  }
+
+  &.mat-focused .mat-mdc-floating-label {
+    color: #4dd0e1;
+  }
 }
