@@ -110,9 +110,13 @@
           </mat-radio-group>
 
           <span class="scan__violations__options-daterange">
-            <span class="date-md">{{ range.value.start | date: "MMM d" }}</span><span class="date-y">, {{ range.value.start | date: "yyyy" }}</span>
+            <span class="date-md">{{ range.value.start | date: "MMM d" }}</span
+            ><span class="date-y"
+              >, {{ range.value.start | date: "yyyy" }}</span
+            >
             –
-            <span class="date-md">{{ range.value.end | date: "MMM d" }}</span><span class="date-y">, {{ range.value.end | date: "yyyy" }}</span>
+            <span class="date-md">{{ range.value.end | date: "MMM d" }}</span
+            ><span class="date-y">, {{ range.value.end | date: "yyyy" }}</span>
             <mat-datepicker-toggle
               matIconSuffix
               [for]="rangePicker"
@@ -195,7 +199,12 @@
 
           <div class="scan__group__dot__form">
             <div class="scan__log-analysis__form-date dot-date">
-              <span><span class="date-md">{{ date2.value | date: "MMM d" }}</span><span class="date-y">, {{ date2.value | date: "yyyy" }}</span></span>
+              <span
+                ><span class="date-md">{{ date2.value | date: "MMM d" }}</span
+                ><span class="date-y"
+                  >, {{ date2.value | date: "yyyy" }}</span
+                ></span
+              >
               <mat-datepicker-toggle
                 matIconSuffix
                 [for]="pickerDOT"
@@ -333,7 +342,12 @@
               matIconSuffix
               [for]="picker"
             ></mat-datepicker-toggle>
-            <span><span class="date-md">{{ date.value | date: "MMM d" }}</span><span class="date-y">, {{ date.value | date: "yyyy" }}</span></span>
+            <span
+              ><span class="date-md">{{ date.value | date: "MMM d" }}</span
+              ><span class="date-y"
+                >, {{ date.value | date: "yyyy" }}</span
+              ></span
+            >
           </div>
 
           <mat-checkbox

@@ -52,6 +52,16 @@ export class SmartFixService {
       startDate: string,
       retryAttempt: number = 0,
     ): Observable<ISmartFixResponse[]> => {
+      const fromDt = DateTime.fromISO(startDate);
+      const toDt = DateTime.fromISO(currentDate);
+      const todayEnd = DateTime.now().endOf('day');
+
+      if (fromDt > toDt)
+        return throwError(() => new Error('from date cannot be later than to date'));
+
+      if (fromDt > todayEnd || toDt > todayEnd)
+        return throwError(() => new Error('dates cannot be later than current day'));
+
       return this.smartFixClassic(
         startDate,
         currentDate,
