@@ -1,0 +1,156 @@
+.mat-badge-custom {
+  ::ng-deep .mat-badge-content {
+    z-index: 1000000000;
+    background: #343eff54;
+    color: white;
+  }
+}
+
+.scan-results__content__result {
+  overflow: auto;
+  width: 100%;
+  max-height: 42.5vh;
+  background-color: rgb(39 39 42);
+  position: relative;
+
+  &__checkbox {
+    width: calc(100% - 8px);
+    top: 0px;
+    left: 0px;
+    padding: 8px 0 8px 8px;
+    position: sticky;
+    background-color: #27272a;
+    z-index: 1;
+  }
+
+  &__empty {
+    margin: 12px;
+  }
+
+  hr {
+    width: 80%;
+    border-top: 0.5px solid;
+  }
+
+  .list-of-tenants {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 8px;
+
+    .company {
+      margin-top: 8px;
+
+      &-name {
+        font-size: 20px;
+        padding: 0px;
+        padding-left: 8px;
+        margin: 0;
+      }
+
+      .driver {
+        display: grid;
+        grid-template-columns: 84px 1fr auto;
+        align-items: center;
+        padding-right: 4px;
+        margin-bottom: 2px;
+
+        .btns {
+          display: flex;
+          align-items: center;
+          justify-content: start;
+          padding-left: 2px;
+        }
+
+        .bold {
+          text-align: left;
+          font-weight: 600;
+          font-size: 15px;
+        }
+
+        .action-btns {
+          display: flex;
+          justify-content: flex-end;
+
+          .on-hover {
+            display: none;
+          }
+        }
+      }
+
+      .driver:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        background-color: rgb(20, 15, 12);
+
+        .action-btns .on-hover {
+          display: block;
+        }
+      }
+
+      .inner-ul {
+        list-style-type: none;
+        margin: 0;
+        margin-bottom: 4px;
+        padding: 0;
+        padding-left: 9px;
+      }
+    }
+  }
+}
+
+// ::ng-deep targets elements from *ngTemplateOutlet (parent-scoped) that live
+// inside child-scoped ancestors — attribute selectors can't cross that boundary.
+::ng-deep {
+  .event-error {
+    position: relative;
+    display: grid;
+    grid-template-columns: 33px 90px auto;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    font-family: Roboto, Helvetica Neue, sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    width: 100%;
+    line-height: 1.6;
+  }
+
+  .view-id {
+    margin: 0 3px 0 0;
+    text-align: left;
+  }
+
+  .status {
+    font-size: 11px;
+    margin: 1px 0;
+    padding: 0;
+    border-radius: 12px;
+    width: 85px;
+    text-align: center;
+  }
+
+  .error-msg {
+    margin: 0;
+    padding: 0;
+
+    &.note {
+      font-weight: 700;
+    }
+  }
+
+  .event-hide {
+    display: none;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.6;
+    user-select: none;
+  }
+
+  .event-error:hover .event-hide {
+    display: inline-flex;
+  }
+}

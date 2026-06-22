@@ -30,22 +30,8 @@ export type TScanResult =
   | 'truckChange'
   | 'certStatus'
   | 'eventNotes'
-  | 'statusOverflow';
-
-export type THiddenScanResult =
-  | 'teleports'
-  | 'locationMismatch'
-  | 'eventErrors'
-  | 'eventWarnings'
-  | 'prolongedOnDuty'
-  | 'malfOrDataDiag'
-  | 'pcYm'
-  | 'manualDriving'
-  | 'highEngineHours'
-  | 'lowTotalEngineHours'
-  | 'newDrivers'
-  | 'refuelWarning'
-  | 'truckChange';
+  | 'statusOverflow'
+  | 'missingEngineOn';
 
 export type TProgressMode =
   | 'determinate'

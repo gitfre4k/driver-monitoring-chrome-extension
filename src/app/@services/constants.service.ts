@@ -1,6 +1,4 @@
 import { effect, Injectable, signal, WritableSignal } from '@angular/core';
-import { THiddenScanResult } from '../types';
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -17,11 +15,9 @@ export class ConstantsService {
     'hiddenViolations',
     [] as { startTime: string; type: string }[],
   );
-  hiddenScanResults = this.createSignal(
+  hiddenScanResults = this.createSignal<Record<string, Record<string, string[]>>>(
     'hiddenScanResults',
-    {} as {
-      teleports: IEvent[];
-    },
+    {},
   );
   disableSmartFixOnCoDrivers = signal(true);
 

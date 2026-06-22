@@ -34,9 +34,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { getStatusDuration } from '../../helpers/app.helpers';
 import { ConstantsService } from '../../@services/constants.service';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
-import { THiddenScanResult } from '../../types';
 import { IEvent } from '../../interfaces/driver-daily-log-events.interface';
-import { DurationPipe } from '../../pipes/duration.pipe';
+import { ScanResultSectionComponent } from './scan-result-section/scan-result-section.component';
 
 @Component({
   selector: 'app-scan-result',
@@ -49,6 +48,7 @@ import { DurationPipe } from '../../pipes/duration.pipe';
     MatBadgeModule,
     MatTooltipModule,
     MatCheckboxModule,
+    ScanResultSectionComponent,
   ],
   templateUrl: './scan-result.component.html',
   styleUrl: './scan-result.component.scss',
@@ -116,13 +116,48 @@ export class ScanResultComponent {
     }
   });
 
-  constructor() {}
-  // THiddenScanResult
-  hideScanResult(target: 'teleports', event: IEvent) {
+  hideItem(key: string, company: string, identifier: string) {
     this.constanstsService.hiddenScanResults.update((prev) => ({
       ...prev,
-      [target]: [...prev[target], event],
+      [key]: {
+        ...(prev[key] ?? {}),
+        [company]: [
+          ...(prev[key]?.[company] ?? []).filter((n) => n !== identifier),
+          identifier,
+        ],
+      },
     }));
+  }
+
+  isItemHidden(key: string, company: string, identifier: string): boolean {
+    return (
+      this.constanstsService.hiddenScanResults()[key]?.[company]?.includes(
+        identifier,
+      ) ?? false
+    );
+  }
+
+  hiddenCount(key: string): number {
+    const map = this.constanstsService.hiddenScanResults()[key];
+    if (!map) return 0;
+    return Object.values(map).reduce((sum, arr) => sum + arr.length, 0);
+  }
+
+  visibleCount(key: string, rawCount: number): number {
+    return Math.max(0, rawCount - this.hiddenCount(key));
+  }
+
+  isCompanyFullyHidden(key: string, company: string, count: number): boolean {
+    const hidden = this.constanstsService.hiddenScanResults()[key]?.[company] ?? [];
+    return count > 0 && hidden.length >= count;
+  }
+
+  clearHidden(key: string) {
+    this.constanstsService.hiddenScanResults.update((prev) => {
+      const result = { ...prev };
+      delete result[key];
+      return result;
+    });
   }
 
   removeHiddenViolations() {

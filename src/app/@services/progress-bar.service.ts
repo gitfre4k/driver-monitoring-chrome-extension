@@ -75,13 +75,7 @@ export class ProgressBarService {
       );
     });
 
-    const index = filteredViolations.findIndex(
-      (v) => v.violations.items?.length === 0,
-    );
-
-    index !== -1 && filteredViolations.splice(index, 1);
-
-    return filteredViolations;
+    return filteredViolations.filter((v) => v.violations.items.length > 0);
   });
 
   totalVCount = computed(() => {
@@ -95,7 +89,7 @@ export class ProgressBarService {
   violationsLastSync = signal('');
 
   preViolations = signal<IScanPreViolations>({});
-  preViolationsSlider = signal(20);
+  preViolationsSlider = signal(30);
   preViolationsCount = computed(() => {
     const preViolations = this.preViolations();
     let count = 0;
@@ -115,8 +109,8 @@ export class ProgressBarService {
     return count;
   });
 
-  adminLastActivity = signal(60);
-  adminELDUnplugged = signal(4);
+  adminLastActivity = signal(30);
+  adminELDUnplugged = signal(1);
 
   certStatus = signal<ICertStatus>({});
 
@@ -304,6 +298,18 @@ export class ProgressBarService {
       (truck) => truck.vehicleName === vehicleName,
     );
     this.adminPortalUnplugged.update((prev) => {
+      const newValue = { ...prev };
+      newValue[companyName].splice(index, 1);
+      if (newValue[companyName].length === 0) delete newValue[companyName];
+      return newValue;
+    });
+  }
+
+  removeCertStatusDriver(companyName: string, driverName: string) {
+    const index = this.certStatus()[companyName].findIndex(
+      (driver) => driver.driverName === driverName,
+    );
+    this.certStatus.update((prev) => {
       const newValue = { ...prev };
       newValue[companyName].splice(index, 1);
       if (newValue[companyName].length === 0) delete newValue[companyName];

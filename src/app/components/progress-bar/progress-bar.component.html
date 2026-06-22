@@ -1,38 +1,33 @@
 <div class="container">
   <mat-card id="mat-card-wrapper-2">
     <mat-card-content>
-      @if (scanMode === "cert-logs") {
-        <h2>Log Certification in progress...</h2>
-      } @else {
-        @if (scanMode === "admin") {
+      @switch (scanMode) {
+        @case ("cert-logs") {
+          <h2>Log Certification in progress...</h2>
+        }
+        @case ("admin") {
           <h2>Admin Portal scan in progress...</h2>
-        } @else if (scanMode === "advanced") {
+        }
+        @case ("advanced") {
           <h2>Driver Log Analysis in progress...</h2>
-        } @else {
-          @if (scanMode === "deleteUE") {
-            <h2>Detecting and deleting unidentified events...</h2>
-          } @else if (scanMode === "smartFix") {
-            <h2>Performing Global Smart Fix...</h2>
-          } @else {
-            <h2>
-              Scanning for
-
-              @switch (scanMode) {
-                @case ("cert") {
-                  driver certifications
-                }
-                @case ("violations") {
-                  Violations
-                }
-                @case ("dot") {
-                  FMCSA inspections
-                }
-                @case ("pre") {
-                  alerts
-                }
-              }
-            </h2>
-          }
+        }
+        @case ("deleteUE") {
+          <h2>Detecting and deleting unidentified events...</h2>
+        }
+        @case ("smartFix") {
+          <h2>Performing Global Smart Fix...</h2>
+        }
+        @case ("cert") {
+          <h2>Scanning for driver certifications</h2>
+        }
+        @case ("violations") {
+          <h2>Scanning for Violations</h2>
+        }
+        @case ("dot") {
+          <h2>Scanning for FMCSA inspections</h2>
+        }
+        @case ("pre") {
+          <h2>Scanning for alerts</h2>
         }
       }
 

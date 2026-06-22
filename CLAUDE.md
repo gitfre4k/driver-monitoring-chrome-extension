@@ -48,7 +48,7 @@ Angular 21 Chrome extension that acts as a side-panel/popup tool for fleet safet
 | `AdvancedScanService` | Fetches driver daily logs for all tenants and classifies events into ~15 categories (teleports, location mismatch, manual driving, engine hours, malfunction, etc.) by iterating `ComputeEventsService.getComputedEvents()`. |
 | `ComputeEventsService` | Pure computation layer — enriches raw `IDriverDailyLogEvents` into `IEvent[]` with derived fields (`isTeleport`, `locationMismatch`, `onDutyDuration`, `engineInfo`, etc.). |
 | `MonitorService` | State for the Monitor tab — selected events, edit/resize form state, shift operations. |
-| `ConstantsService` | Persisted user settings via localStorage-backed signals (`rightSide`, `ptiName`, `hiddenViolations`, `httpLimit`). |
+| `ConstantsService` | Persisted user settings via localStorage-backed signals (`rightSide`, `ptiName`, `hiddenViolations`, `httpLimit`, `hiddenScanResults`). `hiddenScanResults` is a nested map `{ [sectionKey]: { [company]: string[] } }` used to hide individual events in advanced scan sections. |
 | `BackgroundJsService` | Wraps all `chrome.runtime.sendMessage` calls into Observables. |
 | `BackendService` | Loads shift report and archive data from the ProLogs backend cloud service. |
 
@@ -72,6 +72,7 @@ All scan operations:
 - `src/app/components/UI/` — small, single-purpose action/status components (duty status buttons, dialogs, time/location inputs)
 - `src/app/components/monitor/` — Monitor tab with event list, edit form, resize form, fix button, action buttons
 - `src/app/components/scan/` + `scan-result/` — Scan tab UI and results display
+  - `scan-result-section/` — Reusable `<app-scan-result-section>` component wrapping a `mat-expansion-panel` for advanced scan categories. Inputs: `title`, `rawData: IScanResult`, `scanResultKey: TScanResult`, `hiddenKey`, `countMode` (`'events'|'drivers'`), `eventRowTemplate` (caller supplies the row `<ng-template>`), optional `headerTemplate`. Handles filtered data, per-event hide, done (remove driver), and badge count internally. New advanced scan sections should use this component rather than inlining the expansion panel.
 - `src/app/components/cloud/` — Cloud/shift report view
 
 All components use `ChangeDetectionStrategy.OnPush` and Angular signals.

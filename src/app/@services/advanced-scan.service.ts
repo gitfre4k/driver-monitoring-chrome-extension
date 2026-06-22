@@ -42,7 +42,7 @@ export class AdvancedScanService {
 
   ptiDuration = signal(901);
   prolongedOnDutiesDuration = signal(3600); // 1h10min
-  engineHoursDuration = signal(14);
+  engineHoursDuration = signal(24);
   lowTotalEngineHoursCount = signal(100);
   sleeperDuration = signal(30);
 
