@@ -41,6 +41,7 @@ export class ZipShiftService {
     shiftBreak: boolean,
     engineOffIdleTimeSpawn: number,
     shiftOriginalEventDuration: { [id: number]: number },
+    onProgress?: (done: number, total: number) => void,
   ): Observable<any> {
     if (!shift) {
       return of({});
@@ -108,6 +109,8 @@ export class ZipShiftService {
 
         return from(sortedEvents).pipe(
           concatMap((event, index) => {
+            onProgress?.(index + 1, sortedEvents.length);
+
             const shiftId = reverse ? index + 1 : index;
 
             if (shiftId >= sortedEvents.length) return of({});

@@ -3,7 +3,7 @@ import { ApiService } from "./api.service";
 import { AppService } from "./app.service";
 import { catchError, finalize, from, mergeMap, of, switchMap, tap } from "rxjs";
 import { ProgressBarService } from "./progress-bar.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { NotificationService } from "./notification.service";
 import { ConstantsService } from "./constants.service";
 
 @Injectable({
@@ -13,7 +13,7 @@ export class UnidentifiedEventsService {
   apiService = inject(ApiService);
   appService = inject(AppService);
   progressBarService = inject(ProgressBarService);
-  _snackBar = inject(MatSnackBar);
+  notification = inject(NotificationService);
   constantService = inject(ConstantsService);
 
   httpLimit = this.constantService.httpLimit;
@@ -71,9 +71,9 @@ export class UnidentifiedEventsService {
               : `${count} Unidentified Event${
                   count > 1 ? "s" : ""
                 } detected and deleted`;
-          this._snackBar.open(message, "OK", {
-            duration: 3000,
-          });
+          count === 0
+            ? this.notification.info(message)
+            : this.notification.success(message);
 
           this.totalCount.set(0);
         }),

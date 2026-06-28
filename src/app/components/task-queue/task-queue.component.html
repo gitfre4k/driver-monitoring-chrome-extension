@@ -1,30 +1,41 @@
 <div class="container">
-  <mat-drawer-container
-    class="example-container"
-    [class.hide]="!totalCount()"
-    autosize
-  >
-    <mat-drawer class="example-sidenav" mode="side" #rightSidenav>
+  @if (opened()) {
+    <div class="panel">
+      <div class="panel__header">
+        <span class="panel__title">Task Queue</span>
+        <span class="panel__subtitle">{{ totalCount() }} active</span>
+      </div>
+
       @if (monitorTasks().length) {
         <h4 class="queue-title">Monitor</h4>
         <ng-container
-          *ngTemplateOutlet="taskList; context: { $implicit: monitorTasks() }"
+          *ngTemplateOutlet="
+            taskList;
+            context: {
+              $implicit: monitorTasks(),
+              queue: taskQueueService.monitor,
+            }
+          "
         ></ng-container>
       }
       @if (scanTasks().length) {
         <h4 class="queue-title">Scan</h4>
         <ng-container
-          *ngTemplateOutlet="taskList; context: { $implicit: scanTasks() }"
+          *ngTemplateOutlet="
+            taskList;
+            context: { $implicit: scanTasks(), queue: taskQueueService.scan }
+          "
         ></ng-container>
       }
-    </mat-drawer>
-  </mat-drawer-container>
+    </div>
+  }
+
   <button
     mat-icon-button
-    (click)="taskQueueService.toggle()"
+    (click)="toggle()"
     matTooltip="Toggle Task Queue"
     class="toggle"
-    [class.hide]="!totalCount()"
+    [class.toggle--active]="opened()"
   >
     <mat-icon>layers</mat-icon>
   </button>
@@ -38,30 +49,48 @@
   ></div>
 </div>
 
-<ng-template #taskList let-tasks>
-  <ul>
+<ng-template #taskList let-tasks let-queue="queue">
+  <ul class="task-list">
     @for (task of tasks; track task.id) {
-      <li class="task">
-        <span>[{{ task.time }}] {{ task.name }}</span>
-        <span>
+      <li class="task task--{{ task.status }}">
+        <div class="task__info">
+          <span class="task__label">[{{ task.time }}] {{ task.name }}</span>
+          @if (task.phase) {
+            <span class="task__phase">{{ task.phase }}</span>
+          }
+          @if (task.subtask) {
+            <span class="task__subtask">{{ task.subtask }}</span>
+          }
+        </div>
+        <span class="task__status">
+          @if (
+            task.cancel &&
+            (task.status === 'pending' || task.status === 'processing')
+          ) {
+            <button
+              mat-icon-button
+              class="task__stop"
+              matTooltip="Stop"
+              (click)="queue.cancel(task.id)"
+            >
+              <mat-icon class="task__icon">stop_circle</mat-icon>
+            </button>
+          }
           @switch (task.status) {
             @case ('pending') {
-              <div class="task__done">
-                <mat-icon>schedule</mat-icon>
-              </div>
+              <mat-icon class="task__icon">schedule</mat-icon>
             }
             @case ('processing') {
-              <mat-spinner class="task__processing" diameter="16"></mat-spinner>
+              <mat-spinner class="task__processing" diameter="14"></mat-spinner>
             }
             @case ('complete') {
-              <div class="task__done">
-                <mat-icon>check_circle_outline</mat-icon>
-              </div>
+              <mat-icon class="task__icon">check_circle</mat-icon>
             }
             @case ('error') {
-              <div class="task__done">
-                <mat-icon>error_outline</mat-icon>
-              </div>
+              <mat-icon class="task__icon">error</mat-icon>
+            }
+            @case ('cancelled') {
+              <mat-icon class="task__icon">cancel</mat-icon>
             }
           }
         </span>

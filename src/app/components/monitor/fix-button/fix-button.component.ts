@@ -29,6 +29,7 @@ export class FixButtonComponent {
   action = input.required<
     | 'ADD_PTI'
     | 'EXTEND_PTI'
+    | 'EXTEND_PTI_AND_NOTE'
     | 'ADD_PTI_NOTE'
     | 'POST_FMCSA'
     | 'DELETE_INACTIVE_EVENT'
@@ -54,6 +55,12 @@ export class FixButtonComponent {
         return {
           icon: 'expand_content',
           name: 'extend Pre-Trip Inspection',
+          iconClass: 'fix-error__button__icon-rotate',
+        };
+      case 'EXTEND_PTI_AND_NOTE':
+        return {
+          icon: 'expand_content',
+          name: 'extend Pre-Trip Inspection & add note',
           iconClass: 'fix-error__button__icon-rotate',
         };
       case 'ADD_PTI_NOTE':

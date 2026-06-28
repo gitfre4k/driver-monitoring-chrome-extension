@@ -89,7 +89,9 @@
               <li>
                 <app-fix-button
                   [event]="event"
-                  action="EXTEND_PTI"
+                  [action]="
+                    event.ptiNeedsNote ? 'EXTEND_PTI_AND_NOTE' : 'EXTEND_PTI'
+                  "
                 ></app-fix-button>
               </li>
             }

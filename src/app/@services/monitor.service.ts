@@ -132,11 +132,11 @@ export class MonitorService {
     this.refreshBtnDisabled.set(true);
     this.refresh.update((value) => value + 1);
 
+    // NOTE: edit-form signals (currentEditEvent / showUpdateEvent / newNote /
+    // newOdometer) are intentionally NOT cleared here. After the refreshed logs
+    // land, reconcileEditFormAfterRefresh() keeps the form open if the edited
+    // event still exists, otherwise it clears it.
     this.newResizeSpeed.set(0);
-    this.currentEditEvent.set(null);
-    this.showUpdateEvent.set(null);
-    this.newNote.set('');
-    this.newOdometer.set(0);
     this.currentResizeDriving.set(null);
     this.showResize.set(null);
   };
@@ -183,9 +183,8 @@ export class MonitorService {
       .pipe(
         tap((driverDailyLog) => {
           this.driverDailyLog.set(driverDailyLog);
-          this.currentEditEvent.set(null);
-          this.showUpdateEvent.set(null);
-          this.newNote.set('');
+          // Edit-form signals are reconciled in handleDriverDailyLogEvents once
+          // the computed events exist, so they survive an in-app refresh.
           this.currentResizeDriving.set(null);
           this.showResize.set(null);
           this.newResizeSpeed.set(0);
@@ -222,7 +221,7 @@ export class MonitorService {
       return this.computedDailyLogEvents.set(null);
     } else {
       const tenant = this.urlService.tenant() as ITenant;
-      return this.computedDailyLogEvents.set(
+      this.computedDailyLogEvents.set(
         this.computeEventsService.getComputedEvents(
           {
             driverDailyLog,
@@ -231,6 +230,42 @@ export class MonitorService {
           tenant,
         ),
       );
+      this.reconcileEditFormAfterRefresh();
+      return;
+    }
+  }
+
+  /**
+   * After the daily logs are refetched (e.g. the in-app Refresh button), keep
+   * the edit form open only if the event being edited still exists in the fresh
+   * logs. Matches on both `id` and `startTime` to avoid a false positive when a
+   * different driver happens to reuse an id. Duplicated events (local-only,
+   * id 0) are never persisted across a refresh.
+   */
+  private reconcileEditFormAfterRefresh() {
+    const editEvent = this.currentEditEvent();
+    if (!editEvent) return;
+
+    const match = this.duplicateEvent()
+      ? undefined
+      : this.computedDailyLogEvents()?.find(
+          (e) =>
+            e.id !== 0 &&
+            e.id === editEvent.id &&
+            e.startTime === editEvent.startTime,
+        );
+
+    if (match) {
+      // Refresh the reference to the new event object; keep the user's in-progress
+      // edits (newNote / newOdometer / newEventTypeId).
+      this.currentEditEvent.set(match);
+      this.showUpdateEvent.set(match.id);
+    } else {
+      this.currentEditEvent.set(null);
+      this.showUpdateEvent.set(null);
+      this.duplicateEvent.set(false);
+      this.newNote.set('');
+      this.newOdometer.set(0);
     }
   }
 

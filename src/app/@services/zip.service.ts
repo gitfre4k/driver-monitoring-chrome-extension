@@ -3,13 +3,24 @@ import { MonitorService } from './monitor.service';
 
 import { dutyStatusNames, getDuration, getTime } from '../helpers/zip.helpers';
 import { ApiOperationsService } from './api-operations.service';
-import { map, mergeMap, of, switchMap, toArray, tap } from 'rxjs';
+import {
+  defer,
+  EMPTY,
+  map,
+  mergeMap,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+  toArray,
+  tap,
+} from 'rxjs';
 import { ITenant } from '../interfaces';
 import { ApiService } from './api.service';
 import { UrlService } from './url.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ZipDialogComponent } from '../components/UI/zip-dialog/zip-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 
 import { ComputeEventsService } from './compute-events.service';
 import { ZipInitializationService } from './zip-initialization.service';
@@ -37,7 +48,7 @@ export class ZipService {
   zipShiftService = inject(ZipShiftService);
 
   readonly dialog = inject(MatDialog);
-  readonly _snackBar = inject(MatSnackBar);
+  readonly notification = inject(NotificationService);
 
   isZipOpen = signal(false);
 
@@ -292,9 +303,7 @@ export class ZipService {
 
   zip(tenant: ITenant, driverId: number, date: string) {
     if (!tenant || !driverId || !date) {
-      return this._snackBar.open('[ZIP] Error: Missing data', 'OK', {
-        duration: 7000,
-      });
+      return this.notification.error('[ZIP] Error: Missing data');
     }
 
     this.isZipOpen.set(true);
@@ -349,12 +358,46 @@ export class ZipService {
           return;
         }
 
+        // Each enabled operation is a "phase" surfaced in the task queue as
+        // `n/total Name`; sub-steps inside a phase show as `subtask` progress.
+        const phases: string[] = [];
+        if (this.resize()) phases.push('Resizing');
+        if (this.shift()) phases.push('Shifting');
+        if (this.preformSmartFix()) phases.push('Smart Fix');
+        const totalPhases = phases.length || 1;
+
+        // Per-operation cancellation. `stop$` unsubscribes the in-flight work;
+        // `stopped` lets a still-pending task bail out before it starts.
+        const stop$ = new Subject<void>();
+        let stopped = false;
+        let taskId: number | null = null;
+
+        const setPhase = (name: string) => {
+          if (taskId === null) return;
+          const index = phases.indexOf(name) + 1;
+          this.taskQueueService.monitor.update(taskId, {
+            phase: `${index}/${totalPhases} ${name}`,
+            subtask: '',
+          });
+        };
+
+        const reportSub =
+          (label: string) => (done: number, total: number) => {
+            if (taskId === null) return;
+            this.taskQueueService.monitor.update(taskId, {
+              subtask: `${label} ${done}/${total}`,
+            });
+          };
+
         // Add the configured zip to the end of the monitor queue. The whole
         // resize -> shift -> smart fix pipeline runs when it reaches the front.
-        this.taskQueueService.monitor.enqueue(
+        taskId = this.taskQueueService.monitor.enqueue(
           'Zip',
-          () =>
-            of(result).pipe(
+          () => {
+            // Stopped while still pending — never start.
+            if (stopped) return EMPTY;
+
+            return of(result).pipe(
               // 1. Prepare resize items
               map((zipData) => ({
                 ...zipData,
@@ -369,43 +412,22 @@ export class ZipService {
                   this.resizeReductionTrashhold(),
                 ),
               })),
-              // 2. Conditional operation sequence (Resize -> Shift)
+              // 2. Conditional operation sequence (Resize -> Shift). `defer`
+              //    delays each phase's side effects until it actually runs.
               switchMap(({ resizeItems, ...zipData }) => {
-                const resize$ = this.zipResizeService.processResizeItems(
-                  tenant,
-                  resizeItems,
-                  this.resize(),
-                  this.fillStatus(),
-                );
-
-                if (this.resize() && this.shift()) {
-                  // Resize then Shift
-                  return resize$.pipe(
-                    mergeMap(() =>
-                      this.zipShiftService
-                        .processShift(
-                          tenant,
-                          driverId,
-                          date,
-                          zipData,
-                          this.shift(),
-                          this.shiftDirection(),
-                          this.zippedOnDutyDuration(),
-                          this.shiftMinTimeFrame(),
-                          !!this.shiftBreak(),
-                          this.preformSmartFix()
-                            ? this.engineOffIdleTimeSpawn()
-                            : 0,
-                          this.shiftOriginalEventDuration(),
-                        )
-                        .pipe(toArray()),
-                    ),
+                const resize$ = defer(() => {
+                  setPhase('Resizing');
+                  return this.zipResizeService.processResizeItems(
+                    tenant,
+                    resizeItems,
+                    this.resize(),
+                    this.fillStatus(),
+                    reportSub('resize'),
                   );
-                } else if (this.resize()) {
-                  // Only Resize
-                  return resize$.pipe();
-                } else if (this.shift()) {
-                  // Only Shift
+                });
+
+                const shift$ = defer(() => {
+                  setPhase('Shifting');
                   return this.zipShiftService
                     .processShift(
                       tenant,
@@ -421,24 +443,42 @@ export class ZipService {
                         ? this.engineOffIdleTimeSpawn()
                         : 0,
                       this.shiftOriginalEventDuration(),
+                      reportSub('shift'),
                     )
                     .pipe(toArray());
+                });
+
+                if (this.resize() && this.shift()) {
+                  return resize$.pipe(mergeMap(() => shift$));
+                } else if (this.resize()) {
+                  return resize$;
+                } else if (this.shift()) {
+                  return shift$;
                 } else {
                   return of({});
                 }
               }),
               // 3. Optional smart fix
-              switchMap(() =>
-                this.preformSmartFix()
-                  ? this.smartFixService.smartFix(tenant.id, driverId, date)
-                  : of({}),
-              ),
-            ),
+              switchMap(() => {
+                if (!this.preformSmartFix()) return of({});
+                setPhase('Smart Fix');
+                return this.smartFixService.smartFix(tenant.id, driverId, date);
+              }),
+              // Stopping completes the stream, unsubscribing in-flight requests.
+              takeUntil(stop$),
+            );
+          },
           {
             complete: () => {
               this.isZipOpen.set(false);
               this.monitorService.selectedEvents.set([]);
-              this._snackBar.open('[ZIP] Completed', 'OK', { duration: 3500 });
+              if (stopped) {
+                this.notification.info('[ZIP] Stopped');
+              } else {
+                this.notification.success('[ZIP] Completed', {
+                  duration: 3500,
+                });
+              }
               this.monitorService.refreshDailyLogs();
               this.urlService.refreshWebApp();
             },
@@ -447,7 +487,14 @@ export class ZipService {
               const message = err.error?.message
                 ? `[ZIP] ERROR: ${err.error.message}`
                 : `[ZIP] ERROR: ${err}`;
-              this._snackBar.open(message, 'Close', { duration: 7000 });
+              this.notification.error(message, { action: 'Close' });
+            },
+          },
+          {
+            cancel: () => {
+              stopped = true;
+              stop$.next();
+              stop$.complete();
             },
           },
         );

@@ -2,10 +2,11 @@
   <h2 class="settings__title">Settings</h2>
 
   <div class="settings__container">
-    <hr />
+    <!-- General -->
+    <div class="card settings__card">
+      <div class="card__label">General</div>
 
-    <div class="settings__container__speed">
-      <mat-form-field class="settings__container__speed-form">
+      <mat-form-field class="settings__field">
         <mat-label>Limit number of pending requests to</mat-label>
         <mat-select [(ngModel)]="constantsService.httpLimit">
           <mat-option [value]="1"> 1</mat-option>
@@ -15,92 +16,97 @@
           <mat-option [value]="5"> 5</mat-option>
         </mat-select>
       </mat-form-field>
-    </div>
 
-    <div class="settings__container__speed">
-      <mat-form-field class="settings__container__speed-form">
-        <mat-label>Pre-Trip Inspection deffault name</mat-label>
+      <mat-form-field class="settings__field">
+        <mat-label>Pre-Trip Inspection default name</mat-label>
         <input
           matInput
           placeholder="Pre-Trip Inspection"
           [(ngModel)]="constantsService.ptiName"
         />
       </mat-form-field>
-    </div>
 
-    <div class="settings__container__side">
-      <p>Open extension window on</p>
-      <mat-radio-group [(ngModel)]="constantsService.rightSide">
-        <mat-radio-button [value]="false">Left side</mat-radio-button>
-        <mat-radio-button [value]="true">Right side</mat-radio-button>
-      </mat-radio-group>
-    </div>
+      <div class="settings__row">
+        <p class="settings__row-label">Open extension window on</p>
+        <mat-radio-group
+          class="settings__row-radio"
+          [(ngModel)]="constantsService.rightSide"
+        >
+          <mat-radio-button [value]="false">Left side</mat-radio-button>
+          <mat-radio-button [value]="true">Right side</mat-radio-button>
+        </mat-radio-group>
+      </div>
 
-    <div class="settings__container__location">
       <mat-checkbox [(ngModel)]="constantsService.showLocationDisplayName">
         show Location Display Name
       </mat-checkbox>
-    </div>
 
-    <div class="settings__container__location">
       <mat-checkbox [(ngModel)]="constantsService.disableSmartFixOnCoDrivers">
         disable SmartFix button on co-drivers
       </mat-checkbox>
-    </div>
 
-    <div class="settings__container__keybinds">
-      <h3>Keyboard Shortcuts</h3>
-
-      <div class="settings__container__keybinds__item">
-        <p>Shift Operation</p>
-        <span>SHIFT</span>
-      </div>
-
-      <div class="settings__container__keybinds__item">
-        <p>Delete Operation</p>
-        <span>DELETE</span>
-      </div>
-
-      <div class="settings__container__keybinds__item">
-        <p>Zip Operation</p>
-        <span>Z / 0</span>
-      </div>
-
-      <div class="settings__container__keybinds__item">
-        <p>navigate to next day</p>
-        <span>Right Arrow</span>
-      </div>
-
-      <div class="settings__container__keybinds__item">
-        <p>navigate to previous day</p>
-        <span>Left Arrow</span>
+      <div class="settings__keybinds-button">
+        <button matButton="tonal" (click)="openShortcuts()">
+          Keyboard Shortcuts
+        </button>
       </div>
     </div>
 
-    <!-- <div class="settings__container__keybinds">
-      <div class="settings__container__keybinds__item">
-        <span class="settings__container__keybinds__item-name">Smart Fix</span>
-        <input type="text" />
-        <input type="text" />
+    <!-- Scan settings -->
+    <div class="card settings__card">
+      <div class="card__label">Scan Settings</div>
+
+      <h4 class="settings__subhead">Violations</h4>
+      <mat-slide-toggle
+        class="toggle--small"
+        [(ngModel)]="scanService.autoScan"
+      >
+        <span class="toggle__label">Enable Auto-Scan</span>
+      </mat-slide-toggle>
+      <mat-checkbox [(ngModel)]="scanService.autofocus">
+        Autofocus results on detection
+      </mat-checkbox>
+
+      <h4 class="settings__subhead">Smart Fix</h4>
+      <mat-checkbox [(ngModel)]="globalSmartfFixService.excludeCoDrivers">
+        exclude co-drivers
+      </mat-checkbox>
+
+      <h4 class="settings__subhead">Log Certification</h4>
+      <mat-checkbox [(ngModel)]="certScanService.certifyOnlyWorkingDays">
+        only certify driver's working days
+      </mat-checkbox>
+      <mat-checkbox
+        [(ngModel)]="certScanService.doNotCertPastLastWorkDay"
+        [disabled]="certScanService.certifyOnlyWorkingDays()"
+      >
+        do not certify days past driver's last day worked
+      </mat-checkbox>
+
+      <h4 class="settings__subhead">Admin Portal</h4>
+      <div class="settings__slider">
+        <mat-label>last recorded activity</mat-label>
+        <mat-slider class="slider" [max]="180" [min]="1" [step]="1">
+          <input
+            matSliderThumb
+            [(ngModel)]="progressBarService.adminLastActivity"
+          />
+        </mat-slider>
+        <mat-label>< {{ progressBarService.adminLastActivity() }}min</mat-label>
+      </div>
+      <div class="settings__slider">
+        <mat-label>ELD unplugged duration</mat-label>
+        <mat-slider class="slider" [max]="8" [min]="1" [step]="1">
+          <input
+            matSliderThumb
+            [(ngModel)]="progressBarService.adminELDUnplugged"
+          />
+        </mat-slider>
+        <mat-label>< {{ progressBarService.adminELDUnplugged() }}h</mat-label>
       </div>
 
-      <div class="settings__container__keybinds__item">
-        <span class="settings__container__keybinds__item-name">Shift</span>
-        <input type="text" />
-        <input type="text" />
-      </div>
-
-      <div class="settings__container__keybinds__item">
-        <span class="settings__container__keybinds__item-name">Delete</span>
-        <input type="text" />
-        <input type="text" />
-      </div>
-
-      <div class="settings__container__keybinds__item">
-        <span class="settings__container__keybinds__item-name">Zip</span>
-        <input type="text" />
-        <input type="text" />
-      </div>
-    </div> -->
+      <h4 class="settings__subhead">Analysis Parameters</h4>
+      <app-advanced-scan></app-advanced-scan>
+    </div>
   </div>
 </div>

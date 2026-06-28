@@ -15,6 +15,13 @@
           <span style="font-size: 10px">- {{ err.error.message }}</span>
           <br />
         }
+        <button
+          class="errors__retry"
+          matButton="tonal"
+          (click)="scanService.retryFailed('violations')"
+        >
+          Retry failed
+        </button>
       }
       @if (pErrors().length) {
         <h3>pre-Violation scan</h3>
@@ -29,6 +36,13 @@
           <span style="font-size: 10px">- {{ err.error.message }}</span>
           <br />
         }
+        <button
+          class="errors__retry"
+          matButton="tonal"
+          (click)="scanService.retryFailed('pre')"
+        >
+          Retry failed
+        </button>
       }
       @if (dErrors().length) {
         <h3>DOT Inspection scan</h3>
@@ -43,6 +57,13 @@
           <span style="font-size: 10px">- {{ err.error.message }}</span>
           <br />
         }
+        <button
+          class="errors__retry"
+          matButton="tonal"
+          (click)="scanService.retryFailed('dot')"
+        >
+          Retry failed
+        </button>
       }
       @if (aErrors().length) {
         <h3>Driver Log Analysis</h3>

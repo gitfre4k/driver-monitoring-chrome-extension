@@ -10,7 +10,7 @@ import { MatSliderModule } from "@angular/material/slider";
 import { SaveComponent } from "../../UI/save/save.component";
 import { CancelComponent } from "../../UI/cancel/cancel.component";
 import { FormsModule } from "@angular/forms";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { NotificationService } from "../../../@services/notification.service";
 import { Duration } from "luxon";
 import { ContextMenuService } from "../../../@services/context-menu.service";
 
@@ -30,7 +30,7 @@ import { ContextMenuService } from "../../../@services/context-menu.service";
 export class ResizeFormComponent {
   monitorService = inject(MonitorService);
   contextMenuService = inject(ContextMenuService);
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   @HostListener("document:keyup.enter", ["$event"])
   onDocumentEnter(event: Event) {
@@ -45,10 +45,8 @@ export class ResizeFormComponent {
     const event = this.monitorService.currentResizeDriving();
     const seconds = this.monitorService.newResizeDuration();
     if (!event || !seconds) {
-      this._snackBar.open(
+      this.notification.error(
         `[Monitor Component] error occurred, refreshing page... `,
-        "OK",
-        { duration: 3000 },
       );
       return this.monitorService.refresh();
     }

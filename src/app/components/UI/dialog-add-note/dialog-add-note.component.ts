@@ -23,7 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { formatTenantName } from '../../../helpers/monitor.helpers';
 import { BackendService } from '../../../@services/backend.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../@services/notification.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -57,7 +57,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class DialogAddNoteComponent {
   private backendService = inject(BackendService);
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   readonly dialogRef = inject(MatDialogRef<DialogAddNoteComponent>);
   readonly range = new FormGroup({
@@ -138,13 +138,15 @@ export class DialogAddNoteComponent {
       )
       .subscribe({
         error: () => {
-          this._snackBar.open('Error posting note', 'Close', {
+          this.notification.error('Error posting note', {
+            action: 'Close',
             duration: 3000,
           });
           this.isPosting.set(false);
         },
         complete: () => {
-          this._snackBar.open('Note successfully posted', 'Close', {
+          this.notification.success('Note successfully posted', {
+            action: 'Close',
             duration: 3000,
           });
           this.backendService.loadShiftReport();

@@ -35,7 +35,7 @@
       >
         <mat-tab label="Scan">
           <ng-template mat-tab-label>
-            <mat-icon id="radar-icon">radar</mat-icon>
+            <mat-icon id="radar-icon">document_scanner</mat-icon>
             <span class="hide">Scan</span>
           </ng-template>
 
@@ -123,7 +123,8 @@
         <mat-tab disabled></mat-tab>
       </mat-tab-group>
 
-      <div [class]="'task-queue'">
+      <div [class]="'bottom-bar'">
+        <app-console></app-console>
         <app-task-queue></app-task-queue>
       </div>
     }

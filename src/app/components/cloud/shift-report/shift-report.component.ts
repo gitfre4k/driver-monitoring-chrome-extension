@@ -13,7 +13,7 @@ import { DialogAddNoteComponent } from '../../UI/dialog-add-note/dialog-add-note
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { isEmpty, resultCount, sortData } from '../../../helpers/cloud.helpers';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../@services/notification.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 import { DatePipe, KeyValuePipe } from '@angular/common';
@@ -46,7 +46,7 @@ export class ShiftReportComponent {
   backendService = inject(BackendService);
   dateService = inject(DateService);
 
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
   readonly dialog = inject(MatDialog);
 
   sortedNotes = computed(() => {
@@ -128,7 +128,7 @@ ${' '}> ${note}`);
     const report = reportParts.join('');
 
     navigator.clipboard.writeText(report);
-    this._snackBar.open(`Sift Report copied to clipboard`, 'OK', {
+    this.notification.info(`Sift Report copied to clipboard`, {
       duration: 2000,
     });
   }

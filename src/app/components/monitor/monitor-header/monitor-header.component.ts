@@ -31,7 +31,7 @@ import { formatTenantName } from '../../../helpers/monitor.helpers';
 import { ExtensionTabNavigationService } from '../../../@services/extension-tab-navigation.service';
 import { IDriverDailyLogEvents } from '../../../interfaces/driver-daily-log-events.interface';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../@services/notification.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { BackendService } from '../../../@services/backend.service';
 import { getNote, parseMalf } from '../../../helpers/backend.helpers';
@@ -71,7 +71,7 @@ export class MonitorHeaderComponent {
   private monitorService = inject(MonitorService);
   private extTabNavService = inject(ExtensionTabNavigationService);
   private backendService = inject(BackendService);
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   DateTime = DateTime;
 
@@ -313,7 +313,7 @@ export class MonitorHeaderComponent {
 
   copyDriverName(name: string) {
     navigator.clipboard.writeText(name);
-    this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
+    this.notification.info(`Copied: ${name}`, { duration: 1500 });
   }
 
   showInfo() {

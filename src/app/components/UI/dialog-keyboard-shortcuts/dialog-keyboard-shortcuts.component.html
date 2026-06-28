@@ -1,0 +1,16 @@
+<div class="shortcuts">
+  <h1 mat-dialog-title>Keyboard Shortcuts</h1>
+
+  <div class="shortcuts__content" mat-dialog-content>
+    @for (shortcut of shortcuts; track shortcut.label) {
+      <div class="shortcuts__item">
+        <p>{{ shortcut.label }}</p>
+        <span>{{ shortcut.keys }}</span>
+      </div>
+    }
+  </div>
+
+  <div mat-dialog-actions class="shortcuts__actions">
+    <button mat-button mat-dialog-close cdkFocusInitial>Close</button>
+  </div>
+</div>

@@ -55,6 +55,9 @@ export interface IEvent {
   malf: boolean;
   refuel: boolean;
   pti: number;
+  /** true when a short PTI (pti > 0) on-duty event also lacks a note, so the
+   *  combined "extend PTI + add note" fix applies. */
+  ptiNeedsNote?: boolean;
   break: number;
   nextDutyStatusInfo: IStatusInfo;
   intermediatesInfo: IStatusInfo[];

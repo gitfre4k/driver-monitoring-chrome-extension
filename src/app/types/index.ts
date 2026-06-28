@@ -41,6 +41,7 @@ export type TProgressMode =
 
 export type TContextMenuAction =
   | 'EXTEND_PTI'
+  | 'EXTEND_PTI_AND_NOTE'
   | 'ADD_PTI'
   | 'DELETE_ALL_ENGINES'
   | 'DELETE_DRIVING_ENGINES'

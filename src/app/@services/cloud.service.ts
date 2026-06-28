@@ -4,7 +4,7 @@ import { UrlService } from './url.service';
 import { DialogConfirmComponent } from '../components/UI/dialog-confirm/dialog-confirm.component';
 import { MatDialog } from '@angular/material/dialog';
 import { BackendService } from './backend.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +13,7 @@ export class CloudService {
   urlService = inject(UrlService);
   backendService = inject(BackendService);
 
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
   readonly dialog = inject(MatDialog);
 
   openLogs(id: number, date: string, tenant: ITenant, openLogs?: boolean) {
@@ -48,7 +48,8 @@ export class CloudService {
 
         this.backendService.deleteNote(idsToDelete).subscribe({
           error: () => {
-            this._snackBar.open('Failed to delete note', 'Close', {
+            this.notification.error('Failed to delete note', {
+              action: 'Close',
               duration: 3000,
             });
             this.backendService.isDeletingNote.set(null);
@@ -72,7 +73,8 @@ export class CloudService {
 
     this.backendService.archiveNote(idsToArchive).subscribe({
       error: () => {
-        this._snackBar.open('Failed to move note to archive', 'Close', {
+        this.notification.error('Failed to move note to archive', {
+          action: 'Close',
           duration: 3000,
         });
         this.backendService.isDeletingNote.set(null);

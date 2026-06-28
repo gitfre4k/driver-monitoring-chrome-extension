@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ProgressBarService } from "../../@services/progress-bar.service";
+import { ScanService } from "../../@services/scan.service";
 import { MatButtonModule } from "@angular/material/button";
 
 @Component({
@@ -11,6 +12,7 @@ import { MatButtonModule } from "@angular/material/button";
 })
 export class ErrorsComponent {
   private progressBarService = inject(ProgressBarService);
+  scanService = inject(ScanService);
   errCount = this.progressBarService.errorCount;
   vErrors = this.progressBarService.vErrors;
   dErrors = this.progressBarService.dErrors;

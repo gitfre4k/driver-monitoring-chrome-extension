@@ -1,0 +1,39 @@
+<div class="container">
+  @if (opened()) {
+    <div class="panel">
+      <div class="panel__header">
+        <span class="panel__title">Console</span>
+        <span class="panel__subtitle">{{ count() }} notifications</span>
+      </div>
+
+      <ul class="log" #log>
+        @for (item of orderedHistory(); track item.id) {
+          <li class="entry entry--{{ item.type }}">
+            <mat-icon class="entry__icon">{{ icon(item.type) }}</mat-icon>
+            <span class="entry__message">{{ item.message }}</span>
+            <span class="entry__time">{{ item.time }}</span>
+          </li>
+        } @empty {
+          <li class="entry--empty">No notifications yet.</li>
+        }
+      </ul>
+
+      @if (count()) {
+        <button mat-stroked-button class="clear" (click)="clear()">
+          <mat-icon>delete_sweep</mat-icon>
+          Clear
+        </button>
+      }
+    </div>
+  }
+
+  <button
+    mat-icon-button
+    (click)="toggle()"
+    matTooltip="Toggle Console"
+    class="toggle"
+    [class.toggle--active]="opened()"
+  >
+    <mat-icon>notifications</mat-icon>
+  </button>
+</div>

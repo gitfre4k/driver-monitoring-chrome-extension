@@ -15,7 +15,6 @@
       matRipple
       (click)="updateChanges()"
       [disabled]="
-        monitorService.isUpdatingEvent() ||
         !formInputService.isLatValid() ||
         !formInputService.isLongValid() ||
         formInputService.locationDisplayName() === 'E R R O R'

@@ -80,6 +80,71 @@ body {
   min-height: 30px !important;
 }
 
+// ——— Snackbar notifications: distinct style per type ———
+.app-snackbar {
+  --app-snackbar-accent: #5898d0;
+  --app-snackbar-tint: rgba(88, 152, 208, 0.16);
+
+  .mdc-snackbar__surface {
+    background-color: #1c1714 !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 4px solid var(--app-snackbar-accent);
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.45),
+      0 0 0 1px var(--app-snackbar-tint) inset;
+    padding-left: 4px;
+  }
+
+  // Coloured glyph rendered before the message text.
+  .mdc-snackbar__label::before {
+    content: var(--app-snackbar-icon, "ℹ");
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border-radius: 50%;
+    background: var(--app-snackbar-tint);
+    color: var(--app-snackbar-accent);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1;
+    vertical-align: middle;
+  }
+
+  .mdc-snackbar__label {
+    color: #ece8e4 !important;
+    display: flex;
+    align-items: center;
+  }
+
+  .mat-mdc-snack-bar-action,
+  .mdc-button__label {
+    color: var(--app-snackbar-accent) !important;
+    font-weight: 600;
+  }
+
+  &--success {
+    --app-snackbar-accent: #4caf72;
+    --app-snackbar-tint: rgba(76, 175, 114, 0.18);
+    --app-snackbar-icon: "✓";
+  }
+
+  &--warning {
+    --app-snackbar-accent: #e0a23b;
+    --app-snackbar-tint: rgba(224, 162, 59, 0.18);
+    --app-snackbar-icon: "!";
+  }
+
+  &--error {
+    --app-snackbar-accent: #e0533b;
+    --app-snackbar-tint: rgba(224, 83, 59, 0.18);
+    --app-snackbar-icon: "✕";
+  }
+}
+
 .small-select {
   @include mat.form-field-density(-1); // Supports values from 0 to -4
 }

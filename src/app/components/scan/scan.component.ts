@@ -23,7 +23,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { ScanService } from '../../@services/scan.service';
-import { AdvancedScanComponent } from '../advanced-scan/advanced-scan.component';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 
 import {
@@ -32,12 +31,7 @@ import {
   FormsModule,
   FormGroup,
 } from '@angular/forms';
-import {
-  ICertStatusDriver,
-  IDOTInspections,
-  ITenant,
-  IViolations,
-} from '../../interfaces';
+import { ICertStatusDriver, ITenant } from '../../interfaces';
 import { TScanMode } from '../../types';
 import { AdvancedScanService } from '../../@services/advanced-scan.service';
 import { ProgressBarService } from '../../@services/progress-bar.service';
@@ -57,10 +51,12 @@ import { CertificationsScanService } from '../../@services/certifications-scan.s
 import { AppService } from '../../@services/app.service';
 import { UnidentifiedEventsService } from '../../@services/unidentified-events.service';
 import { AdminPortalService } from '../../@services/admin-portal.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../@services/notification.service';
 import { TaskQueueService } from '../../@services/task-queue.service';
 import { GlobalSmartfFixService } from '../../@services/global-smartf-fix.service';
 import { SelectAllDirective } from '../../directive/select-all.directive';
+import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
+import { UrlService } from '../../@services/url.service';
 
 @Component({
   selector: 'app-scan',
@@ -76,7 +72,6 @@ import { SelectAllDirective } from '../../directive/select-all.directive';
     MatSelectModule,
     MatIconModule,
     MatInputModule,
-    AdvancedScanComponent,
     MatTooltipModule,
     MatRadioModule,
     MatSlideToggleModule,
@@ -101,11 +96,47 @@ export class ScanComponent {
   taskQueueService = inject(TaskQueueService);
   globalSmartfFixService = inject(GlobalSmartfFixService);
   advancedScanService = inject(AdvancedScanService);
+  private extTabNavService = inject(ExtensionTabNavigationService);
+  private urlService = inject(UrlService);
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
-  showAnalasysOptions = signal(false);
+  /** Scan-queue tasks still waiting to run (the active one is shown in the
+   *  progress bar), surfaced inline on the scan page. */
+  pendingScans = computed(() =>
+    this.taskQueueService.scan.tasks().filter((t) => t.status === 'pending'),
+  );
+
+  /** Open the Settings tab. Its index depends on whether the optional
+   *  Shift Report tab (prologs only) is present. */
+  openSettings() {
+    const prologs = ['Prologs', 'prologs'].includes(
+      this.urlService.provider(),
+    );
+    this.extTabNavService.selectedTabIndex.set(prologs ? 5 : 4);
+  }
+
+  /** Enqueue a scan task, de-duplicated by mode; warn if one is already queued. */
+  private enqueueScan(
+    label: string,
+    work: () => Observable<unknown>,
+    handlers: {
+      next?: (value: any) => void;
+      error?: (err: any) => void;
+      complete?: () => void;
+    },
+    key: TScanMode,
+  ) {
+    const id = this.taskQueueService.scan.enqueue(label, work, handlers, {
+      key,
+      dedupe: true,
+    });
+    if (id === null)
+      this.notification.warning(`${label} is already in progress.`);
+    return id;
+  }
+
   certTenants = new FormControl([] as ITenant[]);
 
   tenantList = this.appService.tenantsSignal;
@@ -171,6 +202,14 @@ export class ScanComponent {
   scanSubscribtion = new Subscription();
   scanning = this.progressBarService.scanning;
   vLastSync = this.progressBarService.violationsLastSync;
+
+  /** Top-of-page view: the scan setup cards, or the live progress + queue. */
+  readonly view = signal<'cards' | 'progress'>('cards');
+
+  /** Running scan (if any) + queued scans — surfaced as a badge on the toggle. */
+  activeCount = computed(
+    () => this.pendingScans().length + (this.scanning() ? 1 : 0),
+  );
 
   constructor() {
     console.log();
@@ -290,7 +329,7 @@ export class ScanComponent {
 
   deleteUnidentifiedEvents() {
     this.scanMode.setValue('deleteUE');
-    this.taskQueueService.scan.enqueue(
+    this.enqueueScan(
       'Delete Unidentified Events',
       () => this.unidentifiedEventsService.deleteAllUnidentifiedEvents$(),
       {
@@ -299,12 +338,13 @@ export class ScanComponent {
           this.scanMode.setValue('violations');
         },
       },
+      'deleteUE',
     );
   }
 
   globalSmartFix() {
     this.scanMode.setValue('smartFix');
-    this.taskQueueService.scan.enqueue(
+    this.enqueueScan(
       'Global Smart Fix',
       () => this.globalSmartfFixService.initiateGlobalSmartFix(),
       {
@@ -313,6 +353,7 @@ export class ScanComponent {
           this.scanMode.setValue('violations');
         },
       },
+      'smartFix',
     );
   }
 
@@ -338,13 +379,14 @@ export class ScanComponent {
     switch (this.scanMode.value) {
       // Admin Portal
       case 'admin':
-        this.taskQueueService.scan.enqueue(
+        this.enqueueScan(
           label,
           () => this.adminPortalsService.scanAdminPortal(),
           {
             error: (err: any) =>
-              this._snackBar
-                .open(`An error occurred: ${err.message}`, 'Close', {
+              this.notification
+                .error(`An error occurred: ${err.message}`, {
+                  action: 'Close',
                   duration: 3000,
                 })
                 .afterDismissed()
@@ -355,15 +397,12 @@ export class ScanComponent {
             complete: () => {
               this.progressBarService.initializeProgressBar();
               this.scanMode.setValue('violations');
-              this._snackBar.open(
+              this.notification.success(
                 `Admin Portal scan complete. Results are avaiable in Report tab.`,
-                'OK',
-                {
-                  duration: 3000,
-                },
               );
             },
           },
+          'admin',
         );
         return;
 
@@ -373,32 +412,25 @@ export class ScanComponent {
         if (!date) {
           return;
         }
-        this.taskQueueService.scan.enqueue(
+        this.enqueueScan(
           label,
           () => this.advancedScanService.getDriversDailyLogs(date),
           {
             complete: () => this.handleAdvancedScanComplete(),
           },
+          'advanced',
         );
         return;
 
       // pre-Violation || low Cycle alert
       case 'pre':
-        this.taskQueueService.scan.enqueue(
-          label,
-          () => this.scanService.getPreViolationAlert(),
-          {
-            next: (company: any) => this.scanService.handlePreScanData(company),
-            error: (err: any) => this.scanService.handleError(err),
-            complete: () =>
-              this.scanService.handleScanComplete(this.scanMode.value),
-          },
-        );
+        this.scanService.enqueuePreScan() === null &&
+          this.notification.warning(`${label} is already in progress.`);
         return;
 
       // Certifications Scan
       case 'cert':
-        this.taskQueueService.scan.enqueue(
+        this.enqueueScan(
           label,
           () => this.certScanService.driverLogs$(),
           {
@@ -407,6 +439,7 @@ export class ScanComponent {
             complete: () =>
               this.scanService.handleScanComplete(this.scanMode.value),
           },
+          'cert',
         );
         return;
 
@@ -414,64 +447,51 @@ export class ScanComponent {
       case 'cert-logs':
         const certTenants = this.certTenants.value;
         if (!certTenants || !certTenants.length) {
-          this._snackBar.open('No company selected.', 'Close', {
+          this.notification.warning('No company selected.', {
+            action: 'Close',
             duration: 3000,
           });
           return;
         }
 
-        this.taskQueueService.scan.enqueue(
+        this.enqueueScan(
           label,
           () => this.certScanService.driverLogs$(certTenants),
           {
             next: () => this.handleLogCertification(),
             error: (err: any) => this.scanService.handleError(err),
             complete: () => {
-              this._snackBar.open(
+              this.notification.success(
                 `Loc Certification completed. Certified days: ${this.certScanService.certifiedLogCount()}`,
-                'OK',
-                {
-                  duration: 4500,
-                },
+                { duration: 4500 },
               );
               this.progressBarService.initializeProgressBar();
             },
           },
+          'cert-logs',
         );
 
         return;
 
       // Violations || DOT Inspections
       case 'dot':
-      case 'violations':
+      case 'violations': {
         const { dateFrom, dateTo } = this.dateRange();
         const dotDate = this.dotDate();
         if (!dateFrom || !dateTo || !dotDate) {
           return;
         }
-        const scanMode = this.scanMode.value;
-        this.taskQueueService.scan.enqueue(
-          label,
-          () =>
-            scanMode === 'violations'
-              ? this.scanService.getAllViolations({
-                  from: dateFrom,
-                  to: dateTo,
-                })
-              : (this.scanService.getAllDOTInspections(
-                  dotDate,
-                ) as Observable<any>),
-          {
-            next: (data: any) =>
-              this.scanService.handleScanData(
-                data as IViolations[] | IDOTInspections[],
-                scanMode,
-              ),
-            error: (err: any) => this.scanService.handleError(err),
-            complete: () => this.scanService.handleScanComplete(scanMode),
-          },
-        );
+        const queued =
+          this.scanMode.value === 'violations'
+            ? this.scanService.enqueueViolationsScan({
+                from: dateFrom,
+                to: dateTo,
+              })
+            : this.scanService.enqueueDotScan(dotDate);
+        if (queued === null)
+          this.notification.warning(`${label} is already in progress.`);
         return;
+      }
       default:
         return;
     }

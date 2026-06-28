@@ -11,7 +11,7 @@ import {
   IDataDriverNotes,
 } from '../interfaces/cloud.interface';
 import { ApiOperationsService } from './api-operations.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 import { UrlService } from './url.service';
 
 @Injectable({
@@ -23,7 +23,7 @@ export class BackendService {
   private http: HttpClient = inject(HttpClient);
   private apiService = inject(ApiService);
   private apiOperationsService = inject(ApiOperationsService);
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
   private urlService = inject(UrlService);
   dataSubscription: Subscription | undefined;
 
@@ -47,13 +47,10 @@ export class BackendService {
         },
         error: (error) => {
           this.isLoadingShiftReport.set(false);
-          this._snackBar.open(
+          this.notification.error(
             'Error loading shift report data: ' +
               (error.message ? error.message : error.error.message),
-            'Close',
-            {
-              duration: 7000,
-            },
+            { action: 'Close' },
           );
         },
         complete: () => {
@@ -73,13 +70,10 @@ export class BackendService {
         },
         error: (error) => {
           this.isLoadingShiftReport.set(false);
-          this._snackBar.open(
+          this.notification.error(
             'Error loading shift report data: ' +
               (error.message ? error.message : error.error.message),
-            'Close',
-            {
-              duration: 7000,
-            },
+            { action: 'Close' },
           );
         },
         complete: () => {

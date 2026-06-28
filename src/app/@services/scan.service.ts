@@ -1,4 +1,9 @@
-import { inject, Injectable, signal } from '@angular/core';
+import {
+  inject,
+  Injectable,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import {
   catchError,
   from,
@@ -9,19 +14,26 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ApiService } from './api.service';
 import { ProgressBarService } from './progress-bar.service';
 
-import { IDOTInspections, IISODateRange, IViolations } from '../interfaces';
+import {
+  IDOTInspections,
+  IISODateRange,
+  IScanErrors,
+  ITenant,
+  IViolations,
+} from '../interfaces';
 import { TScanMode } from '../types';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
 import { DateTime } from 'luxon';
 import { DateService } from './date.service';
 import { IDriverItem, IDrivers } from '../interfaces/drivers.interface';
 import { ConstantsService } from './constants.service';
+import { TaskQueueService } from './task-queue.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,10 +43,16 @@ export class ScanService {
   private progressBarService = inject(ProgressBarService);
   private extensionTabNavService = inject(ExtensionTabNavigationService);
   private dateService = inject(DateService);
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
   private constantsService = inject(ConstantsService);
+  private taskQueueService = inject(TaskQueueService);
 
   httpLimit = this.constantsService.httpLimit;
+
+  /** Last range used by a full violations / DOT scan — reused when retrying
+   *  only the tenants that failed. */
+  private lastViolationsRange?: IISODateRange;
+  private lastDotRange?: IISODateRange;
 
   readonly dialog = inject(MatDialog);
 
@@ -139,22 +157,16 @@ export class ScanService {
   }
 
   handleError(error: any) {
-    this._snackBar
-      .open(`An error occurred: ${error.message}`, 'Close', {
-        duration: 7000,
-      })
+    this.notification
+      .error(`An error occurred: ${error.message}`, { action: 'Close' })
       .afterDismissed()
       .pipe(tap(() => this.progressBarService.initializeProgressBar()))
       .subscribe();
   }
 
   violationsDetected = (v: number) => {
-    this._snackBar.open(
+    this.notification.success(
       `Scan compete: ${v} violation${v > 1 ? 's' : ''} detected`,
-      'OK',
-      {
-        duration: 3000,
-      },
     );
 
     if (this.autofocus()) {
@@ -164,12 +176,8 @@ export class ScanService {
   };
 
   dotInspectionsDetected = (d: number) => {
-    this._snackBar.open(
+    this.notification.success(
       `Scan compete: ${d} DOT Inspection${d > 1 ? 's' : ''} detected`,
-      'OK',
-      {
-        duration: 3000,
-      },
     );
     this.extensionTabNavService.selectedTabIndex.set(1);
     this.extensionTabNavService.dotPanelIsOpened.set(true);
@@ -182,28 +190,24 @@ export class ScanService {
         const v = this.progressBarService.totalVCount();
         v > 0
           ? this.violationsDetected(v)
-          : this._snackBar.open(`Scan complete: no violations detected`, 'OK', {
-              duration: 3000,
-            });
+          : this.notification.info(`Scan complete: no violations detected`);
         this.progressBarService.violationsLastSync.set(DateTime.now().toISO());
         break;
 
       case 'pre':
         const count = this.progressBarService.preViolationsCount();
-        this._snackBar.open(
-          `Scan complete: ${
-            count > 0
-              ? count +
+        count > 0
+          ? this.notification.success(
+              `Scan complete: ${
+                count +
                 ' pre violation alert' +
                 (count > 1 ? 's' : '') +
                 ' detected'
-              : 'no pre violation alert detected'
-          }`,
-          'OK',
-          {
-            duration: 3000,
-          },
-        );
+              }`,
+            )
+          : this.notification.info(
+              `Scan complete: no pre violation alert detected`,
+            );
         count > 0 &&
           (() => {
             this.extensionTabNavService.selectedTabIndex.set(1);
@@ -214,18 +218,10 @@ export class ScanService {
         const dot = this.progressBarService.totalDCount();
         dot > 0
           ? this.dotInspectionsDetected(dot)
-          : this._snackBar.open(
-              `Scan complete: no DOT Inspections detected`,
-              'OK',
-              {
-                duration: 3000,
-              },
-            );
+          : this.notification.info(`Scan complete: no DOT Inspections detected`);
         break;
       case 'cert':
-        this._snackBar.open(`Scan complete`, 'OK', {
-          duration: 3000,
-        });
+        this.notification.success(`Scan complete`);
         break;
       default:
         return;
@@ -234,11 +230,20 @@ export class ScanService {
 
   //////////////////////
   // Pre Violation Alert
-  getPreViolationAlert() {
-    this.progressBarService.initializeState('pre');
+  // `tenants` is supplied when retrying only the companies that failed; in that
+  // case the existing results/errors are preserved (no initializeState).
+  getPreViolationAlert(tenants?: ITenant[]) {
+    if (tenants) this.progressBarService.initializeProgressBar();
+    else this.progressBarService.initializeState('pre');
     this.progressBarService.scanning.set(true);
-    return this.apiService.getAccessibleTenants().pipe(
-      switchMap((tenants) => from(tenants)),
+
+    const tenants$ = tenants
+      ? from(tenants)
+      : this.apiService
+          .getAccessibleTenants()
+          .pipe(switchMap((all) => from(all)));
+
+    return tenants$.pipe(
       mergeMap((tenant) => {
         this.progressBarService.currentCompany.set(tenant.name);
         this.progressBarService.progressValue.update(
@@ -274,23 +279,26 @@ export class ScanService {
     );
   }
 
-  getAllViolations(range: IISODateRange) {
-    this.progressBarService.initializeState('violations');
+  getAllViolations(range: IISODateRange, tenants?: ITenant[]) {
+    if (tenants) this.progressBarService.initializeProgressBar();
+    else this.progressBarService.initializeState('violations');
     this.progressBarService.scanning.set(true);
 
-    return this.apiService
-      .getAccessibleTenants()
-      .pipe(
-        tap(
-          (tenants) =>
-            !tenants.find(
-              (t) =>
-                t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170' ||
-                t.id === '3a1acd7b-2c8c-f6c2-219b-fe8ffa67061f',
-            ) && window.close(),
-        ),
-        switchMap((tenants) => from(tenants)),
-      )
+    const tenants$ = tenants
+      ? from(tenants)
+      : this.apiService.getAccessibleTenants().pipe(
+          tap(
+            (all) =>
+              !all.find(
+                (t) =>
+                  t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170' ||
+                  t.id === '3a1acd7b-2c8c-f6c2-219b-fe8ffa67061f',
+              ) && window.close(),
+          ),
+          switchMap((all) => from(all)),
+        );
+
+    return tenants$
       .pipe(
         mergeMap((tenant) => {
           this.progressBarService.currentCompany.set(tenant.name);
@@ -327,23 +335,26 @@ export class ScanService {
       );
   }
 
-  getAllDOTInspections(range: IISODateRange) {
-    this.progressBarService.initializeState('dot');
+  getAllDOTInspections(range: IISODateRange, tenants?: ITenant[]) {
+    if (tenants) this.progressBarService.initializeProgressBar();
+    else this.progressBarService.initializeState('dot');
     this.progressBarService.scanning.set(true);
 
-    return this.apiService
-      .getAccessibleTenants()
-      .pipe(
-        tap(
-          (tenants) =>
-            !tenants.find(
-              (t) =>
-                t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170' ||
-                t.id === '3a1acd7b-2c8c-f6c2-219b-fe8ffa67061f',
-            ) && window.close(),
-        ),
-        switchMap((tenants) => from(tenants)),
-      )
+    const tenants$ = tenants
+      ? from(tenants)
+      : this.apiService.getAccessibleTenants().pipe(
+          tap(
+            (all) =>
+              !all.find(
+                (t) =>
+                  t.id === '3a0e2d3b-8214-edb4-c139-0d55051fc170' ||
+                  t.id === '3a1acd7b-2c8c-f6c2-219b-fe8ffa67061f',
+              ) && window.close(),
+          ),
+          switchMap((all) => from(all)),
+        );
+
+    return tenants$
       .pipe(
         mergeMap((tenant) => {
           this.progressBarService.currentCompany.set(tenant.name);
@@ -385,5 +396,97 @@ export class ScanService {
         }, this.httpLimit()),
         toArray(),
       );
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Queue entry points (used by the Scan page buttons, the auto-scan timer and
+  // the "Retry failed" buttons). Each scan type is de-duplicated by its mode so
+  // a second pending/active scan of the same type is dropped instead of stacking.
+  // ───────────────────────────────────────────────────────────────────────────
+
+  enqueueViolationsScan(range: IISODateRange, tenants?: ITenant[]) {
+    if (!tenants) this.lastViolationsRange = range;
+    return this.taskQueueService.scan.enqueue(
+      'Violations Scan',
+      () => this.getAllViolations(range, tenants),
+      {
+        next: (data: any) =>
+          this.handleScanData(data as IViolations[], 'violations'),
+        error: (err: any) => this.handleError(err),
+        complete: () => this.handleScanComplete('violations'),
+      },
+      { key: 'violations', dedupe: true },
+    );
+  }
+
+  enqueueDotScan(range: IISODateRange, tenants?: ITenant[]) {
+    if (!tenants) this.lastDotRange = range;
+    return this.taskQueueService.scan.enqueue(
+      'DOT Inspections Scan',
+      () => this.getAllDOTInspections(range, tenants),
+      {
+        next: (data: any) =>
+          this.handleScanData(data as IDOTInspections[], 'dot'),
+        error: (err: any) => this.handleError(err),
+        complete: () => this.handleScanComplete('dot'),
+      },
+      { key: 'dot', dedupe: true },
+    );
+  }
+
+  enqueuePreScan(tenants?: ITenant[]) {
+    return this.taskQueueService.scan.enqueue(
+      'Pre-Violation Scan',
+      () => this.getPreViolationAlert(tenants),
+      {
+        next: (company: any) => this.handlePreScanData(company),
+        error: (err: any) => this.handleError(err),
+        complete: () => this.handleScanComplete('pre'),
+      },
+      { key: 'pre', dedupe: true },
+    );
+  }
+
+  private errorSignalFor(
+    mode: TScanMode,
+  ): WritableSignal<IScanErrors[]> | null {
+    switch (mode) {
+      case 'violations':
+        return this.progressBarService.vErrors;
+      case 'dot':
+        return this.progressBarService.dErrors;
+      case 'pre':
+        return this.progressBarService.pErrors;
+      default:
+        return null;
+    }
+  }
+
+  /** Whether a "Retry failed" action is supported for the given scan mode. */
+  canRetry(mode: TScanMode): boolean {
+    return mode === 'violations' || mode === 'dot' || mode === 'pre';
+  }
+
+  /**
+   * Re-run a scan for only the tenants that failed, preserving results that
+   * already succeeded. Errors for the mode are cleared first; any tenant that
+   * fails again is re-added by the scan itself.
+   */
+  retryFailed(mode: TScanMode) {
+    const errors = this.errorSignalFor(mode);
+    if (!errors) return;
+
+    const failedTenants = [
+      ...new Map(errors().map((e) => [e.company.id, e.company])).values(),
+    ];
+    if (!failedTenants.length) return;
+
+    errors.set([]);
+
+    if (mode === 'violations' && this.lastViolationsRange)
+      this.enqueueViolationsScan(this.lastViolationsRange, failedTenants);
+    else if (mode === 'dot' && this.lastDotRange)
+      this.enqueueDotScan(this.lastDotRange, failedTenants);
+    else if (mode === 'pre') this.enqueuePreScan(failedTenants);
   }
 }

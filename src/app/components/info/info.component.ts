@@ -22,7 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { DialogAddNoteComponent } from '../UI/dialog-add-note/dialog-add-note.component';
 import { MatDialog } from '@angular/material/dialog';
 import { BackendService } from '../../@services/backend.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../@services/notification.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IVehicle } from '../../interfaces/driver-daily-log-events.interface';
 import { getNote } from '../../helpers/backend.helpers';
@@ -52,7 +52,7 @@ export class InfoComponent {
   constService = inject(ConstantsService);
   progressBarService = inject(ProgressBarService);
   backendService = inject(BackendService);
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   readonly dialog = inject(MatDialog);
 
@@ -219,7 +219,8 @@ export class InfoComponent {
 
         this.backendService.deleteNote(idsToDelete).subscribe({
           error: () => {
-            this._snackBar.open('Failed to delete note', 'Close', {
+            this.notification.error('Failed to delete note', {
+              action: 'Close',
               duration: 3000,
             });
             this.backendService.isDeletingNote.set(null);

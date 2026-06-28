@@ -1,30 +1,56 @@
-.example-container {
-  display: flex;
-  background-color: #00000000;
-  position: relative;
-  width: 100%;
-  //   border: 1px solid rgba(0, 0, 0, 0.5);
-}
-
 .container {
-  display: flex;
-  padding-right: 8px;
-  height: 400px;
-}
-
-.example-sidenav {
-  height: max-content;
-  margin-top: auto;
-  pointer-events: all;
-}
-
-.toggle {
-  margin-top: auto;
-  pointer-events: all;
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  margin-right: 2px;
 }
 
 .hide {
   display: none;
+}
+
+.toggle {
+  pointer-events: all;
+
+  &--active {
+    color: #5898d0;
+  }
+}
+
+.panel {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: 0;
+  width: 260px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 8px 10px 10px;
+  background-color: rgba(20, 15, 12, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  pointer-events: all;
+}
+
+.panel__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 2px 2px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
+}
+
+.panel__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.panel__subtitle {
+  font-size: 10px;
+  opacity: 0.55;
 }
 
 .mat-badge-custom {
@@ -44,17 +70,88 @@
   opacity: 0.6;
 }
 
+.task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .task {
   display: flex;
   align-items: center;
-  height: 16px;
-  padding: 4px 0 0;
-  margin: 0;
-  &__processing {
-    margin-left: 3.5px;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.03);
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
-  &__done {
-    padding: 4px 0 0;
-    transform: scale(0.7);
+
+  &__label {
+    font-size: 11px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+
+  &__phase {
+    font-size: 10px;
+    line-height: 1.3;
+    color: #5898d0;
+  }
+
+  &__subtask {
+    font-size: 10px;
+    line-height: 1.3;
+    opacity: 0.55;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__stop {
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    padding: 0;
+
+    .task__icon {
+      color: #e0533b;
+    }
+  }
+
+  &__icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &__processing {
+    margin: 0 1px;
+  }
+
+  &--complete .task__icon {
+    color: #4caf72;
+  }
+
+  &--error .task__icon {
+    color: #e0533b;
+  }
+
+  &--cancelled .task__icon {
+    color: #c9a227;
+  }
+
+  &--pending .task__icon {
+    opacity: 0.6;
   }
 }

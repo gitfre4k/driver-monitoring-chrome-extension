@@ -10,7 +10,7 @@ import {
 } from '../../../interfaces/driver-daily-log-events.interface';
 import { DateTime } from 'luxon';
 import { KeyboardService } from '../../../@services/keyboard.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../@services/notification.service';
 import { MonitorService } from '../../../@services/monitor.service';
 
 import { getStatusDuration } from '../../../helpers/app.helpers';
@@ -45,7 +45,7 @@ export class EventComponent {
 
   contextMenuService = inject(ContextMenuService);
 
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   getStatusDuration = getStatusDuration;
 
@@ -87,7 +87,7 @@ export class EventComponent {
   copyValue(value: string) {
     if (!this.keyboardService.ctrlPressed()) return;
     navigator.clipboard.writeText(value);
-    this._snackBar.open(`Copied: ${value}`, 'OK', { duration: 1500 });
+    this.notification.info(`Copied: ${value}`, { duration: 1500 });
   }
   copyLocation(event: IEvent) {
     this.contextMenuService.handleAction('COPY_LOCATION', event);

@@ -1,0 +1,130 @@
+.container {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  margin-right: 2px;
+}
+
+.toggle {
+  pointer-events: all;
+
+  &--active {
+    color: #5898d0;
+  }
+}
+
+.panel {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: 0;
+  width: 280px;
+  max-height: 360px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px 10px;
+  background-color: rgba(20, 15, 12, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  pointer-events: all;
+}
+
+.panel__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 2px 2px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 6px;
+}
+
+.panel__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.panel__subtitle {
+  font-size: 10px;
+  opacity: 0.55;
+}
+
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border-left: 3px solid var(--entry-accent, #5898d0);
+  background: var(--entry-tint, rgba(88, 152, 208, 0.1));
+
+  &__icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--entry-accent, #5898d0);
+  }
+
+  &__message {
+    font-size: 11px;
+    line-height: 1.35;
+    color: #ece8e4;
+    overflow-wrap: anywhere;
+  }
+
+  &__time {
+    font-size: 9px;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.55;
+    white-space: nowrap;
+  }
+
+  &--info {
+    --entry-accent: #5898d0;
+    --entry-tint: rgba(88, 152, 208, 0.1);
+  }
+  &--success {
+    --entry-accent: #4caf72;
+    --entry-tint: rgba(76, 175, 114, 0.1);
+  }
+  &--warning {
+    --entry-accent: #e0a23b;
+    --entry-tint: rgba(224, 162, 59, 0.1);
+  }
+  &--error {
+    --entry-accent: #e0533b;
+    --entry-tint: rgba(224, 83, 59, 0.1);
+  }
+}
+
+.entry--empty {
+  list-style: none;
+  text-align: center;
+  font-size: 11px;
+  opacity: 0.5;
+  padding: 16px 0;
+}
+
+.clear {
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: 8px;
+  font-size: 11px;
+  line-height: 28px;
+  min-height: 28px;
+}

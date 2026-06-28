@@ -23,7 +23,7 @@ import { ApiPrologsAdminService } from '../../../@services/api-prologs-admin.ser
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVehicleMaintanenceComponent } from '../../UI/dialog-vehicle-maintanence/dialog-vehicle-maintanence.component';
 import { switchMap } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../@services/notification.service';
 import { ContextMenuService } from '../../../@services/context-menu.service';
 
 import { UrlService } from '../../../@services/url.service';
@@ -64,7 +64,7 @@ export class ActionBtnsComponent {
   constantsService = inject(ConstantsService);
   taskQueueService = inject(TaskQueueService);
   _dialog = inject(MatDialog);
-  _snackBar = inject(MatSnackBar);
+  notification = inject(NotificationService);
 
   isLoading = signal(false);
   isSmartFix = signal(false);
@@ -141,20 +141,16 @@ export class ActionBtnsComponent {
           this.monitorService.refreshDailyLogs();
           this.urlService.refreshWebApp();
           if (res[0] && res[0].errorMessage) {
-            this._snackBar.open(
+            this.notification.error(
               `[Smart Fix] Error: ${res[0].errorMessage}`,
-              'OK',
-              { duration: 7000 },
             );
           } else
-            this._snackBar.open('Smart fix performed successfully', 'OK', {
-              duration: 3000,
-            });
+            this.notification.success('Smart fix performed successfully');
         },
 
         error: (err: any) => {
           this.isSmartFix.set(false);
-          this._snackBar.open(err.error.message, 'Close', { duration: 7000 });
+          this.notification.error(err.error.message, { action: 'Close' });
         },
       },
     );
@@ -179,10 +175,9 @@ export class ActionBtnsComponent {
       )
       .subscribe({
         error: (err) => {
-          this._snackBar.open(
+          this.notification.error(
             `[ERROR] ${err.message ?? err.error.message}`,
-            'Close',
-            { duration: 7000 },
+            { action: 'Close' },
           );
           this.isLoading.set(false);
         },

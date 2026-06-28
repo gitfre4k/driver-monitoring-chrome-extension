@@ -1,53 +1,31 @@
 <div class="scan">
-  @if (!scanning()) {
+  <div class="scan__header">
+    <mat-button-toggle-group
+      class="scan__header-toggle"
+      [value]="view()"
+      (change)="view.set($event.value)"
+      hideSingleSelectionIndicator
+    >
+      <mat-button-toggle value="cards">
+        <mat-icon>tune</mat-icon>
+        Setup
+      </mat-button-toggle>
+      <mat-button-toggle value="progress">
+        <mat-icon>insights</mat-icon>
+        Activity
+        @if (activeCount(); as count) {
+          <span class="scan__header-badge">{{ count }}</span>
+        }
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @if (view() === "cards") {
+    <div class="scan__body">
     <div class="scan__col">
       <!-- Violations -->
       <div class="card scan__violations">
         <div class="card__label">Violations</div>
-        <div class="scan__violations__sync">
-          <mat-slide-toggle
-            [(ngModel)]="scanService.autoScan"
-            class="toggle--small scan__violations__sync__auto"
-          >
-            <span class="toggle__label">Enable Auto-Scan</span>
-          </mat-slide-toggle>
-          <div class="scan__violations__sync-stats">
-            @if (scanService.autoScan()) {
-              <div class="scan__violations__sync-stats__auto-scan">
-                @if (vLastSync(); as lastSync) {
-                  <span>
-                    last sync: <br />
-                    {{ lastSync | date: "shortTime" }}</span
-                  >
-                }
-                <a
-                  mat-icon-button
-                  (click)="startViolationsScan()"
-                  matTooltip="Check for violations"
-                  [disabled]="disableScan()"
-                >
-                  <mat-icon class="icon-display">sync</mat-icon></a
-                >
-              </div>
-            } @else {
-              <div class="scan__violations__sync-stats__manual-scan">
-                <button
-                  matButton="tonal"
-                  (click)="startViolationsScan()"
-                  [disabled]="disableScan()"
-                >
-                  Scan
-                </button>
-                @if (vLastSync(); as lastSync) {
-                  <span>
-                    last scan:
-                    {{ lastSync | date: "shortTime" }}</span
-                  >
-                }
-              </div>
-            }
-          </div>
-        </div>
         <!-- radio buttons -->
         <div class="scan__violations__options">
           <mat-radio-group
@@ -123,12 +101,20 @@
             ></mat-datepicker-toggle>
           </span>
         </div>
-        <div class="scan__violations__autofocus">
-          <mat-checkbox
-            class="checkbox--small"
-            [(ngModel)]="scanService.autofocus"
-            >Autofocus results on detection</mat-checkbox
+
+        <div class="scan__violations__sync">
+          @if (vLastSync(); as lastSync) {
+            <span class="scan__violations__last"
+              >last scan: {{ lastSync | date: "shortTime" }}</span
+            >
+          }
+          <button
+            matButton="tonal"
+            (click)="startViolationsScan()"
+            [disabled]="disableScan()"
           >
+            Scan
+          </button>
         </div>
       </div>
 
@@ -245,86 +231,130 @@
       <!-- Admin Portal -->
       <div class="card scan__admin">
         <div class="card__label">Admin Portal</div>
-        <div class="scan__alerts__form admin">
-          <div class="scan__alerts__form-group">
-            <mat-label>last recorded activity</mat-label>
-            <mat-slider class="slider" [max]="180" [min]="1" [step]="1">
-              <input
-                matSliderThumb
-                [(ngModel)]="progressBarService.adminLastActivity"
-              />
-            </mat-slider>
-            <mat-label>
-              < {{ progressBarService.adminLastActivity() }}min
-            </mat-label>
-          </div>
-          <div class="scan__alerts__form-group">
-            <mat-label>ELD unplugged duration</mat-label>
-            <mat-slider class="slider" [max]="8" [min]="1" [step]="1">
-              <input
-                matSliderThumb
-                [(ngModel)]="progressBarService.adminELDUnplugged"
-              />
-            </mat-slider>
-            <mat-label>
-              < {{ progressBarService.adminELDUnplugged() }}h
-            </mat-label>
-          </div>
+        <div class="scan__action-row">
+          <a
+            mat-icon-button
+            class="scan__settings-btn"
+            matTooltip="Settings"
+            (click)="openSettings()"
+          >
+            <mat-icon>settings</mat-icon>
+          </a>
+          <button matButton="tonal" (click)="getDashboardLocationsData()">
+            Scan
+          </button>
         </div>
-        <button matButton="tonal" (click)="getDashboardLocationsData()">
-          Scan
-        </button>
       </div>
     </div>
 
     <div class="scan__col">
-      <!-- Unidentified Events + Global Smart Fix -->
-      <div class="scan__tools">
-        <div class="card scan__tools__unidentified">
-          <div class="card__label">Unidentified Events</div>
-          <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
-            Delete
-          </button>
+      <!-- Tools: Unidentified Events + Global Smart Fix + Log Certification -->
+      <div class="card scan__tools-card">
+        <div class="card__label">Tools</div>
+
+        <div class="scan__tools">
+          <div class="card scan__tools__unidentified">
+            <div class="card__label">Unidentified Events</div>
+            <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
+              Delete
+            </button>
+          </div>
+
+          <div class="card scan__group__smart">
+            <div class="card__label">Global Smart Fix</div>
+            <div class="scan__action-row">
+              <a
+                mat-icon-button
+                class="scan__settings-btn"
+                matTooltip="Settings"
+                (click)="openSettings()"
+              >
+                <mat-icon>settings</mat-icon>
+              </a>
+              <button
+                matButton="tonal"
+                [disabled]="disableScan()"
+                (click)="globalSmartFix()"
+              >
+                Smart Fix
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="card scan__group__smart">
-          <div class="card__label">Global Smart Fix</div>
-          <mat-checkbox
-            class="checkbox--small"
-            [(ngModel)]="globalSmartfFixService.excludeCoDrivers"
-            ><span
-              >exclude <br />
-              co-drivers</span
-            ></mat-checkbox
-          >
-          <button
-            matButton="tonal"
-            [disabled]="disableScan()"
-            (click)="globalSmartFix()"
-          >
-            Smart Fix
-          </button>
+        <!-- Log Certification -->
+        <div class="card scan__log-analysis">
+          <div class="card__label">Log Certification</div>
+
+          @if (tenantList(); as tenants) {
+            <div class="scan__log-analysis__form">
+              <ng-container>
+                <mat-form-field class="cert__form small-select">
+                  <mat-label>Company</mat-label>
+                  <mat-select
+                    [formControl]="certTenants"
+                    multiple
+                    panelClass="custom-option-height my-custom-select"
+                  >
+                    <mat-select-trigger>
+                      @if (certTenants.value?.length === tenants.length) {
+                        All selected ({{ certTenants.value?.length }})
+                      } @else {
+                        {{ certTenants.value?.[0]?.name }}
+                        @if ((certTenants.value?.length || 0) > 1) {
+                          <span>
+                            (+{{ (certTenants.value?.length || 0) - 1 }}
+                            {{
+                              certTenants.value?.length === 2
+                                ? "other"
+                                : "others"
+                            }})
+                          </span>
+                        }
+                      }
+                    </mat-select-trigger>
+
+                    <mat-option
+                      value="select-all"
+                      selectAll
+                      [allValues]="tenants"
+                      >Select all</mat-option
+                    >
+
+                    @for (tenant of tenants; track tenant.id) {
+                      <mat-option [value]="tenant">{{
+                        tenant.name
+                      }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </ng-container>
+            </div>
+            <div class="scan__log-analysis__form-submit+ scan__action-row">
+              <a
+                mat-icon-button
+                class="scan__settings-btn"
+                matTooltip="Settings"
+                (click)="openSettings()"
+              >
+                <mat-icon>settings</mat-icon>
+              </a>
+              <button
+                [disabled]="disableScan()"
+                matButton="tonal"
+                (click)="certifyLogs()"
+                class="cert-button"
+              >
+                Certify Logs
+              </button>
+            </div>
+          }
         </div>
       </div>
 
       <!-- Driver Log Analysis -->
       <div class="card scan__log-analysis">
         <div class="card__label">Driver Log Analysis</div>
-
-        <div class="scan__log-analysis__options">
-          <mat-slide-toggle
-            [(ngModel)]="showAnalasysOptions"
-            class="toggle--small"
-          >
-            <span class="toggle__label">Show Analysis Parameters</span>
-          </mat-slide-toggle>
-        </div>
-
-        @if (showAnalasysOptions()) {
-          <div class="scan__log-analysis__params">
-            <app-advanced-scan></app-advanced-scan>
-          </div>
-        }
 
         <mat-form-field class="visually-hidden">
           <input
@@ -358,94 +388,63 @@
               during Driving</span
             ></mat-checkbox
           >
-          <div class="scan__log-analysis__form-submit+">
-            <button
-              [disabled]="disableScan()"
-              matButton="tonal"
-              (click)="analyzeDriverLogs()"
-            >
-              Analyze
-            </button>
-          </div>
+        </div>
+        <div class="scan__action-row">
+          <a
+            mat-icon-button
+            class="scan__settings-btn"
+            matTooltip="Settings"
+            (click)="openSettings()"
+          >
+            <mat-icon>settings</mat-icon>
+          </a>
+          <button
+            [disabled]="disableScan()"
+            matButton="tonal"
+            (click)="analyzeDriverLogs()"
+          >
+            Analyze
+          </button>
         </div>
       </div>
-
-      <!-- Log Certification -->
-      <div class="card scan__log-analysis">
-        <div class="card__label">Log Certification</div>
-
-        @if (tenantList(); as tenants) {
-          <div class="scan__log-analysis__form">
-            <ng-container>
-              <mat-form-field class="cert__form small-select">
-                <mat-label>Company</mat-label>
-                <mat-select
-                  [formControl]="certTenants"
-                  multiple
-                  panelClass="custom-option-height my-custom-select"
-                >
-                  <mat-select-trigger>
-                    @if (certTenants.value?.length === tenants.length) {
-                      All selected ({{ certTenants.value?.length }})
-                    } @else {
-                      {{ certTenants.value?.[0]?.name }}
-                      @if ((certTenants.value?.length || 0) > 1) {
-                        <span>
-                          (+{{ (certTenants.value?.length || 0) - 1 }}
-                          {{
-                            certTenants.value?.length === 2
-                              ? "other"
-                              : "others"
-                          }})
-                        </span>
-                      }
-                    }
-                  </mat-select-trigger>
-
-                  <mat-option value="select-all" selectAll [allValues]="tenants"
-                    >Select all</mat-option
-                  >
-
-                  @for (tenant of tenants; track tenant.id) {
-                    <mat-option [value]="tenant">{{ tenant.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </ng-container>
-          </div>
-          <div class="sert-checkboxes">
-            <mat-checkbox
-              class="checkbox--small sert-checkboxes_item"
-              [(ngModel)]="certScanService.certifyOnlyWorkingDays"
-              ><span>only certify driver's working days</span></mat-checkbox
-            >
-            <mat-checkbox
-              class="checkbox--small sert-checkboxes_item"
-              [(ngModel)]="certScanService.doNotCertPastLastWorkDay"
-              [disabled]="certScanService.certifyOnlyWorkingDays()"
-              ><span
-                >do not certify days past driver's last day worked</span
-              ></mat-checkbox
-            >
-          </div>
-
-          <div class="scan__log-analysis__form-submit+">
-            <button
-              [disabled]="disableScan()"
-              matButton="tonal"
-              (click)="certifyLogs()"
-              class="cert-button"
-            >
-              Certify Logs
-            </button>
-          </div>
-        }
-      </div>
+    </div>
     </div>
   } @else {
-    <app-progress-bar
-      [scanSubscription]="scanSubscribtion"
-      [scanMode]="scanMode.value"
-    ></app-progress-bar>
+    <div class="scan__progress-view">
+      @if (scanning()) {
+        <app-progress-bar
+          class="scan__progress"
+          [scanSubscription]="scanSubscribtion"
+          [scanMode]="scanMode.value"
+        ></app-progress-bar>
+      }
+
+      @if (pendingScans().length) {
+        <div class="scan__pending">
+          <span class="scan__pending-label">Queued</span>
+          @for (task of pendingScans(); track task.id) {
+            <span class="scan__pending-item">
+              <mat-icon class="scan__pending-item-icon">schedule</mat-icon>
+              {{ task.name }}
+              <button
+                type="button"
+                class="scan__pending-cancel"
+                matTooltip="Cancel"
+                (click)="taskQueueService.scan.cancel(task.id)"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </span>
+          }
+        </div>
+      }
+
+      @if (!scanning() && !pendingScans().length) {
+        <div class="scan__progress-empty">
+          <mat-icon>schedule</mat-icon>
+          <span>No active or queued scans</span>
+        </div>
+      }
+    </div>
   }
 </div>

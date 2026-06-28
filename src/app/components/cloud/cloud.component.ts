@@ -17,7 +17,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AppService } from '../../@services/app.service';
 import { formatTenantName } from '../../helpers/monitor.helpers';
 import { sortData, isEmpty, resultCount } from '../../helpers/cloud.helpers';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../@services/notification.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import {
@@ -72,7 +72,7 @@ export class CloudComponent {
   dateService = inject(DateService);
   urlService = inject(UrlService);
   appService = inject(AppService);
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   readonly dialog = inject(MatDialog);
 
@@ -222,7 +222,8 @@ export class CloudComponent {
 
         this.backendService.deleteNote(idsToDelete).subscribe({
           error: () => {
-            this._snackBar.open('Failed to delete note', 'Close', {
+            this.notification.error('Failed to delete note', {
+              action: 'Close',
               duration: 3000,
             });
             this.backendService.isDeletingNote.set(null);
@@ -246,7 +247,8 @@ export class CloudComponent {
 
     this.backendService.archiveNote(idsToArchive).subscribe({
       error: () => {
-        this._snackBar.open('Failed to move note to archive', 'Close', {
+        this.notification.error('Failed to move note to archive', {
+          action: 'Close',
           duration: 3000,
         });
         this.backendService.isDeletingNote.set(null);

@@ -16,7 +16,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSliderModule } from '@angular/material/slider';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -89,7 +88,6 @@ export class MonitorComponent {
   formInputService = inject(FormInputService);
   backendService = inject(BackendService);
 
-  _snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
 
   statusText = '';

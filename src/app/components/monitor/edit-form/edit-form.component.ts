@@ -13,7 +13,7 @@ import { FormInputService } from '../../../@services/form-input.service';
 import { SaveComponent } from '../../UI/save/save.component';
 import { CancelComponent } from '../../UI/cancel/cancel.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../@services/notification.service';
 import { ContextMenuService } from '../../../@services/context-menu.service';
 
 @Component({
@@ -46,7 +46,7 @@ export class EditFormComponent {
     this.monitorService.cancelEventEdit();
   }
 
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   updateChanges() {
     setTimeout(() => this.monitorService.selectedEvents.set([]), 0);
@@ -71,33 +71,25 @@ export class EditFormComponent {
     const locationSource = 'SelectedFromMap';
 
     if (isNaN(+lat) || isNaN(+long)) {
-      return this._snackBar.open('Invalid location input', 'Close', {
-        duration: 3000,
+      return this.notification.error('Invalid location input', {
+        action: 'Close',
       });
     }
     if (!event) {
-      this._snackBar.open(
+      this.notification.error(
         `[Monitor Component] error occurred, refreshing page... `,
-        'OK',
-        { duration: 7000 },
       );
       return this.monitorService.refresh();
     }
     if (!note) {
-      this._snackBar.open(`[Monitor Component] error: invalid note`, 'OK', {
-        duration: 7000,
-      });
+      this.notification.error(`[Monitor Component] error: invalid note`);
     }
     if (!startTime) {
-      this._snackBar.open(`[Monitor Component] error: invalid date`, 'OK', {
-        duration: 7000,
-      });
+      this.notification.error(`[Monitor Component] error: invalid date`);
     }
     if (!totalVehicleMiles) {
-      return this._snackBar.open(
+      return this.notification.error(
         `[Monitor Component] error: invalid odometer value`,
-        'OK',
-        { duration: 7000 },
       );
     }
 

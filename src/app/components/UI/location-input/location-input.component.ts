@@ -6,7 +6,6 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MonitorService } from '../../../@services/monitor.service';
 import { FormInputService } from '../../../@services/form-input.service';
@@ -31,7 +30,6 @@ export class LocationInputComponent {
   monitorService = inject(MonitorService);
   formInputService = inject(FormInputService);
   apiOperationService = inject(ApiOperationsService);
-  _snackBar = inject(MatSnackBar);
 
   editLocation = signal(false);
 

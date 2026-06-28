@@ -8,7 +8,7 @@ import { ApiService } from "./api.service";
 import { DateService } from "./date.service";
 import { ConstantsService } from "./constants.service";
 import { AdvancedScanService } from "./advanced-scan.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { NotificationService } from "./notification.service";
 
 @Injectable({
   providedIn: "root",
@@ -21,7 +21,7 @@ export class GlobalSmartfFixService {
   private dateService = inject(DateService);
   private advancedScanService = inject(AdvancedScanService);
 
-  private _snacBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   constantService = inject(ConstantsService);
   httpLimit = this.constantService.httpLimit;
@@ -33,12 +33,9 @@ export class GlobalSmartfFixService {
     const analyzedCoDrivers = this.advancedScanService.analyzedCoDrivers();
 
     if (!isReadyForSmartFix) {
-      this._snacBar.open(
+      this.notification.warning(
         "Please complete Driver Log Analysis with 'remove Engine events during Driving' enabled before initiating SmartFix.",
-        "Close",
-        {
-          duration: 5000,
-        },
+        { action: "Close", duration: 5000 },
       );
       return of();
     } else {

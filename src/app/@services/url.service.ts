@@ -2,12 +2,12 @@ import { Injectable, signal, NgZone, inject, computed } from '@angular/core';
 import { BackgroundJsService } from './background-js.service';
 import { ICompany } from '../interfaces';
 import { ExtensionTabNavigationService } from './extension-tab-navigation.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 import { TFocusElementAction } from '../types';
 
 @Injectable({ providedIn: 'root' })
 export class UrlService {
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
   backgroundJsService = inject(BackgroundJsService);
   extensionTabNavService = inject(ExtensionTabNavigationService);
 
@@ -101,10 +101,8 @@ export class UrlService {
   refreshWebApp = () => {
     const tabId = this.tabId();
     if (!tabId)
-      return this._snackBar.open(
+      return this.notification.warning(
         `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
-        'OK',
-        { duration: 3000 },
       );
 
     return this.backgroundJsService
@@ -121,10 +119,8 @@ export class UrlService {
   ) => {
     const tabId = this.tabId();
     if (!tabId)
-      return this._snackBar.open(
+      return this.notification.warning(
         `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
-        'OK',
-        { duration: 3000 },
       );
 
     const payload = { tabId, elementId, statusName };
@@ -138,10 +134,8 @@ export class UrlService {
   ) => {
     const tabId = this.tabId();
     if (!tabId)
-      return this._snackBar.open(
+      return this.notification.warning(
         `Couldn't find the Chrome tab. Please switch to app.monitoringdriver.com manually`,
-        'OK',
-        { duration: 3000 },
       );
 
     const id = tenant ? tenant.id : this.tenant()!.id;

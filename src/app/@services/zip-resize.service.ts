@@ -106,13 +106,18 @@ export class ZipResizeService {
     resizeItems: IResizeItem[],
     resize: boolean,
     fillStatus: TEventTypeCode,
+    onProgress?: (done: number, total: number) => void,
   ): Observable<any> {
     if (!resize || resizeItems.length === 0) {
       return of({});
     }
 
+    const total = resizeItems.length;
+
     return from(resizeItems).pipe(
-      concatMap((resizeItem) => {
+      concatMap((resizeItem, index) => {
+        onProgress?.(index + 1, total);
+
         // 1. Handle duplication for gap fill
         if (resizeItem.duplicateForGapFillEvent) {
           const eventToDuplicate = resizeItem.duplicateForGapFillEvent;

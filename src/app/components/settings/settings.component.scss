@@ -1,82 +1,284 @@
+// ——— Card (matches the scan page) ———
+
+.card {
+  position: relative;
+  width: 100%;
+  border: 1px solid rgba(88, 152, 208, 0.25);
+  border-radius: 12px;
+  padding: 12px 14px 10px;
+  box-sizing: border-box;
+
+  &__label {
+    position: absolute;
+    top: -5px;
+    left: 12px;
+    padding: 0 5px;
+    background-color: rgb(20, 15, 12);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #5898d0;
+    line-height: 1;
+  }
+}
+
+// ——— Button design (matches the scan page) ———
+
+.settings button[matButton] {
+  border-radius: 6px !important;
+  background-color: rgba(88, 152, 208, 0.1) !important;
+  border: 1px solid rgba(88, 152, 208, 0.28) !important;
+  color: #5898d0 !important;
+  white-space: nowrap !important;
+  letter-spacing: 0.03em;
+  font-size: 12px;
+  padding: 0 14px !important;
+  min-width: 0 !important;
+  height: 30px !important;
+}
+
+// ——— Utility (shared with scan) ———
+
+.toggle--small {
+  transform: scale(0.85);
+  transform-origin: left center;
+}
+
+.toggle__label {
+  font-size: 16px;
+  padding-left: 6px;
+  letter-spacing: 0.04em;
+}
+
 .settings {
+  // ——— Checkbox ———
+  --mdc-checkbox-unselected-icon-color: rgba(88, 152, 208, 0.4);
+  --mdc-checkbox-unselected-hover-icon-color: rgba(88, 152, 208, 0.65);
+  --mdc-checkbox-unselected-focus-icon-color: rgba(88, 152, 208, 0.65);
+  --mdc-checkbox-unselected-pressed-icon-color: rgba(88, 152, 208, 0.65);
+  --mdc-checkbox-selected-icon-color: #5898d0;
+  --mdc-checkbox-selected-hover-icon-color: #5898d0;
+  --mdc-checkbox-selected-focus-icon-color: #5898d0;
+  --mdc-checkbox-selected-pressed-icon-color: #5898d0;
+  --mdc-checkbox-selected-checkmark-color: #1e1e22;
+
+  // ——— Radio ———
+  --mdc-radio-unselected-icon-color: rgba(88, 152, 208, 0.4);
+  --mdc-radio-unselected-hover-icon-color: rgba(88, 152, 208, 0.65);
+  --mdc-radio-unselected-focus-icon-color: rgba(88, 152, 208, 0.65);
+  --mdc-radio-selected-icon-color: #5898d0;
+  --mdc-radio-selected-hover-icon-color: #5898d0;
+  --mdc-radio-selected-focus-icon-color: #5898d0;
+  --mdc-radio-selected-pressed-icon-color: #5898d0;
+  --mat-radio-ripple-color: rgba(88, 152, 208, 0.1);
+  --mat-radio-checked-ripple-color: rgba(88, 152, 208, 0.15);
+
+  // ——— Slide toggle ———
+  --mdc-switch-selected-track-color: rgba(88, 152, 208, 0.45);
+  --mdc-switch-selected-focus-track-color: rgba(88, 152, 208, 0.55);
+  --mdc-switch-selected-hover-track-color: rgba(88, 152, 208, 0.55);
+  --mdc-switch-selected-pressed-track-color: rgba(88, 152, 208, 0.45);
+  --mdc-switch-selected-handle-color: #5898d0;
+  --mdc-switch-selected-focus-handle-color: #9ec8f0;
+  --mdc-switch-selected-hover-handle-color: #9ec8f0;
+  --mdc-switch-selected-pressed-handle-color: #5898d0;
+  --mdc-switch-unselected-track-color: rgba(255, 255, 255, 0.1);
+  --mdc-switch-unselected-focus-track-color: rgba(255, 255, 255, 0.15);
+  --mdc-switch-unselected-hover-track-color: rgba(255, 255, 255, 0.15);
+  --mdc-switch-unselected-pressed-track-color: rgba(255, 255, 255, 0.1);
+  --mdc-switch-unselected-handle-color: rgba(88, 152, 208, 0.5);
+  --mdc-switch-unselected-focus-handle-color: rgba(88, 152, 208, 0.7);
+  --mdc-switch-unselected-hover-handle-color: rgba(88, 152, 208, 0.7);
+  --mdc-switch-unselected-pressed-handle-color: rgba(88, 152, 208, 0.5);
+
+  // ——— Slider ———
+  --mdc-slider-active-track-color: #5898d0;
+  --mdc-slider-inactive-track-color: rgba(88, 152, 208, 0.18);
+  --mdc-slider-handle-color: #5898d0;
+  --mdc-slider-focus-handle-color: #9ec8f0;
+  --mdc-slider-hover-handle-color: #9ec8f0;
+  --mdc-slider-pressed-handle-color: #5898d0;
+  --mat-slider-ripple-color: rgba(88, 152, 208, 0.12);
+  --mat-slider-hover-state-layer-color: rgba(88, 152, 208, 0.08);
+  --mat-slider-focus-state-layer-color: rgba(88, 152, 208, 0.12);
+
+  // ——— Label text ———
+  --mat-checkbox-label-text-color: rgba(255, 255, 255, 0.75);
+  --mat-checkbox-label-text-size: 13px;
+  --mat-radio-label-text-color: rgba(255, 255, 255, 0.75);
+  --mat-radio-label-text-size: 14px;
+  --mdc-switch-label-text-color: rgba(255, 255, 255, 0.75);
+
+  // ——— Form field / select ———
+  --mdc-outlined-text-field-container-shape: 6px;
+  --mdc-outlined-text-field-outline-color: rgba(88, 152, 208, 0.28);
+  --mdc-outlined-text-field-hover-outline-color: rgba(88, 152, 208, 0.5);
+  --mdc-outlined-text-field-focus-outline-color: #5898d0;
+  --mdc-outlined-text-field-label-text-color: rgba(88, 152, 208, 0.65);
+  --mdc-outlined-text-field-hover-label-text-color: rgba(88, 152, 208, 0.8);
+  --mdc-outlined-text-field-focus-label-text-color: #5898d0;
+  --mdc-outlined-text-field-input-text-color: rgba(255, 255, 255, 0.87);
+  --mat-select-trigger-text-color: rgba(255, 255, 255, 0.87);
+  --mat-select-enabled-arrow-color: rgba(88, 152, 208, 0.6);
+  --mat-select-focused-arrow-color: #5898d0;
+  --mat-option-selected-state-label-text-color: #5898d0;
+  --mat-option-hover-state-layer-color: rgba(88, 152, 208, 0.08);
+  --mat-option-focus-state-layer-color: rgba(88, 152, 208, 0.1);
+
   width: calc(100vw - 42px);
   height: calc(100vh - 55px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 0px 18px;
+  padding: 0 18px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+
+  // ——— Uniform label text ———
+
+  .mdc-label {
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-size: 13px !important;
+  }
 
   &__title {
-    margin: 12px 0;
+    margin: 8px 0 6px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.92);
   }
 
   &__container {
-    overflow-y: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     width: 100%;
+    max-width: 460px;
     height: calc(100vh - 100px);
-    align-items: center;
+    align-items: stretch;
     gap: 16px;
-    hr {
-      width: 90%;
-    }
-    span {
-      margin: 8px 0;
-    }
+    padding: 8px 2px 16px;
 
-    &__side {
-      width: 90%;
-      p {
-        padding-left: 16px;
-      }
-      margin: 12px;
+    &::-webkit-scrollbar {
+      width: 4px;
     }
-
-    &__speed {
-      width: 90%;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      p {
-        padding-left: 16px;
-      }
-      &-form {
-        width: 80%;
-        padding-left: 8px;
-      }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(88, 152, 208, 0.3);
+      border-radius: 2px;
     }
+  }
 
-    &__location {
-      width: 90%;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      margin-bottom: 16px;
+  // ——— Card content ———
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  // ——— Section sub-heading ———
+
+  &__subhead {
+    width: 100%;
+    margin: 8px 0 0;
+    padding-bottom: 2px;
+    border-bottom: 1px solid rgba(88, 152, 208, 0.15);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #5898d0;
+
+    &:first-of-type {
+      margin-top: 0;
     }
+  }
 
-    &__keybinds {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      gap: 8px;
-      padding: 0;
+  // ——— Form field ———
+
+  &__field {
+    width: 100%;
+  }
+
+  // ——— Radio row ———
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+
+    &-label {
       margin: 0;
-      &__item {
-        display: grid;
-        width: 280px;
-        grid-template-columns: 110px 55px 55px;
-        column-gap: 12px;
-        &-name {
-          text-align: right;
-          padding-right: 38px;
-        }
-        input {
-          border-radius: 8px;
-        }
+      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    &-radio {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+    }
+  }
+
+  // ——— Keyboard shortcuts button ———
+
+  &__keybinds-button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  // ——— Admin sliders ———
+
+  &__slider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+
+    mat-label {
+      white-space: nowrap;
+      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .slider {
+      flex: 1;
+    }
+  }
+
+  // ——— Keybinds list (shortcut dialog) ———
+
+  &__keybinds {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+
+    &__item {
+      display: grid;
+      width: 280px;
+      grid-template-columns: 110px 55px 55px;
+      column-gap: 12px;
+
+      &-name {
+        text-align: right;
+        padding-right: 38px;
+      }
+      input {
+        border-radius: 8px;
       }
     }
   }

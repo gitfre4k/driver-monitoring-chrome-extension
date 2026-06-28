@@ -21,8 +21,6 @@ import { ScanResultComponent } from './components/scan-result/scan-result.compon
 import { ExtensionTabNavigationService } from './@services/extension-tab-navigation.service';
 import { interval, Subscription } from 'rxjs';
 import { ScanService } from './@services/scan.service';
-import { IViolations } from './interfaces';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { DateService } from './@services/date.service';
 import { ErrorsComponent } from './components/errors/errors.component';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -30,6 +28,8 @@ import { AppService } from './@services/app.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ConstantsService } from './@services/constants.service';
 import { TaskQueueComponent } from './components/task-queue/task-queue.component';
+import { ConsoleComponent } from './components/console/console.component';
+import { NotificationService } from './@services/notification.service';
 import { CloudComponent } from './components/cloud/cloud.component';
 import { MonitorService } from './@services/monitor.service';
 import { BackendService } from './@services/backend.service';
@@ -56,6 +56,7 @@ import { ActiveDriverCountService } from './@services/active-driver-count.servic
     ScanResultComponent,
     MatProgressSpinnerModule,
     TaskQueueComponent,
+    ConsoleComponent,
     SettingsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -73,7 +74,7 @@ export class AppComponent {
   private appService = inject(AppService);
   private scanService = inject(ScanService);
   monitorService = inject(MonitorService);
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
   private dateService = inject(DateService);
   private constantsService = inject(ConstantsService);
   private backendService = inject(BackendService);
@@ -163,35 +164,26 @@ export class AppComponent {
       });
     }
 
-    // Auto-Scan
+    // Auto-Scan — enqueue a violations scan on the scan queue. The queue
+    // de-dupes by mode, so this is a no-op (skipped) when a violations scan is
+    // already pending or running, and otherwise simply joins the queue.
     this.timerSub = interval(300000).subscribe({
       next: () => {
-        if (!this.scanning() && this.scanService.autoScan()) {
-          this._snackBar.open(`Initiating violations auto-scan`, 'OK', {
-            duration: 3000,
-          });
+        if (!this.scanService.autoScan()) return;
 
-          return this.scanService
-            .getAllViolations({
-              from:
-                this.scanService.selectedRange() === 'week'
-                  ? this.dateService.violationsSevenDaysAgo
-                  : this.dateService.violationsMonthAgo,
-              to: this.dateService.violationsToday,
-            })
-            .subscribe({
-              next: (data: IViolations[]) =>
-                this.scanService.handleScanData(data, 'violations'),
-              error: (err) => this.scanService.handleError(err),
-              complete: () => this.scanService.handleScanComplete('violations'),
-            });
-        } else
-          return (
-            this.scanService.autoScan() &&
-            this._snackBar.open(`Violations auto-scan skiped`, 'OK', {
-              duration: 3000,
-            })
-          );
+        const queued = this.scanService.enqueueViolationsScan({
+          from:
+            this.scanService.selectedRange() === 'week'
+              ? this.dateService.violationsSevenDaysAgo
+              : this.dateService.violationsMonthAgo,
+          to: this.dateService.violationsToday,
+        });
+
+        this.notification.info(
+          queued === null
+            ? `Violations auto-scan skipped (already queued)`
+            : `Violations auto-scan queued`,
+        );
       },
     });
   }

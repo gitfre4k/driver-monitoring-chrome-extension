@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiOperationsService } from './api-operations.service';
 import { AppService } from './app.service';
 import { MonitorService } from './monitor.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 import { TContextMenuAction } from '../types';
 import {
   IDriverFmcsaInspection,
@@ -17,7 +17,7 @@ import {
   IShiftInputState,
 } from '../interfaces/api.interface';
 import { parseErrorMessage } from '../helpers/context-menu.helpers';
-import { from, mergeMap } from 'rxjs';
+import { from, mergeMap, switchMap } from 'rxjs';
 import { ConstantsService } from './constants.service';
 import { BackendService } from './backend.service';
 import { TaskQueueService } from './task-queue.service';
@@ -31,7 +31,7 @@ export class ContextMenuService {
   constantsService = inject(ConstantsService);
   backendService = inject(BackendService);
   taskQueueService = inject(TaskQueueService);
-  _snackBar = inject(MatSnackBar);
+  notification = inject(NotificationService);
 
   computedEvents = this.monitorService.computedDailyLogEvents;
 
@@ -51,11 +51,9 @@ export class ContextMenuService {
 
     if (!tenant) return;
 
-    this._snackBar.open(
-      `[ContextMenuService] executing action: ${action}`,
-      'OK',
-      { duration: 2000 },
-    );
+    this.notification.info(`[ContextMenuService] executing action: ${action}`, {
+      duration: 2000,
+    });
 
     switch (action) {
       case 'ChangeToSleeperBerthStatus':
@@ -76,16 +74,12 @@ export class ContextMenuService {
             error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open('Event type successfully updated.', 'OK', {
-                duration: 3000,
-              });
+              this.notification.success('Event type successfully updated.');
             },
           },
         );
@@ -101,9 +95,7 @@ export class ContextMenuService {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.disableFixButtons.set(false);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.urlService.refreshWebApp();
@@ -112,10 +104,42 @@ export class ContextMenuService {
                 () => this.monitorService.disableFixButtons.set(false),
                 2000,
               );
-              this._snackBar.open(
-                'Pre-Trip Inspection is now extended.',
-                'OK',
-                { duration: 3000 },
+              this.notification.success('Pre-Trip Inspection is now extended.');
+            },
+          },
+        );
+      }
+      case 'EXTEND_PTI_AND_NOTE': {
+        if (!event) return;
+        this.monitorService.disableFixButtons.set(true);
+        return this.taskQueueService.monitor.enqueue(
+          'Extend PTI + Note',
+          () =>
+            this.apiOperationsService
+              .extendPTI(tenant, event.id, event.pti)
+              .pipe(
+                switchMap(() =>
+                  this.apiOperationsService.updateEvent(tenant, event.id, {
+                    note: this.constantsService.ptiName(),
+                  }),
+                ),
+              ),
+          {
+            error: (err: any) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this.monitorService.disableFixButtons.set(false);
+              this.notification.error(`[ERROR]: ${err.error.message}`);
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              setTimeout(
+                () => this.monitorService.disableFixButtons.set(false),
+                2000,
+              );
+              this.notification.success(
+                'Pre-Trip Inspection extended and note added.',
               );
             },
           },
@@ -144,9 +168,7 @@ export class ContextMenuService {
               this.monitorService.refresh.update((value) => value + 1);
               action === 'ADD_PTI' &&
                 this.monitorService.disableFixButtons.set(false);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.urlService.refreshWebApp();
@@ -156,12 +178,10 @@ export class ContextMenuService {
                   () => this.monitorService.disableFixButtons.set(false),
                   2000,
                 );
-              this._snackBar.open(
+              this.notification.success(
                 `${
                   action === 'ADD_PTI' ? 'Pre-Trip Inspection' : 'Engine Off'
                 } has been added.`,
-                'OK',
-                { duration: 3000 },
               );
             },
           },
@@ -186,9 +206,7 @@ export class ContextMenuService {
         });
 
         if (!ids.length)
-          return this._snackBar.open('No engine status detected.', 'OK', {
-            duration: 3000,
-          });
+          return this.notification.warning('No engine status detected.');
 
         // milena
         return this.taskQueueService.monitor.enqueue(
@@ -198,19 +216,17 @@ export class ContextMenuService {
             error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+              this.notification.error(`[ERROR]: ${err.error.message}`, {
                 duration: 3000,
               });
             },
             complete: () => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(
+              this.notification.success(
                 `${ids.length} engine event${
                   ids.length > 1 ? 's' : ''
                 } have been deleted.`,
-                'OK',
-                { duration: 3000 },
               );
             },
           },
@@ -245,9 +261,7 @@ export class ContextMenuService {
               this.monitorService.isUpdatingEvent.set(false);
               this.monitorService.showUpdateEvent.set(null);
               this.monitorService.disableFixButtons.set(false);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.backendService.loadShiftReport();
@@ -259,9 +273,7 @@ export class ContextMenuService {
               );
               this.monitorService.showUpdateEvent.set(null);
               this.monitorService.disableFixButtons.set(false);
-              this._snackBar.open('FMCSA Inspection successfully posted', 'OK', {
-                duration: 3000,
-              });
+              this.notification.success('FMCSA Inspection successfully posted');
             },
           },
         );
@@ -286,9 +298,7 @@ export class ContextMenuService {
               this.monitorService.isUpdatingEvent.set(false);
               this.monitorService.showUpdateEvent.set(null);
               this.monitorService.disableFixButtons.set(false);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.urlService.refreshWebApp();
@@ -299,9 +309,7 @@ export class ContextMenuService {
               );
               this.monitorService.showUpdateEvent.set(null);
               this.monitorService.disableFixButtons.set(false);
-              this._snackBar.open('Status successfully updated', 'OK', {
-                duration: 3000,
-              });
+              this.notification.success('Status successfully updated');
             },
           },
         );
@@ -319,9 +327,7 @@ export class ContextMenuService {
             ),
           {
             error: (err: any) => {
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
 
               // go to [ADVANCED RESIZE]
               if (err.error.code === 'ResizeEvents.DifferenceInMiles') {
@@ -336,9 +342,7 @@ export class ContextMenuService {
                 this.monitorService.isResizingEvent.set(false);
                 this.monitorService.showResize.set(null);
                 this.monitorService.currentResizeDriving.set(null);
-                this._snackBar.open(`${err.error.message}`, 'OK', {
-                  duration: 7000,
-                });
+                this.notification.error(`${err.error.message}`);
               }
             },
             complete: () => {
@@ -350,9 +354,7 @@ export class ContextMenuService {
                 2000,
               );
               this.monitorService.showResize.set(null);
-              this._snackBar.open('Driving successfully resized', 'OK', {
-                duration: 3000,
-              });
+              this.notification.success('Driving successfully resized');
             },
           },
         );
@@ -375,9 +377,7 @@ export class ContextMenuService {
               this.monitorService.isResizingEvent.set(false);
               this.monitorService.showResize.set(null);
               this.monitorService.showAdvancedResize.set(null);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.urlService.refreshWebApp();
@@ -388,9 +388,7 @@ export class ContextMenuService {
                 () => this.monitorService.isResizingEvent.set(false),
                 2000,
               );
-              this._snackBar.open('Event successfully resized', 'OK', {
-                duration: 3000,
-              });
+              this.notification.success('Event successfully resized');
             },
           },
         );
@@ -416,21 +414,17 @@ export class ContextMenuService {
             error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(
+              this.notification.success(
                 `On Duty event partially transformed into ${
                   action === 'PARTIAL_ON_TO_SLEEP'
                     ? 'Sleeper Berth'
                     : 'Off Duty'
                 }`,
-                'OK',
-                { duration: 3000 },
               );
             },
           },
@@ -451,16 +445,12 @@ export class ContextMenuService {
             error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(`operation Duplicate Event successful`, 'OK', {
-                duration: 3000,
-              });
+              this.notification.success(`operation Duplicate Event successful`);
             },
           },
         );
@@ -483,17 +473,13 @@ export class ContextMenuService {
             error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(
+              this.notification.success(
                 `Event partial transformation successful`,
-                'OK',
-                { duration: 3000 },
               );
             },
           },
@@ -515,16 +501,14 @@ export class ContextMenuService {
                 longitude,
                 locationSource,
               });
-              this._snackBar.open(`Copied: ${geolocation}`, 'OK', {
+              this.notification.info(`Copied: ${geolocation}`, {
                 duration: 1500,
               });
             },
             error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
           },
         );
@@ -557,10 +541,8 @@ export class ContextMenuService {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.isShifting.set(false);
-              this._snackBar.open(
+              this.notification.error(
                 `[ERROR]: ${err.error.message ?? err.title}`,
-                'OK',
-                { duration: 7000 },
               );
             },
             complete: () => {
@@ -569,9 +551,7 @@ export class ContextMenuService {
               this.monitorService.isShifting.set(false);
               this.monitorService.selectedEvents.set([]);
               payload.dialogRef && payload.dialogRef.close();
-              this._snackBar.open('Shift operation successful.', 'OK', {
-                duration: 3000,
-              });
+              this.notification.success('Shift operation successful.');
             },
           },
         );
@@ -587,7 +567,7 @@ export class ContextMenuService {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.selectedEvents.set([]);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+              this.notification.error(`[ERROR]: ${err.error.message}`, {
                 duration: 3000,
               });
             },
@@ -595,12 +575,10 @@ export class ContextMenuService {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.selectedEvents.set([]);
-              this._snackBar.open(
+              this.notification.success(
                 `${ids.length} event${
                   ids.length > 1 ? 's' : ''
                 } successfully deleted.`,
-                'OK',
-                { duration: 3000 },
               );
             },
           },
@@ -627,19 +605,15 @@ export class ContextMenuService {
             error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-                duration: 7000,
-              });
+              this.notification.error(`[ERROR]: ${err.error.message}`);
             },
             complete: () => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.selectedEvents.set([]);
               this.monitorService.copiedEventLocation.set(null);
-              this._snackBar.open(
+              this.notification.success(
                 `Location successfully pasted on ${events.length} event${events.length > 1 ? 's' : ''}.`,
-                'OK',
-                { duration: 3000 },
               );
             },
           },

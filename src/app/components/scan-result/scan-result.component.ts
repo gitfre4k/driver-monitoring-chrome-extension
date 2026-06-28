@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../@services/notification.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import {
@@ -64,7 +64,7 @@ import { ScanResultSectionComponent } from './scan-result-section/scan-result-se
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScanResultComponent {
-  private _snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
   private urlService = inject(UrlService);
   private advancedScanService = inject(AdvancedScanService);
   progressBarService = inject(ProgressBarService);
@@ -203,7 +203,7 @@ export class ScanResultComponent {
 
   copyDriverName(name: string) {
     navigator.clipboard.writeText(name);
-    this._snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
+    this.notification.info(`Copied: ${name}`, { duration: 1500 });
   }
 
   openLogs(id: number, date: string, tenant: ITenant, openLogs?: boolean) {

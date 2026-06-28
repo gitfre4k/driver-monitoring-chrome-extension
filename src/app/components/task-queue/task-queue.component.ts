@@ -2,12 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
+  HostListener,
   inject,
-  ViewChild,
+  signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { TaskQueueService } from '../../@services/task-queue.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { NgTemplateOutlet } from '@angular/common';
@@ -17,7 +18,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-task-queue',
   imports: [
-    MatSidenavModule,
     MatButtonModule,
     MatIconModule,
     MatBadgeModule,
@@ -31,7 +31,20 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 export class TaskQueueComponent {
   taskQueueService = inject(TaskQueueService);
-  @ViewChild('rightSidenav', { static: true }) sidenav!: MatSidenav;
+  private elementRef = inject(ElementRef);
+
+  readonly opened = signal(false);
+
+  /** Close the panel when a click lands outside this component. */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (
+      this.opened() &&
+      !this.elementRef.nativeElement.contains(event.target as Node)
+    ) {
+      this.opened.set(false);
+    }
+  }
 
   monitorTasks = this.taskQueueService.monitor.tasks;
   scanTasks = this.taskQueueService.scan.tasks;
@@ -40,7 +53,7 @@ export class TaskQueueComponent {
     () => this.monitorTasks().length + this.scanTasks().length,
   );
 
-  ngOnInit(): void {
-    this.taskQueueService.setSidenav(this.sidenav);
+  toggle() {
+    this.opened.update((value) => !value);
   }
 }

@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../@services/notification.service';
 
 import { ProgressBarService } from '../../../@services/progress-bar.service';
 import { ConstantsService } from '../../../@services/constants.service';
@@ -39,7 +39,7 @@ export class ScanResultSectionComponent {
   private constantsService = inject(ConstantsService);
   progressBarService = inject(ProgressBarService);
   private urlService = inject(UrlService);
-  private snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   title = input.required<string>();
   rawData = input.required<IScanResult>();
@@ -140,6 +140,6 @@ export class ScanResultSectionComponent {
 
   copyName(name: string) {
     navigator.clipboard.writeText(name);
-    this.snackBar.open(`Copied: ${name}`, 'OK', { duration: 1500 });
+    this.notification.info(`Copied: ${name}`, { duration: 1500 });
   }
 }

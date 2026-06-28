@@ -43,7 +43,7 @@
   width: 100%;
   border: 1px solid rgba(88, 152, 208, 0.25);
   border-radius: 12px;
-  padding: 8px 10px;
+  padding: 6px 10px;
   box-sizing: border-box;
 
   &__label {
@@ -194,11 +194,215 @@
   color: rgba(255, 255, 255, 0.75);
 
   @media (min-width: 687px) {
-    flex-direction: row;
     height: 100%;
-    align-items: flex-start;
-    justify-content: center;
     overflow-y: hidden;
+  }
+
+  // ——— Header (view toggle: scan cards <-> progress + queue) ———
+
+  &__header {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    flex-shrink: 0;
+    padding: 8px 0 2px;
+
+    &-toggle {
+      border-radius: 8px;
+      overflow: hidden;
+      --mat-standard-button-toggle-height: 30px;
+      --mat-standard-button-toggle-selected-state-background-color: rgba(
+        88,
+        152,
+        208,
+        0.18
+      );
+      --mat-standard-button-toggle-selected-state-text-color: #5898d0;
+      --mat-standard-button-toggle-text-color: rgba(255, 255, 255, 0.6);
+      --mat-standard-button-toggle-background-color: transparent;
+      --mat-standard-button-toggle-divider-color: rgba(88, 152, 208, 0.28);
+      border: 1px solid rgba(88, 152, 208, 0.28);
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+      }
+
+      .mat-button-toggle-label-content {
+        display: inline-flex;
+        align-items: center;
+        padding: 0 14px;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        line-height: 30px;
+      }
+    }
+
+    &-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 16px;
+      height: 16px;
+      margin-left: 6px;
+      padding: 0 4px;
+      border-radius: 8px;
+      background: #5898d0;
+      color: #1e1e22;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 16px;
+    }
+  }
+
+  // ——— Progress view (live progress bar + queued scans) ———
+
+  &__progress-view {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    gap: 10px;
+    padding-top: 10px;
+    overflow-y: auto;
+  }
+
+  &__progress-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      opacity: 0.5;
+    }
+  }
+
+  // ——— Inline progress (cards stay visible during a scan) ———
+
+  &__progress {
+    display: block;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  &__pending {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    flex-shrink: 0;
+    padding: 4px 2px;
+    font-size: 11px;
+
+    &-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      color: #5898d0;
+    }
+
+    &-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 4px 1px 6px;
+      border: 1px solid rgba(88, 152, 208, 0.28);
+      border-radius: 10px;
+      color: rgba(255, 255, 255, 0.7);
+
+      &-icon {
+        font-size: 13px;
+        width: 13px;
+        height: 13px;
+      }
+    }
+
+    &-cancel {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px;
+      height: 15px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition:
+        color 0.15s,
+        background 0.15s;
+
+      &:hover {
+        color: #e0533b;
+        background: rgba(224, 83, 59, 0.12);
+      }
+
+      mat-icon {
+        font-size: 13px;
+        width: 13px;
+        height: 13px;
+        line-height: 13px;
+      }
+    }
+  }
+
+  // ——— Body holds the responsive scan columns ———
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+
+    @media (min-width: 687px) {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 12px;
+      height: 100%;
+      overflow: hidden;
+    }
+  }
+
+  // ——— Settings shortcut icon (left of a card's action button) ———
+
+  &__settings-btn {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    color: rgba(88, 152, 208, 0.75);
+    --mdc-icon-button-state-layer-size: 26px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+  }
+
+  // Keeps the settings icon directly to the left of a card's action button.
+  &__action-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
   }
 
   // ——— Column ———
@@ -209,13 +413,18 @@
     align-items: stretch;
     width: 100%;
     padding-top: 8px;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
     gap: 8px;
     overflow-y: auto;
     overflow-x: hidden;
 
     @media (min-width: 687px) {
       height: 100%;
+      // Distribute cards across the full column height so the content fills
+      // the viewport instead of leaving a gap at the bottom.
+      justify-content: space-between;
+      padding-bottom: 6px;
+      gap: 6px;
     }
   }
 
@@ -242,48 +451,20 @@
   // ——— Violations ———
 
   &__violations {
+    // Bottom row: "last scan" text on the left of the Scan button, both pinned
+    // to the far right of the card.
     &__sync {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+    }
 
-      &__auto {
-        margin-left: -8px;
-      }
-
-      &-stats {
-        height: 36px;
-
-        &__auto-scan {
-          display: flex;
-          align-items: center;
-          text-align: right;
-          line-height: 16px;
-          gap: 8px;
-
-          .icon-display {
-            margin: 0;
-            padding: 0;
-          }
-
-          a {
-            margin-right: 8px;
-          }
-        }
-
-        &__manual-scan {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          padding: 0;
-          margin: 2px 8px 0 0;
-
-          button {
-            font-size: 13px;
-            margin-bottom: 8px;
-          }
-        }
-      }
+    &__last {
+      white-space: nowrap;
+      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.7);
     }
 
     &__options {
@@ -390,6 +571,15 @@
     button {
       flex-shrink: 0;
     }
+  }
+
+  // ——— Tools card (Unidentified + Smart Fix + Log Certification) ———
+
+  &__tools-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 10px;
   }
 
   // ——— Tools row (Unidentified + Smart Fix) ———

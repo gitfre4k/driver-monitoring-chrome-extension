@@ -457,6 +457,13 @@ export class ComputeEventsService {
             events[wannabePTIonDutyId].warningMessages.push(
               'short Pre-Trip Inspection',
             );
+            // A short PTI that also has no note needs both fixes (extend + note);
+            // flag it so the monitor shows a single combined button.
+            if (
+              !events[wannabePTIonDutyId].notes ||
+              events[wannabePTIonDutyId].notes.trim() === ''
+            )
+              events[wannabePTIonDutyId].ptiNeedsNote = true;
           } else {
             events[i].pti = 0;
             events[i].errorMessages.push('no Pre-Trip Inspection');

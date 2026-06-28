@@ -21,16 +21,30 @@
       border-radius: 5px;
       background-color: rgba(255, 255, 255, 0.07);
       width: calc(100vw - 128px);
+      // company + driver names are kept to a single row (no wrapping); long
+      // names are clipped rather than pushed onto a second line.
       &-company {
-        font-size: 21px;
+        font-size: 16px;
+        line-height: 20px;
+        letter-spacing: 0.2px;
+        font-weight: 600;
         display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        overflow: hidden;
 
         &-x,
         &-y {
-          font-size: 21px;
-          line-height: 25px;
-          letter-spacing: 0.5px;
-          font-weight: 800;
+          display: flex;
+          align-items: center;
+          flex-wrap: nowrap;
+          white-space: nowrap;
+          overflow: hidden;
+          font-size: 16px;
+          line-height: 20px;
+          letter-spacing: 0.2px;
+          font-weight: 700;
           text-transform: uppercase;
         }
         &-x {
@@ -44,21 +58,31 @@
 
       &-driver {
         &-name {
-          font-size: 17px;
-          font-weight: 550;
+          font-size: 14px;
+          font-weight: 600;
+          letter-spacing: 0.2px;
+          line-height: 18px;
           padding-left: 6px;
           display: flex;
+          align-items: center;
+          flex-wrap: nowrap;
+          white-space: nowrap;
+          overflow: hidden;
           gap: 18px;
         }
         &-x,
         &-y {
           display: flex;
+          align-items: center;
+          flex-wrap: nowrap;
+          white-space: nowrap;
+          overflow: hidden;
           gap: 18px;
           padding-left: 6px;
-          font-size: 16px;
-          line-height: 20px;
-          letter-spacing: 0.5px;
-          font-weight: 800;
+          font-size: 14px;
+          line-height: 18px;
+          letter-spacing: 0.2px;
+          font-weight: 700;
           text-transform: uppercase;
         }
         &-x {
