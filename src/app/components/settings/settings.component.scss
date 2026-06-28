@@ -152,6 +152,49 @@
     color: rgba(255, 255, 255, 0.92);
   }
 
+  // ——— Header (view toggle: General <-> Scan settings) ———
+
+  &__header {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    flex-shrink: 0;
+    padding: 2px 0 6px;
+
+    &-toggle {
+      border-radius: 8px;
+      overflow: hidden;
+      --mat-standard-button-toggle-height: 30px;
+      --mat-standard-button-toggle-selected-state-background-color: rgba(
+        88,
+        152,
+        208,
+        0.18
+      );
+      --mat-standard-button-toggle-selected-state-text-color: #5898d0;
+      --mat-standard-button-toggle-text-color: rgba(255, 255, 255, 0.6);
+      --mat-standard-button-toggle-background-color: transparent;
+      --mat-standard-button-toggle-divider-color: rgba(88, 152, 208, 0.28);
+      border: 1px solid rgba(88, 152, 208, 0.28);
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+      }
+
+      .mat-button-toggle-label-content {
+        display: inline-flex;
+        align-items: center;
+        padding: 0 14px;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        line-height: 30px;
+      }
+    }
+  }
+
   &__container {
     overflow-y: auto;
     overflow-x: hidden;

@@ -7,12 +7,12 @@
       hideSingleSelectionIndicator
     >
       <mat-button-toggle value="cards">
-        <mat-icon>tune</mat-icon>
-        Setup
+        <mat-icon>bolt</mat-icon>
+        Actions
       </mat-button-toggle>
       <mat-button-toggle value="progress">
-        <mat-icon>insights</mat-icon>
-        Activity
+        <mat-icon>document_scanner</mat-icon>
+        Progress
         @if (activeCount(); as count) {
           <span class="scan__header-badge">{{ count }}</span>
         }
@@ -86,7 +86,10 @@
               </div>
             </mat-radio-button>
           </mat-radio-group>
+        </div>
 
+        <!-- Date range + last-scan/Scan button on one vertically-centered row -->
+        <div class="scan__violations__bottom">
           <span class="scan__violations__options-daterange">
             <span class="date-md">{{ range.value.start | date: "MMM d" }}</span
             ><span class="date-y"
@@ -100,21 +103,23 @@
               [for]="rangePicker"
             ></mat-datepicker-toggle>
           </span>
-        </div>
 
-        <div class="scan__violations__sync">
-          @if (vLastSync(); as lastSync) {
-            <span class="scan__violations__last"
-              >last scan: {{ lastSync | date: "shortTime" }}</span
+          <div class="scan__violations__sync">
+            <span class="scan__violations__last">
+              @if (violationsScanning()) {
+                in progress...
+              } @else if (vLastSync(); as lastSync) {
+                last scan: {{ lastSync | date: "shortTime" }}
+              }
+            </span>
+            <button
+              matButton="tonal"
+              (click)="startViolationsScan()"
+              [disabled]="disableScan()"
             >
-          }
-          <button
-            matButton="tonal"
-            (click)="startViolationsScan()"
-            [disabled]="disableScan()"
-          >
-            Scan
-          </button>
+              Scan
+            </button>
+          </div>
         </div>
       </div>
 
@@ -167,6 +172,10 @@
           </button>
         </div>
       </div>
+
+      <!-- Visual separators; positioned between card groups via CSS `order` -->
+      <div class="scan__separator scan__separator--1"></div>
+      <div class="scan__separator scan__separator--2"></div>
 
       <!-- DOT Inspections + Driver Certifications -->
       <div class="scan__group">
@@ -245,9 +254,7 @@
           </button>
         </div>
       </div>
-    </div>
 
-    <div class="scan__col">
       <!-- Tools: Unidentified Events + Global Smart Fix + Log Certification -->
       <div class="card scan__tools-card">
         <div class="card__label">Tools</div>
@@ -416,16 +423,18 @@
           class="scan__progress"
           [scanSubscription]="scanSubscribtion"
           [scanMode]="scanMode.value"
+          (stopped)="onScanStopped()"
         ></app-progress-bar>
       }
 
       @if (pendingScans().length) {
         <div class="scan__pending">
           <span class="scan__pending-label">Queued</span>
-          @for (task of pendingScans(); track task.id) {
+          @for (task of pendingScans(); track task.id; let i = $index) {
             <span class="scan__pending-item">
+              <span class="scan__pending-item-num">{{ i + 1 }}.</span>
               <mat-icon class="scan__pending-item-icon">schedule</mat-icon>
-              {{ task.name }}
+              <span class="scan__pending-item-name">{{ task.name }}</span>
               <button
                 type="button"
                 class="scan__pending-cancel"
@@ -434,6 +443,23 @@
               >
                 <mat-icon>close</mat-icon>
               </button>
+            </span>
+          }
+        </div>
+      }
+
+      @if (scanErrors().length) {
+        <div class="scan__queue-errors">
+          <span class="scan__queue-errors-label">Errors</span>
+          @for (err of scanErrors(); track $index) {
+            <span class="scan__queue-errors-item">
+              <mat-icon class="scan__queue-errors-icon">error</mat-icon>
+              <span class="scan__queue-errors-company">{{
+                err.company.name
+              }}</span>
+              <span class="scan__queue-errors-msg">{{
+                err.error.message || "request failed"
+              }}</span>
             </span>
           }
         </div>

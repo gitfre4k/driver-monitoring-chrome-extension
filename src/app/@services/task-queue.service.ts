@@ -1,5 +1,14 @@
 import { Injectable, signal } from '@angular/core';
-import { catchError, concatMap, EMPTY, Observable, Subject, tap } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  EMPTY,
+  filter,
+  Observable,
+  Subject,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import { DateTime } from 'luxon';
 
 export type TTaskStatus =
@@ -60,6 +69,8 @@ export class TaskQueue {
 
   private taskId = 0;
   private readonly queue$ = new Subject<IQueueItem>();
+  /** Emits the id of a task whose in-flight work should be torn down. */
+  private readonly cancel$ = new Subject<number>();
 
   constructor() {
     this.queue$
@@ -73,6 +84,9 @@ export class TaskQueue {
 
           this.setStatus(item.id, 'processing');
           return item.work().pipe(
+            // Stopping a processing task completes its work here so concatMap
+            // moves on to the next pending task immediately.
+            takeUntil(this.cancel$.pipe(filter((id) => id === item.id))),
             tap({
               next: (value) => item.handlers?.next?.(value),
               error: (err) => {
@@ -80,6 +94,10 @@ export class TaskQueue {
                 item.handlers?.error?.(err);
               },
               complete: () => {
+                // A cancelled task's status is terminal — don't run its
+                // completion handler (e.g. "scan complete" side-effects).
+                const current = this.tasks().find((t) => t.id === item.id);
+                if (current?.status === 'cancelled') return;
                 this.setStatus(item.id, 'complete');
                 item.handlers?.complete?.();
               },
@@ -158,6 +176,9 @@ export class TaskQueue {
     // Mark cancelled first so the work's complete handler is a no-op.
     this.setStatus(id, 'cancelled');
     task.cancel?.();
+    // Tear down the in-flight work (if this task is the one processing) so the
+    // queue advances to the next pending task.
+    this.cancel$.next(id);
   }
 
   private setStatus(id: number, status: TTaskStatus) {

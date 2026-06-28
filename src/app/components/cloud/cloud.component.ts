@@ -30,6 +30,8 @@ import {
   parseDOTInspection,
   parseMalf,
   sortArrayByPart,
+  tryParseDOTInspection,
+  tryParseMalf,
 } from '../../helpers/backend.helpers';
 import { MatBadgeModule } from '@angular/material/badge';
 import { IDataDriverNotes } from '../../interfaces/cloud.interface';
@@ -172,8 +174,49 @@ export class CloudComponent {
   getNote = getNote;
   parseDOTInspection = parseDOTInspection;
   parseMalf = parseMalf;
+  tryParseDOTInspection = tryParseDOTInspection;
+  tryParseMalf = tryParseMalf;
 
   constructor() {}
+
+  /**
+   * Repair a corrupted note: its event parts no longer parse into a valid data
+   * object (an event is missing), so we delete the remaining parts that form
+   * the broken object. Reuses the same confirm + delete flow as `deleteNote`.
+   */
+  fixCorruptedNote(
+    value: { note: string; part: number; eventId: number }[],
+    key: string,
+  ) {
+    const dialogRef = this.dialog.open(DialogConfirmComponent, {
+      width: '260px',
+      data: {
+        title: 'Fix Corrupted Note',
+        info: `This note is corrupted (a missing event). Delete the remaining corrupted event parts to repair the database?`,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
+      this.backendService.isDeletingNote.set(key);
+      const idsToDelete = value.map((note) => note.eventId);
+
+      this.backendService.deleteNote(idsToDelete).subscribe({
+        error: () => {
+          this.notification.error('Failed to fix corrupted note', {
+            action: 'Close',
+            duration: 3000,
+          });
+          this.backendService.isDeletingNote.set(null);
+        },
+        complete: () => {
+          this.backendService.isDeletingNote.set(null);
+          if (this.page() === 5) this.backendService.loadArchive();
+          else this.backendService.loadShiftReport();
+        },
+      });
+    });
+  }
 
   toggleSorting() {
     this.isSortedByTime = !this.isSortedByTime;

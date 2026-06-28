@@ -2,8 +2,8 @@
   @if (opened()) {
     <div class="panel">
       <div class="panel__header">
-        <span class="panel__title">Console</span>
-        <span class="panel__subtitle">{{ count() }} notifications</span>
+        <span class="panel__title">Console Log</span>
+        <span class="panel__subtitle">{{ count() }} count</span>
       </div>
 
       <ul class="log" #log>
@@ -30,10 +30,10 @@
   <button
     mat-icon-button
     (click)="toggle()"
-    matTooltip="Toggle Console"
+    matTooltip="Show Console Log"
     class="toggle"
     [class.toggle--active]="opened()"
   >
-    <mat-icon>notifications</mat-icon>
+    <mat-icon>terminal</mat-icon>
   </button>
 </div>

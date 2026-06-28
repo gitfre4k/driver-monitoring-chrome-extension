@@ -48,13 +48,13 @@
 
   &__label {
     position: absolute;
-    top: -5px;
+    top: -8px;
     left: 10px;
     padding: 0 5px;
     background-color: rgb(20, 15, 12);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #5898d0;
     line-height: 1;
@@ -299,9 +299,9 @@
 
   &__pending {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
     width: 100%;
     flex-shrink: 0;
     padding: 4px 2px;
@@ -315,18 +315,33 @@
     }
 
     &-item {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 3px;
-      padding: 1px 4px 1px 6px;
+      gap: 5px;
+      padding: 2px 4px 2px 6px;
       border: 1px solid rgba(88, 152, 208, 0.28);
-      border-radius: 10px;
+      border-radius: 8px;
       color: rgba(255, 255, 255, 0.7);
+
+      &-num {
+        font-weight: 700;
+        color: #5898d0;
+        min-width: 14px;
+      }
+
+      &-name {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
       &-icon {
         font-size: 13px;
         width: 13px;
         height: 13px;
+        flex-shrink: 0;
       }
     }
 
@@ -357,6 +372,58 @@
         height: 13px;
         line-height: 13px;
       }
+    }
+  }
+
+  // ——— Queue errors (shown under the queued scans) ———
+
+  &__queue-errors {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    width: 100%;
+    flex-shrink: 0;
+    padding: 4px 2px;
+    font-size: 11px;
+
+    &-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      color: #e0533b;
+    }
+
+    &-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 6px;
+      border: 1px solid rgba(224, 83, 59, 0.28);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    &-icon {
+      font-size: 13px;
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      color: #e0533b;
+    }
+
+    &-company {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    &-msg {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: 0.75;
     }
   }
 
@@ -420,11 +487,66 @@
 
     @media (min-width: 687px) {
       height: 100%;
-      // Distribute cards across the full column height so the content fills
-      // the viewport instead of leaving a gap at the bottom.
-      justify-content: space-between;
+      justify-content: flex-start;
       padding-bottom: 6px;
-      gap: 6px;
+      gap: 8px;
+    }
+
+    // ——— Linear card order (single column, separators between groups) ———
+    > .scan__violations {
+      order: 1;
+    }
+    > .scan__alerts {
+      order: 2;
+    }
+    > .scan__separator--1 {
+      order: 3;
+    }
+    > .scan__log-analysis {
+      order: 4;
+    }
+    > .scan__admin {
+      order: 5;
+    }
+    > .scan__group {
+      order: 6;
+    }
+    > .scan__separator--2 {
+      order: 7;
+    }
+    > .scan__tools-card {
+      order: 8;
+    }
+  }
+
+  // ——— Visual separator between card groups ———
+
+  &__separator {
+    position: relative;
+    width: 100%;
+    flex-shrink: 0;
+    height: 1px;
+    margin: 14px 0;
+    // Soft line that fades out toward both edges.
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(88, 152, 208, 0.45) 20%,
+      rgba(88, 152, 208, 0.45) 80%,
+      transparent
+    );
+
+    // Small diamond accent centered on the line.
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      transform: translate(-50%, -50%) rotate(45deg);
+      background: rgb(20, 15, 12);
+      border: 1px solid rgba(88, 152, 208, 0.55);
     }
   }
 
@@ -451,20 +573,31 @@
   // ——— Violations ———
 
   &__violations {
-    // Bottom row: "last scan" text on the left of the Scan button, both pinned
-    // to the far right of the card.
-    &__sync {
+    // Bottom row: date range on the left, last-scan + Scan button on the right,
+    // the whole row vertically centered.
+    &__bottom {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
       gap: 8px;
       margin-top: 4px;
+    }
+
+    // Last-scan info stacked above the Scan button, right-aligned.
+    &__sync {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
     }
 
     &__last {
       white-space: nowrap;
       letter-spacing: 0.02em;
       color: rgba(255, 255, 255, 0.7);
+      min-height: 14px;
+      line-height: 14px;
     }
 
     &__options {
@@ -546,11 +679,12 @@
 
     &__submit {
       display: flex;
+      align-items: center;
       justify-content: space-between;
       margin-top: 2px;
 
       button {
-        margin: 2px 8px 0 0;
+        margin: 0 8px 0 0;
       }
     }
   }
@@ -562,6 +696,11 @@
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    // Half the column width, centered, but never below the content's intrinsic
+    // size (label + settings icon + Scan button).
+    width: 50%;
+    min-width: 160px;
+    align-self: center;
 
     .scan__alerts__form {
       flex: 1;
@@ -570,6 +709,11 @@
 
     button {
       flex-shrink: 0;
+    }
+
+    // Keep the settings icon + Scan button at the right edge of the card.
+    .scan__action-row {
+      flex: 1;
     }
   }
 
@@ -649,6 +793,11 @@
 
       button {
         flex-shrink: 0;
+      }
+
+      // Push the settings icon + Smart Fix button to the right edge.
+      .scan__action-row {
+        flex: 1;
       }
     }
   }

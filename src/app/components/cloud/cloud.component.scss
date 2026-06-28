@@ -350,3 +350,22 @@
     color: white;
   }
 }
+
+// ——— Corrupted note (failed JSON.parse — missing event) ———
+
+.notes__note__corrupted {
+  display: inline-block;
+  color: #e0533b;
+  font-style: italic;
+  margin-right: 8px;
+}
+
+.notes__note__fix {
+  --mdc-text-button-label-text-color: #e0533b;
+  border: 1px solid rgba(224, 83, 59, 0.5) !important;
+  border-radius: 6px;
+  min-width: 0 !important;
+  height: 26px !important;
+  line-height: 26px !important;
+  padding: 0 12px !important;
+}

@@ -205,26 +205,64 @@
                               <br />
                               <br />
                             }
-                            @if (
-                              state().name === "FMCSA Inspections" &&
-                                parseDOTInspection(singleNote.value);
-                              as fmcsaData
-                            ) {
-                              {{ fmcsaData.time | date: "MMM d, y, h:mm a" }}
-                              <br />
-                              <span class="notes__note__text-ts">
-                                {{ fmcsaData.time | dateAgo }}
-                              </span>
+                            @if (state().name === "FMCSA Inspections") {
+                              @if (
+                                tryParseDOTInspection(singleNote.value);
+                                as fmcsaData
+                              ) {
+                                {{ fmcsaData.time | date: "MMM d, y, h:mm a" }}
+                                <br />
+                                <span class="notes__note__text-ts">
+                                  {{ fmcsaData.time | dateAgo }}
+                                </span>
+                              } @else {
+                                <span class="notes__note__corrupted">
+                                  ⚠ Corrupted note (missing event)
+                                </span>
+                                <button
+                                  mat-stroked-button
+                                  class="notes__note__fix"
+                                  (click)="
+                                    fixCorruptedNote(
+                                      singleNote.value,
+                                      singleNote.key
+                                    )
+                                  "
+                                  [disabled]="backendService.isDeletingNote()"
+                                >
+                                  Fix
+                                </button>
+                              }
                             } @else if (
-                              state().name === "Malfunction Letters" &&
-                                parseMalf(getNote(singleNote.value));
-                              as malf
+                              state().name === "Malfunction Letters"
                             ) {
-                              {{ malf.start | date: "mediumDate" }} -
-                              {{ malf.end | date: "mediumDate" }}
-                              <br />
-                              <br />
-                              {{ malf.note }}
+                              @if (
+                                tryParseMalf(getNote(singleNote.value));
+                                as malf
+                              ) {
+                                {{ malf.start | date: "mediumDate" }} -
+                                {{ malf.end | date: "mediumDate" }}
+                                <br />
+                                <br />
+                                {{ malf.note }}
+                              } @else {
+                                <span class="notes__note__corrupted">
+                                  ⚠ Corrupted note (missing event)
+                                </span>
+                                <button
+                                  mat-stroked-button
+                                  class="notes__note__fix"
+                                  (click)="
+                                    fixCorruptedNote(
+                                      singleNote.value,
+                                      singleNote.key
+                                    )
+                                  "
+                                  [disabled]="backendService.isDeletingNote()"
+                                >
+                                  Fix
+                                </button>
+                              }
                             } @else {
                               <span>
                                 {{ getNote(singleNote.value) }}
@@ -632,26 +670,66 @@
                                 <br />
                                 <br />
                               }
-                              @if (
-                                state().name === "FMCSA Inspections" &&
-                                  parseDOTInspection(singleNote.value);
-                                as fmcsaData
-                              ) {
-                                {{ fmcsaData.time | date: "MMM d, y, h:mm a" }}
-                                <br />
-                                <span class="notes__note__text-ts">
-                                  {{ fmcsaData.time | dateAgo }}
-                                </span>
+                              @if (state().name === "FMCSA Inspections") {
+                                @if (
+                                  tryParseDOTInspection(singleNote.value);
+                                  as fmcsaData
+                                ) {
+                                  {{
+                                    fmcsaData.time | date: "MMM d, y, h:mm a"
+                                  }}
+                                  <br />
+                                  <span class="notes__note__text-ts">
+                                    {{ fmcsaData.time | dateAgo }}
+                                  </span>
+                                } @else {
+                                  <span class="notes__note__corrupted">
+                                    ⚠ Corrupted note (missing event)
+                                  </span>
+                                  <button
+                                    mat-stroked-button
+                                    class="notes__note__fix"
+                                    (click)="
+                                      fixCorruptedNote(
+                                        singleNote.value,
+                                        singleNote.key
+                                      )
+                                    "
+                                    [disabled]="backendService.isDeletingNote()"
+                                  >
+                                    Fix
+                                  </button>
+                                }
                               } @else if (
-                                state().name === "Malfunction Letters" &&
-                                  parseMalf(getNote(singleNote.value));
-                                as malf
+                                state().name === "Malfunction Letters"
                               ) {
-                                {{ malf.start | date: "mediumDate" }} -
-                                {{ malf.end | date: "mediumDate" }}
-                                <br />
-                                <br />
-                                {{ malf.note }}
+                                @if (
+                                  tryParseMalf(getNote(singleNote.value));
+                                  as malf
+                                ) {
+                                  {{ malf.start | date: "mediumDate" }} -
+                                  {{ malf.end | date: "mediumDate" }}
+                                  <br />
+                                  <br />
+                                  {{ malf.note }}
+                                } @else {
+                                  <span class="notes__note__corrupted">
+                                    ⚠ Corrupted note (missing event)
+                                  </span>
+                                  <button
+                                    mat-stroked-button
+                                    class="notes__note__fix"
+                                    (click)="
+                                      fixCorruptedNote(
+                                        singleNote.value,
+                                        singleNote.key
+                                      )
+                                    "
+                                    [disabled]="backendService.isDeletingNote()"
+                                  >
+                                    Fix
+                                  </button>
+                                }
                               } @else {
                                 <span>
                                   {{ getNote(singleNote.value) }}

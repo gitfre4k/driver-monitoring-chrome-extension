@@ -80,6 +80,28 @@ export class ZipService {
 
   preformSmartFix = signal(true);
 
+  /** Restore every zip parameter to its initial default value. */
+  resetToDefaults() {
+    this.resize.set(true);
+    this.resizeSpeed.set(66);
+    this.maxSpeedDeviation.set(`±4`);
+    this.resizeMinDuration.set(7);
+    this.resizeReductionTrashhold.set(4);
+
+    this.shift.set(true);
+    this.selectedDirection.set(1);
+    this.zippedOnDutyDuration.set(15);
+    this.shiftMinTimeFrame.set(5);
+    this.shiftBreak.set(true);
+    this.engineOffIdleTimeSpawn.set(12);
+
+    this.fill.set(false);
+    this.fillOption.set(1);
+    this.gapMinDuration.set(8);
+
+    this.preformSmartFix.set(true);
+  }
+
   title = computed(() => {
     const resize = this.resize();
     const shift = this.shift();

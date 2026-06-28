@@ -1,8 +1,27 @@
 <div class="settings">
   <h2 class="settings__title">Settings</h2>
 
+  <div class="settings__header">
+    <mat-button-toggle-group
+      class="settings__header-toggle"
+      [value]="view()"
+      (change)="view.set($event.value)"
+      hideSingleSelectionIndicator
+    >
+      <mat-button-toggle value="general">
+        <mat-icon>settings</mat-icon>
+        General
+      </mat-button-toggle>
+      <mat-button-toggle value="scan">
+        <mat-icon>document_scanner</mat-icon>
+        Scan
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
   <div class="settings__container">
     <!-- General -->
+    @if (view() === "general") {
     <div class="card settings__card">
       <div class="card__label">General</div>
 
@@ -51,8 +70,10 @@
         </button>
       </div>
     </div>
+    }
 
     <!-- Scan settings -->
+    @if (view() === "scan") {
     <div class="card settings__card">
       <div class="card__label">Scan Settings</div>
 
@@ -108,5 +129,6 @@
       <h4 class="settings__subhead">Analysis Parameters</h4>
       <app-advanced-scan></app-advanced-scan>
     </div>
+    }
   </div>
 </div>

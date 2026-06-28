@@ -4,6 +4,8 @@ import {
   computed,
   inject,
   Input,
+  Output,
+  EventEmitter,
   WritableSignal,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
@@ -27,6 +29,9 @@ export class ProgressBarComponent {
   @Input({ required: true }) scanSubscription!: Subscription;
   @Input({ required: true }) scanMode: TScanMode = 'violations';
   @Input() certifyLogs?: boolean;
+  /** Emitted when the user stops the running scan, so the host can cancel the
+   *  active queue task and let the next queued scan start. */
+  @Output() stopped = new EventEmitter<void>();
 
   private progressBarService = inject(ProgressBarService);
 
@@ -89,5 +94,6 @@ export class ProgressBarComponent {
   stopScan() {
     this.progressBarService.initializeProgressBar();
     this.scanSubscription.unsubscribe();
+    this.stopped.emit();
   }
 }

@@ -108,12 +108,41 @@ export class ScanComponent {
     this.taskQueueService.scan.tasks().filter((t) => t.status === 'pending'),
   );
 
-  /** Open the Settings tab. Its index depends on whether the optional
-   *  Shift Report tab (prologs only) is present. */
+  /** The scan currently running (its progress is shown in the progress bar). */
+  processingScan = computed(() =>
+    this.taskQueueService.scan.tasks().find((t) => t.status === 'processing'),
+  );
+
+  /** True while a violations scan is the one actively running. */
+  violationsScanning = computed(() =>
+    this.taskQueueService.scan
+      .tasks()
+      .some((t) => t.key === 'violations' && t.status === 'processing'),
+  );
+
+  /** Aggregated scan errors surfaced under the queue in the progress view. */
+  scanErrors = computed(() => [
+    ...this.progressBarService.vErrors(),
+    ...this.progressBarService.dErrors(),
+    ...this.progressBarService.pErrors(),
+    ...this.progressBarService.adminErrors(),
+    ...this.progressBarService.aErrors(),
+  ]);
+
+  /** Stop the running scan: cancel its queue task so the next queued scan
+   *  starts automatically. */
+  onScanStopped() {
+    const active = this.processingScan();
+    if (active) this.taskQueueService.scan.cancel(active.id);
+  }
+
+  /** Open the Settings tab with the Scan settings group preselected. Its index
+   *  depends on whether the optional Shift Report tab (prologs only) is present. */
   openSettings() {
     const prologs = ['Prologs', 'prologs'].includes(
       this.urlService.provider(),
     );
+    this.extTabNavService.settingsView.set('scan');
     this.extTabNavService.selectedTabIndex.set(prologs ? 5 : 4);
   }
 

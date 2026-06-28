@@ -35,6 +35,7 @@ import { MonitorService } from './@services/monitor.service';
 import { BackendService } from './@services/backend.service';
 import { UrlService } from './@services/url.service';
 import { ActiveDriverCountService } from './@services/active-driver-count.service';
+import { CleanupService } from './@services/cleanup.service';
 
 @Component({
   selector: 'app-root',
@@ -79,6 +80,7 @@ export class AppComponent {
   private constantsService = inject(ConstantsService);
   private backendService = inject(BackendService);
   private activeDriversService = inject(ActiveDriverCountService);
+  private cleanupService = inject(CleanupService);
   urlService = inject(UrlService);
 
   private subscriptions: Subscription = new Subscription();
@@ -148,6 +150,10 @@ export class AppComponent {
     // initialize app
     this.appService.initializeAppDevMode$().subscribe();
     // this.appService.initializeApp$().subscribe();
+
+    /////////////////////////////////
+    // scheduled hidden-results cleanup
+    this.cleanupService.initialize();
 
     ///////////////////////
     // active drivers count

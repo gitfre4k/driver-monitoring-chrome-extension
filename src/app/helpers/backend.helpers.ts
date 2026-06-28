@@ -43,3 +43,29 @@ export const parseDOTInspection = (
 export const parseMalf = (note: string) => {
   return JSON.parse(note) as { start: string; end: string; note: string };
 };
+
+/**
+ * Safe variants used in the Cloud view: when a note is corrupted (an event
+ * part is missing so the concatenated payload is not valid JSON), `JSON.parse`
+ * throws. These return `null` instead so the template can render a "fix"
+ * prompt rather than crashing the whole section.
+ */
+export const tryParseDOTInspection = (
+  array: { note: string; part: number; eventId: number }[],
+): IDriverFmcsaInspection | null => {
+  try {
+    return parseDOTInspection(array);
+  } catch {
+    return null;
+  }
+};
+
+export const tryParseMalf = (
+  note: string,
+): { start: string; end: string; note: string } | null => {
+  try {
+    return parseMalf(note);
+  } catch {
+    return null;
+  }
+};

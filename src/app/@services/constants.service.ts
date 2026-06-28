@@ -21,6 +21,19 @@ export class ConstantsService {
   );
   disableSmartFixOnCoDrivers = signal(true);
 
+  /** ISO timestamp of the last scheduled hidden-results cleanup (null = never). */
+  lastHiddenCleanup = this.createSignal<string | null>('lastHiddenCleanup', null);
+
+  /**
+   * Clear every persisted "hidden item" record from the Scan Results page —
+   * both the per-section hidden-event map and the hidden-violations list.
+   * Used by the scheduled cleanup.
+   */
+  clearHiddenScanData() {
+    this.hiddenScanResults.set({});
+    this.hiddenViolations.set([]);
+  }
+
   createSignal<T>(key: string, initialValue: T): WritableSignal<T> {
     const storedValue = localStorage.getItem(key);
     let initialSignalValue: T;
