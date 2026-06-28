@@ -17,9 +17,10 @@ import {
   IShiftInputState,
 } from '../interfaces/api.interface';
 import { parseErrorMessage } from '../helpers/context-menu.helpers';
-import { from, mergeMap, switchMap } from 'rxjs';
+import { from, mergeMap } from 'rxjs';
 import { ConstantsService } from './constants.service';
 import { BackendService } from './backend.service';
+import { TaskQueueService } from './task-queue.service';
 
 @Injectable({ providedIn: 'root' })
 export class ContextMenuService {
@@ -29,6 +30,7 @@ export class ContextMenuService {
   urlService = inject(UrlService);
   constantsService = inject(ConstantsService);
   backendService = inject(BackendService);
+  taskQueueService = inject(TaskQueueService);
   _snackBar = inject(MatSnackBar);
 
   computedEvents = this.monitorService.computedDailyLogEvents;
@@ -62,10 +64,16 @@ export class ContextMenuService {
       case 'ChangeToOnDutyNotDrivingStatus': {
         if (!event) return;
 
-        return this.apiOperationsService
-          .updateEventTypeCode(tenant, event.id, action)
-          .subscribe({
-            error: (err) => {
+        return this.taskQueueService.monitor.enqueue(
+          'Change Status',
+          () =>
+            this.apiOperationsService.updateEventTypeCode(
+              tenant,
+              event.id,
+              action,
+            ),
+          {
+            error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
@@ -79,15 +87,17 @@ export class ContextMenuService {
                 duration: 3000,
               });
             },
-          });
+          },
+        );
       }
       case 'EXTEND_PTI': {
         if (!event) return;
         this.monitorService.disableFixButtons.set(true);
-        return this.apiOperationsService
-          .extendPTI(tenant, event.id, event.pti)
-          .subscribe({
-            error: (err) => {
+        return this.taskQueueService.monitor.enqueue(
+          'Extend PTI',
+          () => this.apiOperationsService.extendPTI(tenant, event.id, event.pti),
+          {
+            error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.disableFixButtons.set(false);
@@ -108,7 +118,8 @@ export class ContextMenuService {
                 { duration: 3000 },
               );
             },
-          });
+          },
+        );
       }
       case 'ADD_PTI_NOTE': {
         if (!event) return;
@@ -121,35 +132,40 @@ export class ContextMenuService {
       case 'ADD_ENGINE_OFF': {
         if (!event) return;
         action === 'ADD_PTI' && this.monitorService.disableFixButtons.set(true);
-        return this.apiOperationsService[
-          action === 'ADD_PTI' ? 'addPTI' : 'addEngineOff'
-        ](tenant, event.id).subscribe({
-          error: (err) => {
-            this.urlService.refreshWebApp();
-            this.monitorService.refresh.update((value) => value + 1);
-            action === 'ADD_PTI' &&
-              this.monitorService.disableFixButtons.set(false);
-            this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-              duration: 7000,
-            });
-          },
-          complete: () => {
-            this.urlService.refreshWebApp();
-            this.monitorService.refresh.update((value) => value + 1);
-            action === 'ADD_PTI' &&
-              setTimeout(
-                () => this.monitorService.disableFixButtons.set(false),
-                2000,
+        return this.taskQueueService.monitor.enqueue(
+          action === 'ADD_PTI' ? 'Add PTI' : 'Add Engine Off',
+          () =>
+            this.apiOperationsService[
+              action === 'ADD_PTI' ? 'addPTI' : 'addEngineOff'
+            ](tenant, event.id),
+          {
+            error: (err: any) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              action === 'ADD_PTI' &&
+                this.monitorService.disableFixButtons.set(false);
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+                duration: 7000,
+              });
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              action === 'ADD_PTI' &&
+                setTimeout(
+                  () => this.monitorService.disableFixButtons.set(false),
+                  2000,
+                );
+              this._snackBar.open(
+                `${
+                  action === 'ADD_PTI' ? 'Pre-Trip Inspection' : 'Engine Off'
+                } has been added.`,
+                'OK',
+                { duration: 3000 },
               );
-            this._snackBar.open(
-              `${
-                action === 'ADD_PTI' ? 'Pre-Trip Inspection' : 'Engine Off'
-              } has been added.`,
-              'OK',
-              { duration: 3000 },
-            );
+            },
           },
-        });
+        );
       }
       case 'DELETE_ALL_ENGINES':
       case 'DELETE_ENGINES_IN_DRIVING': {
@@ -175,26 +191,30 @@ export class ContextMenuService {
           });
 
         // milena
-        return this.apiOperationsService.deleteEvents(tenant, ids).subscribe({
-          error: (err) => {
-            this.urlService.refreshWebApp();
-            this.monitorService.refresh.update((value) => value + 1);
-            this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-              duration: 3000,
-            });
+        return this.taskQueueService.monitor.enqueue(
+          'Delete Engines',
+          () => this.apiOperationsService.deleteEvents(tenant, ids),
+          {
+            error: (err: any) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+                duration: 3000,
+              });
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(
+                `${ids.length} engine event${
+                  ids.length > 1 ? 's' : ''
+                } have been deleted.`,
+                'OK',
+                { duration: 3000 },
+              );
+            },
           },
-          complete: () => {
-            this.urlService.refreshWebApp();
-            this.monitorService.refresh.update((value) => value + 1);
-            this._snackBar.open(
-              `${ids.length} engine event${
-                ids.length > 1 ? 's' : ''
-              } have been deleted.`,
-              'OK',
-              { duration: 3000 },
-            );
-          },
-        });
+        );
       }
 
       case 'POST_FMCSA': {
@@ -208,16 +228,18 @@ export class ContextMenuService {
         };
         const fmcsaData = payload as IDriverFmcsaInspection;
 
-        return this.backendService
-          .uploadData(
-            event.tenant,
-            driver,
-            JSON.stringify(fmcsaData),
-            'ChangeToOnDutyNotDrivingStatus',
-            null,
-          )
-          .subscribe({
-            error: (err) => {
+        return this.taskQueueService.monitor.enqueue(
+          'Post FMCSA',
+          () =>
+            this.backendService.uploadData(
+              event.tenant,
+              driver,
+              JSON.stringify(fmcsaData),
+              'ChangeToOnDutyNotDrivingStatus',
+              null,
+            ),
+          {
+            error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.isUpdatingEvent.set(false);
@@ -237,25 +259,28 @@ export class ContextMenuService {
               );
               this.monitorService.showUpdateEvent.set(null);
               this.monitorService.disableFixButtons.set(false);
-              this._snackBar.open(
-                'FMCSA Inspection successfully posted',
-                'OK',
-                {
-                  duration: 3000,
-                },
-              );
+              this._snackBar.open('FMCSA Inspection successfully posted', 'OK', {
+                duration: 3000,
+              });
             },
-          });
+          },
+        );
       }
 
       case 'UPDATE_EVENT': {
         if (!event || !payload) return;
         this.monitorService.isUpdatingEvent.set(true);
         this.monitorService.disableFixButtons.set(true);
-        return this.apiOperationsService
-          .updateEvent(tenant, event.id, payload as Partial<IEventDetails>)
-          .subscribe({
-            error: (err) => {
+        return this.taskQueueService.monitor.enqueue(
+          'Update Event',
+          () =>
+            this.apiOperationsService.updateEvent(
+              tenant,
+              event.id,
+              payload as Partial<IEventDetails>,
+            ),
+          {
+            error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.isUpdatingEvent.set(false);
@@ -278,15 +303,22 @@ export class ContextMenuService {
                 duration: 3000,
               });
             },
-          });
+          },
+        );
       }
       case 'RESIZE': {
         if (!event || !payload) return;
         this.monitorService.isResizingEvent.set(true);
-        return this.apiOperationsService
-          .resizeEvent(tenant, event.id, payload as IResizePayload)
-          .subscribe({
-            error: (err) => {
+        return this.taskQueueService.monitor.enqueue(
+          'Resize',
+          () =>
+            this.apiOperationsService.resizeEvent(
+              tenant,
+              event.id,
+              payload as IResizePayload,
+            ),
+          {
+            error: (err: any) => {
               this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
                 duration: 7000,
               });
@@ -322,14 +354,21 @@ export class ContextMenuService {
                 duration: 3000,
               });
             },
-          });
+          },
+        );
       }
       case 'ADVANCED_RESIZE': {
         if (!event || !payload) return;
         this.monitorService.isResizingEvent.set(true);
-        return this.apiOperationsService
-          .advancedResize(tenant, event, payload as IAdvancedResizePayload)
-          .subscribe({
+        return this.taskQueueService.monitor.enqueue(
+          'Advanced Resize',
+          () =>
+            this.apiOperationsService.advancedResize(
+              tenant,
+              event,
+              payload as IAdvancedResizePayload,
+            ),
+          {
             error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
@@ -353,7 +392,8 @@ export class ContextMenuService {
                 duration: 3000,
               });
             },
-          });
+          },
+        );
       }
       case 'PARTIAL_ON_TO_SLEEP':
       case 'PARTIAL_ON_TO_OFF': {
@@ -364,10 +404,16 @@ export class ContextMenuService {
             ? 'ChangeToSleeperBerthStatus'
             : 'ChangeToOffDutyStatus';
 
-        return this.apiOperationsService
-          .partiallyTransformOnDuty(tenant, event, typeCode)
-          .subscribe({
-            error: (err) => {
+        return this.taskQueueService.monitor.enqueue(
+          'Partial Transform',
+          () =>
+            this.apiOperationsService.partiallyTransformOnDuty(
+              tenant,
+              event,
+              typeCode,
+            ),
+          {
+            error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
@@ -387,15 +433,22 @@ export class ContextMenuService {
                 { duration: 3000 },
               );
             },
-          });
+          },
+        );
       }
 
       case 'DUPLICATE': {
         if (!event) return;
-        return this.apiOperationsService
-          .duplicateEvent(tenant, event, payload as Partial<IEventDetails>)
-          .subscribe({
-            error: (err) => {
+        return this.taskQueueService.monitor.enqueue(
+          'Duplicate Event',
+          () =>
+            this.apiOperationsService.duplicateEvent(
+              tenant,
+              event,
+              payload as Partial<IEventDetails>,
+            ),
+          {
+            error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
@@ -405,13 +458,12 @@ export class ContextMenuService {
             complete: () => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
-              this._snackBar.open(
-                `operation Duplicate Event successful`,
-                'OK',
-                { duration: 3000 },
-              );
+              this._snackBar.open(`operation Duplicate Event successful`, 'OK', {
+                duration: 3000,
+              });
             },
-          });
+          },
+        );
       }
 
       case 'PARTIAL_TO_ON': {
@@ -419,10 +471,16 @@ export class ContextMenuService {
 
         const typeCode = 'ChangeToOnDutyNotDrivingStatus';
 
-        return this.apiOperationsService
-          .partiallyTransformOnDuty(tenant, event, typeCode)
-          .subscribe({
-            error: (err) => {
+        return this.taskQueueService.monitor.enqueue(
+          'Partial Transform',
+          () =>
+            this.apiOperationsService.partiallyTransformOnDuty(
+              tenant,
+              event,
+              typeCode,
+            ),
+          {
+            error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
@@ -438,33 +496,38 @@ export class ContextMenuService {
                 { duration: 3000 },
               );
             },
-          });
+          },
+        );
       }
 
       case 'COPY_LOCATION': {
         if (!event) return;
-        return this.apiOperationsService.getEvent(tenant, event.id).subscribe({
-          next: (eventDetails) => {
-            const { geolocation, latitude, longitude, locationSource } =
-              eventDetails;
-            this.monitorService.copiedEventLocation.set({
-              geolocation,
-              latitude,
-              longitude,
-              locationSource,
-            });
-            this._snackBar.open(`Copied: ${geolocation}`, 'OK', {
-              duration: 1500,
-            });
+        return this.taskQueueService.monitor.enqueue(
+          'Copy Location',
+          () => this.apiOperationsService.getEvent(tenant, event.id),
+          {
+            next: (eventDetails: any) => {
+              const { geolocation, latitude, longitude, locationSource } =
+                eventDetails;
+              this.monitorService.copiedEventLocation.set({
+                geolocation,
+                latitude,
+                longitude,
+                locationSource,
+              });
+              this._snackBar.open(`Copied: ${geolocation}`, 'OK', {
+                duration: 1500,
+              });
+            },
+            error: (err: any) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+                duration: 7000,
+              });
+            },
           },
-          error: (err) => {
-            this.urlService.refreshWebApp();
-            this.monitorService.refresh.update((value) => value + 1);
-            this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-              duration: 7000,
-            });
-          },
-        });
+        );
       }
 
       default:
@@ -486,10 +549,11 @@ export class ContextMenuService {
         if (!payload) return;
 
         this.monitorService.isShifting.set(true);
-        return this.apiOperationsService
-          .shift(tenant, events, payload)
-          .subscribe({
-            error: (err) => {
+        return this.taskQueueService.monitor.enqueue(
+          'Shift',
+          () => this.apiOperationsService.shift(tenant, events, payload),
+          {
+            error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this.monitorService.isShifting.set(false);
@@ -509,51 +573,58 @@ export class ContextMenuService {
                 duration: 3000,
               });
             },
-          });
+          },
+        );
       }
       case 'DELETE_SELECTED_EVENTS': {
         const ids = events.map((ev) => ev.id);
 
-        return this.apiOperationsService.deleteEvents(tenant, ids).subscribe({
-          error: (err) => {
-            this.urlService.refreshWebApp();
-            this.monitorService.refresh.update((value) => value + 1);
-            this.monitorService.selectedEvents.set([]);
-            this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
-              duration: 3000,
-            });
+        return this.taskQueueService.monitor.enqueue(
+          'Delete Events',
+          () => this.apiOperationsService.deleteEvents(tenant, ids),
+          {
+            error: (err: any) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this.monitorService.selectedEvents.set([]);
+              this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
+                duration: 3000,
+              });
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this.monitorService.selectedEvents.set([]);
+              this._snackBar.open(
+                `${ids.length} event${
+                  ids.length > 1 ? 's' : ''
+                } successfully deleted.`,
+                'OK',
+                { duration: 3000 },
+              );
+            },
           },
-          complete: () => {
-            this.urlService.refreshWebApp();
-            this.monitorService.refresh.update((value) => value + 1);
-            this.monitorService.selectedEvents.set([]);
-            this._snackBar.open(
-              `${ids.length} event${
-                ids.length > 1 ? 's' : ''
-              } successfully deleted.`,
-              'OK',
-              { duration: 3000 },
-            );
-          },
-        });
+        );
       }
 
       case 'PASTE_LOCATION': {
         const updatePayload = this.monitorService.copiedEventLocation();
         if (!updatePayload) return;
 
-        return from(events)
-          .pipe(
-            mergeMap((event) =>
-              this.apiOperationsService.updateEvent(
-                tenant,
-                event.id,
-                updatePayload,
+        return this.taskQueueService.monitor.enqueue(
+          'Paste Location',
+          () =>
+            from(events).pipe(
+              mergeMap((event) =>
+                this.apiOperationsService.updateEvent(
+                  tenant,
+                  event.id,
+                  updatePayload,
+                ),
               ),
             ),
-          )
-          .subscribe({
-            error: (err) => {
+          {
+            error: (err: any) => {
               this.urlService.refreshWebApp();
               this.monitorService.refresh.update((value) => value + 1);
               this._snackBar.open(`[ERROR]: ${err.error.message}`, 'OK', {
@@ -571,7 +642,8 @@ export class ContextMenuService {
                 { duration: 3000 },
               );
             },
-          });
+          },
+        );
       }
       default:
         return;

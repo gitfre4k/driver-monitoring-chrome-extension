@@ -31,6 +31,7 @@ import { SmartFixService } from '../../../@services/smart-fix.service';
 import { BackendService } from '../../../@services/backend.service';
 import { DatePipe } from '@angular/common';
 import { ConstantsService } from '../../../@services/constants.service';
+import { TaskQueueService } from '../../../@services/task-queue.service';
 
 @Component({
   selector: 'app-action-btns',
@@ -61,6 +62,7 @@ export class ActionBtnsComponent {
   urlService = inject(UrlService);
   backendService = inject(BackendService);
   constantsService = inject(ConstantsService);
+  taskQueueService = inject(TaskQueueService);
   _dialog = inject(MatDialog);
   _snackBar = inject(MatSnackBar);
 
@@ -130,11 +132,11 @@ export class ActionBtnsComponent {
     const driverId = ddle.driverId;
     this.isSmartFix.set(true);
 
-    this.smartFixService
-      .smartFix(tenantId, driverId, ddle.date)
-      .pipe()
-      .subscribe({
-        next: (res) => {
+    this.taskQueueService.monitor.enqueue(
+      'Smart Fix',
+      () => this.smartFixService.smartFix(tenantId, driverId, ddle.date),
+      {
+        next: (res: any) => {
           this.isSmartFix.set(false);
           this.monitorService.refreshDailyLogs();
           this.urlService.refreshWebApp();
@@ -150,11 +152,12 @@ export class ActionBtnsComponent {
             });
         },
 
-        error: (err) => {
+        error: (err: any) => {
           this.isSmartFix.set(false);
           this._snackBar.open(err.error.message, 'Close', { duration: 7000 });
         },
-      });
+      },
+    );
   }
 
   getVehicleMaintenance() {

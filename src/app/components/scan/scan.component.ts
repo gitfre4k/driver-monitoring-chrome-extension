@@ -98,7 +98,7 @@ export class ScanComponent {
   appService = inject(AppService);
   unidentifiedEventsService = inject(UnidentifiedEventsService);
   adminPortalsService = inject(AdminPortalService);
-  taskQueueServoce = inject(TaskQueueService);
+  taskQueueService = inject(TaskQueueService);
   globalSmartfFixService = inject(GlobalSmartfFixService);
   advancedScanService = inject(AdvancedScanService);
   private destroyRef = inject(DestroyRef);
@@ -290,27 +290,41 @@ export class ScanComponent {
 
   deleteUnidentifiedEvents() {
     this.scanMode.setValue('deleteUE');
-    this.scanSubscribtion = this.unidentifiedEventsService
-      .deleteAllUnidentifiedEvents$()
-      .subscribe({
+    this.taskQueueService.scan.enqueue(
+      'Delete Unidentified Events',
+      () => this.unidentifiedEventsService.deleteAllUnidentifiedEvents$(),
+      {
         complete: () => {
           this.progressBarService.initializeProgressBar();
           this.scanMode.setValue('violations');
         },
-      });
+      },
+    );
   }
 
   globalSmartFix() {
     this.scanMode.setValue('smartFix');
-    this.scanSubscribtion = this.globalSmartfFixService
-      .initiateGlobalSmartFix()
-      .subscribe({
+    this.taskQueueService.scan.enqueue(
+      'Global Smart Fix',
+      () => this.globalSmartfFixService.initiateGlobalSmartFix(),
+      {
         complete: () => {
           this.progressBarService.initializeProgressBar();
           this.scanMode.setValue('violations');
         },
-      });
+      },
+    );
   }
+
+  scanLabel: { [key in TScanMode]?: string } = {
+    admin: 'Admin Portal Scan',
+    advanced: 'Advanced Scan',
+    pre: 'Pre-Violation Scan',
+    cert: 'Certifications Scan',
+    'cert-logs': 'Log Certification',
+    dot: 'DOT Inspections Scan',
+    violations: 'Violations Scan',
+  };
 
   startScan = () => {
     this.disableScan.set(true);
@@ -319,15 +333,16 @@ export class ScanComponent {
     if (this.scanMode.value !== 'cert')
       this.progressBarService.certTenants.set([]);
 
-    this.taskQueueServoce.addPendingTask(this.scanMode.value);
+    const label = this.scanLabel[this.scanMode.value] ?? this.scanMode.value;
 
     switch (this.scanMode.value) {
       // Admin Portal
       case 'admin':
-        this.scanSubscribtion = this.adminPortalsService
-          .scanAdminPortal()
-          .subscribe({
-            error: (err) =>
+        this.taskQueueService.scan.enqueue(
+          label,
+          () => this.adminPortalsService.scanAdminPortal(),
+          {
+            error: (err: any) =>
               this._snackBar
                 .open(`An error occurred: ${err.message}`, 'Close', {
                   duration: 3000,
@@ -348,7 +363,8 @@ export class ScanComponent {
                 },
               );
             },
-          });
+          },
+        );
         return;
 
       // Analyze Driver Logs
@@ -357,33 +373,41 @@ export class ScanComponent {
         if (!date) {
           return;
         }
-        this.scanSubscribtion = this.advancedScanService
-          .getDriversDailyLogs(date)
-          .subscribe({
+        this.taskQueueService.scan.enqueue(
+          label,
+          () => this.advancedScanService.getDriversDailyLogs(date),
+          {
             complete: () => this.handleAdvancedScanComplete(),
-          });
+          },
+        );
         return;
 
       // pre-Violation || low Cycle alert
       case 'pre':
-        this.scanSubscribtion = this.scanService
-          .getPreViolationAlert()
-          .subscribe({
-            next: (company) => this.scanService.handlePreScanData(company),
-            error: (err) => this.scanService.handleError(err),
+        this.taskQueueService.scan.enqueue(
+          label,
+          () => this.scanService.getPreViolationAlert(),
+          {
+            next: (company: any) => this.scanService.handlePreScanData(company),
+            error: (err: any) => this.scanService.handleError(err),
             complete: () =>
               this.scanService.handleScanComplete(this.scanMode.value),
-          });
+          },
+        );
         return;
 
       // Certifications Scan
       case 'cert':
-        this.scanSubscribtion = this.certScanService.driverLogs$().subscribe({
-          next: (driverLogs) => this.handleDriverLogs(driverLogs),
-          error: (err) => this.scanService.handleError(err),
-          complete: () =>
-            this.scanService.handleScanComplete(this.scanMode.value),
-        });
+        this.taskQueueService.scan.enqueue(
+          label,
+          () => this.certScanService.driverLogs$(),
+          {
+            next: (driverLogs: any) => this.handleDriverLogs(driverLogs),
+            error: (err: any) => this.scanService.handleError(err),
+            complete: () =>
+              this.scanService.handleScanComplete(this.scanMode.value),
+          },
+        );
         return;
 
       // Log Certification
@@ -396,11 +420,12 @@ export class ScanComponent {
           return;
         }
 
-        this.scanSubscribtion = this.certScanService
-          .driverLogs$(certTenants)
-          .subscribe({
+        this.taskQueueService.scan.enqueue(
+          label,
+          () => this.certScanService.driverLogs$(certTenants),
+          {
             next: () => this.handleLogCertification(),
-            error: (err) => this.scanService.handleError(err),
+            error: (err: any) => this.scanService.handleError(err),
             complete: () => {
               this._snackBar.open(
                 `Loc Certification completed. Certified days: ${this.certScanService.certifiedLogCount()}`,
@@ -411,7 +436,8 @@ export class ScanComponent {
               );
               this.progressBarService.initializeProgressBar();
             },
-          });
+          },
+        );
 
         return;
 
@@ -423,19 +449,28 @@ export class ScanComponent {
         if (!dateFrom || !dateTo || !dotDate) {
           return;
         }
-        this.scanSubscribtion = (
-          this.scanMode.value === 'violations'
-            ? this.scanService.getAllViolations({ from: dateFrom, to: dateTo })
-            : (this.scanService.getAllDOTInspections(
-                dotDate,
-              ) as Observable<any>)
-        ).subscribe({
-          next: (data: IViolations[] | IDOTInspections[]) =>
-            this.scanService.handleScanData(data, this.scanMode.value),
-          error: (err) => this.scanService.handleError(err),
-          complete: () =>
-            this.scanService.handleScanComplete(this.scanMode.value),
-        });
+        const scanMode = this.scanMode.value;
+        this.taskQueueService.scan.enqueue(
+          label,
+          () =>
+            scanMode === 'violations'
+              ? this.scanService.getAllViolations({
+                  from: dateFrom,
+                  to: dateTo,
+                })
+              : (this.scanService.getAllDOTInspections(
+                  dotDate,
+                ) as Observable<any>),
+          {
+            next: (data: any) =>
+              this.scanService.handleScanData(
+                data as IViolations[] | IDOTInspections[],
+                scanMode,
+              ),
+            error: (err: any) => this.scanService.handleError(err),
+            complete: () => this.scanService.handleScanComplete(scanMode),
+          },
+        );
         return;
       default:
         return;

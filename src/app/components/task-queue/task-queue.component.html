@@ -1,39 +1,22 @@
 <div class="container">
   <mat-drawer-container
     class="example-container"
-    [class.hide]="!taskCount(taskQueueService.zipTasks())"
+    [class.hide]="!totalCount()"
     autosize
   >
-    <mat-drawer #drawer class="example-sidenav" mode="side" #rightSidenav>
-      <ul>
-        @for (task of taskQueueService.zipTasks() | keyvalue; track task) {
-          <li class="task">
-            <span>[{{ task.value.time }}] Zip Operation</span>
-            <span>
-              @if (task.value.canceled) {
-                <div class="task__done">
-                  <mat-icon> cancel </mat-icon>
-                </div>
-              } @else {
-                @if (task.value.isDone) {
-                  <div class="task__done">
-                    <mat-icon>check_circle_outline</mat-icon>
-                  </div>
-                } @else if (task.value.isDone === null) {
-                  <div class="task__done">
-                    <mat-icon>error_outline</mat-icon>
-                  </div>
-                } @else {
-                  <mat-spinner
-                    class="task__processing"
-                    diameter="16"
-                  ></mat-spinner>
-                }
-              }
-            </span>
-          </li>
-        }
-      </ul>
+    <mat-drawer class="example-sidenav" mode="side" #rightSidenav>
+      @if (monitorTasks().length) {
+        <h4 class="queue-title">Monitor</h4>
+        <ng-container
+          *ngTemplateOutlet="taskList; context: { $implicit: monitorTasks() }"
+        ></ng-container>
+      }
+      @if (scanTasks().length) {
+        <h4 class="queue-title">Scan</h4>
+        <ng-container
+          *ngTemplateOutlet="taskList; context: { $implicit: scanTasks() }"
+        ></ng-container>
+      }
     </mat-drawer>
   </mat-drawer-container>
   <button
@@ -41,16 +24,48 @@
     (click)="taskQueueService.toggle()"
     matTooltip="Toggle Task Queue"
     class="toggle"
-    [class.hide]="!taskCount(taskQueueService.zipTasks())"
+    [class.hide]="!totalCount()"
   >
     <mat-icon>layers</mat-icon>
   </button>
   <div
     class="mat-badge-custom"
-    matBadge="{{ taskCount(taskQueueService.zipTasks()) }}"
+    matBadge="{{ totalCount() }}"
     matBadgeColor="primary"
-    matBadgeHidden="{{ !taskCount(taskQueueService.zipTasks()) }}"
+    matBadgeHidden="{{ !totalCount() }}"
     matBadgePosition="above after"
     matBadgeSize="medium"
   ></div>
 </div>
+
+<ng-template #taskList let-tasks>
+  <ul>
+    @for (task of tasks; track task.id) {
+      <li class="task">
+        <span>[{{ task.time }}] {{ task.name }}</span>
+        <span>
+          @switch (task.status) {
+            @case ('pending') {
+              <div class="task__done">
+                <mat-icon>schedule</mat-icon>
+              </div>
+            }
+            @case ('processing') {
+              <mat-spinner class="task__processing" diameter="16"></mat-spinner>
+            }
+            @case ('complete') {
+              <div class="task__done">
+                <mat-icon>check_circle_outline</mat-icon>
+              </div>
+            }
+            @case ('error') {
+              <div class="task__done">
+                <mat-icon>error_outline</mat-icon>
+              </div>
+            }
+          }
+        </span>
+      </li>
+    }
+  </ul>
+</ng-template>

@@ -3,7 +3,7 @@ import { MonitorService } from './monitor.service';
 
 import { dutyStatusNames, getDuration, getTime } from '../helpers/zip.helpers';
 import { ApiOperationsService } from './api-operations.service';
-import { map, mergeMap, of, switchMap, toArray, EMPTY, tap } from 'rxjs';
+import { map, mergeMap, of, switchMap, toArray, tap } from 'rxjs';
 import { ITenant } from '../interfaces';
 import { ApiService } from './api.service';
 import { UrlService } from './url.service';
@@ -18,7 +18,6 @@ import { ZipShiftService } from './zip-shift.service';
 import { IZipInitializationData } from '../interfaces/zip.interface';
 import { SmartFixService } from './smart-fix.service';
 import { TaskQueueService } from './task-queue.service';
-import { DateTime } from 'luxon';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 
 @Injectable({
@@ -39,8 +38,6 @@ export class ZipService {
 
   readonly dialog = inject(MatDialog);
   readonly _snackBar = inject(MatSnackBar);
-
-  zipId = 0;
 
   isZipOpen = signal(false);
 
@@ -301,7 +298,6 @@ export class ZipService {
     }
 
     this.isZipOpen.set(true);
-    this.zipId++;
 
     const zipData$ = this.apiService
       .getDriverDailyLogEvents(driverId, date, tenant.id)
@@ -347,148 +343,114 @@ export class ZipService {
     return this.dialog
       .open(ZipDialogComponent, dialogConfig)
       .afterClosed()
-      .pipe(
-        tap(() =>
-          this.taskQueueService.zipTasks.update((prev) => {
-            const newValue = { ...prev };
-            newValue[this.zipId] = {
-              time: DateTime.now().toFormat('HH:mm'),
-              isDone: false,
-            };
-            return newValue;
-          }),
-        ),
-        switchMap((result) => (result ? of(result) : EMPTY)),
-        // 2. Prepare resize items
-        map((zipData: IZipInitializationData) => ({
-          ...zipData,
-          resizeItems: this.zipResizeService.createResizeItems(
-            zipData.zipEvents,
-            zipData.eventsWithPotentialGaps,
-            this.resizeSpeed(),
-            this.resizeMinDuration(),
-            +this.maxSpeedDeviation().slice(1),
-            !!this.fill(),
-            this.gapMinDuration(),
-            this.resizeReductionTrashhold(),
-          ),
-        })),
-        // 3. Conditional operation sequence (Resize -> Shift)
-        switchMap(({ resizeItems, ...zipData }) => {
-          const resize$ = this.zipResizeService.processResizeItems(
-            tenant,
-            resizeItems,
-            this.resize(),
-            this.fillStatus(),
-          );
+      .subscribe((result: IZipInitializationData | undefined) => {
+        if (!result) {
+          this.isZipOpen.set(false);
+          return;
+        }
 
-          if (this.resize() && this.shift()) {
-            // Resize then Shift
-            return resize$.pipe(
-              mergeMap(() =>
-                this.zipShiftService
-                  .processShift(
-                    tenant,
-                    driverId,
-                    date,
-                    zipData,
-                    this.shift(),
-                    this.shiftDirection(),
-                    this.zippedOnDutyDuration(),
-                    this.shiftMinTimeFrame(),
-                    !!this.shiftBreak(),
-                    this.preformSmartFix() ? this.engineOffIdleTimeSpawn() : 0,
-                    this.shiftOriginalEventDuration(),
-                  )
-                  .pipe(toArray()),
+        // Add the configured zip to the end of the monitor queue. The whole
+        // resize -> shift -> smart fix pipeline runs when it reaches the front.
+        this.taskQueueService.monitor.enqueue(
+          'Zip',
+          () =>
+            of(result).pipe(
+              // 1. Prepare resize items
+              map((zipData) => ({
+                ...zipData,
+                resizeItems: this.zipResizeService.createResizeItems(
+                  zipData.zipEvents,
+                  zipData.eventsWithPotentialGaps,
+                  this.resizeSpeed(),
+                  this.resizeMinDuration(),
+                  +this.maxSpeedDeviation().slice(1),
+                  !!this.fill(),
+                  this.gapMinDuration(),
+                  this.resizeReductionTrashhold(),
+                ),
+              })),
+              // 2. Conditional operation sequence (Resize -> Shift)
+              switchMap(({ resizeItems, ...zipData }) => {
+                const resize$ = this.zipResizeService.processResizeItems(
+                  tenant,
+                  resizeItems,
+                  this.resize(),
+                  this.fillStatus(),
+                );
+
+                if (this.resize() && this.shift()) {
+                  // Resize then Shift
+                  return resize$.pipe(
+                    mergeMap(() =>
+                      this.zipShiftService
+                        .processShift(
+                          tenant,
+                          driverId,
+                          date,
+                          zipData,
+                          this.shift(),
+                          this.shiftDirection(),
+                          this.zippedOnDutyDuration(),
+                          this.shiftMinTimeFrame(),
+                          !!this.shiftBreak(),
+                          this.preformSmartFix()
+                            ? this.engineOffIdleTimeSpawn()
+                            : 0,
+                          this.shiftOriginalEventDuration(),
+                        )
+                        .pipe(toArray()),
+                    ),
+                  );
+                } else if (this.resize()) {
+                  // Only Resize
+                  return resize$.pipe();
+                } else if (this.shift()) {
+                  // Only Shift
+                  return this.zipShiftService
+                    .processShift(
+                      tenant,
+                      driverId,
+                      date,
+                      zipData,
+                      this.shift(),
+                      this.shiftDirection(),
+                      this.zippedOnDutyDuration(),
+                      this.shiftMinTimeFrame(),
+                      !!this.shiftBreak(),
+                      this.preformSmartFix()
+                        ? this.engineOffIdleTimeSpawn()
+                        : 0,
+                      this.shiftOriginalEventDuration(),
+                    )
+                    .pipe(toArray());
+                } else {
+                  return of({});
+                }
+              }),
+              // 3. Optional smart fix
+              switchMap(() =>
+                this.preformSmartFix()
+                  ? this.smartFixService.smartFix(tenant.id, driverId, date)
+                  : of({}),
               ),
-            );
-          } else if (this.resize()) {
-            // Only Resize
-            return resize$.pipe();
-          } else if (this.shift()) {
-            // Only Shift
-
-            return this.zipShiftService
-              .processShift(
-                tenant,
-                driverId,
-                date,
-                zipData,
-                this.shift(),
-                this.shiftDirection(),
-                this.zippedOnDutyDuration(),
-                this.shiftMinTimeFrame(),
-                !!this.shiftBreak(),
-                this.preformSmartFix() ? this.engineOffIdleTimeSpawn() : 0,
-                this.shiftOriginalEventDuration(),
-              )
-              .pipe(toArray());
-          } else {
-            return of({});
-          }
-        }),
-      )
-      .pipe(
-        switchMap(() => {
-          if (this.preformSmartFix()) {
-            return this.smartFixService.smartFix(tenant.id, driverId, date);
-          } else return of({});
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.monitorService.selectedEvents.set([]);
-          this._snackBar.open('[ZIP] Completed', 'OK', { duration: 3500 });
-          this.monitorService.refreshDailyLogs();
-          this.urlService.refreshWebApp();
-        },
-        error: (err) => {
-          this.isZipOpen.set(false);
-          const currentZipId = this.zipId;
-          this.taskQueueService.zipTasks.update((prev) => {
-            const newValue = { ...prev };
-            newValue[currentZipId] = {
-              ...newValue[currentZipId],
-              isDone: null,
-            };
-            return newValue;
-          });
-          setTimeout(
-            () =>
-              this.taskQueueService.zipTasks.update((prev) => {
-                const newValue = { ...prev };
-                delete newValue[currentZipId];
-                return newValue;
-              }),
-            5000,
-          );
-          const message = err.error?.message
-            ? `[ZIP] ERROR: ${err.error.message}`
-            : `[ZIP] ERROR: ${err}`;
-          this._snackBar.open(message, 'Close', { duration: 7000 });
-        },
-        complete: () => {
-          this.isZipOpen.set(false);
-          const currentZipId = this.zipId;
-          this.taskQueueService.zipTasks.update((prev) => {
-            const newValue = { ...prev };
-            newValue[currentZipId] = {
-              ...newValue[currentZipId],
-              isDone: true,
-            };
-            return newValue;
-          });
-          setTimeout(
-            () =>
-              this.taskQueueService.zipTasks.update((prev) => {
-                const newValue = { ...prev };
-                delete newValue[currentZipId];
-                return newValue;
-              }),
-            5000,
-          );
-        },
+            ),
+          {
+            complete: () => {
+              this.isZipOpen.set(false);
+              this.monitorService.selectedEvents.set([]);
+              this._snackBar.open('[ZIP] Completed', 'OK', { duration: 3500 });
+              this.monitorService.refreshDailyLogs();
+              this.urlService.refreshWebApp();
+            },
+            error: (err: any) => {
+              this.isZipOpen.set(false);
+              const message = err.error?.message
+                ? `[ZIP] ERROR: ${err.error.message}`
+                : `[ZIP] ERROR: ${err}`;
+              this._snackBar.open(message, 'Close', { duration: 7000 });
+            },
+          },
+        );
       });
   }
 }
