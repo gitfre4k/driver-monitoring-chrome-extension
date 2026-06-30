@@ -41,6 +41,10 @@ export class ZipDialogComponent {
   data: { zipData$: Observable<IZipInitializationData> } =
     inject(MAT_DIALOG_DATA);
 
+  constructor() {
+    this.zipService.resetToDefaults();
+  }
+
   @ViewChild('speedInput') speedInput!: ElementRef<HTMLInputElement>;
   @ViewChild('onDutyDurationInput')
   onDutyDurationInput!: ElementRef<HTMLInputElement>;

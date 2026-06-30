@@ -353,7 +353,13 @@
     </div>
 
     <div class="zip__form__buttons">
-      <button mat-button (click)="onCancel()">Cancel</button>
+      <button
+        mat-button
+        class="zip__form__buttons-cancel"
+        (click)="onCancel()"
+      >
+        Cancel
+      </button>
       <button
         mat-button
         class="zip__form__buttons-reset"
@@ -362,8 +368,8 @@
         Reset to default
       </button>
       <button
-        matButton="outlined"
-        color="primary"
+        mat-button
+        class="zip__form__buttons-proceed"
         cdkFocusInitial
         (click)="onProceed(data)"
         [disabled]="!zipService.resize() && !zipService.shift()"

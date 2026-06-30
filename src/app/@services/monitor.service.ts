@@ -133,12 +133,10 @@ export class MonitorService {
     this.refresh.update((value) => value + 1);
 
     // NOTE: edit-form signals (currentEditEvent / showUpdateEvent / newNote /
-    // newOdometer) are intentionally NOT cleared here. After the refreshed logs
-    // land, reconcileEditFormAfterRefresh() keeps the form open if the edited
-    // event still exists, otherwise it clears it.
-    this.newResizeSpeed.set(0);
-    this.currentResizeDriving.set(null);
-    this.showResize.set(null);
+    // newOdometer) and resize-form signals (currentResizeDriving / showResize /
+    // newResizeSpeed) are intentionally NOT cleared here. After the refreshed
+    // logs land, reconcileEditFormAfterRefresh() / reconcileResizeFormAfterRefresh()
+    // keep the form open if the event still exists, otherwise they clear it.
   };
 
   selectAllEvents() {
@@ -183,11 +181,9 @@ export class MonitorService {
       .pipe(
         tap((driverDailyLog) => {
           this.driverDailyLog.set(driverDailyLog);
-          // Edit-form signals are reconciled in handleDriverDailyLogEvents once
-          // the computed events exist, so they survive an in-app refresh.
-          this.currentResizeDriving.set(null);
-          this.showResize.set(null);
-          this.newResizeSpeed.set(0);
+          // Edit-form and resize-form signals are reconciled in
+          // handleDriverDailyLogEvents once the computed events exist, so they
+          // survive an in-app refresh.
 
           if (driverDailyLog.coDrivers && driverDailyLog.coDrivers[0]?.id) {
             const coId = driverDailyLog.coDrivers[0].id;
@@ -231,7 +227,39 @@ export class MonitorService {
         ),
       );
       this.reconcileEditFormAfterRefresh();
+      this.reconcileResizeFormAfterRefresh();
       return;
+    }
+  }
+
+  /**
+   * After the daily logs are refetched, keep the resize form open only if the
+   * driving event being resized still exists in the fresh logs. Matches on both
+   * `id` and `startTime` to avoid a false positive when a different driver
+   * reuses an id. The user's chosen speed (newResizeSpeed) is preserved; the
+   * advanced-resize prompt is cleared when the event is gone.
+   */
+  private reconcileResizeFormAfterRefresh() {
+    const resizeEvent = this.currentResizeDriving();
+    if (!resizeEvent) return;
+
+    const match = this.computedDailyLogEvents()?.find(
+      (e) =>
+        e.id !== 0 &&
+        e.id === resizeEvent.id &&
+        e.startTime === resizeEvent.startTime,
+    );
+
+    if (match) {
+      // Refresh the reference to the new event object; keep the user's chosen
+      // newResizeSpeed and any advanced-resize prompt.
+      this.currentResizeDriving.set(match);
+      this.showResize.set(match.id);
+    } else {
+      this.currentResizeDriving.set(null);
+      this.showResize.set(null);
+      this.newResizeSpeed.set(0);
+      this.showAdvancedResize.set(null);
     }
   }
 
@@ -324,6 +352,8 @@ export class MonitorService {
       this.currentResizeDriving.set(event);
       this.showResize.set(event.id);
       this.newResizeSpeed.set(event.averageSpeed);
+      // Opening a resize form always starts in plain (non-advanced) mode.
+      this.showAdvancedResize.set(null);
     }
   }
 
