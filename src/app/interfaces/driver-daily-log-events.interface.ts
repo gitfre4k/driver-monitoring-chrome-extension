@@ -58,6 +58,10 @@ export interface IEvent {
   /** true when a short PTI (pti > 0) on-duty event also lacks a note, so the
    *  combined "extend PTI + add note" fix applies. */
   ptiNeedsNote?: boolean;
+  /** true for an On Duty "wannabe PTI" status (short on-duty at the start of a
+   *  shift that hasn't begun yet) that is missing its note — surfaces the
+   *  optional "add missing PTI note" context-menu action. Not a warning. */
+  canAddPtiNote?: boolean;
   break: number;
   nextDutyStatusInfo: IStatusInfo;
   intermediatesInfo: IStatusInfo[];

@@ -1,27 +1,36 @@
-<div class="scan">
-  <div class="scan__header">
-    <mat-button-toggle-group
-      class="scan__header-toggle"
-      [value]="view()"
-      (change)="view.set($event.value)"
-      hideSingleSelectionIndicator
-    >
-      <mat-button-toggle value="cards">
-        <mat-icon>bolt</mat-icon>
-        Actions
-      </mat-button-toggle>
-      <mat-button-toggle value="progress">
-        <mat-icon>document_scanner</mat-icon>
-        Progress
-        @if (activeCount(); as count) {
-          <span class="scan__header-badge">{{ count }}</span>
-        }
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
+<!-- Reusable scan action button: reflects the card's queue state (idle / queued
+     / processing). Context: { state, label, run }. -->
+<ng-template #scanBtn let-state="state" let-label="label" let-run="run">
+  @switch (state.status) {
+    @case ("processing") {
+      <button
+        matButton="tonal"
+        class="scan__busy-btn"
+        matTooltip="Cancel"
+        (click)="taskQueueService.scan.cancel(state.taskId)"
+      >
+        <mat-progress-spinner
+          class="scan__busy-spinner"
+          mode="indeterminate"
+          [diameter]="16"
+        ></mat-progress-spinner>
+        <mat-icon class="scan__busy-cancel">close</mat-icon>
+      </button>
+    }
+    @case ("queued") {
+      <button matButton="tonal" class="scan__queued-btn" disabled>
+        <mat-icon class="scan__queued-icon">schedule</mat-icon>
+        <span class="scan__queued-num">{{ state.position }}</span>
+      </button>
+    }
+    @default {
+      <button matButton="tonal" (click)="run()">{{ label }}</button>
+    }
+  }
+</ng-template>
 
-  @if (view() === "cards") {
-    <div class="scan__body">
+<div class="scan">
+  <div class="scan__body">
     <div class="scan__col">
       <!-- Violations -->
       <div class="card scan__violations">
@@ -112,13 +121,16 @@
                 last scan: {{ lastSync | date: "shortTime" }}
               }
             </span>
-            <button
-              matButton="tonal"
-              (click)="startViolationsScan()"
-              [disabled]="disableScan()"
-            >
-              Scan
-            </button>
+            <ng-container
+              *ngTemplateOutlet="
+                scanBtn;
+                context: {
+                  state: scanTaskState('violations'),
+                  label: 'Scan',
+                  run: startViolationsScan,
+                }
+              "
+            ></ng-container>
           </div>
         </div>
       </div>
@@ -163,13 +175,16 @@
               currently working drivers</span
             ></mat-checkbox
           >
-          <button
-            [disabled]="disableScan()"
-            matButton="tonal"
-            (click)="getPreViolationAlert()"
-          >
-            Scan
-          </button>
+          <ng-container
+            *ngTemplateOutlet="
+              scanBtn;
+              context: {
+                state: scanTaskState('pre'),
+                label: 'Scan',
+                run: getPreViolationAlert,
+              }
+            "
+          ></ng-container>
         </div>
       </div>
 
@@ -206,13 +221,16 @@
               ></mat-datepicker-toggle>
             </div>
             <div class="scan__log-analysis__form-submit">
-              <button
-                [disabled]="disableScan()"
-                matButton="tonal"
-                (click)="startDOTScan()"
-              >
-                Scan
-              </button>
+              <ng-container
+                *ngTemplateOutlet="
+                  scanBtn;
+                  context: {
+                    state: scanTaskState('dot'),
+                    label: 'Scan',
+                    run: startDOTScan,
+                  }
+                "
+              ></ng-container>
             </div>
           </div>
         </div>
@@ -227,13 +245,16 @@
               non-working days</span
             ></mat-checkbox
           >
-          <button
-            matButton="tonal"
-            [disabled]="disableScan()"
-            (click)="startCertScan()"
-          >
-            Scan
-          </button>
+          <ng-container
+            *ngTemplateOutlet="
+              scanBtn;
+              context: {
+                state: scanTaskState('cert'),
+                label: 'Scan',
+                run: startCertScan,
+              }
+            "
+          ></ng-container>
         </div>
       </div>
 
@@ -241,17 +262,16 @@
       <div class="card scan__admin">
         <div class="card__label">Admin Portal</div>
         <div class="scan__action-row">
-          <a
-            mat-icon-button
-            class="scan__settings-btn"
-            matTooltip="Settings"
-            (click)="openSettings()"
-          >
-            <mat-icon>settings</mat-icon>
-          </a>
-          <button matButton="tonal" (click)="getDashboardLocationsData()">
-            Scan
-          </button>
+          <ng-container
+            *ngTemplateOutlet="
+              scanBtn;
+              context: {
+                state: scanTaskState('admin'),
+                label: 'Scan',
+                run: getDashboardLocationsData,
+              }
+            "
+          ></ng-container>
         </div>
       </div>
 
@@ -262,29 +282,31 @@
         <div class="scan__tools">
           <div class="card scan__tools__unidentified">
             <div class="card__label">Unidentified Events</div>
-            <button matButton="tonal" (click)="deleteUnidentifiedEvents()">
-              Delete
-            </button>
+            <ng-container
+              *ngTemplateOutlet="
+                scanBtn;
+                context: {
+                  state: scanTaskState('deleteUE'),
+                  label: 'Delete',
+                  run: deleteUnidentifiedEvents,
+                }
+              "
+            ></ng-container>
           </div>
 
           <div class="card scan__group__smart">
             <div class="card__label">Global Smart Fix</div>
             <div class="scan__action-row">
-              <a
-                mat-icon-button
-                class="scan__settings-btn"
-                matTooltip="Settings"
-                (click)="openSettings()"
-              >
-                <mat-icon>settings</mat-icon>
-              </a>
-              <button
-                matButton="tonal"
-                [disabled]="disableScan()"
-                (click)="globalSmartFix()"
-              >
-                Smart Fix
-              </button>
+              <ng-container
+                *ngTemplateOutlet="
+                  scanBtn;
+                  context: {
+                    state: scanTaskState('smartFix'),
+                    label: 'Smart Fix',
+                    run: globalSmartFix,
+                  }
+                "
+              ></ng-container>
             </div>
           </div>
         </div>
@@ -294,66 +316,50 @@
           <div class="card__label">Log Certification</div>
 
           @if (tenantList(); as tenants) {
-            <div class="scan__log-analysis__form">
-              <ng-container>
-                <mat-form-field class="cert__form small-select">
-                  <mat-label>Company</mat-label>
-                  <mat-select
-                    [formControl]="certTenants"
-                    multiple
-                    panelClass="custom-option-height my-custom-select"
-                  >
-                    <mat-select-trigger>
-                      @if (certTenants.value?.length === tenants.length) {
-                        All selected ({{ certTenants.value?.length }})
-                      } @else {
-                        {{ certTenants.value?.[0]?.name }}
-                        @if ((certTenants.value?.length || 0) > 1) {
-                          <span>
-                            (+{{ (certTenants.value?.length || 0) - 1 }}
-                            {{
-                              certTenants.value?.length === 2
-                                ? "other"
-                                : "others"
-                            }})
-                          </span>
-                        }
+            <div class="scan__cert-row">
+              <mat-form-field class="cert__form small-select">
+                <mat-label>Company</mat-label>
+                <mat-select
+                  [formControl]="certTenants"
+                  multiple
+                  panelClass="custom-option-height my-custom-select"
+                >
+                  <mat-select-trigger>
+                    @if (certTenants.value?.length === tenants.length) {
+                      All selected ({{ certTenants.value?.length }})
+                    } @else {
+                      {{ certTenants.value?.[0]?.name }}
+                      @if ((certTenants.value?.length || 0) > 1) {
+                        <span>
+                          (+{{ (certTenants.value?.length || 0) - 1 }}
+                          {{
+                            certTenants.value?.length === 2 ? "other" : "others"
+                          }})
+                        </span>
                       }
-                    </mat-select-trigger>
-
-                    <mat-option
-                      value="select-all"
-                      selectAll
-                      [allValues]="tenants"
-                      >Select all</mat-option
-                    >
-
-                    @for (tenant of tenants; track tenant.id) {
-                      <mat-option [value]="tenant">{{
-                        tenant.name
-                      }}</mat-option>
                     }
-                  </mat-select>
-                </mat-form-field>
-              </ng-container>
-            </div>
-            <div class="scan__log-analysis__form-submit+ scan__action-row">
-              <a
-                mat-icon-button
-                class="scan__settings-btn"
-                matTooltip="Settings"
-                (click)="openSettings()"
-              >
-                <mat-icon>settings</mat-icon>
-              </a>
-              <button
-                [disabled]="disableScan()"
-                matButton="tonal"
-                (click)="certifyLogs()"
-                class="cert-button"
-              >
-                Certify Logs
-              </button>
+                  </mat-select-trigger>
+
+                  <mat-option value="select-all" selectAll [allValues]="tenants"
+                    >Select all</mat-option
+                  >
+
+                  @for (tenant of tenants; track tenant.id) {
+                    <mat-option [value]="tenant">{{ tenant.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <ng-container
+                *ngTemplateOutlet="
+                  scanBtn;
+                  context: {
+                    state: scanTaskState('cert-logs'),
+                    label: 'Certify Logs',
+                    run: certifyLogs,
+                  }
+                "
+              ></ng-container>
             </div>
           }
         </div>
@@ -373,7 +379,8 @@
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
 
-        <div class="scan__log-analysis__form">
+        <!-- calendar toggle + checkbox + Analyse button on one row -->
+        <div class="scan__analysis-row">
           <div class="scan__log-analysis__form-date">
             <mat-datepicker-toggle
               matIconSuffix
@@ -395,82 +402,63 @@
               during Driving</span
             ></mat-checkbox
           >
-        </div>
-        <div class="scan__action-row">
-          <a
-            mat-icon-button
-            class="scan__settings-btn"
-            matTooltip="Settings"
-            (click)="openSettings()"
-          >
-            <mat-icon>settings</mat-icon>
-          </a>
-          <button
-            [disabled]="disableScan()"
-            matButton="tonal"
-            (click)="analyzeDriverLogs()"
-          >
-            Analyze
-          </button>
+
+          <ng-container
+            *ngTemplateOutlet="
+              scanBtn;
+              context: {
+                state: scanTaskState('advanced'),
+                label: 'Analyse',
+                run: analyzeDriverLogs,
+              }
+            "
+          ></ng-container>
         </div>
       </div>
     </div>
-    </div>
-  } @else {
-    <div class="scan__progress-view">
-      @if (scanning()) {
-        <app-progress-bar
-          class="scan__progress"
-          [scanSubscription]="scanSubscribtion"
-          [scanMode]="scanMode.value"
-          (stopped)="onScanStopped()"
-        ></app-progress-bar>
-      }
+  </div>
 
-      @if (pendingScans().length) {
-        <div class="scan__pending">
-          <span class="scan__pending-label">Queued</span>
-          @for (task of pendingScans(); track task.id; let i = $index) {
-            <span class="scan__pending-item">
-              <span class="scan__pending-item-num">{{ i + 1 }}.</span>
-              <mat-icon class="scan__pending-item-icon">schedule</mat-icon>
-              <span class="scan__pending-item-name">{{ task.name }}</span>
-              <button
-                type="button"
-                class="scan__pending-cancel"
-                matTooltip="Cancel"
-                (click)="taskQueueService.scan.cancel(task.id)"
-              >
-                <mat-icon>close</mat-icon>
-              </button>
-            </span>
-          }
-        </div>
-      }
+  <!-- Horizontal divider, then live progress + queue + errors below it -->
+  <div class="scan__separator scan__progress-divider"></div>
 
-      @if (scanErrors().length) {
-        <div class="scan__queue-errors">
-          <span class="scan__queue-errors-label">Errors</span>
-          @for (err of scanErrors(); track $index) {
-            <span class="scan__queue-errors-item">
-              <mat-icon class="scan__queue-errors-icon">error</mat-icon>
-              <span class="scan__queue-errors-company">{{
-                err.company.name
-              }}</span>
-              <span class="scan__queue-errors-msg">{{
-                err.error.message || "request failed"
-              }}</span>
-            </span>
-          }
-        </div>
-      }
+  <div class="scan__progress-view">
+    @if (scanning()) {
+      <app-progress-bar
+        class="scan__progress"
+        [scanSubscription]="scanSubscribtion"
+        [scanMode]="scanMode.value"
+        (stopped)="onScanStopped()"
+      ></app-progress-bar>
+    }
 
-      @if (!scanning() && !pendingScans().length) {
-        <div class="scan__progress-empty">
-          <mat-icon>schedule</mat-icon>
-          <span>No active or queued scans</span>
-        </div>
-      }
-    </div>
-  }
+    @if (pendingScans().length) {
+      <div class="scan__pending">
+        <span class="scan__pending-label">Queued</span>
+        @for (task of pendingScans(); track task.id; let i = $index) {
+          <span class="scan__pending-item">
+            <span class="scan__pending-item-num">{{ i + 1 }}.</span>
+            <mat-icon class="scan__pending-item-icon">schedule</mat-icon>
+            <span class="scan__pending-item-name">{{ task.name }}</span>
+            <button
+              type="button"
+              class="scan__pending-cancel"
+              matTooltip="Cancel"
+              (click)="taskQueueService.scan.cancel(task.id)"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </span>
+        }
+      </div>
+    }
+
+    <app-scan-error-list [scrollable]="true"></app-scan-error-list>
+
+    @if (!scanning() && !pendingScans().length) {
+      <div class="scan__progress-empty">
+        <mat-icon>schedule</mat-icon>
+        <span>No active or queued scans</span>
+      </div>
+    }
+  </div>
 </div>

@@ -34,6 +34,7 @@ import { DateService } from './date.service';
 import { IDriverItem, IDrivers } from '../interfaces/drivers.interface';
 import { ConstantsService } from './constants.service';
 import { TaskQueueService } from './task-queue.service';
+import { AdvancedScanService } from './advanced-scan.service';
 
 @Injectable({
   providedIn: 'root',
@@ -46,6 +47,7 @@ export class ScanService {
   private notification = inject(NotificationService);
   private constantsService = inject(ConstantsService);
   private taskQueueService = inject(TaskQueueService);
+  private advancedScanService = inject(AdvancedScanService);
 
   httpLimit = this.constantsService.httpLimit;
 
@@ -464,7 +466,12 @@ export class ScanService {
 
   /** Whether a "Retry failed" action is supported for the given scan mode. */
   canRetry(mode: TScanMode): boolean {
-    return mode === 'violations' || mode === 'dot' || mode === 'pre';
+    return (
+      mode === 'violations' ||
+      mode === 'dot' ||
+      mode === 'pre' ||
+      mode === 'advanced'
+    );
   }
 
   /**
@@ -473,6 +480,12 @@ export class ScanService {
    * fails again is re-added by the scan itself.
    */
   retryFailed(mode: TScanMode) {
+    // Driver Log Analysis replays individual failed driver requests itself.
+    if (mode === 'advanced') {
+      this.advancedScanService.retryFailed();
+      return;
+    }
+
     const errors = this.errorSignalFor(mode);
     if (!errors) return;
 

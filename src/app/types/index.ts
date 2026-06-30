@@ -63,6 +63,7 @@ export type TContextMenuAction =
   | 'ChangeToDrivingStatus'
   | 'ChangeToOnDutyNotDrivingStatus'
   | 'ADD_PTI_NOTE'
+  | 'CREATE_PTI'
   | 'POST_FMCSA';
 
 export type TFocusElementAction =

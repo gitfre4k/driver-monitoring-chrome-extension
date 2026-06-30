@@ -17,6 +17,7 @@ import { DialogComponent } from '../components/UI/dialog/dialog.component';
 import { ApiService } from './api.service';
 import { ComputeEventsService } from './compute-events.service';
 import { FormInputService } from './form-input.service';
+import { TaskQueueService } from './task-queue.service';
 
 @Injectable({ providedIn: 'root' })
 export class MonitorService {
@@ -25,8 +26,27 @@ export class MonitorService {
   private apiService = inject(ApiService);
   private computeEventsService = inject(ComputeEventsService);
   private formInputService = inject(FormInputService);
+  private taskQueueService = inject(TaskQueueService);
 
   readonly dialog = inject(MatDialog);
+
+  /** Event ids with a pending or processing monitor operation. Used to disable
+   *  the update/resize/fix buttons for only the events being worked on. */
+  busyEventIds = computed(
+    () =>
+      new Set(
+        this.taskQueueService.monitor
+          .tasks()
+          .filter(
+            (t) => t.status === 'pending' || t.status === 'processing',
+          )
+          .flatMap((t) => t.eventIds ?? []),
+      ),
+  );
+
+  isEventBusy(id: number): boolean {
+    return this.busyEventIds().has(id);
+  }
 
   refresh = signal(0);
   refreshBtnDisabled = signal(false);

@@ -66,6 +66,39 @@ export class AdvancedScanService {
       this.apiOperationsService.deleteEvents(tenant, ids).subscribe({});
   }
 
+  /**
+   * Re-run only the driver daily-log requests that failed (Driver Log
+   * Analysis). Each failed entry carries its driver + date, so we refire just
+   * that request and feed the result back through `getComputedEvents` (via
+   * `dailyLogEvents$` → `handleDriverDailyLogEvents`) — no full rescan.
+   */
+  retryFailed() {
+    const errors = this.progressBarService.aErrors();
+    const driverErrors = errors.filter((e) => e.driver && e.date);
+    if (!driverErrors.length) return;
+
+    // Drop only the entries we are about to retry; keep any tenant-level errors.
+    this.progressBarService.aErrors.set(
+      errors.filter((e) => !(e.driver && e.date)),
+    );
+    this.progressBarService.scanning.set(true);
+
+    from(driverErrors)
+      .pipe(
+        mergeMap(
+          (e) =>
+            this.dailyLogEvents$(
+              e.driver as unknown as IDriver,
+              e.company,
+              e.date!,
+            ),
+          this.httpLimit(),
+        ),
+        finalize(() => this.progressBarService.scanning.set(false)),
+      )
+      .subscribe();
+  }
+
   getDriversDailyLogs(date: string) {
     this.analyzedCoDrivers.set({});
     const tenants = this.appService.tenantsSignal();
@@ -170,6 +203,8 @@ export class AdvancedScanService {
                 error,
                 company: tenant,
                 driverName: driver.fullName,
+                driver: { id: driver.id, fullName: driver.fullName },
+                date,
               },
             ]);
           },
@@ -190,6 +225,8 @@ export class AdvancedScanService {
                         error,
                         company: tenant,
                         driverName: driver.fullName,
+                        driver: { id: driver.id, fullName: driver.fullName },
+                        date,
                       },
                     ]);
                   },

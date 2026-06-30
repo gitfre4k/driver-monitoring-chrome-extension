@@ -17,7 +17,8 @@
       [disabled]="
         !formInputService.isLatValid() ||
         !formInputService.isLongValid() ||
-        formInputService.locationDisplayName() === 'E R R O R'
+        formInputService.locationDisplayName() === 'E R R O R' ||
+        monitorService.isEventBusy(event.id)
       "
       tabindex="0"
     >

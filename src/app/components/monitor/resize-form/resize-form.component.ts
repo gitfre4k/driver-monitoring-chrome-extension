@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   HostListener,
   inject,
 } from "@angular/core";
@@ -31,6 +32,12 @@ export class ResizeFormComponent {
   monitorService = inject(MonitorService);
   contextMenuService = inject(ContextMenuService);
   private notification = inject(NotificationService);
+
+  /** True while a queued/processing resize exists for the event being resized. */
+  isResizeBusy = computed(() => {
+    const event = this.monitorService.currentResizeDriving();
+    return event ? this.monitorService.isEventBusy(event.id) : false;
+  });
 
   @HostListener("document:keyup.enter", ["$event"])
   onDocumentEnter(event: Event) {

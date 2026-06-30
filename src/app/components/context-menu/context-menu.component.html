@@ -1,5 +1,9 @@
 @if (event(); as event) {
-<div class="context-menu" [style.left.px]="x()" [style.top.px]="y()">
+<div
+  class="context-menu"
+  [style.left.px]="pos().left"
+  [style.top.px]="pos().top"
+>
   <ul>
     <!--  -->
     <li (click)="monitorService.createDuplicatedEvent(event)" class="context-menu__item">
@@ -45,6 +49,22 @@
     <li (click)="contextMenuService.handleAction('PARTIAL_TO_ON', event)" class="context-menu__item">
       <mat-icon class="context-menu__item__icon-on">vertical_align_bottom</mat-icon>
       <span class="context-menu__item__name">partially transform to On Duty</span>
+    </li>
+    }
+
+    <!-- CREATE PTI (Off Duty / Sleeper Berth, shift ready to start) -->
+    @if (canCreatePti(event)) {
+    <li (click)="contextMenuService.handleAction('CREATE_PTI', event)" class="context-menu__item">
+      <mat-icon class="context-menu__item__icon-on">playlist_add</mat-icon>
+      <span class="context-menu__item__name">create PTI</span>
+    </li>
+    }
+
+    <!-- ADD MISSING PTI NOTE (On Duty wannabe PTI, shift not started yet) -->
+    @if (event.statusName === "On Duty" && event.canAddPtiNote) {
+    <li (click)="contextMenuService.handleAction('ADD_PTI_NOTE', event)" class="context-menu__item">
+      <mat-icon class="context-menu__item__icon-on">note_alt</mat-icon>
+      <span class="context-menu__item__name">add missing PTI note</span>
     </li>
     }
 

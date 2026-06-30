@@ -29,6 +29,9 @@ export interface ITask {
   phase?: string;
   /** Fine-grained progress inside the current phase, e.g. `"shift 4/7"`. */
   subtask?: string;
+  /** Event ids this task operates on — used to disable per-event monitor
+   *  buttons (update/resize/fix) only while an op for that event is queued. */
+  eventIds?: number[];
   /** When set, the task can be stopped mid-flight — invoked by `cancel(id)`. */
   cancel?: () => void;
 }
@@ -45,6 +48,8 @@ interface ITaskOptions {
   /** When true, skip enqueuing if a task with the same `key` is already
    *  pending or processing. */
   dedupe?: boolean;
+  /** Event ids this task operates on (see `ITask.eventIds`). */
+  eventIds?: number[];
   /** Cancellation hook. When provided the task shows a stop button; clicking it
    *  (or calling `cancel(id)`) runs this and marks the task `cancelled`. */
   cancel?: () => void;
@@ -144,6 +149,7 @@ export class TaskQueue {
         status: 'pending',
         time: DateTime.now().toFormat('HH:mm'),
         key,
+        eventIds: options?.eventIds,
         cancel: options?.cancel,
       },
     ]);
@@ -205,8 +211,11 @@ export class TaskQueue {
   providedIn: 'root',
 })
 export class TaskQueueService {
-  /** Monitor write-operations (add PTI, zip, smart fix, resize, ...). */
+  /** Monitor write-operations (add PTI, smart fix, resize, ...). */
   readonly monitor = new TaskQueue();
   /** Multi-tenant scan operations (violations, DOT, advanced, cert, ...). */
   readonly scan = new TaskQueue();
+  /** Zip pipeline (resize → shift → smart fix). Kept independent of the monitor
+   *  and scan queues so a long zip never blocks single-event monitor actions. */
+  readonly zip = new TaskQueue();
 }

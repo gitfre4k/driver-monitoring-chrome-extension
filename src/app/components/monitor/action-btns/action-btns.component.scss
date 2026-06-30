@@ -17,6 +17,7 @@
     gap: 4px;
     align-items: center;
     top: 55px;
+    margin-top: -8px;
     left: 8px;
     width: min-content;
     .spinner {
@@ -49,6 +50,7 @@
   }
   &.menu {
     top: 55px;
+    margin-top: -8px;
     .mat-badge-custom {
       position: absolute;
       top: 0px;

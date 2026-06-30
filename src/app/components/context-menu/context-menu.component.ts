@@ -1,9 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
+  ElementRef,
   inject,
   input,
   output,
+  signal,
 } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { IEvent } from "../../interfaces/driver-daily-log-events.interface";
@@ -13,6 +16,7 @@ import { MonitorService } from "../../@services/monitor.service";
 import { PartialComponent } from "../UI/partial/partial.component";
 import { ResizeComponent } from "../UI/resize/resize.component";
 import { ApiOperationsService } from "../../@services/api-operations.service";
+import { getStatusDuration } from "../../helpers/app.helpers";
 
 @Component({
   selector: "app-context-menu",
@@ -30,6 +34,52 @@ export class ContextMenuComponent {
   contextMenuService = inject(ContextMenuService);
   monitorService = inject(MonitorService);
   apiOperationsService = inject(ApiOperationsService);
+  private elementRef = inject(ElementRef);
+
+  /** Clamped position so the menu never overflows the viewport. Recomputed
+   *  whenever the x/y inputs change — e.g. right-clicking a new spot while the
+   *  menu is already open. */
+  pos = signal<{ left: number; top: number }>({ left: 0, top: 0 });
+
+  constructor() {
+    effect(() => {
+      const x = this.x();
+      const y = this.y();
+      // Render at the raw position first, then clamp once it has been measured.
+      this.pos.set({ left: x, top: y });
+      requestAnimationFrame(() => this.clampToViewport());
+    });
+  }
+
+  private clampToViewport() {
+    const el = this.elementRef.nativeElement.querySelector(
+      ".context-menu",
+    ) as HTMLElement | null;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const margin = 8;
+    let left = this.x();
+    let top = this.y();
+
+    if (left + rect.width > window.innerWidth - margin)
+      left = Math.max(margin, window.innerWidth - rect.width - margin);
+    if (top + rect.height > window.innerHeight - margin)
+      top = Math.max(margin, window.innerHeight - rect.height - margin);
+
+    this.pos.set({ left, top });
+  }
+
+  getStatusDuration = getStatusDuration;
+
+  /** Off Duty / Sleeper Berth status during which the shift is ready to start
+   *  (a 34h reset, or a 10h+ break) — the precondition for creating a PTI. */
+  canCreatePti(event: IEvent): boolean {
+    return (
+      ["Off Duty", "Sleeper Berth"].includes(event.statusName) &&
+      (event.break === 34 || getStatusDuration(event) / 3600 >= 10)
+    );
+  }
 
   openLocationInGoogleMaps(event: IEvent) {
     return this.apiOperationsService

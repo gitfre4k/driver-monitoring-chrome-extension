@@ -55,8 +55,8 @@ import { NotificationService } from '../../@services/notification.service';
 import { TaskQueueService } from '../../@services/task-queue.service';
 import { GlobalSmartfFixService } from '../../@services/global-smartf-fix.service';
 import { SelectAllDirective } from '../../directive/select-all.directive';
-import { ExtensionTabNavigationService } from '../../@services/extension-tab-navigation.service';
-import { UrlService } from '../../@services/url.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ScanErrorListComponent } from '../scan-error-list/scan-error-list.component';
 
 @Component({
   selector: 'app-scan',
@@ -78,7 +78,9 @@ import { UrlService } from '../../@services/url.service';
     MatCheckboxModule,
     MatSliderModule,
     MatBadgeModule,
+    MatProgressSpinnerModule,
     SelectAllDirective,
+    ScanErrorListComponent,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],
@@ -96,8 +98,6 @@ export class ScanComponent {
   taskQueueService = inject(TaskQueueService);
   globalSmartfFixService = inject(GlobalSmartfFixService);
   advancedScanService = inject(AdvancedScanService);
-  private extTabNavService = inject(ExtensionTabNavigationService);
-  private urlService = inject(UrlService);
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
   private notification = inject(NotificationService);
@@ -120,15 +120,6 @@ export class ScanComponent {
       .some((t) => t.key === 'violations' && t.status === 'processing'),
   );
 
-  /** Aggregated scan errors surfaced under the queue in the progress view. */
-  scanErrors = computed(() => [
-    ...this.progressBarService.vErrors(),
-    ...this.progressBarService.dErrors(),
-    ...this.progressBarService.pErrors(),
-    ...this.progressBarService.adminErrors(),
-    ...this.progressBarService.aErrors(),
-  ]);
-
   /** Stop the running scan: cancel its queue task so the next queued scan
    *  starts automatically. */
   onScanStopped() {
@@ -136,14 +127,30 @@ export class ScanComponent {
     if (active) this.taskQueueService.scan.cancel(active.id);
   }
 
-  /** Open the Settings tab with the Scan settings group preselected. Its index
-   *  depends on whether the optional Shift Report tab (prologs only) is present. */
-  openSettings() {
-    const prologs = ['Prologs', 'prologs'].includes(
-      this.urlService.provider(),
+  /**
+   * Queue state of a given scan card, used to drive its action button:
+   * `idle` (normal label), `processing` (spinner + hover-to-cancel) or
+   * `queued` (1-based position among pending scans, disabled).
+   */
+  scanTaskState(key: TScanMode): {
+    status: 'idle' | 'queued' | 'processing';
+    position: number;
+    taskId: number | null;
+  } {
+    const tasks = this.taskQueueService.scan.tasks();
+    const task = tasks.find(
+      (t) =>
+        t.key === key &&
+        (t.status === 'pending' || t.status === 'processing'),
     );
-    this.extTabNavService.settingsView.set('scan');
-    this.extTabNavService.selectedTabIndex.set(prologs ? 5 : 4);
+    if (!task) return { status: 'idle', position: 0, taskId: null };
+    if (task.status === 'processing')
+      return { status: 'processing', position: 0, taskId: task.id };
+
+    const position =
+      tasks.filter((t) => t.status === 'pending').findIndex((t) => t.id === task.id) +
+      1;
+    return { status: 'queued', position, taskId: task.id };
   }
 
   /** Enqueue a scan task, de-duplicated by mode; warn if one is already queued. */
@@ -226,19 +233,10 @@ export class ScanComponent {
     nonNullable: true,
   });
 
-  disableScan = signal(false);
   clientTimeZone = DateTime.local().zoneName;
   scanSubscribtion = new Subscription();
   scanning = this.progressBarService.scanning;
   vLastSync = this.progressBarService.violationsLastSync;
-
-  /** Top-of-page view: the scan setup cards, or the live progress + queue. */
-  readonly view = signal<'cards' | 'progress'>('cards');
-
-  /** Running scan (if any) + queued scans — surfaced as a badge on the toggle. */
-  activeCount = computed(
-    () => this.pendingScans().length + (this.scanning() ? 1 : 0),
-  );
 
   constructor() {
     console.log();
@@ -326,14 +324,14 @@ export class ScanComponent {
 
   handleLogCertification() {}
 
-  startCertScan() {
+  startCertScan = () => {
     this.scanMode.setValue('cert');
     this.startScan();
-  }
-  certifyLogs() {
+  };
+  certifyLogs = () => {
     this.scanMode.setValue('cert-logs');
     this.startScan();
-  }
+  };
   startViolationsScan = () => {
     this.scanMode.setValue('violations');
     this.startScan();
@@ -346,17 +344,17 @@ export class ScanComponent {
     this.scanMode.setValue('advanced');
     this.startScan();
   };
-  getPreViolationAlert() {
+  getPreViolationAlert = () => {
     this.scanMode.setValue('pre');
     this.startScan();
-  }
+  };
 
-  getDashboardLocationsData() {
+  getDashboardLocationsData = () => {
     this.scanMode.setValue('admin');
     this.startScan();
-  }
+  };
 
-  deleteUnidentifiedEvents() {
+  deleteUnidentifiedEvents = () => {
     this.scanMode.setValue('deleteUE');
     this.enqueueScan(
       'Delete Unidentified Events',
@@ -369,9 +367,9 @@ export class ScanComponent {
       },
       'deleteUE',
     );
-  }
+  };
 
-  globalSmartFix() {
+  globalSmartFix = () => {
     this.scanMode.setValue('smartFix');
     this.enqueueScan(
       'Global Smart Fix',
@@ -384,7 +382,7 @@ export class ScanComponent {
       },
       'smartFix',
     );
-  }
+  };
 
   scanLabel: { [key in TScanMode]?: string } = {
     admin: 'Admin Portal Scan',
@@ -397,9 +395,6 @@ export class ScanComponent {
   };
 
   startScan = () => {
-    this.disableScan.set(true);
-    setTimeout(() => this.disableScan.set(false), 500);
-
     if (this.scanMode.value !== 'cert')
       this.progressBarService.certTenants.set([]);
 

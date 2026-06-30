@@ -97,6 +97,7 @@
           }
 
           .driver {
+            position: relative;
             display: grid;
             grid-template-columns: 84px 1fr auto;
             align-items: center;
@@ -116,7 +117,13 @@
               font-size: 15px;
             }
 
+            // Done / hide buttons overlay the right edge (absolute) so every
+            // scan-result group positions them consistently.
             .action-btns {
+              position: absolute;
+              right: 4px;
+              top: 50%;
+              transform: translateY(-50%);
               display: flex;
               justify-content: flex-end;
 

@@ -1,0 +1,66 @@
+@if (groups().length) {
+  <div class="errlist" [class.errlist--scroll]="scrollable()">
+    @for (group of groups(); track group.mode) {
+      <div class="errlist__group">
+        <div class="errlist__group-head">
+          <span class="errlist__group-title">{{ group.title }}</span>
+          <span class="errlist__group-count">{{ group.errors().length }}</span>
+          <span class="errlist__spacer"></span>
+          @if (canRetry(group.mode)) {
+            <button
+              type="button"
+              class="errlist__btn errlist__btn--retry"
+              (click)="retry(group.mode)"
+            >
+              <mat-icon>refresh</mat-icon>
+              Retry failed
+            </button>
+          }
+          <button
+            type="button"
+            class="errlist__btn errlist__btn--clear"
+            (click)="clear(group)"
+          >
+            Clear
+          </button>
+        </div>
+
+        @for (err of group.errors(); track $index) {
+          <div
+            class="errlist__row"
+            [class.errlist__row--open]="isExpanded(group.mode, $index)"
+            (click)="toggle(group.mode, $index)"
+          >
+            <div class="errlist__row-head">
+              <mat-icon class="errlist__row-icon">error</mat-icon>
+              <span class="errlist__row-company">
+                {{ err.company.name
+                }}{{ err.driverName ? " — " + err.driverName : "" }}
+              </span>
+              <mat-icon class="errlist__row-chevron">
+                {{ isExpanded(group.mode, $index) ? "expand_less" : "expand_more" }}
+              </mat-icon>
+            </div>
+            @if (isExpanded(group.mode, $index)) {
+              <div class="errlist__row-body" (click)="$event.stopPropagation()">
+                <span class="errlist__row-msg">
+                  [{{ err.error.name }}] {{ err.error.message }}
+                </span>
+                @if (canRetry(group.mode)) {
+                  <button
+                    type="button"
+                    class="errlist__btn errlist__btn--retry"
+                    (click)="retry(group.mode)"
+                  >
+                    <mat-icon>refresh</mat-icon>
+                    Retry
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

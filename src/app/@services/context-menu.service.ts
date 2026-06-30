@@ -82,6 +82,7 @@ export class ContextMenuService {
               this.notification.success('Event type successfully updated.');
             },
           },
+          { eventIds: [event.id] },
         );
       }
       case 'EXTEND_PTI': {
@@ -107,6 +108,7 @@ export class ContextMenuService {
               this.notification.success('Pre-Trip Inspection is now extended.');
             },
           },
+          { eventIds: [event.id] },
         );
       }
       case 'EXTEND_PTI_AND_NOTE': {
@@ -143,6 +145,7 @@ export class ContextMenuService {
               );
             },
           },
+          { eventIds: [event.id] },
         );
       }
       case 'ADD_PTI_NOTE': {
@@ -185,6 +188,7 @@ export class ContextMenuService {
               );
             },
           },
+          { eventIds: [event.id] },
         );
       }
       case 'DELETE_ALL_ENGINES':
@@ -276,6 +280,7 @@ export class ContextMenuService {
               this.notification.success('FMCSA Inspection successfully posted');
             },
           },
+          { eventIds: [event.id] },
         );
       }
 
@@ -312,6 +317,7 @@ export class ContextMenuService {
               this.notification.success('Status successfully updated');
             },
           },
+          { eventIds: [event.id] },
         );
       }
       case 'RESIZE': {
@@ -353,10 +359,14 @@ export class ContextMenuService {
                 () => this.monitorService.isResizingEvent.set(false),
                 2000,
               );
+              // Fully close the resize form on success.
               this.monitorService.showResize.set(null);
+              this.monitorService.showAdvancedResize.set(null);
+              this.monitorService.newResizeSpeed.set(0);
               this.notification.success('Driving successfully resized');
             },
           },
+          { eventIds: [event.id] },
         );
       }
       case 'ADVANCED_RESIZE': {
@@ -391,6 +401,7 @@ export class ContextMenuService {
               this.notification.success('Event successfully resized');
             },
           },
+          { eventIds: [event.id] },
         );
       }
       case 'PARTIAL_ON_TO_SLEEP':
@@ -428,6 +439,7 @@ export class ContextMenuService {
               );
             },
           },
+          { eventIds: [event.id] },
         );
       }
 
@@ -453,6 +465,7 @@ export class ContextMenuService {
               this.notification.success(`operation Duplicate Event successful`);
             },
           },
+          { eventIds: [event.id] },
         );
       }
 
@@ -483,6 +496,49 @@ export class ContextMenuService {
               );
             },
           },
+          { eventIds: [event.id] },
+        );
+      }
+
+      case 'CREATE_PTI': {
+        if (!event) return;
+        this.monitorService.disableFixButtons.set(true);
+        return this.taskQueueService.monitor.enqueue(
+          'Create PTI',
+          () =>
+            this.apiOperationsService
+              .partiallyTransformOnDuty(
+                tenant,
+                event,
+                'ChangeToOnDutyNotDrivingStatus',
+              )
+              .pipe(
+                switchMap((created) =>
+                  this.apiOperationsService.updateEvent(tenant, created.id, {
+                    note: this.constantsService.ptiName(),
+                  }),
+                ),
+              ),
+          {
+            error: (err: any) => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              this.monitorService.disableFixButtons.set(false);
+              this.notification.error(`[ERROR]: ${err.error.message}`);
+            },
+            complete: () => {
+              this.urlService.refreshWebApp();
+              this.monitorService.refresh.update((value) => value + 1);
+              setTimeout(
+                () => this.monitorService.disableFixButtons.set(false),
+                2000,
+              );
+              this.notification.success(
+                'Pre-Trip Inspection created and note added.',
+              );
+            },
+          },
+          { eventIds: [event.id] },
         );
       }
 
@@ -554,6 +610,7 @@ export class ContextMenuService {
               this.notification.success('Shift operation successful.');
             },
           },
+          { eventIds: events.map((e) => e.id) },
         );
       }
       case 'DELETE_SELECTED_EVENTS': {
@@ -582,6 +639,7 @@ export class ContextMenuService {
               );
             },
           },
+          { eventIds: ids },
         );
       }
 
@@ -617,6 +675,7 @@ export class ContextMenuService {
               );
             },
           },
+          { eventIds: events.map((e) => e.id) },
         );
       }
       default:

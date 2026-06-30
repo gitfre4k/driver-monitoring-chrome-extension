@@ -27,6 +27,15 @@
           "
         ></ng-container>
       }
+      @if (zipTasks().length) {
+        <h4 class="queue-title">Zip</h4>
+        <ng-container
+          *ngTemplateOutlet="
+            taskList;
+            context: { $implicit: zipTasks(), queue: taskQueueService.zip, detailed: true }
+          "
+        ></ng-container>
+      }
     </div>
   }
 
@@ -49,10 +58,13 @@
   ></div>
 </div>
 
-<ng-template #taskList let-tasks let-queue="queue">
+<ng-template #taskList let-tasks let-queue="queue" let-detailed="detailed">
   <ul class="task-list">
     @for (task of tasks; track task.id) {
-      <li class="task task--{{ task.status }}">
+      <li
+        class="task task--{{ task.status }}"
+        [class.task--detailed]="detailed"
+      >
         <div class="task__info">
           <span class="task__label">[{{ task.time }}] {{ task.name }}</span>
           @if (task.phase) {

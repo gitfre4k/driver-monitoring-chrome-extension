@@ -189,7 +189,9 @@
   justify-content: flex-start;
   padding: 0 10px;
   overflow-x: hidden;
-  overflow-y: auto;
+  // The page itself never scrolls: cards take their natural height and the
+  // progress/errors area fills whatever extension height is left.
+  overflow-y: hidden;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.75);
 
@@ -198,64 +200,53 @@
     overflow-y: hidden;
   }
 
-  // ——— Header (view toggle: scan cards <-> progress + queue) ———
+  // ——— Busy / queued action button states ———
 
-  &__header {
-    display: flex;
+  &__busy-btn,
+  &__queued-btn {
+    display: inline-flex !important;
+    align-items: center;
     justify-content: center;
-    width: 100%;
-    flex-shrink: 0;
-    padding: 8px 0 2px;
-
-    &-toggle {
-      border-radius: 8px;
-      overflow: hidden;
-      --mat-standard-button-toggle-height: 30px;
-      --mat-standard-button-toggle-selected-state-background-color: rgba(
-        88,
-        152,
-        208,
-        0.18
-      );
-      --mat-standard-button-toggle-selected-state-text-color: #5898d0;
-      --mat-standard-button-toggle-text-color: rgba(255, 255, 255, 0.6);
-      --mat-standard-button-toggle-background-color: transparent;
-      --mat-standard-button-toggle-divider-color: rgba(88, 152, 208, 0.28);
-      border: 1px solid rgba(88, 152, 208, 0.28);
-
-      mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-        margin-right: 4px;
-      }
-
-      .mat-button-toggle-label-content {
-        display: inline-flex;
-        align-items: center;
-        padding: 0 14px;
-        font-size: 12px;
-        letter-spacing: 0.04em;
-        line-height: 30px;
-      }
-    }
-
-    &-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 16px;
-      height: 16px;
-      margin-left: 6px;
-      padding: 0 4px;
-      border-radius: 8px;
-      background: #5898d0;
-      color: #1e1e22;
-      font-size: 10px;
-      font-weight: 700;
-      line-height: 16px;
-    }
+    gap: 4px;
   }
+
+  &__busy-spinner {
+    --mdc-circular-progress-active-indicator-color: #5898d0;
+  }
+
+  &__busy-cancel {
+    display: none;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    color: #e0533b;
+  }
+
+  &__busy-btn:hover &__busy-spinner {
+    display: none;
+  }
+  &__busy-btn:hover &__busy-cancel {
+    display: inline-flex;
+  }
+
+  &__queued-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    line-height: 15px;
+  }
+  &__queued-num {
+    font-weight: 700;
+  }
+
+  // ——— Progress divider (between the cards and the progress view) ———
+
+  &__progress-divider {
+    margin: 18px 0 8px;
+  }
+
+  // ——— Header (view toggle: scan cards <-> progress + queue) ———
 
   // ——— Progress view (live progress bar + queued scans) ———
 
@@ -433,16 +424,15 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    flex: 1;
-    min-height: 0;
+    // Cards take their natural height (no scrollbar); the progress view below
+    // absorbs the remaining height.
+    flex: 0 0 auto;
 
     @media (min-width: 687px) {
       flex-direction: row;
       align-items: flex-start;
       justify-content: center;
       gap: 12px;
-      height: 100%;
-      overflow: hidden;
     }
   }
 
@@ -482,11 +472,9 @@
     padding-top: 8px;
     padding-bottom: 8px;
     gap: 8px;
-    overflow-y: auto;
     overflow-x: hidden;
 
     @media (min-width: 687px) {
-      height: 100%;
       justify-content: flex-start;
       padding-bottom: 6px;
       gap: 8px;
@@ -696,11 +684,8 @@
     flex-direction: row;
     align-items: center;
     gap: 8px;
-    // Half the column width, centered, but never below the content's intrinsic
-    // size (label + settings icon + Scan button).
-    width: 50%;
-    min-width: 160px;
-    align-self: center;
+    // Full column width.
+    width: 100%;
 
     .scan__alerts__form {
       flex: 1;
@@ -711,7 +696,7 @@
       flex-shrink: 0;
     }
 
-    // Keep the settings icon + Scan button at the right edge of the card.
+    // Keep the Scan button at the right edge of the card.
     .scan__action-row {
       flex: 1;
     }
@@ -723,7 +708,42 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding-top: 10px;
+    padding-top: 18px;
+  }
+
+  // Log Certification: company select + Certify Logs button on one row.
+  &__cert-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .cert__form {
+      flex: 1;
+      min-width: 0;
+    }
+
+    button {
+      flex-shrink: 0;
+    }
+  }
+
+  // Driver Log Analysis: date toggle + checkbox + Analyse button on one row.
+  &__analysis-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
+
+    .scan__log-analysis__form-date {
+      flex-direction: row;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    button {
+      flex-shrink: 0;
+    }
   }
 
   // ——— Tools row (Unidentified + Smart Fix) ———

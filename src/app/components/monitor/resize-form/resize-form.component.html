@@ -42,6 +42,7 @@
       class="fix-error__button"
       matRipple
       (click)="resize()"
+      [disabled]="monitorService.isResizingEvent() || isResizeBusy()"
       #resizeButton
       tabindex="0"
     >

@@ -446,6 +446,12 @@ export class ComputeEventsService {
           } else {
             wannabePTIonDutyId = i;
 
+            // Wannabe PTI in a shift that hasn't started (no Driving seen yet).
+            // Offer the optional "add missing PTI note" action when it has no
+            // note — without flagging it as a warning.
+            if (!events[i].notes || events[i].notes.trim() === '')
+              events[i].canAddPtiNote = true;
+
             // console.log('[Pre-Trip Inspection validity] short PTI detected');
           }
         }

@@ -397,7 +397,7 @@ export class ZipService {
         const setPhase = (name: string) => {
           if (taskId === null) return;
           const index = phases.indexOf(name) + 1;
-          this.taskQueueService.monitor.update(taskId, {
+          this.taskQueueService.zip.update(taskId, {
             phase: `${index}/${totalPhases} ${name}`,
             subtask: '',
           });
@@ -406,14 +406,14 @@ export class ZipService {
         const reportSub =
           (label: string) => (done: number, total: number) => {
             if (taskId === null) return;
-            this.taskQueueService.monitor.update(taskId, {
+            this.taskQueueService.zip.update(taskId, {
               subtask: `${label} ${done}/${total}`,
             });
           };
 
         // Add the configured zip to the end of the monitor queue. The whole
         // resize -> shift -> smart fix pipeline runs when it reaches the front.
-        taskId = this.taskQueueService.monitor.enqueue(
+        taskId = this.taskQueueService.zip.enqueue(
           'Zip',
           () => {
             // Stopped while still pending — never start.

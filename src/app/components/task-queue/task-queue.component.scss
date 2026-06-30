@@ -118,6 +118,23 @@
     flex-shrink: 0;
   }
 
+  // Zip group: surface the resize → shift → smart-fix stages prominently.
+  &--detailed {
+    padding: 6px 8px;
+    border: 1px solid rgba(88, 152, 208, 0.25);
+
+    .task__phase {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .task__subtask {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+  }
+
   &__stop {
     width: 22px;
     height: 22px;

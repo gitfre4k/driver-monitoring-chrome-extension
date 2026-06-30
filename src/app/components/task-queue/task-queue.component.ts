@@ -48,9 +48,13 @@ export class TaskQueueComponent {
 
   monitorTasks = this.taskQueueService.monitor.tasks;
   scanTasks = this.taskQueueService.scan.tasks;
+  zipTasks = this.taskQueueService.zip.tasks;
 
   totalCount = computed(
-    () => this.monitorTasks().length + this.scanTasks().length,
+    () =>
+      this.monitorTasks().length +
+      this.scanTasks().length +
+      this.zipTasks().length,
   );
 
   toggle() {

@@ -43,6 +43,10 @@ export interface IScanErrors {
   error: { name: string; message: string };
   company: ITenant;
   driverName?: string;
+  /** Context needed to replay only this failed request (Driver Log Analysis):
+   *  the driver whose daily-log fetch failed and the date queried. */
+  driver?: { id: number; fullName: string };
+  date?: string;
 }
 
 export interface IDOTInspections {

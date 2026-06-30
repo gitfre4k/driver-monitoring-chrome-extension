@@ -37,9 +37,11 @@ export class FixButtonComponent {
   payload = input<IDriverFmcsaInspection>();
 
   isDisabled = computed(() => {
+    // While the whole daily log is being (re)loaded the events are stale.
     if (this.monitorService.isUpdating()) return true;
 
-    return this.monitorService.disableFixButtons();
+    // Otherwise only disable while an operation for *this* event is queued.
+    return this.monitorService.isEventBusy(this.event().id);
   });
 
   button = computed(() => {
