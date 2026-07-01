@@ -31,6 +31,82 @@ export class ZipShiftService {
   apiOperationsService = inject(ApiOperationsService);
   computeEventsService = inject(ComputeEventsService);
 
+  /** HOS rest bands (ascending seconds) a break block may satisfy. A block is
+   *  clamped to the highest band it clears so zipping never shrinks a qualifying
+   *  rest below the threshold it earns. */
+  private static readonly BREAK_THRESHOLDS = [2, 3, 7, 8, 10, 34].map(
+    (h) => h * 3600,
+  );
+
+  /**
+   * Build per-event compression caps for protected break blocks.
+   *
+   * A break block is a maximal run of consecutive Off Duty + Sleeper Berth
+   * events (scanned in shift order). For each block:
+   *  - `T` = highest threshold the block total clears; unprotected if none.
+   *  - `target` = T + random(0–15min); `budget` = blockTotal − target is the
+   *    total seconds the block may be compressed.
+   *  - The leading-edge event (first in scan order) is never a compression
+   *    target (cap 0) so the block's boundary with the working period holds.
+   *  - The remaining budget is consumed Off Duty first, then Sleeper Berth
+   *    (prefer eating into off-duty), each event floored at `minDutyDuration`.
+   *
+   * Returns a map of block-event id → max compressible seconds. Events absent
+   * from the map are not block-protected and follow the general shift logic.
+   */
+  private buildBreakBlockCaps(
+    sortedEvents: IEvent[],
+    minDutyDuration: number,
+  ): Map<number, number> {
+    const caps = new Map<number, number>();
+    const isBreak = (e: IEvent) =>
+      e.statusName === 'Off Duty' || e.statusName === 'Sleeper Berth';
+
+    let i = 0;
+    while (i < sortedEvents.length) {
+      if (!isBreak(sortedEvents[i])) {
+        i++;
+        continue;
+      }
+
+      // Collect the maximal consecutive Off Duty + Sleeper Berth run.
+      let j = i;
+      while (j < sortedEvents.length && isBreak(sortedEvents[j])) j++;
+      const block = sortedEvents.slice(i, j); // block[0] = leading edge
+      i = j;
+
+      const blockTotal = block.reduce((s, e) => s + e.durationInSeconds, 0);
+
+      let threshold = 0;
+      for (const t of ZipShiftService.BREAK_THRESHOLDS) {
+        if (blockTotal >= t) threshold = t;
+      }
+      if (threshold === 0) continue; // clears nothing → not protected
+
+      const target = threshold + getRandomIntInclusive(0, 900);
+      let budget = Math.max(0, blockTotal - target);
+
+      // Leading edge is protected outright.
+      caps.set(block[0].id, 0);
+
+      // Distribute the budget: Off Duty before Sleeper Berth (eat into off-duty
+      // first, preserve sleeper).
+      const rest = block.slice(1);
+      const order = [
+        ...rest.filter((e) => e.statusName === 'Off Duty'),
+        ...rest.filter((e) => e.statusName === 'Sleeper Berth'),
+      ];
+      for (const e of order) {
+        const removable = Math.max(0, e.durationInSeconds - minDutyDuration);
+        const take = Math.min(budget, removable);
+        caps.set(e.id, take);
+        budget -= take;
+      }
+    }
+
+    return caps;
+  }
+
   processShift(
     tenant: ITenant,
     driverId: number,
@@ -133,6 +209,17 @@ export class ZipShiftService {
         const lastShiftEvent = sortedEvents[sortedEvents.length - 1];
         const minDutyDuration = zippedOnDutyDuration * 60;
 
+        // Protected break blocks: a run of consecutive Off Duty + Sleeper Berth
+        // events represents an HOS rest period. Compressing it below the rest
+        // band it satisfies would fabricate a violation, so each block is capped
+        // at the highest threshold it cleared (+ small jitter). `breakBlockCaps`
+        // maps a block event's id to the MAX seconds it may be compressed; a cap
+        // of 0 means "do not compress" (leading edge, or budget exhausted).
+        const breakBlockCaps = this.buildBreakBlockCaps(
+          sortedEvents,
+          minDutyDuration,
+        );
+
         return from(sortedEvents).pipe(
           concatMap((event, index) => {
             onProgress?.(index + 1, sortedEvents.length);
@@ -151,6 +238,22 @@ export class ZipShiftService {
               currentShiftEvent.pti === -9999
             ) {
               return of({});
+            }
+
+            // Protected break block: takes precedence over the general and
+            // 30-min-break branches so a multi-hour rest is never crushed below
+            // the band it cleared. `cap` is the max compression allowed for this
+            // event; 0 (or leading edge) means leave it untouched.
+            const blockCap = breakBlockCaps.get(currentShiftEvent.id);
+            if (blockCap !== undefined) {
+              if (blockCap <= 0) return of({});
+              const time = getDuration(blockCap).slice(0, -3);
+              if (!time || time === '00:00') return of({});
+              return this.apiOperationsService.shift(
+                tenant,
+                [firstShiftEvent, prevEventForShift],
+                { direction, time },
+              );
             }
 
             // 30-minute break special shift logic

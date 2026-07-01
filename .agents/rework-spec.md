@@ -61,15 +61,27 @@ DONE (committed):
         GUARD2 anomaly cancel/ignore via DialogConfirm → openZipConfig)
       • advanced-resize disableClose (already committed earlier)
 
+- [x] #5 ZIP rework — HIGH-RISK remainder (in-app HOS verified):
+      • cross-day selection persistence — selectedEvents survives day nav
+        (MonitorService.handleDriverDailyLogEvents never clears it), clears only
+        when the driver changes (monitor.component.ts effect); "N selected across
+        M days" indicator + clear (selectedDayCount / clearSelectedEvents);
+        range = min/max selected .date via initializeZipEvents; main-driver-only
+        (driver.id === driver.viewId gates select/focus); single vs multi-day
+        paths chosen off distinct selectedEvents().date
+      • multi-day aggregation: initial compute (ZipService.prepareMultiDay$ →
+        getComputedEventsMultiDay) AND processShift re-fetch (ZipShiftService
+        threads dates[]; >1 day re-fetches every selected day + rebuilds via
+        getComputedEventsMultiDay; single-day path unchanged)
+      • protected break blocks (ZipShiftService.buildBreakBlockCaps): maximal Off
+        Duty + Sleeper Berth runs; thresholds {2,3,7,8,10,34}h; clamp target =
+        highest band cleared + random(0–15min); leading-edge event never a
+        compression target (cap 0); budget consumed Off Duty before Sleeper
+        Berth, each floored at minDutyDuration; caps override the general +
+        30-min-break branches so a multi-hour rest is never crushed
+
 REMAINING (not started):
-- [ ] #5 ZIP rework — HIGH-RISK remainder (needs in-app HOS verification, do NOT
-      land blind): cross-day selection persistence (+ "N selected across M days"
-      indicator + clear; range = min/max selected .date; main-driver-only; two
-      paths single vs multi-day) • multi-day aggregation in initial compute AND
-      processShift re-fetch • protected break blocks (accumulate consecutive Off
-      Duty + Sleeper Berth; thresholds {3,7,8,10,34}h; block events can't be
-      forward-end/backward-start anchor; clamp so accumulated total never drops
-      below highest band cleared: 9h→≥8h, 11h→≥10h, 35h→≥34h)
+- [x] (none — rework complete)
 
 NOTE: memories (~/.claude/.../memory/) and chat history are local to the
 original PC and do NOT travel via git. This file is the portable source of truth.
