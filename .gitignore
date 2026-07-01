@@ -40,3 +40,7 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Claude Code local (machine-specific)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

@@ -2,7 +2,7 @@
   @if (opened()) {
     <div class="panel">
       <div class="panel__header">
-        <span class="panel__title">Console Log</span>
+        <span class="panel__title">Activity Log</span>
         <span class="panel__subtitle">{{ count() }} count</span>
       </div>
 
@@ -30,7 +30,7 @@
   <button
     mat-icon-button
     (click)="toggle()"
-    matTooltip="Show Console Log"
+    matTooltip="Show Activity Log"
     class="toggle"
     [class.toggle--active]="opened()"
   >

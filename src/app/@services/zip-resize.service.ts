@@ -152,6 +152,7 @@ export class ZipResizeService {
             if (parsedErrorInfo) {
               return this.dialog
                 .open(ProceedWithAdvancedResizeDialogComponent, {
+                  disableClose: true,
                   data: {
                     title: 'Resize Error',
                     info: ` > ${err.error.message}`,

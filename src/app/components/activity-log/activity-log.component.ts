@@ -18,13 +18,13 @@ import {
 } from '../../@services/notification.service';
 
 @Component({
-  selector: 'app-console',
+  selector: 'app-activity-log',
   imports: [MatButtonModule, MatIconModule, MatTooltipModule],
-  templateUrl: './console.component.html',
-  styleUrl: './console.component.scss',
+  templateUrl: './activity-log.component.html',
+  styleUrl: './activity-log.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConsoleComponent {
+export class ActivityLogComponent {
   private notification = inject(NotificationService);
   private elementRef = inject(ElementRef);
 

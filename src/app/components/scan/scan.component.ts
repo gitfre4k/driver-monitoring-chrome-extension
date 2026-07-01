@@ -199,6 +199,10 @@ export class ScanComponent {
     start: new FormControl<Date>(DateTime.now().minus({ days: 7 }).toJSDate()),
   });
   updateRangeTrigger = signal(0);
+
+  /** Tools card accordion state — collapsed by default, session-only. */
+  toolsExpanded = signal(false);
+
   dateRange = computed(() => {
     const {
       violationsToday,

@@ -140,6 +140,38 @@ export class ApiService {
     );
   }
 
+  // get ALL Drivers (active + inactive) — used for the Driver Log Analysis
+  // driver-select options. Unlike getDrivers(), no driverStatus filter.
+  getAllDrivers(tenant: ITenant) {
+    const filterRule = {
+      condition: 'AND',
+      filterRules: [],
+    };
+    const searchRule = {
+      columns: ['driverId', 'driverDisplayName', 'vehicleNumber'],
+      text: '',
+    };
+    return from(
+      this.http.post<IDrivers>(
+        `https://app.monitoringdriver.com/api/Drivers/GetDrivers`,
+        {
+          filterRule,
+          searchRule,
+          sorting: 'driverDisplayName asc',
+          skipCount: 0,
+          maxResultCount: 1000,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            'X-Tenant-Id': `${tenant.id}`,
+            'x-client-timezone': `${DateTime.local().zoneName}`,
+          },
+        },
+      ),
+    );
+  }
+
   ///////////////////
   // get Accessible Tenants
   getAccessibleTenants() {

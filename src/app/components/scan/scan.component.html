@@ -9,12 +9,14 @@
         matTooltip="Cancel"
         (click)="taskQueueService.scan.cancel(state.taskId)"
       >
-        <mat-progress-spinner
-          class="scan__busy-spinner"
-          mode="indeterminate"
-          [diameter]="16"
-        ></mat-progress-spinner>
-        <mat-icon class="scan__busy-cancel">close</mat-icon>
+        <span class="scan__busy-swap">
+          <mat-progress-spinner
+            class="scan__busy-spinner"
+            mode="indeterminate"
+            [diameter]="16"
+          ></mat-progress-spinner>
+          <mat-icon class="scan__busy-cancel">close</mat-icon>
+        </span>
       </button>
     }
     @case ("queued") {
@@ -32,6 +34,9 @@
 <div class="scan">
   <div class="scan__body">
     <div class="scan__col">
+      <!-- Divider above the Violations card -->
+      <div class="scan__separator scan__separator--top"></div>
+
       <!-- Violations -->
       <div class="card scan__violations">
         <div class="card__label">Violations</div>
@@ -134,6 +139,9 @@
           </div>
         </div>
       </div>
+
+      <!-- Divider above Alerts -->
+      <div class="scan__separator scan__separator--above-alerts"></div>
 
       <!-- Alerts -->
       <div class="card scan__alerts">
@@ -258,6 +266,9 @@
         </div>
       </div>
 
+      <!-- Divider above Admin Portal -->
+      <div class="scan__separator scan__separator--above-admin"></div>
+
       <!-- Admin Portal -->
       <div class="card scan__admin">
         <div class="card__label">Admin Portal</div>
@@ -275,11 +286,27 @@
         </div>
       </div>
 
-      <!-- Tools: Unidentified Events + Global Smart Fix + Log Certification -->
-      <div class="card scan__tools-card">
-        <div class="card__label">Tools</div>
+      <!-- Divider below Admin Portal -->
+      <div class="scan__separator scan__separator--below-admin"></div>
 
-        <div class="scan__tools">
+      <!-- Tools: Unidentified Events + Global Smart Fix + Log Certification -->
+      <div
+        class="card scan__tools-card"
+        [class.scan__tools-card--collapsed]="!toolsExpanded()"
+      >
+        <button
+          type="button"
+          class="scan__tools-toggle"
+          (click)="toolsExpanded.set(!toolsExpanded())"
+        >
+          <span class="card__label card__label--inline">Tools</span>
+          <mat-icon class="scan__tools-chevron">{{
+            toolsExpanded() ? "expand_less" : "expand_more"
+          }}</mat-icon>
+        </button>
+
+        @if (toolsExpanded()) {
+          <div class="scan__tools">
           <div class="card scan__tools__unidentified">
             <div class="card__label">Unidentified Events</div>
             <ng-container
@@ -363,6 +390,7 @@
             </div>
           }
         </div>
+        }
       </div>
 
       <!-- Driver Log Analysis -->
@@ -379,8 +407,8 @@
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
 
-        <!-- calendar toggle + checkbox + Analyse button on one row -->
-        <div class="scan__analysis-row">
+        <!-- Top row: date + checkbox (left). Bottom row: Analyse (right). -->
+        <div class="scan__analysis-top">
           <div class="scan__log-analysis__form-date">
             <mat-datepicker-toggle
               matIconSuffix
@@ -402,7 +430,9 @@
               during Driving</span
             ></mat-checkbox
           >
+        </div>
 
+        <div class="scan__analysis-bottom">
           <ng-container
             *ngTemplateOutlet="
               scanBtn;

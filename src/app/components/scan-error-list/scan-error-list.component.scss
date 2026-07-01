@@ -142,6 +142,19 @@
       color: rgba(255, 255, 255, 0.45);
     }
 
+    // Smooth height transition on open/close (body stays in the DOM).
+    // max-height (not grid 0fr) so it collapses fully to 0 — no sliver of the
+    // Retry button peeking through when closed.
+    &-body-wrap {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+
+      &--open {
+        max-height: 300px;
+      }
+    }
+
     &-body {
       display: flex;
       align-items: flex-start;

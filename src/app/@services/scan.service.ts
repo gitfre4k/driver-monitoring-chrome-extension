@@ -475,9 +475,40 @@ export class ScanService {
   }
 
   /**
+   * Enqueue a tenant-scoped scan that routes results into the scan signals and
+   * reports a single outcome scanbar + activity-log entry. Shared by the
+   * single-item and batch retry paths (`tenants` = the subset being retried).
+   */
+  private enqueueRetry(
+    mode: 'violations' | 'dot' | 'pre',
+    tenants: ITenant[],
+    name: string,
+    onComplete: () => void,
+  ) {
+    const route =
+      mode === 'pre'
+        ? (company: any) => this.handlePreScanData(company)
+        : (data: any) => this.handleScanData(data, mode);
+
+    const work =
+      mode === 'violations'
+        ? () => this.getAllViolations(this.lastViolationsRange!, tenants)
+        : mode === 'dot'
+          ? () => this.getAllDOTInspections(this.lastDotRange!, tenants)
+          : () => this.getPreViolationAlert(tenants);
+
+    this.taskQueueService.scan.enqueue(name, work, {
+      next: route,
+      complete: onComplete,
+      error: () => onComplete(),
+    });
+  }
+
+  /**
    * Re-run a scan for only the tenants that failed, preserving results that
    * already succeeded. Errors for the mode are cleared first; any tenant that
-   * fails again is re-added by the scan itself.
+   * fails again is re-added by the scan itself. Reports a single summary
+   * scanbar + activity-log entry on completion.
    */
   retryFailed(mode: TScanMode) {
     // Driver Log Analysis replays individual failed driver requests itself.
@@ -487,19 +518,78 @@ export class ScanService {
     }
 
     const errors = this.errorSignalFor(mode);
-    if (!errors) return;
+    if (!errors || mode === 'cert' || mode === 'deleteUE' || mode === 'admin')
+      return;
 
     const failedTenants = [
       ...new Map(errors().map((e) => [e.company.id, e.company])).values(),
     ];
     if (!failedTenants.length) return;
+    const total = failedTenants.length;
+    const ids = failedTenants.map((t) => t.id);
+
+    if (
+      (mode === 'violations' && !this.lastViolationsRange) ||
+      (mode === 'dot' && !this.lastDotRange)
+    )
+      return;
 
     errors.set([]);
 
-    if (mode === 'violations' && this.lastViolationsRange)
-      this.enqueueViolationsScan(this.lastViolationsRange, failedTenants);
-    else if (mode === 'dot' && this.lastDotRange)
-      this.enqueueDotScan(this.lastDotRange, failedTenants);
-    else if (mode === 'pre') this.enqueuePreScan(failedTenants);
+    this.enqueueRetry(
+      mode as 'violations' | 'dot' | 'pre',
+      failedTenants,
+      `Retry failed (${total})`,
+      () => {
+      const stillFailed = this.errorSignalFor(mode)!().filter((e) =>
+        ids.includes(e.company.id),
+      ).length;
+      const ok = total - stillFailed;
+      stillFailed
+        ? this.notification.error(
+            `Retried ${total} failed: ${ok} ok, ${stillFailed} failed`,
+          )
+        : this.notification.success(`Retried ${total} failed: all ok`);
+    });
+  }
+
+  /**
+   * Retry a single failed request (one error row). Routes the result back into
+   * the scan signals so Scan Results content updates on success, and shows a
+   * per-item success/error scanbar + activity-log entry.
+   */
+  retryOne(mode: TScanMode, err: IScanErrors) {
+    if (mode === 'advanced') {
+      this.advancedScanService.retryOne(err);
+      return;
+    }
+
+    const errors = this.errorSignalFor(mode);
+    if (!errors || mode === 'cert' || mode === 'deleteUE' || mode === 'admin')
+      return;
+    if (
+      (mode === 'violations' && !this.lastViolationsRange) ||
+      (mode === 'dot' && !this.lastDotRange)
+    )
+      return;
+
+    const tenant = err.company;
+    const label = tenant.name;
+
+    // Drop this tenant's error(s); the scan re-adds one if it fails again.
+    errors.set(errors().filter((e) => e.company.id !== tenant.id));
+
+    this.enqueueRetry(
+      mode as 'violations' | 'dot' | 'pre',
+      [tenant],
+      `Retry ${label}`,
+      () => {
+      const failedAgain = this.errorSignalFor(mode)!().some(
+        (e) => e.company.id === tenant.id,
+      );
+      failedAgain
+        ? this.notification.error(`Retry failed: ${label}`)
+        : this.notification.success(`Retried ${label}: success`);
+    });
   }
 }

@@ -28,7 +28,7 @@ import { AppService } from './@services/app.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ConstantsService } from './@services/constants.service';
 import { TaskQueueComponent } from './components/task-queue/task-queue.component';
-import { ConsoleComponent } from './components/console/console.component';
+import { ActivityLogComponent } from './components/activity-log/activity-log.component';
 import { NotificationService } from './@services/notification.service';
 import { CloudComponent } from './components/cloud/cloud.component';
 import { MonitorService } from './@services/monitor.service';
@@ -57,7 +57,7 @@ import { CleanupService } from './@services/cleanup.service';
     ScanResultComponent,
     MatProgressSpinnerModule,
     TaskQueueComponent,
-    ConsoleComponent,
+    ActivityLogComponent,
     SettingsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

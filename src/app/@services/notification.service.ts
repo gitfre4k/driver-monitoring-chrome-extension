@@ -64,7 +64,16 @@ export class NotificationService {
     return this.show('error', message, config);
   }
 
-  /** Clears the notification history shown in the Console. */
+  /**
+   * Append an entry to the Activity Log history WITHOUT showing a snackbar.
+   * Use for granular/background records (e.g. task phase transitions) that
+   * should be traceable but must not spam the user with toasts.
+   */
+  log(type: TNotificationType, message: string) {
+    this.record(type, message);
+  }
+
+  /** Clears the notification history shown in the Activity Log. */
   clear() {
     this.history.set([]);
   }

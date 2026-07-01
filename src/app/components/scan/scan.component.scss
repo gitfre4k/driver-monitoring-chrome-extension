@@ -1,16 +1,6 @@
 .hide {
   display: none;
 }
-@media (max-width: 366px) {
-  .hide {
-    display: initial;
-  }
-}
-@media (687px <= width <= 760px) {
-  .show {
-    display: initial;
-  }
-}
 
 // ——— Utility ———
 
@@ -195,14 +185,10 @@
   font-size: 12px;
   color: rgba(255, 255, 255, 0.75);
 
-  @media (min-width: 687px) {
-    height: 100%;
-    overflow-y: hidden;
-  }
+  height: 100%;
 
   // ——— Busy / queued action button states ———
 
-  &__busy-btn,
   &__queued-btn {
     display: inline-flex !important;
     align-items: center;
@@ -210,12 +196,29 @@
     gap: 4px;
   }
 
+  // The spinner and cancel (x) sit in a single wrapper (`__busy-swap`) that the
+  // Material button centers like any label content. Inside the wrapper they
+  // share one grid cell so they overlay in the exact same spot; only one is
+  // visible at a time (spinner by default, x on hover). Toggling `visibility`
+  // (not `display`) keeps both in the cell so the swap is in place, no shift.
+  &__busy-swap {
+    display: inline-grid;
+    place-items: center;
+    padding-top: 1px;
+
+    > .scan__busy-spinner,
+    > .scan__busy-cancel {
+      grid-area: 1 / 1;
+    }
+  }
+
   &__busy-spinner {
     --mdc-circular-progress-active-indicator-color: #5898d0;
+    visibility: visible;
   }
 
   &__busy-cancel {
-    display: none;
+    visibility: hidden;
     font-size: 18px;
     width: 18px;
     height: 18px;
@@ -224,10 +227,10 @@
   }
 
   &__busy-btn:hover &__busy-spinner {
-    display: none;
+    visibility: hidden;
   }
   &__busy-btn:hover &__busy-cancel {
-    display: inline-flex;
+    visibility: visible;
   }
 
   &__queued-icon {
@@ -235,6 +238,7 @@
     width: 15px;
     height: 15px;
     line-height: 15px;
+    padding-top: 1px;
   }
   &__queued-num {
     font-weight: 700;
@@ -427,13 +431,6 @@
     // Cards take their natural height (no scrollbar); the progress view below
     // absorbs the remaining height.
     flex: 0 0 auto;
-
-    @media (min-width: 687px) {
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 12px;
-    }
   }
 
   // ——— Settings shortcut icon (left of a card's action button) ———
@@ -474,37 +471,81 @@
     gap: 8px;
     overflow-x: hidden;
 
-    @media (min-width: 687px) {
-      justify-content: flex-start;
-      padding-bottom: 6px;
-      gap: 8px;
-    }
+    justify-content: flex-start;
 
     // ——— Linear card order (single column, separators between groups) ———
+    > .scan__separator--top {
+      order: 0;
+    }
     > .scan__violations {
       order: 1;
     }
-    > .scan__alerts {
+    > .scan__separator--above-alerts {
       order: 2;
     }
-    > .scan__separator--1 {
+    > .scan__alerts {
       order: 3;
     }
-    > .scan__log-analysis {
+    > .scan__separator--1 {
       order: 4;
     }
-    > .scan__admin {
+    > .scan__log-analysis {
       order: 5;
     }
-    > .scan__group {
+    > .scan__separator--above-admin {
       order: 6;
     }
-    > .scan__separator--2 {
+    > .scan__admin {
       order: 7;
     }
-    > .scan__tools-card {
+    > .scan__separator--below-admin {
       order: 8;
     }
+    > .scan__group {
+      order: 9;
+    }
+    > .scan__separator--2 {
+      order: 10;
+    }
+    > .scan__tools-card {
+      order: 11;
+    }
+  }
+
+  // ——— Tools card accordion ———
+
+  // Collapsed: tight height, "Tools" label + chevron vertically centered.
+  &__tools-card--collapsed {
+    padding: 3px 10px;
+  }
+
+  &__tools-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 22px;
+    margin-top: -4px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    line-height: 1;
+
+    .card__label--inline {
+      position: static;
+      top: auto;
+      left: auto;
+      line-height: 1;
+    }
+  }
+
+  &__tools-chevron {
+    color: #5898d0;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
   }
 
   // ——— Visual separator between card groups ———
@@ -514,7 +555,7 @@
     width: 100%;
     flex-shrink: 0;
     height: 1px;
-    margin: 14px 0;
+    margin: -4px 0 2px;
     // Soft line that fades out toward both edges.
     background: linear-gradient(
       to right,
@@ -578,6 +619,7 @@
       align-items: flex-end;
       gap: 2px;
       flex-shrink: 0;
+      margin-top: -8px;
     }
 
     &__last {
@@ -670,6 +712,7 @@
       align-items: center;
       justify-content: space-between;
       margin-top: 2px;
+      margin-bottom: -8px;
 
       button {
         margin: 0 8px 0 0;
@@ -728,11 +771,12 @@
   }
 
   // Driver Log Analysis: date toggle + checkbox + Analyse button on one row.
-  &__analysis-row {
+  // Top row: date + checkbox, left-aligned.
+  &__analysis-top {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 12px;
     margin-top: 6px;
 
     .scan__log-analysis__form-date {
@@ -740,6 +784,13 @@
       gap: 4px;
       flex-shrink: 0;
     }
+  }
+
+  // Bottom row: Analyse button, right-aligned.
+  &__analysis-bottom {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
 
     button {
       flex-shrink: 0;
@@ -793,6 +844,11 @@
       flex-direction: column;
       justify-content: space-between;
       gap: 4px;
+
+      // Keep the "Driver Certifications" title on a single line.
+      > .card__label {
+        white-space: nowrap;
+      }
 
       // checkbox (card__label is absolutely positioned, still child 2)
       :nth-child(2) {

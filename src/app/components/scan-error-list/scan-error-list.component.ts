@@ -83,32 +83,36 @@ export class ScanErrorListComponent {
   /** Only the groups that currently hold errors. */
   groups = computed(() => this.allGroups.filter((g) => g.errors().length > 0));
 
-  /** Identifiers (`<mode>:<index>`) of the currently expanded error rows. */
-  private expanded = signal<Set<string>>(new Set());
+  /** Identifier (`<mode>:<index>`) of the single currently expanded row, if
+   *  any. Only one row is open at a time across all groups. */
+  private expandedRowId = signal<string | null>(null);
 
   rowId(mode: TScanMode, index: number) {
     return `${mode}:${index}`;
   }
 
   isExpanded(mode: TScanMode, index: number) {
-    return this.expanded().has(this.rowId(mode, index));
+    return this.expandedRowId() === this.rowId(mode, index);
   }
 
   toggle(mode: TScanMode, index: number) {
     const id = this.rowId(mode, index);
-    this.expanded.update((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+    this.expandedRowId.update((prev) => (prev === id ? null : id));
   }
 
   canRetry(mode: TScanMode) {
     return this.scanService.canRetry(mode);
   }
 
+  /** Batch retry — re-run every failed request for the group. */
   retry(mode: TScanMode) {
     this.scanService.retryFailed(mode);
+  }
+
+  /** Single-row retry — re-run just this failed request. */
+  retryOne(mode: TScanMode, err: IScanErrors, event: MouseEvent) {
+    event.stopPropagation();
+    this.scanService.retryOne(mode, err);
   }
 
   clear(group: IErrorGroup) {

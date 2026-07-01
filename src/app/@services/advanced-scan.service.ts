@@ -10,7 +10,8 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { IDriver, IScanResultDriver, ITenant } from '../interfaces';
+import { IDriver, IScanErrors, IScanResultDriver, ITenant } from '../interfaces';
+import { NotificationService } from './notification.service';
 import {
   IDailyLogs,
   IEvent,
@@ -36,6 +37,7 @@ export class AdvancedScanService {
   private progressBarService = inject(ProgressBarService);
   private dateService = inject(DateService);
   private apiOperationsService = inject(ApiOperationsService);
+  private notification = inject(NotificationService);
   constantService = inject(ConstantsService);
 
   httpLimit = this.constantService.httpLimit;
@@ -95,6 +97,41 @@ export class AdvancedScanService {
           this.httpLimit(),
         ),
         finalize(() => this.progressBarService.scanning.set(false)),
+      )
+      .subscribe();
+  }
+
+  /**
+   * Retry a single failed Driver Log Analysis request (one error row). Re-fires
+   * just that driver+date through `dailyLogEvents$` (which feeds the result
+   * signals via `handleDriverDailyLogEvents`), then reports a per-item
+   * success/error scanbar + activity-log entry.
+   */
+  retryOne(err: IScanErrors) {
+    if (!err.driver || !err.date) return;
+    const date = err.date;
+    const driverId = err.driver.id;
+    const label = `${err.company.name} — ${err.driverName ?? err.driver.fullName}`;
+
+    // Drop this specific failed entry; the retry re-adds it if it fails again.
+    this.progressBarService.aErrors.set(
+      this.progressBarService
+        .aErrors()
+        .filter((e) => !(e.driver?.id === driverId && e.date === date)),
+    );
+    this.progressBarService.scanning.set(true);
+
+    this.dailyLogEvents$(err.driver as unknown as IDriver, err.company, date)
+      .pipe(
+        finalize(() => {
+          this.progressBarService.scanning.set(false);
+          const failedAgain = this.progressBarService
+            .aErrors()
+            .some((e) => e.driver?.id === driverId && e.date === date);
+          failedAgain
+            ? this.notification.error(`Retry failed: ${label}`)
+            : this.notification.success(`Retried ${label}: success`);
+        }),
       )
       .subscribe();
   }

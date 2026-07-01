@@ -109,6 +109,21 @@ span {
   padding: 0 13px;
 }
 
+// Remove the tab header's static bottom divider — keep only the animated
+// selected indicator.
+::ng-deep .mat-mdc-tab-header {
+  --mat-tab-header-divider-height: 0px;
+  border-bottom: none !important;
+}
+
+// Smaller tab-bar icons.
+::ng-deep .mdc-tab .mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+}
+
 ::ng-deep .mat-mdc-tab-body-content {
   overflow: hidden !important;
 }

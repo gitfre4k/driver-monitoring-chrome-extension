@@ -13,6 +13,7 @@ import {
 
 import {
   IDailyLogs,
+  IDriverDailyLogEvents,
   IDriverIdAndName,
   IDriverState,
   IEvent,
@@ -246,6 +247,265 @@ export class ComputeEventsService {
         }
       }
       // missing Login event
+      if (currentDriverEvents[i].statusName === 'Logout') {
+        const nextEvent = currentDriverEvents[i + 1];
+        if (nextEvent && nextEvent.statusName !== 'Login') {
+          const index = events.findIndex((ev) => ev.id === nextEvent.id);
+          events[index].errorMessages.push('missing Login event');
+        }
+      }
+    }
+
+    return events;
+  };
+
+  /**
+   * Faithful multi-day computation for a date range. Takes each day's main
+   * driver log plus that day's co-driver log (if any), runs the per-day
+   * preparation (bindEventViewId, driver identity, isLocked, per-day date) on
+   * every log, then flattens everything into one continuous timeline and runs
+   * the SAME pipeline as the single-day path (computeEvents -> teleport ->
+   * custom events -> login/logout) once over the whole span.
+   *
+   * A status that spans midnight appears twice — as an ongoing event on day N
+   * and as the first row (viewId === 1) of day N+1. The duplicate viewId===1
+   * copy is dropped so every event is computed exactly once.
+   *
+   * Breaks are seeded from the earliest day's shiftBreak/cycleBreak markers
+   * (absolute timestamps); later in-range breaks are still detected by their
+   * duration inside computeEvents.
+   */
+  getComputedEventsMultiDay = (
+    days: IDailyLogs[],
+    tenant?: ITenant,
+    ptiDuration?: number,
+    prolongedOnDutiesDuration?: number,
+    sleeperMinDuration?: number,
+  ): IEvent[] => {
+    const validDays = days
+      .filter(
+        (
+          d,
+        ): d is {
+          driverDailyLog: IDriverDailyLogEvents;
+          coDriverDailyLog: IDriverDailyLogEvents | null;
+        } => !!d.driverDailyLog,
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.driverDailyLog.date).getTime() -
+          new Date(b.driverDailyLog.date).getTime(),
+      );
+    if (!validDays.length) return [];
+
+    //////////////////////////
+    // initialize state (seed breaks from the earliest day)
+    this.refuelMarker.set(null);
+    this.driverState.set(this.initialDriverState);
+    this.coDriverState.set(this.initialDriverState);
+
+    const firstMain = validDays[0].driverDailyLog;
+    firstMain.shiftBreak &&
+      this.driverState.update((prev) => ({
+        ...prev,
+        break: { ...prev.break, shift: firstMain.shiftBreak },
+      }));
+    firstMain.cycleBreak &&
+      this.driverState.update((prev) => ({
+        ...prev,
+        break: { ...prev.break, cycle: firstMain.cycleBreak },
+      }));
+
+    const firstCo = validDays[0].coDriverDailyLog;
+    firstCo?.shiftBreak &&
+      this.coDriverState.update((prev) => ({
+        ...prev,
+        break: { ...prev.break, shift: firstCo.shiftBreak },
+      }));
+    firstCo?.cycleBreak &&
+      this.coDriverState.update((prev) => ({
+        ...prev,
+        break: { ...prev.break, cycle: firstCo.cycleBreak },
+      }));
+
+    //////////////////////////
+    // per-day preparation -> flatten
+    let allEvents: IEvent[] = [];
+    let eldStatusCount = 0;
+    let engStatusCount = 0;
+    let latestRefuel: IRefuels | null = null;
+
+    for (const { driverDailyLog, coDriverDailyLog } of validDays) {
+      const driverEvents = bindEventViewId(driverDailyLog.events);
+      driverEvents.forEach((e) => {
+        ['EldDisconnected', 'EldConnected'].includes(e.dutyStatus) &&
+          eldStatusCount++;
+        e.dutyStatus.includes('Engine') && engStatusCount++;
+        e.driver = {
+          id: driverDailyLog.driverId,
+          viewId: driverDailyLog.driverId,
+          name: driverDailyLog.driverFullName,
+        };
+        e.isLocked = isEventLocked(e, driverDailyLog.driverFmcsaInspection);
+        e.date = driverDailyLog.date;
+      });
+      allEvents.push(...driverEvents);
+
+      if (coDriverDailyLog && coDriverDailyLog.events?.length) {
+        const coDriverEvents = bindEventViewId(coDriverDailyLog.events);
+        coDriverEvents.forEach((e) => {
+          e.driver = {
+            id: coDriverDailyLog.driverId,
+            viewId: driverDailyLog.driverId,
+            name: coDriverDailyLog.driverFullName,
+          };
+          e.isLocked = isEventLocked(
+            e,
+            coDriverDailyLog.driverFmcsaInspection,
+          );
+          e.date = coDriverDailyLog.date;
+        });
+        allEvents.push(...coDriverEvents);
+      }
+
+      if (driverDailyLog.refuels?.length) {
+        const refuel = driverDailyLog.refuels.reduce((latest, current) =>
+          latest.time > current.time ? latest : current,
+        );
+        if (!latestRefuel || refuel.time > latestRefuel.time)
+          latestRefuel = refuel;
+      }
+    }
+
+    this.refuelMarker.set(latestRefuel);
+
+    //////////////////////////
+    // sort the whole span, then drop cross-midnight duplicates
+    allEvents.sort(
+      (a, b) =>
+        new Date(a.realStartTime).getTime() -
+        new Date(b.realStartTime).getTime(),
+    );
+
+    const dedupeCrossMidnight = (list: IEvent[]) => {
+      const idCounts = new Map<number, number>();
+      list.forEach((e) => idCounts.set(e.id, (idCounts.get(e.id) ?? 0) + 1));
+      // Drop a copy only when its id appears more than once AND it is the
+      // first row of a day's log (viewId === 1) — the cross-midnight tail.
+      return list.filter(
+        (e) => !((idCounts.get(e.id) ?? 0) > 1 && e.viewId === 1),
+      );
+    };
+
+    let events = dedupeCrossMidnight(allEvents.filter((e) => filterEvents(e)));
+    const filteredEvents = dedupeCrossMidnight(
+      allEvents.filter((e) => !filterEvents(e)),
+    );
+
+    if (!events.length) return [];
+
+    eldStatusCount > 40 && (events[0].eldStatusCount = eldStatusCount);
+    engStatusCount > 40 && (events[0].engStatusCount = engStatusCount);
+
+    //////////////////////////
+    // compute over the full span (pass no date so each event keeps its own)
+    events = this.computeEvents(
+      events,
+      ptiDuration,
+      prolongedOnDutiesDuration,
+      sleeperMinDuration,
+      undefined,
+      tenant,
+    );
+    events = this.detectAndBindTeleport(events);
+
+    //////////////////////////
+    // custom events (date already stamped per day)
+    filteredEvents.forEach((e) => {
+      e.errorMessages = [];
+      tenant && (e.tenant = tenant);
+      if (e.dutyStatus === 'DriverIndicationClear') {
+        e.pcYmCLR = true;
+        e.statusName = 'PC/YM CLR';
+        events.push(e);
+      }
+      if (
+        e.eventType ===
+        'ChangeInDriversIndicationOfAuthorizedPersonalUseOfCmvOrYardMoves'
+      ) {
+        if (e.dutyStatus === 'DriverIndicationAuthorizedPersonalUseCmv') {
+          e.statusName = 'PC (2nd)';
+          events.push(e);
+        }
+        if (e.dutyStatus === 'DriverIndicationYardMoves') {
+          e.statusName = 'YM (2nd)';
+          events.push(e);
+        }
+      }
+      if (e.eventType === 'MalfunctionOrDataDiagnosticDetectionOccurrence') {
+        e.malf = true;
+        e.dutyStatus === 'DataDiagnostic' && (e.statusName = 'Diagnostic');
+        e.dutyStatus === 'DataDiagnosticClear' && (e.statusName = 'Diag. CLR');
+        e.dutyStatus === 'DataDiagnostic-E' &&
+          (e.statusName = 'Diag. CLR (E)');
+        e.dutyStatus === 'EldMalfunction' && (e.statusName = 'ELD Malf.');
+        e.dutyStatus === 'EldMalfunctionClear' && (e.statusName = 'Malf. CLR');
+        events.push(e);
+      }
+      if (e.eventType === 'DriversLoginOrLogoutActivity') {
+        if (e.dutyStatus === 'AuthenticatedDriverLogin')
+          e.statusName = 'Login';
+        else e.statusName = 'Logout';
+        events.push(e);
+      }
+      if (e.dutyStatus === 'Dvir') {
+        e.statusName = 'DVIR';
+        events.push(e);
+      }
+    });
+
+    events.sort(
+      (a, b) =>
+        new Date(a.realStartTime).getTime() -
+        new Date(b.realStartTime).getTime(),
+    );
+
+    //////////////////////////
+    // shift breakpoints + login/logout pairing across the full span
+    let currentDriver = {} as IDriverIdAndName;
+    for (let i = 0; i < events.length; i++) {
+      if (events[i].driver?.id !== currentDriver.id) {
+        currentDriver = events[i].driver;
+        events[i].shift = true;
+      }
+    }
+
+    const currentDriverEvents = events.filter(
+      (ev) => ev.driver.id === ev.driver.viewId,
+    );
+    for (let i = 0; i < currentDriverEvents.length; i++) {
+      if (currentDriverEvents[i].isFirstEvent) {
+        if (
+          currentDriverEvents[i + 1] &&
+          currentDriverEvents[i + 1].statusName !== 'Login'
+        ) {
+          const index = events.findIndex(
+            (ev) => ev.id === currentDriverEvents[i + 1].id,
+          );
+          index !== -1 &&
+            events[index].errorMessages.push('occured before Login event');
+        }
+      }
+
+      if (currentDriverEvents[i].statusName === 'Login' && i > 1) {
+        const prevEvent = currentDriverEvents[i - 1];
+        if (prevEvent && !['Login', 'Logout'].includes(prevEvent.statusName)) {
+          const index = events.findIndex((ev) => ev.id === prevEvent.id);
+          events[index].errorMessages.push(
+            'occured before Login / missing Logout',
+          );
+        }
+      }
       if (currentDriverEvents[i].statusName === 'Logout') {
         const nextEvent = currentDriverEvents[i + 1];
         if (nextEvent && nextEvent.statusName !== 'Login') {

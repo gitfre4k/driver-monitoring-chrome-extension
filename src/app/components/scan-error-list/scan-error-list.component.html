@@ -41,7 +41,12 @@
                 {{ isExpanded(group.mode, $index) ? "expand_less" : "expand_more" }}
               </mat-icon>
             </div>
-            @if (isExpanded(group.mode, $index)) {
+            <div
+              class="errlist__row-body-wrap"
+              [class.errlist__row-body-wrap--open]="
+                isExpanded(group.mode, $index)
+              "
+            >
               <div class="errlist__row-body" (click)="$event.stopPropagation()">
                 <span class="errlist__row-msg">
                   [{{ err.error.name }}] {{ err.error.message }}
@@ -50,14 +55,14 @@
                   <button
                     type="button"
                     class="errlist__btn errlist__btn--retry"
-                    (click)="retry(group.mode)"
+                    (click)="retryOne(group.mode, err, $event)"
                   >
                     <mat-icon>refresh</mat-icon>
                     Retry
                   </button>
                 }
               </div>
-            }
+            </div>
           </div>
         }
       </div>

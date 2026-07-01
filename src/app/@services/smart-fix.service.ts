@@ -52,6 +52,14 @@ export class SmartFixService {
       startDate: string,
       retryAttempt: number = 0,
     ): Observable<ISmartFixResponse[]> => {
+      // Guard against the FMCSA-collision retry loop firing forever with the
+      // same range (when the API keeps returning an unchanged ReportTimeTo).
+      // Allow the initial call + up to 6 retries (7 HTTP calls max), then error.
+      if (retryAttempt > 6)
+        return throwError(
+          () => new Error('Smart Fix retry limit reached (6)'),
+        );
+
       const fromDt = DateTime.fromISO(startDate);
       const toDt = DateTime.fromISO(currentDate);
       const todayEnd = DateTime.now().endOf('day');
