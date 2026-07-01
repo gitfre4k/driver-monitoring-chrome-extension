@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 
-import { forkJoin, from, map, mergeMap, switchMap } from 'rxjs';
+import { forkJoin, from, map, mergeMap, of, Observable, switchMap } from 'rxjs';
 
 import { IEventDetails, ITenant } from '../interfaces';
 import { DateTime } from 'luxon';
@@ -27,6 +27,20 @@ export class ApiOperationsService {
   private constantsService = inject(ConstantsService);
 
   constructor() {}
+
+  /**
+   * TEST HARNESS: when true, the mutating zip operations (shift / delete /
+   * addEngineOff / resize / duplicate / advancedResize) LOG their intent to the
+   * console instead of issuing the write, so a zip's full plan can be inspected
+   * before letting it touch real logs. Toggled by ZipService around a zip run.
+   */
+  dryRun = signal(false);
+
+  /** Short-circuit a mutating op in dry-run mode: log the intent, emit `{}`. */
+  private dry<T>(op: string, detail: unknown): Observable<T> {
+    console.log(`[ZIP dry-run] ${op}`, detail);
+    return of({} as T);
+  }
 
   getRandom = (min: number, max: number) => {
     min = Math.ceil(min);
@@ -112,6 +126,8 @@ export class ApiOperationsService {
     event: IEvent,
     payload: IAdvancedResizePayload,
   ): any {
+    if (this.dryRun())
+      return this.dry('advancedResize', { eventId: event.id, payload });
     if (!event.nextDutyStatusInfo) {
       return this.apiService
         .getDriverDailyLogEvents(
@@ -360,6 +376,7 @@ export class ApiOperationsService {
   }
 
   resizeEvent(tenant: ITenant, eventId: number, payload: IResizePayload) {
+    if (this.dryRun()) return this.dry('resizeEvent', { eventId, payload });
     const url = 'https://app.monitoringdriver.com/api/Logs/ResizeEvent';
     const body = { eventId, ...payload };
 
@@ -443,6 +460,7 @@ export class ApiOperationsService {
   }
 
   addEngineOff = (tenant: ITenant, eventId: number) => {
+    if (this.dryRun()) return this.dry('addEngineOff', { eventId });
     const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
 
     const getStartTime = (date: string) =>
@@ -470,6 +488,7 @@ export class ApiOperationsService {
   };
 
   deleteEvents = (tenant: ITenant, ids: number[]) => {
+    if (this.dryRun()) return this.dry('deleteEvents', { ids });
     const url = 'https://app.monitoringdriver.com/api/Logs/DeleteEvents';
 
     const idsChunks: number[][] = [];
@@ -549,6 +568,13 @@ export class ApiOperationsService {
 
   shift(tenant: ITenant, eventArray: IEvent[], payload: IShiftInputState) {
     const { direction, time } = payload;
+    if (this.dryRun())
+      return this.dry('shift', {
+        startEvent: eventArray[0]?.id,
+        endEvent: eventArray[eventArray.length - 1]?.id,
+        direction,
+        time,
+      });
     const url = 'https://app.monitoringdriver.com/api/Logs/ShiftEvents';
     const getEventStartTime = (date: IEvent) =>
       new Date(
@@ -595,6 +621,8 @@ export class ApiOperationsService {
     event: IEvent,
     payload: Partial<IEventDetails>,
   ) => {
+    if (this.dryRun())
+      return this.dry('duplicateEvent', { eventId: event.id, payload });
     const url = 'https://app.monitoringdriver.com/api/Logs/CreateEvent';
 
     const getStartTime = (date: string) =>

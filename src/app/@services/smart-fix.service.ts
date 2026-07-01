@@ -44,9 +44,29 @@ export class SmartFixService {
     date: string,
   ): Observable<ISmartFixResponse[]> {
     const currentDay = DateTime.fromISO(date);
+    return this.smartFixOverRange(
+      tenantId,
+      driverId,
+      currentDay.minus({ days: 7 }).toUTC().toISO()!,
+      currentDay.toUTC().toISO()!,
+    );
+  }
+
+  /**
+   * Smart Fix over an explicit `[fromISO, toISO]` range (same FMCSA-collision
+   * retry + 6-retry guard as `smartFix`, which now delegates here). Used by the
+   * monitor Driver Log Analysis pipeline over its selected range.
+   */
+  smartFixOverRange(
+    tenantId: string,
+    driverId: number,
+    fromISO: string,
+    toISO: string,
+  ): Observable<ISmartFixResponse[]> {
+    const currentDay = DateTime.fromISO(toISO);
     const currentDate = currentDay.toUTC().toISO()!;
 
-    const initialSevenDaysAgo = currentDay.minus({ days: 7 }).toUTC().toISO()!;
+    const initialSevenDaysAgo = DateTime.fromISO(fromISO).toUTC().toISO()!;
 
     const attemptSmartFix = (
       startDate: string,

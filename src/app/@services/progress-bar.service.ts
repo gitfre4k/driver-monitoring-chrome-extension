@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import {
   ICertStatus,
   IIdMismatch,
+  IMonitorAnalysis,
   IScanAdminPortalResult,
   IScanDOTInspections,
   IScanErrors,
@@ -141,6 +142,10 @@ export class ProgressBarService {
 
   eventNotes = signal<IScanResult>({});
 
+  /** Monitor-mode Driver Log Analysis result — the single
+   *  `[N day(s) analysis]: Driver Name` section, replaced on every run. */
+  monitorAnalysis = signal<IMonitorAnalysis | null>(null);
+
   excludeOnDutyNotes = signal(true);
   filteredEventNotes = computed(() => {
     const eventNotes = this.eventNotes();
@@ -228,7 +233,8 @@ export class ProgressBarService {
       !this.isEmpty(this.fleetManager()) ||
       !this.isEmpty(this.refuelWarning()) ||
       !this.isEmpty(this.idMismatch()) ||
-      !this.isEmpty(this.eventNotes()),
+      !this.isEmpty(this.eventNotes()) ||
+      !!this.monitorAnalysis(),
   );
 
   constructor() {}

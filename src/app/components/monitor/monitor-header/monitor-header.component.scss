@@ -5,6 +5,15 @@
   width: calc(100vw - 8px);
   margin-top: 8px;
   height: 88px;
+  position: relative;
+
+  &__menu-btn {
+    position: absolute;
+    top: -4px;
+    right: 0;
+    transform: scale(0.8);
+    z-index: 5;
+  }
 
   &__company-and-driver {
     display: flex;

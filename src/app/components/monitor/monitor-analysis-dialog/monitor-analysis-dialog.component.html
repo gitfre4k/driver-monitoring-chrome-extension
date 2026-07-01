@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>Driver Log Analysis</h2>
+
+<mat-dialog-content class="mad">
+  <div class="mad__driver">{{ data.driver.name }}</div>
+
+  <mat-form-field class="mad__field">
+    <mat-label>Date range</mat-label>
+    <mat-date-range-input [rangePicker]="rangePicker" [formGroup]="range">
+      <input matStartDate formControlName="start" placeholder="Start" />
+      <input matEndDate formControlName="end" placeholder="End" />
+    </mat-date-range-input>
+    <mat-datepicker-toggle
+      matIconSuffix
+      [for]="rangePicker"
+    ></mat-datepicker-toggle>
+    <mat-date-range-picker #rangePicker></mat-date-range-picker>
+  </mat-form-field>
+
+  <div class="mad__options">
+    <mat-checkbox [(ngModel)]="removeEngines"
+      >remove Engine events during Driving</mat-checkbox
+    >
+    <mat-checkbox [(ngModel)]="smartFix">smart fix</mat-checkbox>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>Cancel</button>
+  <button matButton="elevated" (click)="run()">Run</button>
+</mat-dialog-actions>

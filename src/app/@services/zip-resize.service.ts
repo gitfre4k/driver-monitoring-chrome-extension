@@ -2,11 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 import { IResizeItem } from '../interfaces/zip.interface';
 import {
+  dutyStatusNames,
   getDuration,
   getMinusOneToTwoSecDateISO,
   getRandomIntInclusive,
   timeToSeconds,
 } from '../helpers/zip.helpers';
+import { isPcOrYm } from '../helpers/app.helpers';
 import { ITenant } from '../interfaces';
 import {
   catchError,
@@ -41,13 +43,37 @@ export class ZipResizeService {
     fill: boolean,
     gapMinDuration: number,
     resizeReductionTrashhold: number,
+    direction: 'Future' | 'Past',
   ): IResizeItem[] {
+    // Sequence of duty-status-bearing events (incl. PC/YM) used to look up a
+    // Driving event's neighbour when deciding whether to skip its resize.
+    const statusSequence = zipEvents.filter(
+      (event) => dutyStatusNames.has(event.statusName) || isPcOrYm(event),
+    );
+    const statusIndexById = new Map(
+      statusSequence.map((event, index) => [event.id, index]),
+    );
+
+    // Direction-aware PC/YM guard: when shifting Future, skip resizing a Driving
+    // event whose NEXT duty-status is PC/YM; when shifting Past, skip when the
+    // PREVIOUS duty-status is PC/YM.
+    const neighbourIsPcYm = (event: IEvent): boolean => {
+      const index = statusIndexById.get(event.id);
+      if (index === undefined) return false;
+      const neighbour =
+        direction === 'Future'
+          ? statusSequence[index + 1]
+          : statusSequence[index - 1];
+      return !!neighbour && isPcOrYm(neighbour);
+    };
+
     return zipEvents
       .filter(
         (event) =>
           event.statusName === 'Driving' &&
           event.realEndTime &&
-          (event.averageSpeed ?? Infinity) < resizeSpeed, // Handle null/undefined averageSpeed
+          (event.averageSpeed ?? Infinity) < resizeSpeed && // Handle null/undefined averageSpeed
+          !neighbourIsPcYm(event),
       )
       .map((event) => {
         const minDuration =

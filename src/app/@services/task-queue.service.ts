@@ -218,4 +218,8 @@ export class TaskQueueService {
   /** Zip pipeline (resize → shift → smart fix). Kept independent of the monitor
    *  and scan queues so a long zip never blocks single-event monitor actions. */
   readonly zip = new TaskQueue();
+
+  /** Whether the task-queue panel is open. Lifted here (from the component) so
+   *  that enqueuers — e.g. a confirmed zip — can auto-open the panel. */
+  readonly opened = signal(false);
 }

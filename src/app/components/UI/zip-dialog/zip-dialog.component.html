@@ -310,6 +310,16 @@
           >
         </div>
       }
+
+      <!-- TEST HARNESS: dry run (log planned operations, no writes) -->
+      <div class="zip__form__post-zip">
+        <mat-checkbox
+          class="zip__form__post-zip__checkbox"
+          [(ngModel)]="zipService.dryRun"
+          [labelPosition]="'before'"
+          >dry run (log only)</mat-checkbox
+        >
+      </div>
     </div>
 
     <!-- events to delete -->

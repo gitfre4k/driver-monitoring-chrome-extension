@@ -393,58 +393,8 @@
         }
       </div>
 
-      <!-- Driver Log Analysis -->
-      <div class="card scan__log-analysis">
-        <div class="card__label">Driver Log Analysis</div>
-
-        <mat-form-field class="visually-hidden">
-          <input
-            matInput
-            [matDatepicker]="picker"
-            [formControl]="date"
-            (dateChange)="changeDate($event)"
-          />
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-
-        <!-- Top row: date + checkbox (left). Bottom row: Analyse (right). -->
-        <div class="scan__analysis-top">
-          <div class="scan__log-analysis__form-date">
-            <mat-datepicker-toggle
-              matIconSuffix
-              [for]="picker"
-            ></mat-datepicker-toggle>
-            <span
-              ><span class="date-md">{{ date.value | date: "MMM d" }}</span
-              ><span class="date-y"
-                >, {{ date.value | date: "yyyy" }}</span
-              ></span
-            >
-          </div>
-
-          <mat-checkbox
-            class="checkbox--small"
-            [(ngModel)]="advancedScanService.removeEngineDuringDriving"
-            ><span
-              >remove Engine events <br />
-              during Driving</span
-            ></mat-checkbox
-          >
-        </div>
-
-        <div class="scan__analysis-bottom">
-          <ng-container
-            *ngTemplateOutlet="
-              scanBtn;
-              context: {
-                state: scanTaskState('advanced'),
-                label: 'Analyse',
-                run: analyzeDriverLogs,
-              }
-            "
-          ></ng-container>
-        </div>
-      </div>
+      <!-- Driver Log Analysis (extracted, multi-day scan mode) -->
+      <app-driver-log-analysis mode="scan"></app-driver-log-analysis>
     </div>
   </div>
 

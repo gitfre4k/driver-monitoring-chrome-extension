@@ -5,7 +5,6 @@ import {
   ElementRef,
   HostListener,
   inject,
-  signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -33,7 +32,8 @@ export class TaskQueueComponent {
   taskQueueService = inject(TaskQueueService);
   private elementRef = inject(ElementRef);
 
-  readonly opened = signal(false);
+  /** Panel open state now lives on the service so enqueuers can auto-open it. */
+  readonly opened = this.taskQueueService.opened;
 
   /** Close the panel when a click lands outside this component. */
   @HostListener('document:click', ['$event'])

@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>
+  <mat-icon class="cmd__title-icon">restart_alt</mat-icon>
+  Clear Local Memory
+</h2>
+
+<mat-dialog-content class="cmd">
+  <div class="cmd__count">{{ display() }}</div>
+  <p class="cmd__msg">
+    The extension will reboot to start the shift with a clean slate — the local
+    hidden-results memory will be cleared.
+  </p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton (click)="postpone()">Postpone (5:00)</button>
+  <button matButton="elevated" (click)="rebootNow()">Reboot now</button>
+</mat-dialog-actions>

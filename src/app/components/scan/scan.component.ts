@@ -57,6 +57,7 @@ import { GlobalSmartfFixService } from '../../@services/global-smartf-fix.servic
 import { SelectAllDirective } from '../../directive/select-all.directive';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ScanErrorListComponent } from '../scan-error-list/scan-error-list.component';
+import { DriverLogAnalysisComponent } from '../driver-log-analysis/driver-log-analysis.component';
 
 @Component({
   selector: 'app-scan',
@@ -81,6 +82,7 @@ import { ScanErrorListComponent } from '../scan-error-list/scan-error-list.compo
     MatProgressSpinnerModule,
     SelectAllDirective,
     ScanErrorListComponent,
+    DriverLogAnalysisComponent,
   ],
   templateUrl: './scan.component.html',
   providers: [provideNativeDateAdapter()],

@@ -4,10 +4,13 @@ import { MonitorService } from './monitor.service';
 import { dutyStatusNames, getDuration, getTime } from '../helpers/zip.helpers';
 import { ApiOperationsService } from './api-operations.service';
 import {
+  catchError,
   defer,
   EMPTY,
+  forkJoin,
   map,
   mergeMap,
+  Observable,
   of,
   Subject,
   switchMap,
@@ -20,6 +23,7 @@ import { ApiService } from './api.service';
 import { UrlService } from './url.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ZipDialogComponent } from '../components/UI/zip-dialog/zip-dialog.component';
+import { DialogConfirmComponent } from '../components/UI/dialog-confirm/dialog-confirm.component';
 import { NotificationService } from './notification.service';
 
 import { ComputeEventsService } from './compute-events.service';
@@ -29,7 +33,10 @@ import { ZipShiftService } from './zip-shift.service';
 import { IZipInitializationData } from '../interfaces/zip.interface';
 import { SmartFixService } from './smart-fix.service';
 import { TaskQueueService } from './task-queue.service';
-import { IEvent } from '../interfaces/driver-daily-log-events.interface';
+import {
+  IDriverDailyLogEvents,
+  IEvent,
+} from '../interfaces/driver-daily-log-events.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -79,6 +86,11 @@ export class ZipService {
   );
 
   preformSmartFix = signal(true);
+
+  /** TEST HARNESS: when true, the zip pipeline logs its planned operations
+   *  (via ApiOperationsService.dryRun) instead of writing, and skips smart fix.
+   *  Off by default; reset after every run. */
+  dryRun = signal(false);
 
   /** Restore every zip parameter to its initial default value. */
   resetToDefaults() {
@@ -323,6 +335,106 @@ export class ZipService {
     };
   });
 
+  /** Co-driver computed events for one day (guard use only); [] when none. */
+  private coEventsForDate$(
+    tenant: ITenant,
+    date: string,
+    mainDdle: IDriverDailyLogEvents,
+  ): Observable<IEvent[]> {
+    const coId = mainDdle.coDrivers?.[0]?.id;
+    if (!coId) return of([] as IEvent[]);
+    return this.apiService.getDriverDailyLogEvents(coId, date, tenant.id).pipe(
+      map((coDdle) =>
+        this.computeEventsService.getComputedEvents({
+          driverDailyLog: coDdle,
+          coDriverDailyLog: null,
+        }),
+      ),
+      catchError(() => of([] as IEvent[])),
+    );
+  }
+
+  /** Build the zip data from aggregated main-driver events + store the original
+   *  non-driving durations used later by the shift step. */
+  private buildZipData$(mainEvents: IEvent[], coEvents: IEvent[]) {
+    return this.zipInitializationService.initializeZipEvents(mainEvents).pipe(
+      tap((zipData) => {
+        // Verification aid (see dry-run harness): the derived range + counts.
+        console.log('[ZIP prepare]', {
+          startTime: new Date(zipData.startTime).toISOString(),
+          endTime: new Date(zipData.endTime).toISOString(),
+          zipEvents: zipData.zipEvents.length,
+          mainEvents: mainEvents.length,
+          coEvents: coEvents.length,
+        });
+
+        const nonDrivingEvents = zipData.zipEvents.filter((event) =>
+          ['Off Duty', 'On Duty', 'Sleeper Berth'].includes(event.statusName),
+        );
+
+        const shiftOriginalEventDuration: { [key: number]: number } =
+          Object.fromEntries(
+            nonDrivingEvents.map((event) => [
+              event.id,
+              event.durationInSeconds,
+            ]),
+          );
+
+        this.shiftOriginalEventDuration.set(shiftOriginalEventDuration);
+      }),
+      map((zipData) => ({ zipData, mainEvents, coEvents })),
+    );
+  }
+
+  /** Single-day prepare: main + co for one date (existing behaviour). */
+  private prepareSingleDay$(tenant: ITenant, driverId: number, date: string) {
+    return this.apiService
+      .getDriverDailyLogEvents(driverId, date, tenant.id)
+      .pipe(
+        switchMap((mainDdle) => {
+          const mainEvents = this.computeEventsService.getComputedEvents({
+            driverDailyLog: mainDdle,
+            coDriverDailyLog: null,
+          });
+          return this.coEventsForDate$(tenant, date, mainDdle).pipe(
+            switchMap((coEvents) => this.buildZipData$(mainEvents, coEvents)),
+          );
+        }),
+      );
+  }
+
+  /** Multi-day prepare: fetch every selected day, aggregate the main driver's
+   *  events with the multi-day engine (main-driver only), and collect the
+   *  co-driver events per day for the conflict guard. */
+  private prepareMultiDay$(
+    tenant: ITenant,
+    driverId: number,
+    dates: string[],
+  ) {
+    const perDay$ = dates.map((d) =>
+      this.apiService.getDriverDailyLogEvents(driverId, d, tenant.id).pipe(
+        switchMap((mainDdle) =>
+          this.coEventsForDate$(tenant, d, mainDdle).pipe(
+            map((coEvents) => ({ mainDdle, coEvents })),
+          ),
+        ),
+      ),
+    );
+
+    return forkJoin(perDay$).pipe(
+      switchMap((results) => {
+        const mainDays = results.map((r) => ({
+          driverDailyLog: r.mainDdle,
+          coDriverDailyLog: null,
+        }));
+        const mainEvents =
+          this.computeEventsService.getComputedEventsMultiDay(mainDays);
+        const coEvents = results.flatMap((r) => r.coEvents);
+        return this.buildZipData$(mainEvents, coEvents);
+      }),
+    );
+  }
+
   zip(tenant: ITenant, driverId: number, date: string) {
     if (!tenant || !driverId || !date) {
       return this.notification.error('[ZIP] Error: Missing data');
@@ -330,42 +442,112 @@ export class ZipService {
 
     this.isZipOpen.set(true);
 
-    const zipData$ = this.apiService
-      .getDriverDailyLogEvents(driverId, date, tenant.id)
-      .pipe(
-        switchMap((ddle) =>
-          this.computeEventsService.getComputedEvents({
-            driverDailyLog: ddle,
-            coDriverDailyLog: null,
-          }),
-        ),
-        toArray(),
-        switchMap((events) =>
-          this.zipInitializationService.initializeZipEvents(events).pipe(
-            tap((zipData) => {
-              const nonDrivingEvents = zipData.zipEvents.filter((event) =>
-                ['Off Duty', 'On Duty', 'Sleeper Berth'].includes(
-                  event.statusName,
-                ),
-              );
+    // The selection may span multiple days; each distinct log date becomes a
+    // day to fetch. Single day → existing per-day path (untouched); multiple →
+    // the aggregated multi-day engine. Range endpoints come from
+    // initializeZipEvents (min/max selected event time, already cross-day).
+    const selectedDates = [
+      ...new Set(this.monitorService.selectedEvents().map((e) => e.date)),
+    ];
 
-              const shiftOriginalEventDuration: { [key: number]: number } =
-                Object.fromEntries(
-                  nonDrivingEvents.map((event) => [
-                    event.id,
-                    event.durationInSeconds,
-                  ]),
-                );
+    const prepare$ =
+      selectedDates.length > 1
+        ? this.prepareMultiDay$(tenant, driverId, selectedDates)
+        : this.prepareSingleDay$(tenant, driverId, date);
 
-              this.shiftOriginalEventDuration.set(shiftOriginalEventDuration);
-            }),
-          ),
-        ),
-      );
+    return prepare$.subscribe({
+      next: ({ zipData, mainEvents, coEvents }) => {
+        const { startTime, endTime } = zipData;
 
+        // GUARD 1 — co-driver conflict → HARD ERROR / abort. A co-driver event
+        // within the range that shares a vehicle with the main driver's
+        // in-range events means the zip would rewrite shared-truck history.
+        const mainVehicleIds = new Set(
+          mainEvents
+            .filter((e) => {
+              const t = getTime(e);
+              return t >= startTime && t <= endTime;
+            })
+            .map((e) => e.vehicleId)
+            .filter((v): v is number => v != null),
+        );
+        const hasCoDriverConflict = coEvents.some((e) => {
+          const t = getTime(e);
+          return (
+            t >= startTime &&
+            t <= endTime &&
+            e.vehicleId != null &&
+            mainVehicleIds.has(e.vehicleId)
+          );
+        });
+        if (hasCoDriverConflict) {
+          this.isZipOpen.set(false);
+          this.notification.error(
+            '[ZIP] ERROR: a co-driver shares a vehicle within this range — aborting.',
+            { action: 'Close' },
+          );
+          return;
+        }
+
+        // GUARD 2 — anomaly → cancel / ignore WARNING.
+        const anomalies = mainEvents.filter((e) => {
+          const t = getTime(e);
+          return (
+            t >= startTime &&
+            t <= endTime &&
+            (e.isTeleport || e.locationMismatch || !!e.errorMessages?.length)
+          );
+        });
+
+        if (!anomalies.length) {
+          this.openZipConfig(tenant, driverId, date, zipData);
+          return;
+        }
+
+        const preview = anomalies
+          .slice(0, 5)
+          .map((e) => `#${e.viewId} ${e.statusName}`)
+          .join(', ');
+        this.dialog
+          .open(DialogConfirmComponent, {
+            width: '260px',
+            data: {
+              title: 'Anomalies in range',
+              message: 'Proceed with zip anyway?',
+              info: `${anomalies.length} anomalous event${anomalies.length === 1 ? '' : 's'}: ${preview}${anomalies.length > 5 ? '…' : ''}`,
+              warning: 'Teleport / location mismatch / errored events found.',
+            },
+          })
+          .afterClosed()
+          .subscribe((proceed) => {
+            if (!proceed) {
+              this.isZipOpen.set(false);
+              return;
+            }
+            this.openZipConfig(tenant, driverId, date, zipData);
+          });
+      },
+      error: (err: any) => {
+        this.isZipOpen.set(false);
+        const message = err?.error?.message
+          ? `[ZIP] ERROR: ${err.error.message}`
+          : `[ZIP] ERROR: ${err}`;
+        this.notification.error(message, { action: 'Close' });
+      },
+    });
+  }
+
+  /** Open the zip configuration dialog for the prepared range; on confirm,
+   *  enqueue the resize → shift → smart-fix pipeline. */
+  private openZipConfig(
+    tenant: ITenant,
+    driverId: number,
+    date: string,
+    zipData: IZipInitializationData,
+  ) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.data = {
-      zipData$,
+      zipData$: of(zipData),
     };
     dialogConfig.position = {
       top: '50px',
@@ -379,6 +561,10 @@ export class ZipService {
           this.isZipOpen.set(false);
           return;
         }
+
+        // Confirmed zip: auto-open the task-queue panel so its progress is
+        // visible while the pipeline runs.
+        this.taskQueueService.opened.set(true);
 
         // Each enabled operation is a "phase" surfaced in the task queue as
         // `n/total Name`; sub-steps inside a phase show as `subtask` progress.
@@ -419,6 +605,9 @@ export class ZipService {
             // Stopped while still pending — never start.
             if (stopped) return EMPTY;
 
+            // Apply the dry-run flag for the duration of this pipeline.
+            this.apiOperationsService.dryRun.set(this.dryRun());
+
             return of(result).pipe(
               // 1. Prepare resize items
               map((zipData) => ({
@@ -432,6 +621,7 @@ export class ZipService {
                   !!this.fill(),
                   this.gapMinDuration(),
                   this.resizeReductionTrashhold(),
+                  this.shiftDirection(),
                 ),
               })),
               // 2. Conditional operation sequence (Resize -> Shift). `defer`
@@ -482,7 +672,9 @@ export class ZipService {
               }),
               // 3. Optional smart fix
               switchMap(() => {
-                if (!this.preformSmartFix()) return of({});
+                // Smart fix hits the API directly (not guarded by dryRun), so
+                // skip it entirely during a dry run.
+                if (!this.preformSmartFix() || this.dryRun()) return of({});
                 setPhase('Smart Fix');
                 return this.smartFixService.smartFix(tenant.id, driverId, date);
               }),
@@ -492,6 +684,7 @@ export class ZipService {
           },
           {
             complete: () => {
+              this.apiOperationsService.dryRun.set(false);
               this.isZipOpen.set(false);
               this.monitorService.selectedEvents.set([]);
               if (stopped) {
@@ -505,6 +698,7 @@ export class ZipService {
               this.urlService.refreshWebApp();
             },
             error: (err: any) => {
+              this.apiOperationsService.dryRun.set(false);
               this.isZipOpen.set(false);
               const message = err.error?.message
                 ? `[ZIP] ERROR: ${err.error.message}`

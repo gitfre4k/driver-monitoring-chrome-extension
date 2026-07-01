@@ -297,3 +297,64 @@
   margin-bottom: auto;
   margin-top: 6px;
 }
+
+// [N day(s) analysis] monitor-mode section
+.analysis-panel {
+  .analysis-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+  }
+
+  .analysis-close {
+    position: absolute;
+    right: 34px;
+    transform: scale(0.8);
+  }
+
+  .analysis-badge {
+    margin-left: auto;
+  }
+}
+
+.analysis-category {
+  margin-top: 4px;
+
+  .analysis-category-title {
+    display: inline-block;
+    margin-left: 12px;
+    font-weight: 600;
+    background-color: whitesmoke;
+    padding: 0 6px;
+
+    &.is-warning {
+      color: rgb(236, 103, 55);
+    }
+    &.is-error {
+      color: #d32f2f;
+    }
+  }
+}
+
+.analysis-empty {
+  text-align: center;
+  padding: 8px 0;
+  color: gray;
+}
+
+// Three visually-separated result groups: TOP (violations/pre/cycle),
+// MIDDLE (monitor analysis), BOTTOM (all other categories). The separator only
+// appears when the group actually renders a panel (`:has`), so empty groups add
+// no stray divider.
+.results-group {
+  display: block;
+}
+
+.results-group--middle:has(mat-expansion-panel),
+.results-group--bottom:has(mat-expansion-panel) {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 2px solid rgba(255, 255, 255, 0.12);
+}

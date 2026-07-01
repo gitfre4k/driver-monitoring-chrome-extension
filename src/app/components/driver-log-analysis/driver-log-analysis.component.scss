@@ -1,0 +1,58 @@
+.dla {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__row {
+    display: flex;
+    align-items: center;
+  }
+
+  &__field {
+    width: 100%;
+  }
+
+  &__driver-id {
+    display: inline-block;
+    width: 5ch;
+    text-align: left;
+    font-family: monospace;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__busy-btn {
+    min-width: 0;
+  }
+
+  &__busy-swap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    mat-progress-spinner {
+      transition: opacity 0.15s ease;
+    }
+
+    .dla__busy-cancel {
+      position: absolute;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+  }
+
+  &__busy-btn:hover &__busy-swap {
+    mat-progress-spinner {
+      opacity: 0;
+    }
+    .dla__busy-cancel {
+      opacity: 1;
+    }
+  }
+}

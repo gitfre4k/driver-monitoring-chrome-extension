@@ -80,6 +80,49 @@ export class ScanResultComponent {
   inspections = this.progressBarService.inspections;
   inspectionsCount = this.progressBarService.totalDCount;
 
+  /** Monitor-mode Driver Log Analysis — the single `[N day(s) analysis]`
+   *  section, replaced on every run. */
+  monitorAnalysis = this.progressBarService.monitorAnalysis;
+
+  /** Badge count for the analysis section: all category events plus the
+   *  shipping-doc flag and each uncertified day. */
+  monitorAnalysisCount = computed(() => {
+    const analysis = this.monitorAnalysis();
+    if (!analysis) return 0;
+    let count = analysis.categories.reduce(
+      (sum, category) => sum + category.events.length,
+      0,
+    );
+    if (analysis.unchangedShippingDocs) count += 1;
+    if (analysis.uncertifiedDays)
+      count += analysis.uncertifiedDays.dates.length;
+    return count;
+  });
+
+  removeMonitorAnalysis() {
+    this.progressBarService.monitorAnalysis.set(null);
+  }
+
+  /** Best-effort one-line description for an event inside the analysis section
+   *  (categories there use plain-text titles, so the row is category-agnostic). */
+  analysisEventMessage(event: IEvent): string {
+    const parts: string[] = [];
+    if (event.isLocked) parts.push('[LOCKED]');
+    if (event.errorMessages?.length) parts.push(...event.errorMessages);
+    else if (event.warningMessages?.length) parts.push(...event.warningMessages);
+    else if (event.isTeleport)
+      parts.push(
+        event.isTeleport > 0
+          ? `teleport [ ${event.isTeleport} miles ]`
+          : 'odometer decreased',
+      );
+    else if (event.locationMismatch) parts.push('location mismatch');
+    else if (event.manualDriving) parts.push('manual origin');
+    else if (event.onDutyDuration) parts.push('prolonged on duty');
+    else if (event.notes) parts.push(event.notes);
+    return parts.join(' ');
+  }
+
   getStatusDuration = getStatusDuration;
 
   excludeCoDriversHighEngHrs = signal(true);

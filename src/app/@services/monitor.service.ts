@@ -55,6 +55,17 @@ export class MonitorService {
 
   selectedEvents = signal<IEvent[]>([]);
 
+  /** Distinct calendar days spanned by the current selection — drives the
+   *  "N selected across M days" cross-day indicator. */
+  selectedDayCount = computed(
+    () =>
+      new Set(this.selectedEvents().map((e) => e.date.substring(0, 10))).size,
+  );
+
+  clearSelectedEvents() {
+    this.selectedEvents.set([]);
+  }
+
   duplicateEvent = signal(false);
   isUpdatingEvent = signal(false);
   showUpdateEvent = signal<number | null>(null);

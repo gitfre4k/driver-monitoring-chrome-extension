@@ -116,3 +116,21 @@
 .selected {
   background-color: rgba(29, 29, 177, 0.444);
 }
+
+.cross-day-selection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 4px 8px;
+  padding: 2px 8px;
+  font-size: 12px;
+  border: 1px solid rgba(29, 29, 177, 0.5);
+  border-radius: 6px;
+  background-color: rgba(29, 29, 177, 0.12);
+
+  &__clear {
+    min-width: 0;
+    line-height: 24px;
+  }
+}

@@ -1,0 +1,20 @@
+.mad {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 240px;
+
+  &__driver {
+    font-weight: 600;
+  }
+
+  &__field {
+    width: 100%;
+  }
+
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+}

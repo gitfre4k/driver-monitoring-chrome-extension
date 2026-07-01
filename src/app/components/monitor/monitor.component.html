@@ -11,6 +11,23 @@
       [driverId]="ddle.driverAssignedId"
     ></app-action-btns>
 
+    <!-- Cross-day selection indicator: only when the selection spans >1 day. -->
+    @if (monitorService.selectedDayCount() > 1) {
+      <div class="cross-day-selection">
+        <span
+          >{{ monitorService.selectedEvents().length }} selected across
+          {{ monitorService.selectedDayCount() }} days</span
+        >
+        <button
+          mat-button
+          class="cross-day-selection__clear"
+          (click)="monitorService.clearSelectedEvents()"
+        >
+          clear
+        </button>
+      </div>
+    }
+
     <div class="event-list">
       @if (ddle.coDrivers.length === 0) {
         <hr />

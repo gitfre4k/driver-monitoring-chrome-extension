@@ -1,5 +1,21 @@
 @if (driverDailyLog; as ddle) {
   <div class="info">
+    <button
+      mat-icon-button
+      class="info__menu-btn"
+      [matMenuTriggerFor]="headerMenu"
+      matTooltip="Menu"
+    >
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #headerMenu="matMenu">
+      <button mat-menu-item (click)="openAnalysisDialog()">
+        <mat-icon>analytics</mat-icon>
+        <span>Driver Log Analysis</span>
+      </button>
+      <mat-divider></mat-divider>
+    </mat-menu>
+
     <div class="info__company-and-driver">
       <div class="info__company-and-driver__1" (click)="showInfo()">
         <span

@@ -16,21 +16,60 @@ DONE (committed):
       success — scan-error-list.*, scan.service.ts, advanced-scan.service.ts
 - [x] #1 Multi-day engine: ComputeEventsService.getComputedEventsMultiDay +
       ApiService.getAllDrivers
+- [x] #2 Driver Log Analysis scan rework: extracted <app-driver-log-analysis>
+      (driver-log-analysis/), multi-day fan-out w/ per-day co-driver in
+      AdvancedScanService (fetchDriverDays$/runScanAnalysis$), volume gate
+      (drivers×days×1.5 > 1000 confirm), classifyComputedEvents refactor
+      (config-driven pushBuckets), tenant multi-select + single-tenant driver
+      picker (getAllDrivers options + getLogs default), replaces inline card
+- [x] #3 Monitor dialog + 3-phase pipeline: monitor-analysis-dialog/ opened from
+      monitor-header overflow menu; default 8-day range; remove-engines +
+      smart-fix checkboxes; dynamic N/N phase labels on the monitor task queue;
+      SmartFixService.smartFixOverRange (range-based, keeps 6-retry guard);
+      abort-before-analysis on smartfix throw OR item.errorMessage; on success
+      navigates to Scan Results (tab 1)
+- [x] #4 Scan-results rendering: single [N day(s) analysis]: Driver Name panel
+      (progressBarService.monitorAnalysis), replaced each run, x-close + badge,
+      plain-text category titles + unchanged-shipping-docs + uncertified-days
+      rows (warning/error colored). Category rows REUSE the shared bottom-section
+      ng-templates via @switch on category.key (hide button gated behind @if
+      (hide) so it's absent in the analysis section). Three padded groups wired:
+      .results-group--top/middle/bottom with :has(mat-expansion-panel) borders
+      (no stray divider when a group is empty)
+- [x] ADD-ON monitor detections (user, 2026-07-01): detectUnchangedShippingDocs
+      (3+ days warning / 5+ error, longest consecutive identical non-empty run)
+      + detectUncertifiedDays (cert-scan logic: drop most-recent day, exclude
+      non-working; 1 warning / 2+ error) in AdvancedScanService.buildMonitorAnalysis
+
+- [x] #9 Clear Local Chrome Memory Countdown Dialog: components/UI/
+      clear-memory-dialog/ (disableClose, tabular mm:ss countdown, Reboot now /
+      Postpone). CleanupService LIVE slot now opens the dialog (60s) instead of
+      clearing silently; catch-up-on-open stays silent. Postpone = 5:00 quiet
+      then re-opens a 30s final dialog (unlimited). cycleActive guard = single
+      instance / no stacking. Reboot (button or 00:00) = runCleanup()
+      (clearHiddenScanData + lastHiddenCleanup) + popUp() self-contained in
+      CleanupService (mirrors AppComponent.popUp)
+
+- [x] #5 ZIP rework — DONE so far:
+      • auto-open task queue on confirm (opened lifted to TaskQueueService;
+        ZipService sets it in openZipConfig)
+      • 30-min break backward fix (ZipShiftService jitter only ever adds)
+      • resize PC/YM skip (createResizeItems takes direction; skips Driving when
+        the next[Future]/prev[Past] duty-status isPcOrYm)
+      • pre-checks (ZipService.zip refactored: prepare$ resolves main + co-driver
+        computed events → GUARD1 co-driver vehicle conflict HARD abort →
+        GUARD2 anomaly cancel/ignore via DialogConfirm → openZipConfig)
+      • advanced-resize disableClose (already committed earlier)
 
 REMAINING (not started):
-- [ ] #2 Driver Log Analysis scan rework: extract <app-driver-log-analysis>
-      (mode input), multi-day fan-out with FULL co-driver in AdvancedScanService,
-      volume gate (drivers×days×1.5 > 1000 confirm), categorization refactor to
-      accept precomputed arrays, tenant/driver selects, GetDrivers wiring
-- [ ] #3 Monitor dialog + 3-phase pipeline (remove-engines -> smart fix ->
-      analysis), default 8-day range, abort-on-smartfix-error
-- [ ] #4 Scan-results rendering: 3 padded groups, single monitor-analysis
-      section (plain-text category titles), shared row templates
-- [ ] #5 ZIP rework (rest): cross-day selection persistence, aggregation reuse,
-      co-driver conflict ERROR guard, anomaly cancel/ignore WARNING, protected
-      break-block clamping, resize PC/YM skip, 30-min backward fix, auto-open
-      task queue
-- [ ] #9 Clear Local Chrome Memory Countdown Dialog
+- [ ] #5 ZIP rework — HIGH-RISK remainder (needs in-app HOS verification, do NOT
+      land blind): cross-day selection persistence (+ "N selected across M days"
+      indicator + clear; range = min/max selected .date; main-driver-only; two
+      paths single vs multi-day) • multi-day aggregation in initial compute AND
+      processShift re-fetch • protected break blocks (accumulate consecutive Off
+      Duty + Sleeper Berth; thresholds {3,7,8,10,34}h; block events can't be
+      forward-end/backward-start anchor; clamp so accumulated total never drops
+      below highest band cleared: 9h→≥8h, 11h→≥10h, 35h→≥34h)
 
 NOTE: memories (~/.claude/.../memory/) and chat history are local to the
 original PC and do NOT travel via git. This file is the portable source of truth.

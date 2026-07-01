@@ -23,10 +23,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRipple, provideNativeDateAdapter } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog } from '@angular/material/dialog';
 
 import { DateTime } from 'luxon';
 
 import { MonitorService } from '../../../@services/monitor.service';
+import { UrlService } from '../../../@services/url.service';
+import { MonitorAnalysisDialogComponent } from '../monitor-analysis-dialog/monitor-analysis-dialog.component';
 import { formatTenantName } from '../../../helpers/monitor.helpers';
 import { ExtensionTabNavigationService } from '../../../@services/extension-tab-navigation.service';
 import { IDriverDailyLogEvents } from '../../../interfaces/driver-daily-log-events.interface';
@@ -53,6 +58,8 @@ import { getNote, parseMalf } from '../../../helpers/backend.helpers';
     MatRipple,
     MatTooltipModule,
     MatBadgeModule,
+    MatMenuModule,
+    MatDividerModule,
   ],
   templateUrl: './monitor-header.component.html',
   styleUrl: './monitor-header.component.scss',
@@ -72,6 +79,8 @@ export class MonitorHeaderComponent {
   private extTabNavService = inject(ExtensionTabNavigationService);
   private backendService = inject(BackendService);
   private notification = inject(NotificationService);
+  private urlService = inject(UrlService);
+  private dialog = inject(MatDialog);
 
   DateTime = DateTime;
 
@@ -318,6 +327,22 @@ export class MonitorHeaderComponent {
 
   showInfo() {
     this.extTabNavService.selectedTabIndex.set(3);
+  }
+
+  /** Open the monitor-mode Driver Log Analysis dialog, locked to the driver
+   *  currently in view. */
+  openAnalysisDialog() {
+    const ddle = this.monitorService.driverDailyLog();
+    const tenant = this.urlService.tenant();
+    if (!ddle || !tenant) return;
+
+    this.dialog.open(MonitorAnalysisDialogComponent, {
+      data: {
+        driver: { id: ddle.driverId, name: ddle.driverFullName },
+        tenant,
+        homeTerminalTimeZone: ddle.homeTerminalTimeZone,
+      },
+    });
   }
 
   onDateChange(event: MatDatepickerInputEvent<Date>) {

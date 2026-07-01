@@ -206,3 +206,41 @@ export interface IISODateRange {
   from: string;
   to: string;
 }
+
+/** One classified category inside a multi-day monitor analysis, rendered as a
+ *  plain-text title + its events (no nested accordions). */
+export interface IMonitorAnalysisCategory {
+  /** Category bucket key (e.g. `teleports`) — selects the shared row template. */
+  key: string;
+  title: string;
+  events: ICEvent[];
+}
+
+/** Shipping documents that stayed unchanged across a run of consecutive days.
+ *  3–4 days → warning, 5+ days → error. */
+export interface IMonitorAnalysisShippingFlag {
+  docs: string[];
+  days: number;
+  level: 'warning' | 'error';
+}
+
+/** Uncertified log days found across the analysed range (cert-scan logic).
+ *  1 day → warning, 2+ days → error. */
+export interface IMonitorAnalysisCertFlag {
+  dates: string[];
+  level: 'warning' | 'error';
+}
+
+/** Result of a monitor-mode Driver Log Analysis over a date range — the single
+ *  `[N day(s) analysis]: Driver Name` section, replaced on every run. */
+export interface IMonitorAnalysis {
+  days: number;
+  driverName: string;
+  driverId: number;
+  company: string;
+  tenant: ITenant;
+  date: string;
+  categories: IMonitorAnalysisCategory[];
+  unchangedShippingDocs: IMonitorAnalysisShippingFlag | null;
+  uncertifiedDays: IMonitorAnalysisCertFlag | null;
+}

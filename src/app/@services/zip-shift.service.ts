@@ -152,10 +152,11 @@ export class ZipShiftService {
               const timeToShift = 1800 - breakDuration;
               if (timeToShift <= 0 || timeToShift < shiftMinTimeFrame)
                 return of({});
+              // Jitter only ever ADDS so the zipped break always ends >= 30:00.
+              // (Previously it subtracted for the Past direction, producing a
+              // sub-30-minute break.)
               const time = getDuration(
-                timeToShift +
-                  getRandomIntInclusive(1, 180) *
-                    (direction === 'Future' ? 1 : -1),
+                timeToShift + getRandomIntInclusive(1, 180),
               ).slice(0, -3);
 
               return this.apiOperationsService.shift(
