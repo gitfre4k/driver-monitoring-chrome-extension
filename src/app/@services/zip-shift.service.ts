@@ -1,8 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { ITenant } from '../interfaces';
 import { IZipInitializationData } from '../interfaces/zip.interface';
+import { IEvent } from '../interfaces/driver-daily-log-events.interface';
 import {
   concatMap,
+  forkJoin,
   from,
   map,
   mergeMap,
@@ -33,6 +35,7 @@ export class ZipShiftService {
     tenant: ITenant,
     driverId: number,
     date: string,
+    dates: string[],
     initialData: IZipInitializationData,
     shift: boolean,
     shiftDirection: 'Future' | 'Past',
@@ -54,27 +57,50 @@ export class ZipShiftService {
       : of({});
 
     // 2. update and filter events
-    const getUpdatedEvents$ = this.apiService
-      .getDriverDailyLogEvents(driverId, date, tenant.id)
-      .pipe(
-        switchMap((ddle: any) =>
-          this.computeEventsService.getComputedEvents({
-            driverDailyLog: ddle,
-            coDriverDailyLog: null,
-          }),
-        ),
-        toArray(),
-        map((events) =>
-          events.filter((event) => {
-            const eventTime = getTime(event);
-            return (
-              eventTime >= initialData.startTime &&
-              eventTime <= initialData.endTime &&
-              dutyStatusNames.has(event.statusName)
+    // Re-fetch the days the shift range spans. A multi-day selection must pull
+    // EVERY selected day and rebuild via the multi-day engine — otherwise the
+    // in-range events on days other than `date` are silently dropped from the
+    // shift step. Single-day keeps the original per-day compute (main-driver
+    // only, matching the pre-multi-day behaviour).
+    const refetchedEvents$: Observable<IEvent[]> =
+      dates.length > 1
+        ? forkJoin(
+            dates.map((d) =>
+              this.apiService.getDriverDailyLogEvents(driverId, d, tenant.id),
+            ),
+          ).pipe(
+            map((ddles) =>
+              this.computeEventsService.getComputedEventsMultiDay(
+                ddles.map((ddle) => ({
+                  driverDailyLog: ddle,
+                  coDriverDailyLog: null,
+                })),
+              ),
+            ),
+          )
+        : this.apiService
+            .getDriverDailyLogEvents(driverId, date, tenant.id)
+            .pipe(
+              map((ddle) =>
+                this.computeEventsService.getComputedEvents({
+                  driverDailyLog: ddle,
+                  coDriverDailyLog: null,
+                }),
+              ),
             );
-          }),
-        ),
-      );
+
+    const getUpdatedEvents$ = refetchedEvents$.pipe(
+      map((events) =>
+        events.filter((event) => {
+          const eventTime = getTime(event);
+          return (
+            eventTime >= initialData.startTime &&
+            eventTime <= initialData.endTime &&
+            dutyStatusNames.has(event.statusName)
+          );
+        }),
+      ),
+    );
 
     // 3. Perform shift
     const shiftLogic$ = getUpdatedEvents$.pipe(

@@ -500,7 +500,7 @@ export class ZipService {
         });
 
         if (!anomalies.length) {
-          this.openZipConfig(tenant, driverId, date, zipData);
+          this.openZipConfig(tenant, driverId, date, selectedDates, zipData);
           return;
         }
 
@@ -524,7 +524,7 @@ export class ZipService {
               this.isZipOpen.set(false);
               return;
             }
-            this.openZipConfig(tenant, driverId, date, zipData);
+            this.openZipConfig(tenant, driverId, date, selectedDates, zipData);
           });
       },
       error: (err: any) => {
@@ -543,6 +543,7 @@ export class ZipService {
     tenant: ITenant,
     driverId: number,
     date: string,
+    dates: string[],
     zipData: IZipInitializationData,
   ) {
     const dialogConfig = new MatDialogConfig();
@@ -645,6 +646,7 @@ export class ZipService {
                       tenant,
                       driverId,
                       date,
+                      dates,
                       zipData,
                       this.shift(),
                       this.shiftDirection(),
