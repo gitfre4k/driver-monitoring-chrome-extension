@@ -2,6 +2,39 @@
 
 Implementation order: dependency-first. Small isolated items → foundation → big features.
 
+## IMPLEMENTATION STATUS (as of commit 489fe3b)
+
+DONE (committed):
+- [x] #7 Smart Fix retry guard (max 6 retries) — smart-fix.service.ts
+- [x] #8 Activity Log rename (console -> activity-log) + silent notification.log()
+- [x] #5 (partial) Advanced-resize dialog disableClose — zip-resize.service.ts
+- [x] #10 Scan cosmetics: divider above violations, Tools accordion, dividers
+      above alerts/around admin, two-row Driver Log Analysis card, busy-button
+      spinner/x overlay-swap, removed dead media queries, nav-bar tweaks
+- [x] #6 Errors: single-open, height animation (max-height), per-item retry +
+      summary retry with scanbar/activity-log feedback, content updates on
+      success — scan-error-list.*, scan.service.ts, advanced-scan.service.ts
+- [x] #1 Multi-day engine: ComputeEventsService.getComputedEventsMultiDay +
+      ApiService.getAllDrivers
+
+REMAINING (not started):
+- [ ] #2 Driver Log Analysis scan rework: extract <app-driver-log-analysis>
+      (mode input), multi-day fan-out with FULL co-driver in AdvancedScanService,
+      volume gate (drivers×days×1.5 > 1000 confirm), categorization refactor to
+      accept precomputed arrays, tenant/driver selects, GetDrivers wiring
+- [ ] #3 Monitor dialog + 3-phase pipeline (remove-engines -> smart fix ->
+      analysis), default 8-day range, abort-on-smartfix-error
+- [ ] #4 Scan-results rendering: 3 padded groups, single monitor-analysis
+      section (plain-text category titles), shared row templates
+- [ ] #5 ZIP rework (rest): cross-day selection persistence, aggregation reuse,
+      co-driver conflict ERROR guard, anomaly cancel/ignore WARNING, protected
+      break-block clamping, resize PC/YM skip, 30-min backward fix, auto-open
+      task queue
+- [ ] #9 Clear Local Chrome Memory Countdown Dialog
+
+NOTE: memories (~/.claude/.../memory/) and chat history are local to the
+original PC and do NOT travel via git. This file is the portable source of truth.
+
 ## 1. Shared multi-day event engine (foundation)
 - New faithful `getComputedEventsMultiDay` in `ComputeEventsService`, reusing inner `computeEvents`.
 - Per-day prep (`bindEventViewId`, `e.driver`, `isLocked`, stamp each event's own `date`) BEFORE flattening.
